@@ -1,6 +1,15 @@
 import React from 'react'
 import styles from './styles.module.css'
 
-export const ExampleComponent = ({ text }) => {
-  return <div className={styles.test}>Example Component: {text}</div>
+function ExampleComponent(props) {
+  const { text } = props
+  
+  return (
+    <div className={styles.test}>
+      Example Component: {text}
+      <p>Other stuff</p>
+    </div>
+  )
 }
+
+export default ExampleComponent
