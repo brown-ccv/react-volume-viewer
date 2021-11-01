@@ -5,6 +5,7 @@ const VolumeViewerContext = React.createContext();
 // Custom component to provide the context
 function VolumeViewerProvider(props) {
   const [state, dispatch] = React.useReducer(volumeViewerReducer, {
+    // Control bounds
     allColorMaps: null,
     sliderRange: null,
 

@@ -23,6 +23,8 @@ export default function App(props) {
     dataRange = { min: 0, max: 1, unit: "" }, // Data points used in OpacityControls.js from unmerged branch
   } = props;
 
+  console.log(props);
+
   const { state, dispatch } = useVolumeViewerContext();
 
   // Change Model when prop changes
