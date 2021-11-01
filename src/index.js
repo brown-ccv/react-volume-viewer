@@ -1,20 +1,27 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import styles from "./styles/styles.module.css";
+import { VolumeViewerProvider } from "./context/context";
+import App from "./components/App.jsx";
 
-function ExampleComponent(props) {
-  const { text } = props;
+// TODO: HANDLE PROPS & EXCEPTIONS HERE
+// TODO: Expect a path, return null if empty
+function VolumeViewer(props) {
+  const { path } = props;
 
-  return <div className={styles.test}>Example Component: {text}</div>;
+  return (
+    <VolumeViewerProvider>
+      <App {...props} />
+    </VolumeViewerProvider>
+  );
 }
 
-ExampleComponent.propTypes = {
-  text: PropTypes.string,
+VolumeViewer.propTypes = {
+  path: PropTypes.string,
 };
 
-ExampleComponent.defaultProps = {
-  text: "Default Prop",
+VolumeViewer.defaultProps = {
+  path: null,
 };
 
-export { ExampleComponent };
+export { VolumeViewer };

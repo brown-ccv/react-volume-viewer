@@ -1,6 +1,6 @@
 import React from "react";
 
-import { ExampleComponent } from "react-volume-viewer";
+import { VolumeViewer } from "react-volume-viewer";
 
 export default function App() {
   return (
@@ -10,8 +10,7 @@ export default function App() {
       </header>
 
       <main>
-        <ExampleComponent text="Create React Library Example 😄" />
-        <ExampleComponent />
+        <VolumeViewer />
       </main>
 
       <footer>
