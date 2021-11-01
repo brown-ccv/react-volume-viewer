@@ -25,6 +25,10 @@
     "prepublish": "npm run build",
     "lint": "prettier --write src example/src"
   },
+  "dependencies": {
+    "bootstrap": "^5.1.3",
+    "react-bootstrap": "^2.0.1"
+  },
   "peerDependencies": {
     "react": "^17.0.2"
   },

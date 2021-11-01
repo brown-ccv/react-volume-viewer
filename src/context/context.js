@@ -4,7 +4,22 @@ const VolumeViewerContext = React.createContext();
 
 // Custom component to provide the context
 function VolumeViewerProvider(props) {
-  const [state, dispatch] = React.useReducer(volumeViewerReducer, {});
+  const [state, dispatch] = React.useReducer(volumeViewerReducer, {
+    allColorMaps: null,
+    sliderRange: null,
+
+    // Color and Opacity
+    colorMap: null,
+    transferFunctionNodes: null,
+
+    // Sliders
+    xSliderBounds: null,
+    ySliderBounds: null,
+    zSliderBounds: null,
+
+    // The 3D model and associated data
+    model: null,
+  });
 
   const value = { state, dispatch };
   return (
@@ -26,8 +41,11 @@ function useVolumeViewerContext() {
 // Custom reducer to update the context
 function volumeViewerReducer(state, action) {
   switch (action.type) {
-    case "TYPE":
-      return {};
+    case "CHANGE_MODEL":
+      return {
+        ...state,
+        model: action.model,
+      };
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);
     }
