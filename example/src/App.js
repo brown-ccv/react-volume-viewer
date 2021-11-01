@@ -1,6 +1,6 @@
 import React from "react";
 
-import ExampleComponent from "react-volume-viewer";
+import { ExampleComponent } from "react-volume-viewer";
 import "react-volume-viewer/dist/index.css";
 
 export default function App() {

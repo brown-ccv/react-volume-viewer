@@ -18,4 +18,4 @@ ExampleComponent.defaultProps = {
   text: "Default Prop",
 };
 
-export default ExampleComponent;
+export { ExampleComponent };
