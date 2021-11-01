@@ -1,3 +1,3 @@
 # react-volume-viewer
 
-Volume Viewer package for react based websites
+Aframe container with custom controls for use in react applications
