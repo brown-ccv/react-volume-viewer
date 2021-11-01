@@ -1,0 +1,23 @@
+// Override Bootstrap Variables
+@import "variables";
+
+// Import Bootstrap
+// @import "~bootstrap/scss/bootstrap.scss";s
+
+@import "_footer";
+
+.fullWidth {
+  width: 100%;
+}
+
+.scene {
+  height: 90vh !important;
+}
+
+.controls {
+  width: min-content;
+}
+
+#opacityControls.pointer {
+  cursor: pointer;
+}
