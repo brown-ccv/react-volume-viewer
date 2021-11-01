@@ -22,32 +22,26 @@
     "test:watch": "react-scripts test --env=jsdom",
     "predeploy": "cd example && npm install && npm run build",
     "deploy": "gh-pages -d example/build",
-
     "lint": "prettier --write src example/src"
   },
   "peerDependencies": {
-    "react": "^17.0.0"
+    "react": "^17.0.2"
   },
   "devDependencies": {
-    "microbundle-crl": "^0.13.10",
     "babel-eslint": "^10.0.3",
-    "cross-env": "^7.0.2",
-    "eslint": "^6.8.0",
-    "eslint-config-prettier": "^6.7.0",
-    "eslint-config-standard": "^14.1.0",
-    "eslint-config-standard-react": "^9.2.0",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-node": "^11.0.0",
-    "eslint-plugin-prettier": "^3.1.1",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-react": "^7.17.0",
-    "eslint-plugin-standard": "^4.0.1",
+    "cross-env": "^7.0.3",
+    "eslint": "^7.12.1",
+    "eslint-config-react-app": "^6.0.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-config-standard-react": "^11.0.1",
     "gh-pages": "^3.2.3",
+    "microbundle-crl": "^0.13.11",
     "npm-run-all": "^4.1.5",
-    "prettier": "^2.0.4",
-    "react": "^17.0.0",
-    "react-dom": "^17.0.0",
-    "react-scripts": "^4.0.0"
+    "prettier": "^2.4.1",
+    "prop-types": "^15.7.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-scripts": "^4.0.3"
   },
   "files": [
     "dist"
