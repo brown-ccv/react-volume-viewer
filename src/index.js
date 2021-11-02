@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-// import "./styles/main.scss"; TEMP: Don't use current styling
 import "bootstrap/dist/css/bootstrap.min.css";
 
 import { VolumeViewerProvider } from "./context/context";

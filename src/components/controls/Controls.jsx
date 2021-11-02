@@ -27,7 +27,6 @@ export default function Controls(props) {
 
       {/* <ClipControls /> */}
       <div>Color Map Controls</div>
-
     </ControlsStack>
   );
 }
