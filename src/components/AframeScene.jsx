@@ -14,10 +14,6 @@ import "../Aframe/render-2d-clipplane";
 
 import { useVolumeViewerContext } from "../context/context";
 
-// const SceneContainer = styled(Container)`
-//   height: 90vh !important;
-// `;
-
 const StyledScene = styled(Scene)`
   height: 90vh;
 `;
@@ -26,9 +22,6 @@ export default function AframeScene(props) {
   const { state } = useVolumeViewerContext();
 
   return (
-    // <SceneContainer fluid id="visualizer">
-    //   <Button>Aframe Scene Button</Button>
-    // </SceneContainer>
     <StyledScene id="volumeViewerScene" background="color: black" embedded>
       <Entity
         id="rhand"

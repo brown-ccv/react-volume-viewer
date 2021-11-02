@@ -7,7 +7,13 @@ import { Stack } from "react-bootstrap";
 // import ClipControls from "./ClipControls";
 
 const ControlsStack = styled(Stack)`
+  position: absolute;
+  z-index: 1;
+  top: 25px;
+  left: 25px;
+
   width: 250px;
+  background-color: white;
 `;
 
 export default function Controls(props) {
@@ -21,6 +27,7 @@ export default function Controls(props) {
 
       {/* <ClipControls /> */}
       <div>Color Map Controls</div>
+
     </ControlsStack>
   );
 }

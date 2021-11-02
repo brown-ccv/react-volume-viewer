@@ -1,9 +1,14 @@
 import React, { useEffect } from "react";
+import styled from "styled-components"
 import { Container, Row, Col, Spinner } from "react-bootstrap";
 
 import { useVolumeViewerContext } from "../context/context";
 import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
+
+const RelativeContainer = styled(Container)`
+  position: relative;
+`
 
 export default function App(props) {
   const {
@@ -43,9 +48,9 @@ export default function App(props) {
   // }, []);
 
   return (
-    <Container fluid className="p-0">
-      {/* {controlsVisible && <Controls />} */}
+    <RelativeContainer fluid className="p-0">
+      {controlsVisible && <Controls />}
       <AframeScene />
-    </Container>
+    </RelativeContainer>
   );
 }
