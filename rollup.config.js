@@ -29,9 +29,9 @@ export default {
     url(),
     babel({
       exclude: 'node_modules/**',
-      babelHelpers: 'bundled',
+      babelHelpers: 'bundled'
     }),
     resolve(),
     commonjs()
-  ],
+  ]
 }
