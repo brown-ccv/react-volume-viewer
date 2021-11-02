@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Container, Row, Col, Spinner } from "react-bootstrap";
 
 import { useVolumeViewerContext } from "../context/context";
+import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
 
 export default function App(props) {
@@ -42,23 +43,9 @@ export default function App(props) {
   // }, []);
 
   return (
-    <Container fluid className="p-4">
-      <Row className="justify-content-center">
-        {/* {controlsVisible && <Controls />} */}
-
-        <Col className="align-self-center text-center">
-          <div id="modelLoaded">
-            <Spinner
-              animation="border"
-              role="status"
-              style={{ display: "block" }}
-            >
-              <span className="visually-hidden">Loading Volume</span>
-            </Spinner>
-          </div>
-          <AframeScene />
-        </Col>
-      </Row>
+    <Container fluid className="p-0">
+      {/* {controlsVisible && <Controls />} */}
+      <AframeScene />
     </Container>
   );
 }
