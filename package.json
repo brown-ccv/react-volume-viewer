@@ -26,6 +26,10 @@
     "lint": "prettier --write src example/src"
   },
   "dependencies": {
+    "aframe": "git+https://github.com/brown-ccv/aframe.git",
+    "aframe-event-set-component": "^5.0.0",
+    "aframe-orbit-controls": "^1.3.0",
+    "aframe-react": "^4.4.0",
     "bootstrap": "^5.1.3",
     "node-sass": "^6.0.1",
     "react-bootstrap": "^2.0.1",
