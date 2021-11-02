@@ -1,9 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import 'bootstrap/dist/css/bootstrap.min.css'
-import { VolumeViewerProvider } from "./context/context"
-import App from "./components/App.jsx"
+// import 'bootstrap/dist/css/bootstrap.min.css';
+import "./styles/main.scss";
+import { VolumeViewerProvider } from "./context/context";
+import App from "./components/App.jsx";
 
 function VolumeViewer(props) {
   return (
