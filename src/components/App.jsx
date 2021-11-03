@@ -49,8 +49,8 @@ export default function App(props) {
 
   return (
     <RelativeContainer fluid className="p-0">
-      {controlsVisible && <Controls />}
       <AframeScene />
+      {controlsVisible && <Controls />}
     </RelativeContainer>
   );
 }

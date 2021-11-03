@@ -15,6 +15,7 @@ import "../Aframe/render-2d-clipplane";
 import { useVolumeViewerContext } from "../context/context";
 
 const StyledScene = styled(Scene)`
+  position: relative;
   height: 90vh;
 `;
 

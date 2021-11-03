@@ -8,12 +8,14 @@ import { Stack } from "react-bootstrap";
 
 const ControlsStack = styled(Stack)`
   position: absolute;
-  z-index: 1;
   top: 25px;
   left: 25px;
+  width: 300px;
+  padding: 4px;
 
-  width: 250px;
   background-color: white;
+  border-radius: 5%;
+  
 `;
 
 export default function Controls(props) {
