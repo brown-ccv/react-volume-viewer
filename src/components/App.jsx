@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import { Container, Row, Col, Spinner } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 
 import { useVolumeViewerContext } from "../context/context";
 import Controls from "./controls/Controls.jsx";

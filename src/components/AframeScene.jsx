@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { Container, Button } from "react-bootstrap";
 import { Entity, Scene } from "aframe-react";
 
 import "aframe";
