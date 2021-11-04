@@ -8,6 +8,7 @@ import AframeScene from "./AframeScene.jsx";
 
 const RelativeContainer = styled(Container)`
   position: relative;
+  isolation: isolate;
 `;
 
 export default function App(props) {
