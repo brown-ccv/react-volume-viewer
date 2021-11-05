@@ -11,16 +11,10 @@ function VolumeViewer(props) {
 // TODO: Force user to pass min and max but not unit for dataRange?
 // TODO: Combine model into a single object? - What happens when one property changes?
 VolumeViewer.propTypes = {
-  colorMap: PropTypes.exact({
-    name: PropTypes.string,
-    src: PropTypes.string,
-  }), // The current color map (pass to change without using controls)
-  colorMaps: PropTypes.arrayOf(
-    PropTypes.exact({
-      name: PropTypes.string,
-      src: PropTypes.string,
-    })
-  ), // Default Color Maps
+  colorMap: PropTypes.string, // The current color map (import image and pass that)
+  colorMaps: PropTypes.shape({
+    Example: PropTypes.string, // Key is the name of the color map
+  }), // Default Color Maps
   controlsVisible: PropTypes.bool, // Whether or not the controls can be seen
   dataRange: PropTypes.shape({
     min: PropTypes.number,
@@ -49,7 +43,7 @@ VolumeViewer.propTypes = {
 
 VolumeViewer.defaultProps = {
   colorMap: null,
-  colorMaps: [],
+  colorMaps: {},
   controlsVisible: true,
   dataRange: { min: 0, max: 1, unit: "" },
   initTransferFunction: [

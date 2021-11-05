@@ -1,15 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import {
-  Listbox,
-  ListboxInput,
-  ListboxButton,
-  ListboxPopover,
-  ListboxList,
-  ListboxOption,
-  ListboxArrow,
-  ListboxGroup,
-  ListboxGroupLabel,
+import { ListboxInput, ListboxButton, ListboxPopover, ListboxList, ListboxOption, ListboxArrow,
 } from "@reach/listbox";
 import "@reach/listbox/styles.css";
 
@@ -20,6 +11,7 @@ const StyledListboxInput = styled(ListboxInput)`
 
   > [data-reach-listbox-button] {
     padding: 0;
+    
 
     > [data-reach-listbox-arrow] {
       margin: auto;
@@ -29,11 +21,11 @@ const StyledListboxInput = styled(ListboxInput)`
 
 export default function ColorMapControls({ state, setState, colorMaps }) {
   function handleChange(color) {
-    setState({
-      ...state,
-      colorMap: colorMaps.find((colorMap) => colorMap.name === color),
-    });
+    setState({...state,colorMap: colorMaps[color]});
   }
+
+  console.log("Color Map", state.colorMap, typeof(state.colorMap))
+  console.log("COlor maps", colorMaps, typeof(colorMaps))
 
   return (
     <div>
@@ -45,8 +37,8 @@ export default function ColorMapControls({ state, setState, colorMaps }) {
       >
         <ListboxButton>
           <img
-            src={state.colorMap.src}
-            alt={state.colorMap.name}
+            src={state.colorMap}
+            alt="The current color map"
             height="20px"
             width="95%"
           />
@@ -54,11 +46,11 @@ export default function ColorMapControls({ state, setState, colorMaps }) {
         </ListboxButton>
         <ListboxPopover>
           <ListboxList>
-            {colorMaps.map((color) => (
-              <ListboxOption key={color.name} value={color.name}>
+            {Object.keys(colorMaps).map(color => (
+              <ListboxOption key={color} value={color}>
                 <img
-                  src={color.src}
-                  alt={color.name}
+                  src={colorMaps[color]}
+                  alt={color}
                   height="15px"
                   width="100%"
                 />

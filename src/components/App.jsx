@@ -9,11 +9,11 @@ import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
 
 const sliderRange = { min: 0, max: 1 };
-const defaultColorMaps = [
-  { name: "Grayscale", src: grayscale },
-  { name: "Natural", src: natural },
-  { name: "RGB", src: rgb },
-];
+const defaultColorMaps = {
+  Grayscale: grayscale,
+  Natural: natural,
+  RGB: rgb,
+}
 
 const Wrapper = styled.div`
   position: relative;
@@ -38,9 +38,10 @@ export default function App(props) {
     useTransferFunction,
   } = props;
   console.log("PROPS", props);
+  console.log("DEFAULT", defaultColorMaps, typeof(defaultColorMaps))
 
   const [state, setState] = React.useState({
-    colorMap: colorMap ? colorMap : defaultColorMaps[1],
+    colorMap: colorMap ? colorMap : defaultColorMaps.Grayscale,
     transferFunction: useTransferFunction ? initTransferFunction : null,
     sliders: {
       x: [sliderRange.min, sliderRange.max],
@@ -71,7 +72,7 @@ export default function App(props) {
           setState={setState}
           sliderRange={sliderRange}
           colorMaps={
-            useDefaultColorMaps ? colorMaps.concat(defaultColorMaps) : colorMaps
+            useDefaultColorMaps ? {...colorMaps, ...defaultColorMaps} : colorMaps
           }
         />
       )}
