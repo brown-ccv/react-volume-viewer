@@ -1,14 +1,18 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 
+import grayscale from "../assets/grayscale.png";
+import natural from "../assets/natural.png";
+import rgb from "../assets/rgb.png";
+
 import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
 
 const sliderRange = { min: 0, max: 1 };
 const defaultColorMaps = [
-  { name: "Grayscale", src: "images/grayscale.png" },
-  { name: "Natural", src: "images/natural.png" },
-  { name: "RGB", src: "images/rgb.png" },
+  { name: "Grayscale", src: grayscale },
+  { name: "Natural", src: natural },
+  { name: "RGB", src: rgb },
 ];
 
 const Wrapper = styled.div`
@@ -36,7 +40,7 @@ export default function App(props) {
   console.log("PROPS", props);
 
   const [state, setState] = React.useState({
-    colorMap: colorMap,
+    colorMap: colorMap ? colorMap : defaultColorMaps[1],
     transferFunction: useTransferFunction ? initTransferFunction : null,
     sliders: {
       x: [sliderRange.min, sliderRange.max],

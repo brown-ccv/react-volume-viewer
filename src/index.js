@@ -48,7 +48,7 @@ VolumeViewer.propTypes = {
 };
 
 VolumeViewer.defaultProps = {
-  colorMap: { name: "Grayscale", src: "images/grayscale.png" },
+  colorMap: null,
   colorMaps: [],
   controlsVisible: true,
   dataRange: { min: 0, max: 1, unit: "" },
