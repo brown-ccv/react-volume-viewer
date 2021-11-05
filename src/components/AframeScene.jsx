@@ -25,7 +25,6 @@ export default function AframeScene(props) {
     <StyledScene id="volumeViewerScene" background="color: black" embedded>
       <Entity
         id="rhand"
-        laser-controls="hand: right"
         raycaster="objects: .clickableMesh"
         buttons-check={{ clipPlane: false, grabObject: false }}
         collider-check={{ intersecting: false }}
