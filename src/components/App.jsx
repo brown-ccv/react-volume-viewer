@@ -13,7 +13,7 @@ const defaultColorMaps = {
   Grayscale: grayscale,
   Natural: natural,
   RGB: rgb,
-}
+};
 
 const Wrapper = styled.div`
   position: relative;
@@ -38,7 +38,6 @@ export default function App(props) {
     useTransferFunction,
   } = props;
   console.log("PROPS", props);
-  console.log("DEFAULT", defaultColorMaps, typeof(defaultColorMaps))
 
   const [state, setState] = React.useState({
     colorMap: colorMap ? colorMap : defaultColorMaps.Grayscale,
@@ -72,7 +71,9 @@ export default function App(props) {
           setState={setState}
           sliderRange={sliderRange}
           colorMaps={
-            useDefaultColorMaps ? {...colorMaps, ...defaultColorMaps} : colorMaps
+            useDefaultColorMaps
+              ? { ...colorMaps, ...defaultColorMaps }
+              : colorMaps
           }
         />
       )}

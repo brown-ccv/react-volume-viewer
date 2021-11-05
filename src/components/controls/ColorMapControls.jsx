@@ -1,6 +1,12 @@
 import React from "react";
 import styled from "styled-components";
-import { ListboxInput, ListboxButton, ListboxPopover, ListboxList, ListboxOption, ListboxArrow,
+import {
+  ListboxInput,
+  ListboxButton,
+  ListboxPopover,
+  ListboxList,
+  ListboxOption,
+  ListboxArrow,
 } from "@reach/listbox";
 import "@reach/listbox/styles.css";
 
@@ -21,20 +27,14 @@ const StyledListboxInput = styled(ListboxInput)`
 `;
 
 export default function ColorMapControls({ state, setState, colorMaps }) {
-  function handleChange(color) {
-    setState({...state,colorMap: colorMaps[color]});
-  }
-
-  console.log("Color Map", state.colorMap, typeof(state.colorMap))
-  console.log("COlor maps", colorMaps, typeof(colorMaps))
-
   return (
     <div>
       <Title>Color Map</Title>
+
       <StyledListboxInput
         aria-labelledby="ColorMap dropdown"
         value={state.colorMap.name}
-        onChange={(color) => handleChange(color)}
+        onChange={(color) => setState({ ...state, colorMap: colorMaps[color] })}
       >
         <ListboxButton>
           <img
@@ -47,7 +47,7 @@ export default function ColorMapControls({ state, setState, colorMaps }) {
         </ListboxButton>
         <ListboxPopover>
           <ListboxList>
-            {Object.keys(colorMaps).map(color => (
+            {Object.keys(colorMaps).map((color) => (
               <ListboxOption key={color} value={color}>
                 <img
                   src={colorMaps[color]}
