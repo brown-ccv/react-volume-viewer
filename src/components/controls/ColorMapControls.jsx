@@ -11,7 +11,8 @@ const StyledListboxInput = styled(ListboxInput)`
 
   > [data-reach-listbox-button] {
     padding: 0;
-    
+    border: 0;
+    outline: solid 1px;
 
     > [data-reach-listbox-arrow] {
       margin: auto;
