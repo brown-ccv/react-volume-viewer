@@ -10,7 +10,7 @@ export default function App() {
       </header>
 
       <main>
-        <VolumeViewer path=""/>
+        <VolumeViewer path="" />
       </main>
 
       <footer>

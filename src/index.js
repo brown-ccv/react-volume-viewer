@@ -42,7 +42,7 @@ VolumeViewer.propTypes = {
   }), // Spacing of the slices, consolidated into 1 object
   position: PropTypes.string, // Position of the model
   rotation: PropTypes.string, // Rotation of the model, default isn't the rotation of the RIDDC models
-  scale: PropTypes.string, // Scale of the models, default isn't the scale of the RIDDC models  
+  scale: PropTypes.string, // Scale of the models, default isn't the scale of the RIDDC models
   useDefaultColorMaps: PropTypes.bool, // Whether or not to use the package's default color maps
   useTransferFunction: PropTypes.bool, // Whether or not to color the model with the transfer function
 };

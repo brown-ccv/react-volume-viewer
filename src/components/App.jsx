@@ -48,8 +48,8 @@ export default function App(props) {
   // TODO: Add loading spinner centered on scene (could leave in AframeScene?)
   return (
     <Wrapper>
-      <AframeScene 
-        state={state} 
+      <AframeScene
+        state={state}
         model={{
           dataRange: dataRange,
           path: path,
