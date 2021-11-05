@@ -5,6 +5,11 @@ import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
 
 const sliderRange = { min: 0, max: 1 }
+const defaultColorMaps = [    
+  { name: "Grayscale", src: "images/grayscale.png" },
+  { name: "Natural", src: "images/natural.png" },
+  { name: "RGB", src: "images/rgb.png" },
+]
 
 const Wrapper = styled.div`
   position: relative;
@@ -12,6 +17,7 @@ const Wrapper = styled.div`
 `;
 
 export default function App(props) {
+  // Prop changes should cause re-render automatically
   const {
     colorMap,
     colorMaps,
@@ -31,7 +37,7 @@ export default function App(props) {
 
   const [state, setState] = React.useState({
     colorMap: colorMap,
-    transferFunction: initTransferFunction,
+    transferFunction: useTransferFunction ? initTransferFunction : null,
     sliders: { 
       x: [sliderRange.min, sliderRange.max], 
       y: [sliderRange.min, sliderRange.max],
@@ -39,20 +45,20 @@ export default function App(props) {
     }
   })
 
-  // Prop changes should cause re-render automatically
-
   // TODO: Add loading spinner centered on scene (could leave in AframeScene?)
   return (
     <Wrapper>
-      <AframeScene 
-        state={state} setState={setState}
-      />
+      <AframeScene state={state} />
 
       {
         controlsVisible && 
         <Controls 
           state={state} setState={setState}
           sliderRange={sliderRange}
+
+          colorMaps={
+            useDefaultColorMaps ? colorMaps.concat(defaultColorMaps) : colorMaps
+          }
         />
       }
     </Wrapper>

@@ -51,11 +51,7 @@ VolumeViewer.propTypes = {
 
 VolumeViewer.defaultProps = {
   colorMap: { name: "Grayscale", src: "images/grayscale.png" },
-  colorMaps: [
-    { name: "Grayscale", src: "images/grayscale.png" },
-    { name: "Natural", src: "images/natural.png" },
-    { name: "RGB", src: "images/rgb.png" },
-  ],
+  colorMaps: [],
   controlsVisible: true,
   dataRange: { min: 0, max: 1, unit: "" },
   initTransferFunction: [

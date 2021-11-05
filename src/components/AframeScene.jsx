@@ -16,7 +16,7 @@ const StyledScene = styled(Scene)`
   height: 90vh;
 `;
 
-export default function AframeScene(props) {
+export default function AframeScene({state}) {
 
   return (
     <StyledScene id="volumeViewerScene" background="color: black" embedded>
@@ -31,9 +31,9 @@ export default function AframeScene(props) {
         id="clipplane2DListener"
         render-2d-clipplane={{
           activateClipPlane: true,
-          // xBounds: state.xSliderBounds,
-          // yBounds: state.ySliderBounds,
-          // zBounds: state.zSliderBounds,
+          xBounds: state.sliders.x,
+          yBounds: state.sliders.y,
+          zBounds: state.sliders.z,
           currentAxisAngle: "0 0 0",
           rotateAngle: "0 0 0",
           clipX: "0 0",
