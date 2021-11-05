@@ -40,10 +40,6 @@ VolumeViewer.propTypes = {
   rotation: PropTypes.string, // Rotation of the model, default isn't the rotation of the RIDDC models
   scale: PropTypes.string, // Scale of the models, default isn't the scale of the RIDDC models
   slices: PropTypes.number, // Number of slices in the png
-  sliderRange: PropTypes.exact({
-    min: PropTypes.number,
-    max: PropTypes.number,
-  }), //Min and max values of the clip slider
   spacing: PropTypes.exact({
     x: PropTypes.number,
     y: PropTypes.number,
@@ -72,7 +68,6 @@ VolumeViewer.defaultProps = {
   rotation: "0 0 0",
   scale: "1 1 1",
   slices: 55,
-  sliderRange: { min: 0, max: 1 },
   spacing: { x: 2, y: 2, z: 1 },
   useDefaultColorMaps: true,
   useTransferFunction: true,

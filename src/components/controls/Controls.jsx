@@ -10,25 +10,35 @@ const Wrapper = styled.div`
   top: 25px;
   left: 25px;
   width: 300px;
-  padding: 4px;
+  padding: 15px;
 
   background-color: white;
   border-radius: 5%;
 
   > * {
-    margin: 25px 5px;
+    margin: 25px 0;
   }
 
   > *:first-child {
-    margin-top: 5px;
+    margin-top: 0;
   }
 
   > *:last-child {
-    margin-bottom: 5px;
+    margin-bottom: 0;
   }
 `;
 
 export default function Controls(props) {
+  const {
+    state,
+    setState,
+    sliderRange
+  } = props
+  
+  /*
+    TODO: All 3 will need state
+    TODO: Clip Controls needs sliderRange
+  */
   return (
     <Wrapper>
       {/* <ColorMapControls /> */}
@@ -38,7 +48,7 @@ export default function Controls(props) {
       <div>Opacity Controls</div>
 
       {/* <ClipControls /> */}
-      <div>Color Map Controls</div>
+      <div>Clip Controls</div>
     </Wrapper>
   );
 }
