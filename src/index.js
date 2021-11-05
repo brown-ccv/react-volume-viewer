@@ -4,9 +4,7 @@ import PropTypes from "prop-types";
 import App from "./components/App.jsx";
 
 function VolumeViewer(props) {
-  return (
-    <App {...props} />
-  );
+  return <App {...props} />;
 }
 
 // TODO: String validation for position, rotation, scale
@@ -36,15 +34,15 @@ VolumeViewer.propTypes = {
     })
   ), // The initial transfer function (pass to change default in context)
   path: PropTypes.string.isRequired, // Path to the model (REQUIRED)
-  position: PropTypes.string, // Position of the model
-  rotation: PropTypes.string, // Rotation of the model, default isn't the rotation of the RIDDC models
-  scale: PropTypes.string, // Scale of the models, default isn't the scale of the RIDDC models
   slices: PropTypes.number, // Number of slices in the png
   spacing: PropTypes.exact({
     x: PropTypes.number,
     y: PropTypes.number,
     z: PropTypes.number,
   }), // Spacing of the slices, consolidated into 1 object
+  position: PropTypes.string, // Position of the model
+  rotation: PropTypes.string, // Rotation of the model, default isn't the rotation of the RIDDC models
+  scale: PropTypes.string, // Scale of the models, default isn't the scale of the RIDDC models  
   useDefaultColorMaps: PropTypes.bool, // Whether or not to use the package's default color maps
   useTransferFunction: PropTypes.bool, // Whether or not to color the model with the transfer function
 };

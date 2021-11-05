@@ -29,14 +29,8 @@ const Wrapper = styled.div`
 `;
 
 export default function Controls(props) {
-  const {
-    state, setState,
-    sliderRange,
-    colorMaps,
-  } = props
+  const { state, setState, sliderRange, colorMaps } = props;
 
-  console.log(state.transferFunction)
-  
   /*
     TODO: All 3 will need state
     TODO: Clip Controls needs sliderRange
@@ -48,7 +42,6 @@ export default function Controls(props) {
 
       {/* <OpacityControls /> */}
       {state.transferFunction && <div>Opacity Controls</div>}
-      
 
       {/* <ClipControls /> */}
       <div>Clip Controls</div>

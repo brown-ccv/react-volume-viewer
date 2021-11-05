@@ -4,12 +4,12 @@ import styled from "styled-components";
 import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
 
-const sliderRange = { min: 0, max: 1 }
-const defaultColorMaps = [    
+const sliderRange = { min: 0, max: 1 };
+const defaultColorMaps = [
   { name: "Grayscale", src: "images/grayscale.png" },
   { name: "Natural", src: "images/natural.png" },
   { name: "RGB", src: "images/rgb.png" },
-]
+];
 
 const Wrapper = styled.div`
   position: relative;
@@ -38,29 +38,39 @@ export default function App(props) {
   const [state, setState] = React.useState({
     colorMap: colorMap,
     transferFunction: useTransferFunction ? initTransferFunction : null,
-    sliders: { 
-      x: [sliderRange.min, sliderRange.max], 
+    sliders: {
+      x: [sliderRange.min, sliderRange.max],
       y: [sliderRange.min, sliderRange.max],
       z: [sliderRange.min, sliderRange.max],
-    }
-  })
+    },
+  });
 
   // TODO: Add loading spinner centered on scene (could leave in AframeScene?)
   return (
     <Wrapper>
-      <AframeScene state={state} />
+      <AframeScene 
+        state={state} 
+        model={{
+          dataRange: dataRange,
+          path: path,
+          position: position,
+          rotation: rotation,
+          scale: scale,
+          slices: slices,
+          spacing: spacing,
+        }}
+      />
 
-      {
-        controlsVisible && 
-        <Controls 
-          state={state} setState={setState}
+      {controlsVisible && (
+        <Controls
+          state={state}
+          setState={setState}
           sliderRange={sliderRange}
-
           colorMaps={
             useDefaultColorMaps ? colorMaps.concat(defaultColorMaps) : colorMaps
           }
         />
-      }
+      )}
     </Wrapper>
   );
 }

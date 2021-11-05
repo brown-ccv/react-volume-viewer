@@ -16,8 +16,8 @@ const StyledScene = styled(Scene)`
   height: 90vh;
 `;
 
-export default function AframeScene({state}) {
-
+export default function AframeScene({ state, model }) {
+  console.log("MODEL: ", model)
   return (
     <StyledScene id="volumeViewerScene" background="color: black" embedded>
       <Entity
