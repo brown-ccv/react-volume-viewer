@@ -48,6 +48,7 @@ export default function App(props) {
   //   });
   // }, []);
 
+  // TODO: Add loading spinner centered on scene
   return (
     <RelativeContainer fluid className="p-0">
       <AframeScene />
