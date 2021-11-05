@@ -1,12 +1,11 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import { Container } from "react-bootstrap";
 
 import { useVolumeViewerContext } from "../context/context";
 import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
 
-const RelativeContainer = styled(Container)`
+const Wrapper = styled.div`
   position: relative;
   isolation: isolate;
 `;
@@ -50,9 +49,9 @@ export default function App(props) {
 
   // TODO: Add loading spinner centered on scene
   return (
-    <RelativeContainer fluid className="p-0">
+    <Wrapper>
       <AframeScene />
       {controlsVisible && <Controls />}
-    </RelativeContainer>
+    </Wrapper>
   );
 }

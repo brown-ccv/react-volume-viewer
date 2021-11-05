@@ -1,12 +1,11 @@
 import React from "react";
 import styled from "styled-components";
-import { Stack } from "react-bootstrap";
 
 // import OpacityControls from "./OpacityControl";
 // import ColorMapControls from "./ColorMapControls";
 // import ClipControls from "./ClipControls";
 
-const ControlsStack = styled(Stack)`
+const Wrapper = styled.div`
   position: absolute;
   top: 25px;
   left: 25px;
@@ -15,12 +14,23 @@ const ControlsStack = styled(Stack)`
 
   background-color: white;
   border-radius: 5%;
-  
+
+  > * {
+    margin: 25px 5px;
+  }
+
+  > *:first-child {
+    margin-top: 5px;
+  }
+
+  > *:last-child {
+    margin-bottom: 5px;
+  }
 `;
 
 export default function Controls(props) {
   return (
-    <ControlsStack gap={3}>
+    <Wrapper>
       {/* <ColorMapControls /> */}
       <div>Color Map Controls</div>
 
@@ -29,6 +39,6 @@ export default function Controls(props) {
 
       {/* <ClipControls /> */}
       <div>Color Map Controls</div>
-    </ControlsStack>
+    </Wrapper>
   );
 }
