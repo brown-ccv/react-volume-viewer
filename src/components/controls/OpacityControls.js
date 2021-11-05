@@ -1,6 +1,6 @@
-import React, {Component} from "react";
+import React, { Component } from "react";
 
-import Title from "./SectionTitle.jsx"
+import Title from "./SectionTitle.jsx";
 
 export default class OpacityControls extends Component {
   render() {
@@ -8,6 +8,6 @@ export default class OpacityControls extends Component {
       <div>
         <Title>Transfer Function</Title>
       </div>
-    )
+    );
   }
 }

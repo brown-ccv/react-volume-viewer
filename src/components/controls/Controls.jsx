@@ -33,20 +33,21 @@ export default function Controls(props) {
 
   return (
     <Wrapper>
-      <ColorMapControls 
-        state={state} setState={setState}
+      <ColorMapControls
+        state={state}
+        setState={setState}
         colorMaps={colorMaps}
       />
 
-      
-      {
-        state.transferFunction && 
+      {state.transferFunction && (
         <OpacityControls state={state} setState={setState} />
-      }
+      )}
 
-      <ClipControls 
-        state={state} setState={setState} 
-        sliderRange={sliderRange}/>
+      <ClipControls
+        state={state}
+        setState={setState}
+        sliderRange={sliderRange}
+      />
     </Wrapper>
   );
 }
