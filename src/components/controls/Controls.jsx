@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 
-// import OpacityControls from "./OpacityControl";
-// import ColorMapControls from "./ColorMapControls";
-// import ClipControls from "./ClipControls";
+import ColorMapControls from "./ColorMapControls.jsx";
+import OpacityControls from "./OpacityControls.js";
+import ClipControls from "./ClipControls.jsx";
 
 const Wrapper = styled.div`
   position: absolute;
@@ -31,20 +31,22 @@ const Wrapper = styled.div`
 export default function Controls(props) {
   const { state, setState, sliderRange, colorMaps } = props;
 
-  /*
-    TODO: All 3 will need state
-    TODO: Clip Controls needs sliderRange
-  */
   return (
     <Wrapper>
-      {/* <ColorMapControls /> */}
-      <div>Color Map Controls</div>
+      <ColorMapControls 
+        state={state} setState={setState}
+        colorMaps={colorMaps}
+      />
 
-      {/* <OpacityControls /> */}
-      {state.transferFunction && <div>Opacity Controls</div>}
+      
+      {
+        state.transferFunction && 
+        <OpacityControls state={state} setState={setState} />
+      }
 
-      {/* <ClipControls /> */}
-      <div>Clip Controls</div>
+      <ClipControls 
+        state={state} setState={setState} 
+        sliderRange={sliderRange}/>
     </Wrapper>
   );
 }
