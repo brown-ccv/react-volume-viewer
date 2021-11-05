@@ -1,19 +1,17 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import { VolumeViewerProvider } from "./context/context";
 import App from "./components/App.jsx";
 
 function VolumeViewer(props) {
   return (
-    <VolumeViewerProvider>
-      <App {...props} />
-    </VolumeViewerProvider>
+    <App {...props} />
   );
 }
 
 // TODO: String validation for position, rotation, scale
 // TODO: Force user to pass min and max but not unit for dataRange?
+// TODO: Combine model into a single object? - What happens when one property changes?
 VolumeViewer.propTypes = {
   colorMap: PropTypes.exact({
     name: PropTypes.string,

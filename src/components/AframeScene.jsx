@@ -11,15 +11,12 @@ import "../Aframe/buttons-check.js";
 import "../Aframe/cursor-listener";
 import "../Aframe/render-2d-clipplane";
 
-import { useVolumeViewerContext } from "../context/context";
-
 const StyledScene = styled(Scene)`
   position: relative;
   height: 90vh;
 `;
 
 export default function AframeScene(props) {
-  const { state } = useVolumeViewerContext();
 
   return (
     <StyledScene id="volumeViewerScene" background="color: black" embedded>
@@ -34,9 +31,9 @@ export default function AframeScene(props) {
         id="clipplane2DListener"
         render-2d-clipplane={{
           activateClipPlane: true,
-          xBounds: state.xSliderBounds,
-          yBounds: state.ySliderBounds,
-          zBounds: state.zSliderBounds,
+          // xBounds: state.xSliderBounds,
+          // yBounds: state.ySliderBounds,
+          // zBounds: state.zSliderBounds,
           currentAxisAngle: "0 0 0",
           rotateAngle: "0 0 0",
           clipX: "0 0",

@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 
-import { useVolumeViewerContext } from "../context/context";
 import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
 
@@ -29,9 +28,8 @@ export default function App(props) {
   } = props;
   console.log("PROPS", props);
 
-  const { state, dispatch } = useVolumeViewerContext();
-
   // Change Model when prop changes
+  // This will happen automatically when prop changes
   // useEffect(() => {
   //   dispatch({
   //     type: "CHANGE_MODEL",
