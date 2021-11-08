@@ -16,12 +16,13 @@ export default function App() {
 
       <main>
         <VolumeViewer
-          path={model}
           colorMaps={{
             Haline: haline,
             Thermal: thermal,
           }}
           colorMap={haline}
+          controlsVisible={true}
+          path={model}
           dataRange={{
             min: 0.05,
             max: 33.71,

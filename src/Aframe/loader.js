@@ -359,7 +359,6 @@ AFRAME.registerComponent("loader", {
           material.needsUpdate = true;
 
           hiddenLabel.style.display = "none";
-          console.log("MODEL LOADED:", path);
 
           updateColorMapping();
         },
