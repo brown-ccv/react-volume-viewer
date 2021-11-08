@@ -3,8 +3,8 @@ import styled from "styled-components";
 import { Entity, Scene } from "aframe-react";
 
 import "aframe";
-// import "aframe-event-set-component";
-// import "aframe-orbit-controls";
+import "aframe-event-set-component";
+import "aframe-orbit-controls";
 
 import "../Aframe/loader.js";
 import "../Aframe/buttons-check.js";
@@ -24,11 +24,9 @@ export default function AframeScene({ state, useTransferFunction, model }) {
         coordinates.push(node[plane]);
       });
     } else console.error("Invalid Plane", plane);
-  
+
     return coordinates;
   }
-
-  console.log("MODEL", model)
 
   return (
     <StyledScene id="volumeViewerScene" background="color: black" embedded>
@@ -61,21 +59,14 @@ export default function AframeScene({ state, useTransferFunction, model }) {
         cursor-listener
       />
 
-      {/* TODO: Add Entity with the loader */}
       <Entity
         id="volumeCube"
         class="clickableMesh"
         loader={{
           useTransferFunction: useTransferFunction,
           colorMap: state.colorMap,
-          alphaXDataArray: getCoordinates(
-            state.transferFunction,
-            "x"
-          ),
-          alphaYDataArray: getCoordinates(
-            state.transferFunction,
-            "y"
-          ),
+          alphaXDataArray: getCoordinates(state.transferFunction, "x"),
+          alphaYDataArray: getCoordinates(state.transferFunction, "y"),
           path: model.path,
           slices: model.slices,
           x_spacing: model.spacing.x,

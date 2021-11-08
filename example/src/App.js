@@ -4,7 +4,7 @@ import { VolumeViewer } from "react-volume-viewer";
 
 import haline from "./assets/colormaps/haline.png";
 import thermal from "./assets/colormaps/thermal.png";
-import model from "./assets/models/summer-high-salt.png"
+import model from "./assets/models/summer-high-salt.png";
 
 export default function App() {
   // TODO: Add state and buttons to change VolumeViewer props
@@ -25,7 +25,7 @@ export default function App() {
           dataRange={{
             min: 0.05,
             max: 33.71,
-            units: "°C"
+            units: "°C",
           }}
           scale="1 -1 1"
           rotation="-55 0 0"
