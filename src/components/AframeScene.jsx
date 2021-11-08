@@ -3,8 +3,8 @@ import styled from "styled-components";
 import { Entity, Scene } from "aframe-react";
 
 import "aframe";
-import "aframe-event-set-component";
-import "aframe-orbit-controls";
+// import "aframe-event-set-component";
+// import "aframe-orbit-controls";
 
 import "../Aframe/loader.js";
 import "../Aframe/buttons-check.js";
