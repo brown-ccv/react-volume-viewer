@@ -16,6 +16,7 @@ const StyledListboxInput = styled(ListboxInput)`
   width: 100%;
 
   > [data-reach-listbox-button] {
+    width: 100%;
     padding: 0;
     border: 0;
     outline: solid 1px;

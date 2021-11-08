@@ -39,8 +39,11 @@ export default function App(props) {
   } = props;
   console.log("PROPS", props);
 
+  // TODO: If not useTransferFunction, set colorMaps to only grayscale
+
   const [state, setState] = React.useState({
-    colorMap: colorMap ? colorMap : defaultColorMaps.Grayscale,
+    colorMap:
+      colorMap && useTransferFunction ? colorMap : defaultColorMaps.Grayscale,
     transferFunction: useTransferFunction ? initTransferFunction : null,
     sliders: {
       x: [sliderRange.min, sliderRange.max],

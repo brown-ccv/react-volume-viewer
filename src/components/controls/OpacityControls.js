@@ -10,6 +10,7 @@ const Labels = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  width: 250px;
 
   > p {
     font-weight: bold;
