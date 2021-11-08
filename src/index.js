@@ -10,6 +10,7 @@ function VolumeViewer(props) {
 // TODO: String validation for position, rotation, scale
 // TODO: Force user to pass min and max but not unit for dataRange?
 // TODO: Combine model into a single object? - What happens when one property changes?
+// TODO: ColorMap should be passed as a string, not the path itself - access width colorMaps[colorMap]
 VolumeViewer.propTypes = {
   colorMap: PropTypes.string, // The current color map (import image and pass that)
   colorMaps: PropTypes.shape({
