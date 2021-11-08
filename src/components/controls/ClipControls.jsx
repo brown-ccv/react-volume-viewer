@@ -5,8 +5,7 @@ import "rc-slider/assets/index.css";
 
 import Title from "./SectionTitle.jsx";
 
-const SliderGroup = styled.div`
-`
+const SliderGroup = styled.div``;
 
 export default function ClipControls({ state, setState, sliderRange }) {
   function handleChange(axis, val) {

@@ -29,7 +29,7 @@ const Wrapper = styled.div`
 `;
 
 export default function Controls(props) {
-  const { state, setState, sliderRange, colorMaps } = props;
+  const { state, setState, sliderRange, dataRange, colorMaps } = props;
 
   return (
     <Wrapper>
@@ -40,7 +40,11 @@ export default function Controls(props) {
       />
 
       {state.transferFunction && (
-        <OpacityControls state={state} setState={setState} />
+        <OpacityControls 
+          state={state} 
+          setState={setState} 
+          dataRange={dataRange}
+        />
       )}
 
       <ClipControls

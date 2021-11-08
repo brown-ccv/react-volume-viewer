@@ -70,6 +70,7 @@ export default function App(props) {
           state={state}
           setState={setState}
           sliderRange={sliderRange}
+          dataRange={dataRange}
           colorMaps={
             useDefaultColorMaps
               ? { ...colorMaps, ...defaultColorMaps }
