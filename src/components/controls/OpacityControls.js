@@ -113,7 +113,6 @@ export default class OpacityControls extends Component {
       max: nextProps.dataRange.max,
       units: nextProps.dataRange.units,
     };
-    console.log(this.dataSpace);
 
     this.colorSpaceToDataDomain = scaleLinear()
       .domain([this.colorSpace.min, this.colorSpace.max])

@@ -27,6 +27,8 @@ export default function App() {
             max: 33.71,
             units: "°C"
           }}
+          scale="1 -1 1"
+          rotation="-55 0 0"
         />
       </main>
 

@@ -1,8 +1,6 @@
 /* globals AFRAME THREE */
-
 import "./ccvLibVolumeShader.js";
-
-const bind = AFRAME.utils.bind;
+let bind = AFRAME.utils.bind;
 
 AFRAME.registerComponent("collider-check", {
   dependencies: ["raycaster", "buttons-check"],

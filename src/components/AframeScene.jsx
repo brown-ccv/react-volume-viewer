@@ -28,6 +28,8 @@ export default function AframeScene({ state, useTransferFunction, model }) {
     return coordinates;
   }
 
+  console.log("MODEL", model)
+
   return (
     <StyledScene id="volumeViewerScene" background="color: black" embedded>
       <Entity
