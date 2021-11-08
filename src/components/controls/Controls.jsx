@@ -40,9 +40,9 @@ export default function Controls(props) {
       />
 
       {state.transferFunction && (
-        <OpacityControls 
-          state={state} 
-          setState={setState} 
+        <OpacityControls
+          state={state}
+          setState={setState}
           dataRange={dataRange}
         />
       )}

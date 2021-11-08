@@ -24,20 +24,21 @@ export default class OpacityControls extends Component {
     super(props);
     this.minLevel = 0;
     this.maxLevel = 1;
+
+    // Canvas
     this.opCanvas = null;
     this.opContext = null;
+    this.width = 0;
+    this.height = 70;
+    this.padding = 10;
 
     this.dragging = false;
     this.hovering = false;
     this.nodeDragged = -1;
     this.nodeHovered = -1;
+    this.hoverRadius = 15; // Padding where hovering/clicks are registered
     this.dragStart = [0, 0];
     this.startPos = [0, 0];
-    this.height = 70;
-    this.padding = 10;
-    this.hoverRadius = 15; // Padding where hovering/clicks are registered
-    // this.width = 0;
-
 
     this.canvasWidth = 250;
     this.paddedCanvasSpace = {
@@ -53,15 +54,21 @@ export default class OpacityControls extends Component {
       .domain([this.paddedCanvasSpace.min, this.paddedCanvasSpace.max])
       .range([0, this.canvasWidth]);
 
-      // TEMP?
-      this.colorSpaceToDataDomain = scaleLinear()
-        .domain([this.colorSpace.min, this.colorSpace.max])
-        .range([this.dataSpace.min, this.dataSpace.max]);
+    // TEMP?
+    this.colorSpaceToDataDomain = scaleLinear()
+      .domain([this.colorSpace.min, this.colorSpace.max])
+      .range([this.dataSpace.min, this.dataSpace.max]);
 
     this.nodes = [
       { x: this.paddedCanvasSpace.min, y: 0 },
-      { x: this.paddedCanvasSpaceToCanvasSpace.invert(this.canvasWidth * 0.11), y: 15 },
-      { x: this.paddedCanvasSpaceToCanvasSpace.invert(this.canvasWidth * 0.32), y: 35,},
+      {
+        x: this.paddedCanvasSpaceToCanvasSpace.invert(this.canvasWidth * 0.11),
+        y: 15,
+      },
+      {
+        x: this.paddedCanvasSpaceToCanvasSpace.invert(this.canvasWidth * 0.32),
+        y: 35,
+      },
       { x: this.paddedCanvasSpace.max, y: 70 },
     ];
 
@@ -101,11 +108,11 @@ export default class OpacityControls extends Component {
   componentWillReceiveProps(nextProps) {
     this.dataSpace = {
       min: nextProps.dataRange.min,
-      mid: (nextProps.dataRange.min+nextProps.dataRange.max) / 2,
+      mid: (nextProps.dataRange.min + nextProps.dataRange.max) / 2,
       max: nextProps.dataRange.max,
       units: nextProps.dataRange.units,
-    }
-    console.log(this.dataSpace)
+    };
+    console.log(this.dataSpace);
 
     this.colorSpaceToDataDomain = scaleLinear()
       .domain([this.colorSpace.min, this.colorSpace.max])
@@ -118,9 +125,6 @@ export default class OpacityControls extends Component {
 
     this.opCanvas.height = this.height + this.padding * 2;
     this.opCanvas.width = this.canvasWidth;
-
-    //the last point is located at 250 - 2 * padding.
-    this.width = this.opCanvas.width - 2 * this.padding;
 
     this.opCanvas.style.border = "1px solid";
     this.opContext.clearRect(0, 0, this.opCanvas.width, this.opCanvas.height);
@@ -213,16 +217,22 @@ export default class OpacityControls extends Component {
     });
     this.setState({
       ...this.state,
-      transferFunction: this.transferFunctionNodes
-    })
+      transferFunction: this.transferFunctionNodes,
+    });
   }
 
   resetOpacityPoints() {
     this.nodes = [
-      { x: 0, y: 0 },
-      { x: 250 * 0.11, y: 15 },
-      { x: 250 * 0.32, y: 35 },
-      { x: 250 * 0.92, y: 70 },
+      { x: this.paddedCanvasSpace.min, y: 0 },
+      {
+        x: this.paddedCanvasSpaceToCanvasSpace.invert(this.canvasWidth * 0.11),
+        y: 15,
+      },
+      {
+        x: this.paddedCanvasSpaceToCanvasSpace.invert(this.canvasWidth * 0.32),
+        y: 35,
+      },
+      { x: this.paddedCanvasSpace.max, y: 70 },
     ];
     this.updateCanvas();
   }
@@ -282,7 +292,6 @@ export default class OpacityControls extends Component {
           y: (this.nodes[i].y / 70).toFixed(this.displayedDecimals),
           x: nodeInCanvasSpace,
         };
-
 
         let xDataValue = this.colorSpaceToDataDomain(pointToColorSpace.x);
         this.opCanvas.title =
@@ -397,8 +406,7 @@ export default class OpacityControls extends Component {
           Double-click to add a point to the transfer function. Right-click to
           remove a point. Drag points to change the function.
         </p>
-        {/* <Button onClick={this.resetOpacityPoints}> Reset </Button> */}
-        <Button> Reset </Button>
+        <Button onClick={this.resetOpacityPoints}> Reset </Button>
       </div>
     );
   }
