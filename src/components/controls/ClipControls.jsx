@@ -1,8 +1,12 @@
 import React from "react";
-import Slider, { Range } from "rc-slider";
+import styled from "styled-components";
+import { Range } from "rc-slider";
 import "rc-slider/assets/index.css";
 
 import Title from "./SectionTitle.jsx";
+
+const SliderGroup = styled.div`
+`
 
 export default function ClipControls({ state, setState, sliderRange }) {
   function handleChange(axis, val) {
@@ -19,7 +23,7 @@ export default function ClipControls({ state, setState, sliderRange }) {
     <div>
       <Title>Clip</Title>
       {["x", "y", "z"].map((axis) => (
-        <div key={axis}>
+        <SliderGroup key={axis}>
           <h4> {axis.toUpperCase()} Axis</h4>
           <Range
             min={sliderRange.min}
@@ -29,7 +33,7 @@ export default function ClipControls({ state, setState, sliderRange }) {
             allowCross={false}
             onChange={(val) => handleChange(axis, val)}
           />
-        </div>
+        </SliderGroup>
       ))}
     </div>
   );
