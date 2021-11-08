@@ -16,8 +16,17 @@ const StyledScene = styled(Scene)`
   height: 90vh;
 `;
 
-export default function AframeScene({ state, model }) {
-  // console.log("MODEL", model);
+export default function AframeScene({ state, useTransferFunction, model }) {
+  function getCoordinates(transferFunctionNodes, plane) {
+    let coordinates = [];
+    if (plane === "x" || plane === "y") {
+      transferFunctionNodes.forEach((node) => {
+        coordinates.push(node[plane]);
+      });
+    } else console.error("Invalid Plane", plane);
+  
+    return coordinates;
+  }
 
   return (
     <StyledScene id="volumeViewerScene" background="color: black" embedded>
@@ -51,6 +60,30 @@ export default function AframeScene({ state, model }) {
       />
 
       {/* TODO: Add Entity with the loader */}
+      <Entity
+        id="volumeCube"
+        class="clickableMesh"
+        loader={{
+          useTransferFunction: useTransferFunction,
+          colorMap: state.colorMap,
+          alphaXDataArray: getCoordinates(
+            state.transferFunction,
+            "x"
+          ),
+          alphaYDataArray: getCoordinates(
+            state.transferFunction,
+            "y"
+          ),
+          path: model.path,
+          slices: model.slices,
+          x_spacing: model.spacing.x,
+          y_spacing: model.spacing.y,
+          z_spacing: model.spacing.z,
+        }}
+        position={model.position}
+        rotation={model.rotation}
+        scale={model.scale}
+      />
 
       <a-entity cursor="rayOrigin:mouse" raycaster="objects: .clickable" />
       <Entity

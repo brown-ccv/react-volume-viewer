@@ -7,6 +7,8 @@ import Title from "./SectionTitle.jsx";
 
 const SliderGroup = styled.div``;
 
+// TODO: Slider range should be 0-1000 with a step of 1 (changes needed in AframeScene)
+
 export default function ClipControls({ state, setState, sliderRange }) {
   function handleChange(axis, val) {
     setState({

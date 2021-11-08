@@ -40,6 +40,7 @@ export default function App(props) {
   console.log("PROPS", props);
 
   // TODO: If not useTransferFunction, set colorMaps to only grayscale
+  // TODO: colorMaps must have a length >=1 if useDefaultColorMaps is false (?)
 
   const [state, setState] = React.useState({
     colorMap:
@@ -57,6 +58,7 @@ export default function App(props) {
     <Wrapper>
       <AframeScene
         state={state}
+        useTransferFunction={useTransferFunction}
         model={{
           dataRange: dataRange,
           path: path,
@@ -67,6 +69,10 @@ export default function App(props) {
           spacing: spacing,
         }}
       />
+
+      <div id="modelLoaded" style={{ display: "block" }}>
+        {/* TODO: Add a spinner? */}
+      </div>
 
       {controlsVisible && (
         <Controls
