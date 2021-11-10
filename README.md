@@ -13,7 +13,7 @@ Run `npm start` in one terminal and `cd example && npm start` in a second termin
 ## Install
 
 ```bash
-npm install --save react-volume-viewer
+npm install react-volume-viewer
 ```
 
 ## Usage
