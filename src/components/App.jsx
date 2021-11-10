@@ -15,12 +15,7 @@ const defaultColorMaps = {
   RGB: rgb,
 };
 
-const Wrapper = styled.div`
-  position: relative;
-  isolation: isolate;
-`;
-
-export default function App(props) {
+function App(props) {
   // Prop changes should cause re-render automatically
   const {
     colorMap,
@@ -78,3 +73,10 @@ export default function App(props) {
     </Wrapper>
   );
 }
+
+const Wrapper = styled.div`
+  position: relative;
+  isolation: isolate;
+`;
+
+export default App;

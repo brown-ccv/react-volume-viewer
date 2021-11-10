@@ -4,6 +4,10 @@ import { scaleLinear } from "d3-scale";
 
 import Title from "./SectionTitle.jsx";
 
+const Wrapper = styled.div`
+  margin: 25px 0;
+`;
+
 const Button = styled.button``;
 
 const Labels = styled.div`
@@ -11,12 +15,12 @@ const Labels = styled.div`
   flex-direction: row;
   justify-content: space-between;
   width: 250px;
+`;
 
-  > p {
-    font-weight: bold;
-    margin: 0;
-    font-size: 11px;
-  }
+const LabelText = styled.p`
+  font-weight: bold;
+  margin: 0;
+  font-size: 11px;
 `;
 
 // TODO: Reset button should reset to original colorMap as well
@@ -384,22 +388,22 @@ export default class OpacityControls extends Component {
 
   render() {
     return (
-      <div>
+      <Wrapper>
         <Title>Transfer Function</Title>
         <canvas ref="canvas" id="opacityControls" />
         <Labels>
-          <p>
+          <LabelText>
             {this.dataSpace.min.toFixed(this.displayedDecimals)}{" "}
             {this.dataSpace.units}
-          </p>
-          <p>
+          </LabelText>
+          <LabelText>
             {this.dataSpace.mid.toFixed(this.displayedDecimals)}{" "}
             {this.dataSpace.units}
-          </p>
-          <p>
+          </LabelText>
+          <LabelText>
             {this.dataSpace.max.toFixed(this.displayedDecimals)}{" "}
             {this.dataSpace.units}
-          </p>
+          </LabelText>
         </Labels>
 
         <p>
@@ -407,7 +411,7 @@ export default class OpacityControls extends Component {
           remove a point. Drag points to change the function.
         </p>
         <Button onClick={this.resetOpacityPoints}> Reset </Button>
-      </div>
+      </Wrapper>
     );
   }
 }

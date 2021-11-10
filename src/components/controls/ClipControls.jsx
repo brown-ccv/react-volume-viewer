@@ -5,11 +5,8 @@ import "rc-slider/assets/index.css";
 
 import Title from "./SectionTitle.jsx";
 
-const SliderGroup = styled.div``;
-
 // TODO: Slider range should be 0-1000 with a step of 1 (changes needed in AframeScene)
-
-export default function ClipControls({ state, setState, sliderRange }) {
+function ClipControls({ state, setState, sliderRange }) {
   function handleChange(axis, val) {
     setState({
       ...state,
@@ -21,7 +18,7 @@ export default function ClipControls({ state, setState, sliderRange }) {
   }
 
   return (
-    <div>
+    <Wrapper>
       <Title>Clip</Title>
       {["x", "y", "z"].map((axis) => (
         <SliderGroup key={axis}>
@@ -36,6 +33,15 @@ export default function ClipControls({ state, setState, sliderRange }) {
           />
         </SliderGroup>
       ))}
-    </div>
+    </Wrapper>
   );
 }
+
+const Wrapper = styled.div`
+  margin: 25px 0;
+  margin-bottom: 0;
+`;
+
+const SliderGroup = styled.div``;
+
+export default ClipControls;

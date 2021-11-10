@@ -12,24 +12,9 @@ import "@reach/listbox/styles.css";
 
 import Title from "./SectionTitle.jsx";
 
-const StyledListboxInput = styled(ListboxInput)`
-  width: 100%;
-
-  > [data-reach-listbox-button] {
-    width: 100%;
-    padding: 0;
-    border: 0;
-    outline: solid 1px;
-
-    > [data-reach-listbox-arrow] {
-      margin: auto;
-    }
-  }
-`;
-
-export default function ColorMapControls({ state, setState, colorMaps }) {
+function ColorMapControls({ state, setState, colorMaps }) {
   return (
-    <div>
+    <Wrapper>
       <Title>Color Map</Title>
 
       <StyledListboxInput
@@ -61,6 +46,28 @@ export default function ColorMapControls({ state, setState, colorMaps }) {
           </ListboxList>
         </ListboxPopover>
       </StyledListboxInput>
-    </div>
+    </Wrapper>
   );
 }
+
+const Wrapper = styled.div`
+  margin: 25px 0;
+  margin-top: 0;
+`;
+
+const StyledListboxInput = styled(ListboxInput)`
+  width: 100%;
+
+  > [data-reach-listbox-button] {
+    width: 100%;
+    padding: 0;
+    border: 0;
+    outline: solid 1px;
+
+    > [data-reach-listbox-arrow] {
+      margin: auto;
+    }
+  }
+`;
+
+export default ColorMapControls;

@@ -12,11 +12,7 @@ import "../Aframe/buttons-check";
 import "../Aframe/cursor-listener";
 import "../Aframe/render-2d-clipplane";
 
-const StyledScene = styled(Scene)`
-  position: relative;
-`;
-
-export default function AframeScene({ state, useTransferFunction, model }) {
+function AframeScene({ state, useTransferFunction, model }) {
   function getCoordinates(transferFunctionNodes, plane) {
     let coordinates = [];
     if (plane === "x" || plane === "y") {
@@ -88,3 +84,9 @@ export default function AframeScene({ state, useTransferFunction, model }) {
     </StyledScene>
   );
 }
+
+const StyledScene = styled(Scene)`
+  position: relative;
+`;
+
+export default AframeScene;

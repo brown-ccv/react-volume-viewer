@@ -5,33 +5,7 @@ import ColorMapControls from "./ColorMapControls.jsx";
 import OpacityControls from "./OpacityControls.js";
 import ClipControls from "./ClipControls.jsx";
 
-const Wrapper = styled.div`
-  position: absolute;
-  overflow: auto;
-  top: 25px;
-  left: 25px;
-  right: 25px;
-  bottom: 25px;
-  width: 300px;
-  padding: 15px;
-
-  background-color: white;
-  border-radius: 5%;
-
-  > * {
-    margin: 25px 0;
-  }
-
-  > *:first-child {
-    margin-top: 0;
-  }
-
-  > *:last-child {
-    margin-bottom: 0;
-  }
-`;
-
-export default function Controls(props) {
+function Controls(props) {
   const { state, setState, sliderRange, dataRange, colorMaps } = props;
 
   return (
@@ -58,3 +32,19 @@ export default function Controls(props) {
     </Wrapper>
   );
 }
+
+const Wrapper = styled.div`
+  position: absolute;
+  overflow: auto;
+  top: 25px;
+  left: 25px;
+  right: 25px;
+  bottom: 25px;
+  width: 300px;
+  padding: 15px;
+
+  background-color: white;
+  border-radius: 5%;
+`;
+
+export default Controls;
