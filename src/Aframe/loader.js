@@ -194,8 +194,6 @@ AFRAME.registerComponent("loader", {
 
     let cameraEl = document.querySelector("#camera");
     cameraEl.setAttribute("camera", "active", true);
-
-    this.hiddenLabel = document.getElementById("modelLoaded");
   },
 
   debugScene: function (evt) {},
@@ -275,14 +273,12 @@ AFRAME.registerComponent("loader", {
     }
 
     if (path !== "") {
-      this.hiddenLabel.style.display = "";
       const el = this.el;
       const data = this.data;
       const canvasWidth = this.canvas.width;
       const canvasHeight = this.canvas.height;
 
       const useTransferFunction = this.data.useTransferFunction;
-      const hiddenLabel = this.hiddenLabel;
 
       const updateColorMapping = this.updateColorMapping;
 
@@ -357,8 +353,6 @@ AFRAME.registerComponent("loader", {
           el.setObject3D("mesh", new THREE.Mesh(geometry, material));
           data.modelLoaded = true;
           material.needsUpdate = true;
-
-          hiddenLabel.style.display = "none";
 
           updateColorMapping();
         },

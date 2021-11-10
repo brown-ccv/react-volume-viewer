@@ -14,7 +14,7 @@ export default function App() {
         <h1>Hello, World</h1>
       </header>
 
-      <main>
+      <main style={{ margin: "25px" }}>
         <VolumeViewer
           colorMaps={{
             Haline: haline,
@@ -22,6 +22,18 @@ export default function App() {
           }}
           colorMap={haline}
           controlsVisible={true}
+          path={model}
+          dataRange={{
+            min: 0.05,
+            max: 33.71,
+            units: "°C",
+          }}
+          scale="1 -1 1"
+          rotation="-55 0 0"
+        />
+        <hr />
+        <VolumeViewer
+          controlsVisible={false}
           path={model}
           dataRange={{
             min: 0.05,

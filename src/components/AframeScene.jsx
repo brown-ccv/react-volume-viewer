@@ -6,8 +6,9 @@ import "aframe";
 import "aframe-event-set-component";
 import "aframe-orbit-controls";
 
-import "../Aframe/loader.js";
-import "../Aframe/buttons-check.js";
+import "../Aframe/arcball-camera";
+import "../Aframe/loader";
+import "../Aframe/buttons-check";
 import "../Aframe/cursor-listener";
 import "../Aframe/render-2d-clipplane";
 

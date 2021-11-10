@@ -59,20 +59,8 @@ export default function App(props) {
       <AframeScene
         state={state}
         useTransferFunction={useTransferFunction}
-        model={{
-          dataRange: dataRange,
-          path: path,
-          position: position,
-          rotation: rotation,
-          scale: scale,
-          slices: slices,
-          spacing: spacing,
-        }}
+        model={{ dataRange, path, position, rotation, scale, slices, spacing }}
       />
-
-      <div id="modelLoaded" style={{ display: "block" }}>
-        {/* TODO: Add a spinner? */}
-      </div>
 
       {controlsVisible && (
         <Controls

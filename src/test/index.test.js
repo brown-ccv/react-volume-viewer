@@ -1,7 +1,7 @@
-import ExampleComponent from "..";
+import VolumeViewer from "..";
 
-describe("ExampleComponent", () => {
+describe("VolumeViewer", () => {
   it("is truthy", () => {
-    expect(ExampleComponent).toBeTruthy();
+    expect(VolumeViewer).toBeTruthy();
   });
 });
