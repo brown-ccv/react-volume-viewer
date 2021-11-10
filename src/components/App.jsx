@@ -55,7 +55,7 @@ export default function App(props) {
 
   // TODO: Add loading spinner centered on scene (could leave in AframeScene?)
   return (
-    <Wrapper>
+    <Wrapper className={props.className} style={props.style}>
       <AframeScene
         state={state}
         useTransferFunction={useTransferFunction}
