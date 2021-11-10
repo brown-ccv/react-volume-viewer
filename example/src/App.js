@@ -36,7 +36,7 @@ export default function App() {
         <hr />
         <VolumeViewer
           style={{ height: "50vh", width: "1000px" }}
-          controlsVisible={false}
+          controlsVisible
           path={model}
           dataRange={{
             min: 0.05,

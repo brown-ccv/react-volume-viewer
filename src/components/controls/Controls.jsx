@@ -7,8 +7,11 @@ import ClipControls from "./ClipControls.jsx";
 
 const Wrapper = styled.div`
   position: absolute;
+  overflow: auto;
   top: 25px;
   left: 25px;
+  right: 25px;
+  bottom: 25px;
   width: 300px;
   padding: 15px;
 

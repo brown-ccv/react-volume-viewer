@@ -14,8 +14,6 @@ import "../Aframe/render-2d-clipplane";
 
 const StyledScene = styled(Scene)`
   position: relative;
-  // height: 90vh;
-  // height: 100%;
 `;
 
 export default function AframeScene({ state, useTransferFunction, model }) {
