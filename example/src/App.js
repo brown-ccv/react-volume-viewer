@@ -1,7 +1,7 @@
 import React from "react";
 
 import { VolumeViewer } from "react-volume-viewer";
-import "./index.css"
+import "./index.css";
 
 import haline from "./assets/colormaps/haline.png";
 import thermal from "./assets/colormaps/thermal.png";
@@ -35,7 +35,7 @@ export default function App() {
         />
         <hr />
         <VolumeViewer
-          style={{height: "90vh", width: "100%"}}
+          style={{ height: "50vh", width: "1000px" }}
           controlsVisible={false}
           path={model}
           dataRange={{
