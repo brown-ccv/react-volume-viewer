@@ -18,6 +18,8 @@ const defaultColorMaps = {
 function App(props) {
   // Prop changes should cause re-render automatically
   const {
+    className,
+    style,
     colorMap,
     colorMaps,
     controlsVisible,
@@ -50,7 +52,7 @@ function App(props) {
 
   // TODO: Add loading spinner centered on scene (could leave in AframeScene?)
   return (
-    <Wrapper className={props.className} style={props.style}>
+    <Wrapper className={className} style={style}>
       <AframeScene
         state={state}
         useTransferFunction={useTransferFunction}
