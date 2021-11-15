@@ -8,6 +8,7 @@ import Title from "./SectionTitle.jsx";
 // TODO: min and max level
 const canvasHeight = 70;
 const hoverRadius = 15; // Pixel offset for registering hovering/clicks
+const decimals = 2; // Number of decimals to display in labels
 
 function OpacityControls({ state, setState, dataRange }) {
   // Canvas state
@@ -78,15 +79,15 @@ function OpacityControls({ state, setState, dataRange }) {
       <Title>Transfer Function</Title>
       <canvas ref={canvasRef} id="opacityControls" />
       <Labels>
-        {/* <LabelText>
-          {dataRange.min.toFixed(this.displayedDecimals)} {dataRange.units}
+        <LabelText>
+          {dataRange.min.toFixed(decimals)} {dataRange.units}
         </LabelText>
         <LabelText>
-          {dataRange.mid.toFixed(this.displayedDecimals)} {dataRange.units}
+          {dataRange.mid.toFixed(decimals)} {dataRange.units}
         </LabelText>
         <LabelText>
-          {dataRange.max.toFixed(this.displayedDecimals)} {dataRange.units}
-        </LabelText> */}
+          {dataRange.max.toFixed(decimals)} {dataRange.units}
+        </LabelText>
       </Labels>
 
       <p>

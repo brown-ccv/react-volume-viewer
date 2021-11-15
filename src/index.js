@@ -17,7 +17,7 @@ VolumeViewer.propTypes = {
     Example: PropTypes.string, // Key is the name of the color map
   }), // Default Color Maps
   controlsVisible: PropTypes.bool, // Whether or not the controls can be seen
-  dataRange: PropTypes.shape({
+  dataRange: PropTypes.exact({
     min: PropTypes.number,
     max: PropTypes.number,
     unit: PropTypes.string,

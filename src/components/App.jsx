@@ -39,7 +39,7 @@ function App(props) {
   const [state, setState] = useState({
     colorMap:
       colorMap && useTransferFunction ? colorMap : defaultColorMaps.Grayscale,
-    transferFunction: useTransferFunction ? initTransferFunction : null,
+    transferFunction: useTransferFunction ? initTransferFunction : [],
     sliders: {
       x: [sliderRange.min, sliderRange.max],
       y: [sliderRange.min, sliderRange.max],

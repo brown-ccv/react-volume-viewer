@@ -43,7 +43,7 @@ export default function App() {
           dataRange={{
             min: 0.05,
             max: 33.71,
-            units: "°C",
+            unit: "°C",
           }}
           scale="1 -1 1"
           rotation="-55 0 0"
@@ -55,7 +55,7 @@ export default function App() {
           dataRange={{
             min: 0.05,
             max: 33.71,
-            units: "°C",
+            unit: "°C",
           }}
         /> */}
       </main>
