@@ -8,7 +8,7 @@ import ClipControls from "./ClipControls.jsx";
 
 function Controls(props) {
   const { state, setState, sliderRange, dataRange, colorMaps } = props;
-  
+
   return (
     <Wrapper>
       <ColorMapControls
@@ -21,7 +21,6 @@ function Controls(props) {
         <OpacityControls
           state={state}
           setState={setState}
-          // dataRange={dataRange}
           dataRange={{
             min: dataRange.min,
             mid: (dataRange.min + dataRange.max) / 2,

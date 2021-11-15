@@ -48,7 +48,7 @@ export default class OpacityControls extends Component {
     this.canvasWidth = 250;
     this.paddedCanvasSpace = {
       min: 0,
-      max: this.canvasWidth * 0.92,
+      max: this.canvasWidth * 0.92, // 250 * 0.92 = 230 which is 2*padding
     };
     this.dataSpace = { min: 0, mid: 0, max: 1, units: "" };
     this.colorSpace = { min: 0, max: 256 };

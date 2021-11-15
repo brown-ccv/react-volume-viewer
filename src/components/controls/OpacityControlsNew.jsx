@@ -6,22 +6,56 @@ import Title from "./SectionTitle.jsx";
 
 // Constants
 // TODO: min and max level
-const canvasHeight = 70;
+const canvasPadding = 10;
 const hoverRadius = 15; // Pixel offset for registering hovering/clicks
 const decimals = 2; // Number of decimals to display in labels
 
-function OpacityControls({ state, setState, dataRange }) {
-  // Canvas state
-  const canvasRef = useRef(null);
-  // TODO: Note that these can become the transfer function index
-  const [pointDragging, setPointDragging] = useState(null);
-  const [pointHovering, setPointHovering] = useState(null);
+// Data Ranges and transformations
+// TODO: Should be able to remove paddedCanvasRange. Just use canvasRange with the included padding. (Wait to change to not confuse variable names in old file)
+const canvasRange = {
+  min: 0,
+  max: undefined,
+}; // Min and max values of the canvas. Was canvasSpace
+const paddedCanvasRange = {
+  min: canvasPadding,
+  max: undefined,
+}; // Min and max values of drawn canvas. Was paddedCanvasSpace
+const colorRange = {
+  min: 0,
+  max: 256, // TODO: Shouldn't this be 255?
+}; // Range of possible colors. Was colorSpace
+const transformPaddedToCanvas = scaleLinear();
+const transformCanvasToColor = scaleLinear();
+const transformColorToData = scaleLinear();
 
-  // Initial render
+// TODO - Redraw when dataRange changes
+function OpacityControls({ state, setState, dataRange }) {
+  const canvasRef = useRef(null);
+  const [canvasPoints, setCanvasPoints] = useState([]); // Was nodesCanvasSpace
+  const [pointDragging, setPointDragging] = useState(null); // TODO: These will become the transfer function index
+  const [pointHovering, setPointHovering] = useState(null); // TODO: These will become the transfer function index
+  const [mouseStart, setMouseStart] = useState({ x: 0, y: 0 }); // Was dragStart [0, 0]
+  const [pointStart, setPointStart] = useState({ x: 0, y: 0 }); // Was startPos, [0, 0]
+
+  // INITIAL RENDER
   useEffect(() => {
-    // Get canvas
     const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
+    canvas.style.border = "1px solid";
+
+    // Set ranges
+    canvasRange.max = canvas.width;
+    paddedCanvasRange.max = canvas.width - canvasPadding;
+
+    // Set transformations
+    transformPaddedToCanvas
+      .domain([paddedCanvasRange.min.paddedCanvasRange.max])
+      .range([canvasRange.min, canvasRange.max]);
+    transformCanvasToColor
+      .domain([canvasRange.min, canvasRange.max])
+      .range([colorRange.min, colorRange.max]);
+    transformColorToData
+      .domain([colorRange.min, colorRange.max])
+      .range([dataRange.min, dataRange.max]);
 
     // Add event listeners
     document.addEventListener("mousemove", dragPoint); // was dragPointer
@@ -41,6 +75,14 @@ function OpacityControls({ state, setState, dataRange }) {
       canvas.removeEventListener("contextmenu", removePoint);
     };
   }, []);
+
+  // Re-draw canvas when transferFunction changes
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
+
+    // TODO: Use initTransferFunction to build canvas points
+  }, [state.transferFunction]);
 
   // Event Listener Functions
   function dragPoint(e) {
@@ -109,7 +151,6 @@ const Labels = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  width: 250px;
 `;
 
 const LabelText = styled.p`

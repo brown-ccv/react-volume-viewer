@@ -47,7 +47,7 @@ function App(props) {
     },
   });
 
-  // Override colorMap on props change
+  // OVERRIDE colorMap ON PROPS CHANGE
   useEffect(() => {
     setState({
       ...state,
@@ -56,7 +56,7 @@ function App(props) {
     });
   }, [colorMap, useTransferFunction]);
 
-  // Override transferFunction on prop change
+  // OVERRIDE transferFunction ON PROPS CHANGE
   useEffect(() => {
     setState({
       ...state,
@@ -64,7 +64,7 @@ function App(props) {
     });
   }, [useTransferFunction, initTransferFunction]);
 
-  // Override sliders on prop change
+  // OVERRIDE sliders ON PROPS CHANGE
   useEffect(() => {
     setState({
       ...state,
