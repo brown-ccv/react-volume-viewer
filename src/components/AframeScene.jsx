@@ -15,13 +15,7 @@ import "../Aframe/render-2d-clipplane";
 function AframeScene({ state, useTransferFunction, model }) {
   function getCoordinates(plane) {
     let coordinates = [];
-
-    if (plane === "x" || plane === "y") {
-      state.transferFunction.forEach((node) => {
-        coordinates.push(node[plane]);
-      });
-    } else console.error("Invalid Plane", plane);
-
+    state.transferFunction.forEach((node) => coordinates.push(node[plane]));
     return coordinates;
   }
 

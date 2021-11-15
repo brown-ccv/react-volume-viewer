@@ -58,11 +58,6 @@ function App(props) {
 
   // Override transferFunction on prop change
   useEffect(() => {
-    console.log(
-      "update transfer function",
-      useTransferFunction,
-      initTransferFunction
-    );
     setState({
       ...state,
       transferFunction: useTransferFunction ? initTransferFunction : [],
