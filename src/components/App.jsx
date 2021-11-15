@@ -33,7 +33,7 @@ function App(props) {
     useDefaultColorMaps,
     useTransferFunction,
   } = props;
-  console.log("PROPS", props);
+  // console.log("PROPS", props);
 
   // TODO: colorMaps must have a length >=1 if useDefaultColorMaps is false (?)
   const [state, setState] = useState({

@@ -27,7 +27,7 @@ VolumeViewer.propTypes = {
       x: PropTypes.number,
       y: PropTypes.number,
     })
-  ), // The initial transfer function (pass to change default in context)
+  ), // The initial transfer function (pass to change default in context).
   path: PropTypes.string.isRequired, // Path to the model (REQUIRED)
   slices: PropTypes.number, // Number of slices in the png
   spacing: PropTypes.exact({
@@ -49,10 +49,10 @@ VolumeViewer.defaultProps = {
   dataRange: { min: 0, max: 1, unit: "" },
   initTransferFunction: [
     { x: 0, y: 0 },
-    { x: 0.11739130434782609, y: 0.11739130434782609 },
-    { x: 0.34782608695652173, y: 0.34782608695652173 },
+    { x: 0.11, y: 0.25 },
+    { x: 0.32, y: 0.5 },
     { x: 1, y: 1 },
-  ],
+  ], // Transfer Function ranges from {x: 0, y: 0} to {x: 1, y: 1}
   position: "0 0 0",
   rotation: "0 0 0",
   scale: "1 1 1",

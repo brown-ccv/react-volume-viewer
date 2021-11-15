@@ -219,6 +219,8 @@ export default class OpacityControls extends Component {
         y: 1 - (node.y - this.padding) / this.height,
       });
     });
+    console.log("Transfer function nodes", this.transferFunctionNodes);
+    console.log("canvasSpace", this.nodesCanvasSpace);
     this.setState({
       ...this.state,
       transferFunction: this.transferFunctionNodes,

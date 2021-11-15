@@ -4,51 +4,61 @@ import { scaleLinear } from "d3-scale";
 
 import Title from "./SectionTitle.jsx";
 
+// Transfer Function:   {x: 0, y: 0} to {x: 1, y: 1}
+// Canvas Space:        {x: 0, y: h} to {x: w, y: 0}
+// Padded Canvas Space: {x: p, y: h-p} to {x: w-p, y: p}
+// Color Space:         0 to 256 (Shouldn't it be 255?)
+// Data Space:          data.min to data.max
+
 // Constants
-// TODO: min and max level
-const canvasPadding = 10;
+const canvasPadding = 10; // Padding on the canvas
 const hoverRadius = 15; // Pixel offset for registering hovering/clicks
 const decimals = 2; // Number of decimals to display in labels
 
-// Data Ranges and transformations
-// TODO: Should be able to remove paddedCanvasRange. Just use canvasRange with the included padding. (Wait to change to not confuse variable names in old file)
+// Data Ranges and Transformations
+// TODO: We should be able to remove paddedCanvasRange. Just use canvasRange with the included padding. (Wait to change to not confuse variable names in old file)
+const transferFunctionRange = {
+  // Was minLevel and maxLevel
+  min: 0,
+  max: 1,
+};
 const canvasRange = {
+  // Was canvasSpace
   min: 0,
   max: undefined,
-}; // Min and max values of the canvas. Was canvasSpace
+};
 const paddedCanvasRange = {
+  // Was paddedCanvasSpace
   min: canvasPadding,
   max: undefined,
-}; // Min and max values of drawn canvas. Was paddedCanvasSpace
+};
 const colorRange = {
   min: 0,
-  max: 256, // TODO: Shouldn't this be 255?
-}; // Range of possible colors. Was colorSpace
+  max: 256, // Shouldn't this be 255?
+};
 const transformPaddedToCanvas = scaleLinear();
 const transformCanvasToColor = scaleLinear();
 const transformColorToData = scaleLinear();
+// TODO: Transform from padded to transfer function (width and height)
 
 // TODO - Redraw when dataRange changes
 function OpacityControls({ state, setState, dataRange }) {
   const canvasRef = useRef(null);
-  const [canvasPoints, setCanvasPoints] = useState([]); // Was nodesCanvasSpace
-  const [pointDragging, setPointDragging] = useState(null); // TODO: These will become the transfer function index
-  const [pointHovering, setPointHovering] = useState(null); // TODO: These will become the transfer function index
+  // const [canvasPoints, setCanvasPoints] = useState([]); // Was nodesCanvasSpace
+  const [pointDragging, setPointDragging] = useState(null); // TODO: This will become a specific point
+  const [pointHovering, setPointHovering] = useState(null); // TODO: This will become a specific point
   const [mouseStart, setMouseStart] = useState({ x: 0, y: 0 }); // Was dragStart [0, 0]
   const [pointStart, setPointStart] = useState({ x: 0, y: 0 }); // Was startPos, [0, 0]
 
   // INITIAL RENDER
   useEffect(() => {
     const canvas = canvasRef.current;
-    canvas.style.border = "1px solid";
 
-    // Set ranges
+    // Set ranges and transformations
     canvasRange.max = canvas.width;
     paddedCanvasRange.max = canvas.width - canvasPadding;
-
-    // Set transformations
     transformPaddedToCanvas
-      .domain([paddedCanvasRange.min.paddedCanvasRange.max])
+      .domain([paddedCanvasRange.min, paddedCanvasRange.max])
       .range([canvasRange.min, canvasRange.max]);
     transformCanvasToColor
       .domain([canvasRange.min, canvasRange.max])
@@ -65,8 +75,8 @@ function OpacityControls({ state, setState, dataRange }) {
     canvas.addEventListener("dblclick", addPoint);
     canvas.addEventListener("contextmenu", removePoint);
 
+    // Remove event listeners
     return () => {
-      // Remove event listeners
       document.removeEventListener("mousemove", dragPoint); // was dragPointer
       document.removeEventListener("mouseup", onMouseUp);
       canvas.removeEventListener("mousemove", changePoint); // was changePointer
@@ -76,12 +86,57 @@ function OpacityControls({ state, setState, dataRange }) {
     };
   }, []);
 
-  // Re-draw canvas when transferFunction changes
+  // Update canvasPoints and redraw whenever transferFunction changes
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
 
-    // TODO: Use initTransferFunction to build canvas points
+    // Update canvas points
+    // TODO: Need to include padding (conversion from canvas height and width to padded height and width)
+    const points = [];
+    state.transferFunction.forEach((p) => {
+      points.push({
+        x: canvas.width * p.x,
+        y: canvas.height * (1 - p.y),
+      });
+    });
+    // setCanvasPoints(points)
+    const canvasPoints = points;
+    console.log("POINTS", points);
+
+    // Draw border
+    canvas.style.border = "1px solid";
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw rule on canvas's midpoint
+    const middle = canvas.width / 2;
+    context.moveTo(middle, canvas.height);
+    context.lineTo(middle, canvas.height - 10);
+    context.stroke();
+
+    // TODO: Can we draw these in only one loop?
+
+    // Draw lines
+    context.strokeStyle = "rgba(128, 128, 128, 0.8)";
+    context.lineWidth = 2;
+    context.beginPath();
+    for (let i = 0; i < canvasPoints.length - 1; i++) {
+      context.moveTo(canvasPoints[i].x, canvasPoints[i].y);
+      context.lineTo(canvasPoints[i + 1].x, canvasPoints[i + 1].y);
+      context.stroke();
+    }
+
+    // Draw points
+    context.strokeStyle = "#AAAAAA";
+    context.lineWidth = 2;
+    canvasPoints.map((point) => {
+      if (pointHovering === point) context.fillStyle = "#FFFF55";
+      else context.fillStyle = "#FFAA00";
+
+      context.beginPath();
+      context.arc(point.x, point.y, 5, 0, 2 * Math.PI);
+      context.fill();
+    });
   }, [state.transferFunction]);
 
   // Event Listener Functions
