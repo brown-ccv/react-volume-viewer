@@ -7,9 +7,9 @@ import "aframe-event-set-component";
 import "aframe-orbit-controls";
 
 import "../Aframe/arcball-camera";
-import "../Aframe/loader";
 import "../Aframe/buttons-check";
 import "../Aframe/cursor-listener";
+import "../Aframe/loader";
 import "../Aframe/render-2d-clipplane";
 
 function AframeScene({ state, useTransferFunction, model }) {

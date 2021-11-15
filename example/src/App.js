@@ -36,15 +36,12 @@ export default function App() {
         <hr />
         <VolumeViewer
           style={{ height: "50vh", width: "1000px" }}
-          controlsVisible
           path={model}
           dataRange={{
             min: 0.05,
             max: 33.71,
             units: "°C",
           }}
-          scale="1 -1 1"
-          rotation="-55 0 0"
         />
       </main>
 
