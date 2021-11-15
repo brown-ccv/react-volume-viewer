@@ -13,10 +13,11 @@ import "../Aframe/loader";
 import "../Aframe/render-2d-clipplane";
 
 function AframeScene({ state, useTransferFunction, model }) {
-  function getCoordinates(transferFunctionNodes, plane) {
+  function getCoordinates(plane) {
     let coordinates = [];
+
     if (plane === "x" || plane === "y") {
-      transferFunctionNodes.forEach((node) => {
+      state.transferFunction.forEach((node) => {
         coordinates.push(node[plane]);
       });
     } else console.error("Invalid Plane", plane);
@@ -61,8 +62,8 @@ function AframeScene({ state, useTransferFunction, model }) {
         loader={{
           useTransferFunction: useTransferFunction,
           colorMap: state.colorMap,
-          alphaXDataArray: getCoordinates(state.transferFunction, "x"),
-          alphaYDataArray: getCoordinates(state.transferFunction, "y"),
+          alphaXDataArray: getCoordinates("x"),
+          alphaYDataArray: getCoordinates("y"),
           path: model.path,
           slices: model.slices,
           x_spacing: model.spacing.x,

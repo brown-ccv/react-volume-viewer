@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { VolumeViewer } from "react-volume-viewer";
 import "./index.css";
@@ -8,11 +8,25 @@ import thermal from "./assets/colormaps/thermal.png";
 import model from "./assets/models/summer-high-salt.png";
 
 export default function App() {
-  // TODO: Add state and buttons to change VolumeViewer props
+  const [colorMap, setColorMap] = useState(haline);
+  const [controlsVisible, setControlsVisible] = useState(true);
+  const [useTransferFunction, setUseTransferFunction] = useState(true);
+
   return (
     <>
       <header>
         <h1>Hello, World</h1>
+        <button
+          onClick={() => setColorMap(colorMap === haline ? thermal : haline)}
+        >
+          Color Map
+        </button>
+        <button onClick={() => setControlsVisible(!controlsVisible)}>
+          Controls Visible
+        </button>
+        <button onClick={() => setUseTransferFunction(!useTransferFunction)}>
+          Use Transfer Function
+        </button>
       </header>
 
       <main style={{ margin: "25px" }}>
@@ -22,8 +36,9 @@ export default function App() {
             Haline: haline,
             Thermal: thermal,
           }}
-          colorMap={haline}
-          controlsVisible={true}
+          colorMap={colorMap}
+          controlsVisible={controlsVisible}
+          useTransferFunction={useTransferFunction}
           path={model}
           dataRange={{
             min: 0.05,
@@ -34,7 +49,7 @@ export default function App() {
           rotation="-55 0 0"
         />
         <hr />
-        <VolumeViewer
+        {/* <VolumeViewer
           style={{ height: "50vh", width: "1000px" }}
           path={model}
           dataRange={{
@@ -42,7 +57,7 @@ export default function App() {
             max: 33.71,
             units: "°C",
           }}
-        />
+        /> */}
       </main>
 
       <footer>

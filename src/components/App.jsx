@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 
 import grayscale from "../assets/grayscale.png";
@@ -16,7 +16,6 @@ const defaultColorMaps = {
 };
 
 function App(props) {
-  // Prop changes should cause re-render automatically
   const {
     className,
     style,
@@ -36,10 +35,8 @@ function App(props) {
   } = props;
   console.log("PROPS", props);
 
-  // TODO: If not useTransferFunction, set colorMaps to only grayscale
   // TODO: colorMaps must have a length >=1 if useDefaultColorMaps is false (?)
-
-  const [state, setState] = React.useState({
+  const [state, setState] = useState({
     colorMap:
       colorMap && useTransferFunction ? colorMap : defaultColorMaps.Grayscale,
     transferFunction: useTransferFunction ? initTransferFunction : null,
@@ -49,6 +46,40 @@ function App(props) {
       z: [sliderRange.min, sliderRange.max],
     },
   });
+
+  // Override colorMap on props change
+  useEffect(() => {
+    setState({
+      ...state,
+      colorMap:
+        colorMap && useTransferFunction ? colorMap : defaultColorMaps.Grayscale,
+    });
+  }, [colorMap, useTransferFunction]);
+
+  // Override transferFunction on prop change
+  useEffect(() => {
+    console.log(
+      "update transfer function",
+      useTransferFunction,
+      initTransferFunction
+    );
+    setState({
+      ...state,
+      transferFunction: useTransferFunction ? initTransferFunction : [],
+    });
+  }, [useTransferFunction, initTransferFunction]);
+
+  // Override sliders on prop change
+  useEffect(() => {
+    setState({
+      ...state,
+      sliders: {
+        x: [sliderRange.min, sliderRange.max],
+        y: [sliderRange.min, sliderRange.max],
+        z: [sliderRange.min, sliderRange.max],
+      },
+    });
+  }, [sliderRange]);
 
   // TODO: Add loading spinner centered on scene (could leave in AframeScene?)
   return (
