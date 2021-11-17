@@ -220,8 +220,8 @@ export default class OpacityControls extends Component {
         y: 1 - (node.y - this.padding) / this.height,
       });
     });
-    this.setState({
-      ...this.state,
+    this.props.setState({
+      ...this.props.state,
       transferFunction: this.transferFunctionNodes,
     });
   }

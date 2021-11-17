@@ -33,9 +33,8 @@ function App(props) {
     useDefaultColorMaps,
     useTransferFunction,
   } = props;
-  console.log("PROPS", props);
+  console.log("PROPS", props); // TEMP
 
-  // TODO: colorMaps must have a length >=1 if useDefaultColorMaps is false (?)
   const [state, setState] = useState({
     model: {
       range: modelRange,
@@ -109,7 +108,6 @@ function App(props) {
     });
   }, [sliderRange]);
 
-  // TODO: Add loading spinner centered on scene (could leave in AframeScene?)
   return (
     <Wrapper className={className} style={style}>
       <AframeScene state={state} useTransferFunction={useTransferFunction} />

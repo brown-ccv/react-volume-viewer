@@ -15,9 +15,9 @@ import "../Aframe/render-2d-clipplane";
 function AframeScene({ state, useTransferFunction }) {
   const { model, colorMap, transferFunction, sliders } = state;
 
-  function getCoordinates(plane) {
+  function getCoordinates(transferFunction, plane) {
     let coordinates = [];
-    transferFunction.forEach((node) => coordinates.push(node[plane]));
+    transferFunction.forEach((point) => coordinates.push(point[plane]));
     return coordinates;
   }
 
@@ -58,8 +58,8 @@ function AframeScene({ state, useTransferFunction }) {
         loader={{
           useTransferFunction: useTransferFunction,
           colorMap: colorMap,
-          alphaXDataArray: getCoordinates("x"),
-          alphaYDataArray: getCoordinates("y"),
+          alphaXDataArray: getCoordinates(transferFunction, "x"),
+          alphaYDataArray: getCoordinates(transferFunction, "y"),
           path: model.path,
           slices: model.slices,
           x_spacing: model.spacing.x,
