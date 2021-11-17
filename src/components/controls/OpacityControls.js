@@ -219,8 +219,6 @@ export default class OpacityControls extends Component {
         y: 1 - (node.y - this.padding) / this.height,
       });
     });
-    console.log("Transfer function nodes", this.transferFunctionNodes);
-    console.log("canvasSpace", this.nodesCanvasSpace);
     this.setState({
       ...this.state,
       transferFunction: this.transferFunctionNodes,
@@ -290,6 +288,7 @@ export default class OpacityControls extends Component {
             Math.pow(e.offsetY - normalizedCoordinates.y, 2)
         ) <= this.hoverRadius
       ) {
+        // This is changinG the mouse type?
         this.opCanvas.className = "pointer";
 
         const nodeInCanvasSpace = this.canvasSpaceToColorSpace(this.nodes[i].x);

@@ -8,6 +8,7 @@ import Title from "./SectionTitle.jsx";
 const canvasPadding = 10; // Padding on the canvas
 const hoverRadius = 15; // Pixel offset for registering hovering/clicks
 const decimals = 2; // Number of decimals to display in labels
+const initCanvasPoints = []; // Starting canvas points, used for reset
 
 // Data Ranges and Transformations
 // Transfer Function:   {x: 0, y: 0} to {x: 1, y: 1}
@@ -82,14 +83,14 @@ function OpacityControls({ state, setState, dataRange }) {
       .range([paddedCanvasRange.min.y, paddedCanvasRange.max.y]);
 
     // Initialize canvas points
-    setCanvasPoints(
-      state.transferFunction.map((p) => {
-        return {
-          x: scaleTransferFunctionToPaddedCanvasX(p.x),
-          y: scaleTransferFunctionToPaddedCanvasY(p.y),
-        };
-      })
-    );
+    const points = state.transferFunction.map((p) => {
+      return {
+        x: scaleTransferFunctionToPaddedCanvasX(p.x),
+        y: scaleTransferFunctionToPaddedCanvasY(p.y),
+      };
+    });
+    setCanvasPoints(points);
+    initCanvasPoints.push(...points);
 
     // Add event listeners
     document.addEventListener("mousemove", dragPoint); // was dragPointer
@@ -158,38 +159,47 @@ function OpacityControls({ state, setState, dataRange }) {
   }, [canvasPoints]);
 
   // Event Listener Functions
+
+  // Drag a point
   function dragPoint(e) {
     // TODO
     e.preventDefault();
     console.log("DRAGGING POINT");
   }
+
+  // Release point
   function onMouseUp(e) {
-    console.log("MOUSE UP");
     setPointDragging(null);
   }
+
   function changePoint(e) {
     // TODO
     console.log("CHANGING POINT");
   }
+
+  // Select a point
   function onMouseDown(e) {
     // TODO
     console.log("MOUSE DOWN");
   }
+
+  // Add point to canvas
   function addPoint(e) {
     // TODO
     console.log("ADD POINT");
   }
-  function removePoint(e) {
-    // TODO
-    console.log("REMOVE POINT");
-    e.preventDefault();
-    // Remove point hovered
-    // Point hovered can't be first or last point
-  }
 
-  // Functions
-  function reset() {
-    console.log("RESET");
+  // Remove hovered point - can't be first or last point
+  function removePoint(e) {
+    e.preventDefault();
+    if (
+      pointHovering &&
+      pointHovering != canvasPoints[0] &&
+      pointHovering != canvasPoints[-1]
+    ) {
+      setCanvasPoints(canvasPoints.splice(this.pointHovering, 1));
+      setNodeHovered(pointHovering);
+    }
   }
 
   return (
@@ -212,7 +222,7 @@ function OpacityControls({ state, setState, dataRange }) {
         Double-click to add a point to the transfer function. Right-click to
         remove a point. Drag points to change the function.
       </p>
-      <Button onClick={() => reset()}> Reset </Button>
+      <Button onClick={() => setCanvasPoints(initCanvasPoints)}> Reset </Button>
     </Wrapper>
   );
 }
