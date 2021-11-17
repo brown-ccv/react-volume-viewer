@@ -24,7 +24,7 @@ VolumeViewer.propTypes = {
     })
   ), // The initial transfer function (pass to change default in context)
 
-  modelDataRange: PropTypes.exact({
+  modelRange: PropTypes.exact({
     min: PropTypes.number,
     max: PropTypes.number,
     unit: PropTypes.string,
@@ -56,7 +56,7 @@ VolumeViewer.defaultProps = {
     { x: 1, y: 1 },
   ],
 
-  modelDataRange: { min: 0, max: 1, unit: "" },
+  modelRange: { min: 0, max: 1, unit: "" },
   modelPosition: "0 0 0",
   modelRotation: "0 0 0",
   modelScale: "1 1 1",

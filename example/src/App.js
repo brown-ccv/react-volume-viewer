@@ -38,7 +38,7 @@ export default function App() {
           }}
           colorMap={colorMap}
           controlsVisible={controlsVisible}
-          modelDataRange={{
+          modelRange={{
             min: 0.05,
             max: 33.71,
             unit: "°C",
@@ -53,7 +53,7 @@ export default function App() {
         {/* <VolumeViewer
           style={{ height: "50vh", width: "1000px" }}
           modelPath={model}
-          modelDataRange={{
+          modelRange={{
             min: 0.05,
             max: 33.71,
             units: "°C",

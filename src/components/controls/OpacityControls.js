@@ -112,10 +112,10 @@ export default class OpacityControls extends Component {
 
   componentWillReceiveProps(nextProps) {
     this.dataSpace = {
-      min: nextProps.dataRange.min,
-      mid: (nextProps.dataRange.min + nextProps.dataRange.max) / 2,
-      max: nextProps.dataRange.max,
-      units: nextProps.dataRange.units,
+      min: nextProps.range.min,
+      mid: (nextProps.range.min + nextProps.range.max) / 2,
+      max: nextProps.range.max,
+      units: nextProps.range.units,
     };
 
     this.colorSpaceToDataDomain = scaleLinear()

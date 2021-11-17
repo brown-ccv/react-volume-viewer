@@ -23,7 +23,7 @@ function App(props) {
     colorMaps,
     controlsVisible,
     initTransferFunction,
-    modelDataRange,
+    modelRange,
     modelPath,
     modelPosition,
     modelRotation,
@@ -83,7 +83,7 @@ function App(props) {
         state={state}
         useTransferFunction={useTransferFunction}
         model={{ 
-          dataRange: modelDataRange, 
+          range: modelRange, 
           path: modelPath, 
           position: modelPosition, 
           rotation: modelRotation, 
@@ -98,7 +98,7 @@ function App(props) {
           state={state}
           setState={setState}
           sliderRange={sliderRange}
-          dataRange={modelDataRange}
+          range={modelRange}
           colorMaps={
             useDefaultColorMaps
               ? { ...colorMaps, ...defaultColorMaps }
