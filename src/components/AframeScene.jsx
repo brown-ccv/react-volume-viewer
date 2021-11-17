@@ -12,10 +12,12 @@ import "../Aframe/cursor-listener";
 import "../Aframe/loader";
 import "../Aframe/render-2d-clipplane";
 
-function AframeScene({ state, useTransferFunction, model }) {
+function AframeScene({ state, useTransferFunction }) {
+  const { model, colorMap, transferFunction, sliders } = state;
+
   function getCoordinates(plane) {
     let coordinates = [];
-    state.transferFunction.forEach((node) => coordinates.push(node[plane]));
+    transferFunction.forEach((node) => coordinates.push(node[plane]));
     return coordinates;
   }
 
@@ -32,9 +34,9 @@ function AframeScene({ state, useTransferFunction, model }) {
         id="clipplane2DListener"
         render-2d-clipplane={{
           activateClipPlane: true,
-          xBounds: state.sliders.x,
-          yBounds: state.sliders.y,
-          zBounds: state.sliders.z,
+          xBounds: sliders.x,
+          yBounds: sliders.y,
+          zBounds: sliders.z,
           currentAxisAngle: "0 0 0",
           rotateAngle: "0 0 0",
           clipX: "0 0",
@@ -55,7 +57,7 @@ function AframeScene({ state, useTransferFunction, model }) {
         class="clickableMesh"
         loader={{
           useTransferFunction: useTransferFunction,
-          colorMap: state.colorMap,
+          colorMap: colorMap,
           alphaXDataArray: getCoordinates("x"),
           alphaYDataArray: getCoordinates("y"),
           path: model.path,

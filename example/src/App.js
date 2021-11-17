@@ -46,7 +46,6 @@ export default function App() {
           modelPath={model}
           modelScale="1 -1 1"
           modelRotation="-55 0 0"
-
           useTransferFunction={useTransferFunction}
         />
         <hr />

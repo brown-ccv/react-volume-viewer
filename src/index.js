@@ -42,7 +42,6 @@ VolumeViewer.propTypes = {
 
   useDefaultColorMaps: PropTypes.bool, // Whether or not to use the package's default color maps
   useTransferFunction: PropTypes.bool, // Whether or not to color the model with the transfer function
-  
 };
 
 VolumeViewer.defaultProps = {

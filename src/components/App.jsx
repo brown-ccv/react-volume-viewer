@@ -37,6 +37,15 @@ function App(props) {
 
   // TODO: colorMaps must have a length >=1 if useDefaultColorMaps is false (?)
   const [state, setState] = useState({
+    model: {
+      range: modelRange,
+      path: modelPath,
+      position: modelPosition,
+      rotation: modelRotation,
+      scale: modelScale,
+      slices: modelSlices,
+      spacing: modelSpacing,
+    },
     colorMap:
       colorMap && useTransferFunction ? colorMap : defaultColorMaps.Grayscale,
     transferFunction: useTransferFunction ? initTransferFunction : null,
@@ -46,6 +55,30 @@ function App(props) {
       z: [sliderRange.min, sliderRange.max],
     },
   });
+
+  // Change model on props change
+  useEffect(() => {
+    setState({
+      ...state,
+      model: {
+        range: modelRange,
+        path: modelPath,
+        position: modelPosition,
+        rotation: modelRotation,
+        scale: modelScale,
+        slices: modelSlices,
+        spacing: modelSpacing,
+      },
+    });
+  }, [
+    modelRange,
+    modelPath,
+    modelPosition,
+    modelRotation,
+    modelScale,
+    modelSlices,
+    modelSpacing,
+  ]);
 
   // Override colorMap on props change
   useEffect(() => {
@@ -79,26 +112,13 @@ function App(props) {
   // TODO: Add loading spinner centered on scene (could leave in AframeScene?)
   return (
     <Wrapper className={className} style={style}>
-      <AframeScene
-        state={state}
-        useTransferFunction={useTransferFunction}
-        model={{ 
-          range: modelRange, 
-          path: modelPath, 
-          position: modelPosition, 
-          rotation: modelRotation, 
-          scale: modelScale, 
-          slices: modelSlices, 
-          spacing: modelSpacing
-        }}
-      />
+      <AframeScene state={state} useTransferFunction={useTransferFunction} />
 
       {controlsVisible && (
         <Controls
           state={state}
           setState={setState}
           sliderRange={sliderRange}
-          range={modelRange}
           colorMaps={
             useDefaultColorMaps
               ? { ...colorMaps, ...defaultColorMaps }
