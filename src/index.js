@@ -7,16 +7,15 @@ function VolumeViewer(props) {
   return <App {...props} />;
 }
 
-// TODO: String validation for position, rotation, scale
 VolumeViewer.propTypes = {
   /** The current color map (path to the image) */
   colorMap: PropTypes.string,
 
-  /** 
+  /**
    * Dictionary of color maps available in the controls.
    *  key: Name of the color map
    *  value: Path to the color map
-  */
+   */
   colorMaps: PropTypes.shape({
     Example: PropTypes.string,
   }),
@@ -24,10 +23,10 @@ VolumeViewer.propTypes = {
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
 
-  /** 
+  /**
    * The transfer function applied to the color map
    * Array of 2D points
-  */
+   */
   transferFunction: PropTypes.arrayOf(
     PropTypes.exact({
       x: PropTypes.number,
@@ -35,10 +34,10 @@ VolumeViewer.propTypes = {
     })
   ),
 
-  /** 
-   * Minimum and maximum values of the model's dataset 
+  /**
+   * Minimum and maximum values of the model's dataset
    * Min and max values are required
-  */
+   */
   modelRange: PropTypes.exact({
     min: PropTypes.number.isRequired,
     max: PropTypes.number.isRequired,
@@ -67,12 +66,12 @@ VolumeViewer.propTypes = {
     z: PropTypes.number,
   }),
 
-  /** 
-   * Whether or not to use the libraries default color maps 
+  /**
+   * Whether or not to use the libraries default color maps
    * Default Color Maps: Grayscale, Natural, RGB
-  */
+   */
   useDefaultColorMaps: PropTypes.bool,
-  
+
   /** Whether or not to apply a transfer function to the model */
   useTransferFunction: PropTypes.bool,
 };
