@@ -15,12 +15,6 @@ import "../Aframe/render-2d-clipplane";
 function AframeScene({ state, useTransferFunction }) {
   const { model, colorMap, transferFunction, sliders } = state;
 
-  function getCoordinates(transferFunction, plane) {
-    let coordinates = [];
-    transferFunction.forEach((point) => coordinates.push(point[plane]));
-    return coordinates;
-  }
-
   return (
     <StyledScene id="volumeViewerScene" background="color: black" embedded>
       <Entity
@@ -58,8 +52,8 @@ function AframeScene({ state, useTransferFunction }) {
         loader={{
           useTransferFunction: useTransferFunction,
           colorMap: colorMap,
-          alphaXDataArray: getCoordinates(transferFunction, "x"),
-          alphaYDataArray: getCoordinates(transferFunction, "y"),
+          alphaXDataArray: transferFunction.map(p => p["x"]),
+          alphaYDataArray: transferFunction.map(p => p["y"]),
           path: model.path,
           slices: model.slices,
           x_spacing: model.spacing.x,
