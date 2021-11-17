@@ -4,33 +4,32 @@ import { scaleLinear } from "d3-scale";
 
 import Title from "./SectionTitle.jsx";
 
-// Transfer Function:   {x: 0, y: 0} to {x: 1, y: 1}
-// Canvas Space:        {x: 0, y: h} to {x: w, y: 0}
-// Padded Canvas Space: {x: p, y: h-p} to {x: w-p, y: p}
-// Color Space:         0 to 256 (Shouldn't it be 255?)
-// Data Space:          data.min to data.max
-
 // Constants
 const canvasPadding = 10; // Padding on the canvas
 const hoverRadius = 15; // Pixel offset for registering hovering/clicks
 const decimals = 2; // Number of decimals to display in labels
 
 // Data Ranges and Transformations
+// Transfer Function:   {x: 0, y: 0} to {x: 1, y: 1}
+// Canvas Space:        {x: 0, y: h} to {x: w, y: 0}
+// Padded Canvas Space: {x: p, y: h-p} to {x: w-p, y: p}
+// Color Space:         0 to 256 (Shouldn't it be 255?)
+// Data Space:          data.min to data.max
 // TODO: We should be able to remove paddedCanvasRange. Just use canvasRange with the included padding. (Wait to change to not confuse variable names in old file)
 const transferFunctionRange = {
   // Was minLevel and maxLevel
-  min: 0,
-  max: 1,
+  min: { x: 0, y: 0 },
+  max: { x: 1, y: 1 },
 };
 const canvasRange = {
   // Was canvasSpace
-  min: 0,
-  max: undefined,
+  min: { x: 0, y: undefined },
+  max: { x: undefined, y: 0 },
 };
 const paddedCanvasRange = {
   // Was paddedCanvasSpace
-  min: canvasPadding,
-  max: undefined,
+  min: { x: canvasPadding, y: undefined },
+  max: { x: undefined, y: canvasPadding },
 };
 const colorRange = {
   min: 0,
@@ -39,9 +38,13 @@ const colorRange = {
 const transformPaddedToCanvas = scaleLinear();
 const transformCanvasToColor = scaleLinear();
 const transformColorToData = scaleLinear();
-// TODO: Transform from padded to transfer function (width and height)
+
+// Transform transferFunction to paddedCanvas
+const scaleTransferFunctionToPaddedCanvasX = scaleLinear();
+const scaleTransferFunctionToPaddedCanvasY = scaleLinear();
 
 // TODO - Redraw when dataRange changes
+// TODO - dataRange has been renamed in main (state.model.range)
 function OpacityControls({ state, setState, dataRange }) {
   const canvasRef = useRef(null);
   // const [canvasPoints, setCanvasPoints] = useState([]); // Was nodesCanvasSpace
@@ -54,18 +57,29 @@ function OpacityControls({ state, setState, dataRange }) {
   useEffect(() => {
     const canvas = canvasRef.current;
 
-    // Set ranges and transformations
-    canvasRange.max = canvas.width;
-    paddedCanvasRange.max = canvas.width - canvasPadding;
-    transformPaddedToCanvas
-      .domain([paddedCanvasRange.min, paddedCanvasRange.max])
-      .range([canvasRange.min, canvasRange.max]);
+    // Set ranges
+    canvasRange.max.x = canvas.width;
+    canvasRange.min.y = canvas.height;
+    paddedCanvasRange.max.x = canvas.width - canvasPadding;
+    paddedCanvasRange.min.y = canvas.height - canvasPadding;
+
+    // Set transformations
+    // transformPaddedToCanvas
+    //   .domain([paddedCanvasRange.min, paddedCanvasRange.max])
+    //   .range([canvasRange.min, canvasRange.max]);
     transformCanvasToColor
-      .domain([canvasRange.min, canvasRange.max])
+      .domain([canvasRange.min.x, canvasRange.max.x])
       .range([colorRange.min, colorRange.max]);
     transformColorToData
       .domain([colorRange.min, colorRange.max])
       .range([dataRange.min, dataRange.max]);
+
+    scaleTransferFunctionToPaddedCanvasX
+      .domain([transferFunctionRange.min.x, transferFunctionRange.max.x])
+      .range([paddedCanvasRange.min.x, paddedCanvasRange.max.x]);
+    scaleTransferFunctionToPaddedCanvasY
+      .domain([transferFunctionRange.min.y, transferFunctionRange.max.y])
+      .range([paddedCanvasRange.min.y, paddedCanvasRange.max.y]);
 
     // Add event listeners
     document.addEventListener("mousemove", dragPoint); // was dragPointer
@@ -96,13 +110,13 @@ function OpacityControls({ state, setState, dataRange }) {
     const points = [];
     state.transferFunction.forEach((p) => {
       points.push({
-        x: canvas.width * p.x,
-        y: canvas.height * (1 - p.y),
+        x: scaleTransferFunctionToPaddedCanvasX(p.x),
+        y: scaleTransferFunctionToPaddedCanvasY(p.y),
       });
     });
     // setCanvasPoints(points)
     const canvasPoints = points;
-    console.log("POINTS", points);
+    console.log("POINTS", points, state.transferFunction);
 
     // Draw border
     canvas.style.border = "1px solid";
