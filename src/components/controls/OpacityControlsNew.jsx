@@ -47,7 +47,7 @@ const scaleTransferFunctionToPaddedCanvasY = scaleLinear();
 // TODO - dataRange has been renamed in main (state.model.range)
 function OpacityControls({ state, setState, dataRange }) {
   const canvasRef = useRef(null);
-  // const [canvasPoints, setCanvasPoints] = useState([]); // Was nodesCanvasSpace
+  const [canvasPoints, setCanvasPoints] = useState([]); // Was nodesCanvasSpace
   const [pointDragging, setPointDragging] = useState(null); // TODO: This will become a specific point
   const [pointHovering, setPointHovering] = useState(null); // TODO: This will become a specific point
   const [mouseStart, setMouseStart] = useState({ x: 0, y: 0 }); // Was dragStart [0, 0]
@@ -81,6 +81,16 @@ function OpacityControls({ state, setState, dataRange }) {
       .domain([transferFunctionRange.min.y, transferFunctionRange.max.y])
       .range([paddedCanvasRange.min.y, paddedCanvasRange.max.y]);
 
+    // Initialize canvas points
+    setCanvasPoints(
+      state.transferFunction.map((p) => {
+        return {
+          x: scaleTransferFunctionToPaddedCanvasX(p.x),
+          y: scaleTransferFunctionToPaddedCanvasY(p.y),
+        };
+      })
+    );
+
     // Add event listeners
     document.addEventListener("mousemove", dragPoint); // was dragPointer
     document.addEventListener("mouseup", onMouseUp);
@@ -100,35 +110,18 @@ function OpacityControls({ state, setState, dataRange }) {
     };
   }, []);
 
-  // Update canvasPoints and redraw whenever transferFunction changes
+  // Draw canvas whenever canvasPoints changes
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
+    console.log("DRAWING");
 
-    // Update canvas points
-    // TODO: Need to include padding (conversion from canvas height and width to padded height and width)
-    const points = [];
-    state.transferFunction.forEach((p) => {
-      points.push({
-        x: scaleTransferFunctionToPaddedCanvasX(p.x),
-        y: scaleTransferFunctionToPaddedCanvasY(p.y),
-      });
-    });
-    // setCanvasPoints(points)
-    const canvasPoints = points;
-    console.log("POINTS", points, state.transferFunction);
-
-    // Draw border
-    canvas.style.border = "1px solid";
+    // Reset and Draw rule on canvas's midpoint
     context.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Draw rule on canvas's midpoint
     const middle = canvas.width / 2;
     context.moveTo(middle, canvas.height);
     context.lineTo(middle, canvas.height - 10);
     context.stroke();
-
-    // TODO: Can we draw these in only one loop?
 
     // Draw lines
     context.strokeStyle = "rgba(128, 128, 128, 0.8)";
@@ -151,7 +144,18 @@ function OpacityControls({ state, setState, dataRange }) {
       context.arc(point.x, point.y, 5, 0, 2 * Math.PI);
       context.fill();
     });
-  }, [state.transferFunction]);
+
+    // Update transferFunction
+    setState({
+      ...state,
+      transferFunction: canvasPoints.map((p) => {
+        return {
+          x: scaleTransferFunctionToPaddedCanvasX.invert(p.x),
+          y: scaleTransferFunctionToPaddedCanvasY.invert(p.y),
+        };
+      }),
+    });
+  }, [canvasPoints]);
 
   // Event Listener Functions
   function dragPoint(e) {
@@ -178,6 +182,9 @@ function OpacityControls({ state, setState, dataRange }) {
   function removePoint(e) {
     // TODO
     console.log("REMOVE POINT");
+    e.preventDefault();
+    // Remove point hovered
+    // Point hovered can't be first or last point
   }
 
   // Functions
@@ -188,7 +195,7 @@ function OpacityControls({ state, setState, dataRange }) {
   return (
     <Wrapper>
       <Title>Transfer Function</Title>
-      <canvas ref={canvasRef} id="opacityControls" />
+      <OutlinedCanvas ref={canvasRef} id="opacityControls" />
       <Labels>
         <LabelText>
           {dataRange.min.toFixed(decimals)} {dataRange.units}
@@ -214,7 +221,9 @@ const Wrapper = styled.div`
   margin: 25px 0;
 `;
 
-const Button = styled.button``;
+const OutlinedCanvas = styled.canvas`
+  outline: 1px solid;
+`;
 
 const Labels = styled.div`
   display: flex;
@@ -227,5 +236,7 @@ const LabelText = styled.p`
   margin: 0;
   font-size: 11px;
 `;
+
+const Button = styled.button``;
 
 export default OpacityControls;
