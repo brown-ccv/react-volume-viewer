@@ -111,7 +111,7 @@ export default class OpacityControls extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { min, max, units} = nextProps.state.model.range;
+    const { min, max, units } = nextProps.state.model.range;
     this.dataSpace = {
       min: min,
       mid: (min + max) / 2,

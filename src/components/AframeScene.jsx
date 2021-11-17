@@ -52,8 +52,8 @@ function AframeScene({ state, useTransferFunction }) {
         loader={{
           useTransferFunction: useTransferFunction,
           colorMap: colorMap,
-          alphaXDataArray: transferFunction.map(p => p["x"]),
-          alphaYDataArray: transferFunction.map(p => p["y"]),
+          alphaXDataArray: transferFunction.map((p) => p["x"]),
+          alphaYDataArray: transferFunction.map((p) => p["y"]),
           path: model.path,
           slices: model.slices,
           x_spacing: model.spacing.x,
