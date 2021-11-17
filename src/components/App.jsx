@@ -22,14 +22,14 @@ function App(props) {
     colorMap,
     colorMaps,
     controlsVisible,
-    dataRange,
     initTransferFunction,
-    path,
-    position,
-    rotation,
-    scale,
-    slices,
-    spacing,
+    modelDataRange,
+    modelPath,
+    modelPosition,
+    modelRotation,
+    modelScale,
+    modelSlices,
+    modelSpacing,
     useDefaultColorMaps,
     useTransferFunction,
   } = props;
@@ -82,7 +82,15 @@ function App(props) {
       <AframeScene
         state={state}
         useTransferFunction={useTransferFunction}
-        model={{ dataRange, path, position, rotation, scale, slices, spacing }}
+        model={{ 
+          dataRange: modelDataRange, 
+          path: modelPath, 
+          position: modelPosition, 
+          rotation: modelRotation, 
+          scale: modelScale, 
+          slices: modelSlices, 
+          spacing: modelSpacing
+        }}
       />
 
       {controlsVisible && (
@@ -90,7 +98,7 @@ function App(props) {
           state={state}
           setState={setState}
           sliderRange={sliderRange}
-          dataRange={dataRange}
+          dataRange={modelDataRange}
           colorMaps={
             useDefaultColorMaps
               ? { ...colorMaps, ...defaultColorMaps }

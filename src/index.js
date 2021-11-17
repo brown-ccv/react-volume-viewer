@@ -17,7 +17,6 @@ VolumeViewer.propTypes = {
     Example: PropTypes.string, // Key is the name of the color map
   }), // Default Color Maps
   controlsVisible: PropTypes.bool, // Whether or not the controls can be seen
-
   initialTransferFunction: PropTypes.arrayOf(
     PropTypes.exact({
       x: PropTypes.number,
@@ -25,26 +24,25 @@ VolumeViewer.propTypes = {
     })
   ), // The initial transfer function (pass to change default in context)
 
+  modelDataRange: PropTypes.exact({
+    min: PropTypes.number,
+    max: PropTypes.number,
+    unit: PropTypes.string,
+  }), // Data points used in OpacityControls.js from unmerged branch
+  modelPath: PropTypes.string.isRequired, // Path to the model (REQUIRED)
+  modelPosition: PropTypes.string, // Position of the model
+  modelPotation: PropTypes.string, // Rotation of the model, default isn't the rotation of the RIDDC models
+  modelScale: PropTypes.string, // Scale of the models, default isn't the scale of the RIDDC models
+  modelSlices: PropTypes.number, // Number of slices in the png
+  modelSpacing: PropTypes.exact({
+    x: PropTypes.number,
+    y: PropTypes.number,
+    z: PropTypes.number,
+  }), // Spacing of the slices, consolidated into 1 object
+
   useDefaultColorMaps: PropTypes.bool, // Whether or not to use the package's default color maps
   useTransferFunction: PropTypes.bool, // Whether or not to color the model with the transfer function
-
-  model: PropTypes.shape({
-    dataRange: PropTypes.exact({
-      min: PropTypes.number,
-      max: PropTypes.number,
-      unit: PropTypes.string,
-    }), // Data points used in OpacityControls.js from unmerged branch
-    path: PropTypes.string.isRequired, // Path to the model (REQUIRED)
-    position: PropTypes.string, // Position of the model
-    rotation: PropTypes.string, // Rotation of the model, default isn't the rotation of the RIDDC models
-    scale: PropTypes.string, // Scale of the models, default isn't the scale of the RIDDC models
-    slices: PropTypes.number, // Number of slices in the png
-    spacing: PropTypes.exact({
-      x: PropTypes.number,
-      y: PropTypes.number,
-      z: PropTypes.number,
-    }), // Spacing of the slices, consolidated into 1 object
-  })
+  
 };
 
 VolumeViewer.defaultProps = {
@@ -58,24 +56,14 @@ VolumeViewer.defaultProps = {
     { x: 1, y: 1 },
   ],
 
-  model: {
-    dataRange: { min: 0, max: 1, unit: "" },
-    position: "0 0 0",
-    rotation: "0 0 0",
-    scale: "1 1 1",
-    slices: 55,
-    spacing: { x: 2, y: 2, z: 1 },
-  },
+  modelDataRange: { min: 0, max: 1, unit: "" },
+  modelPosition: "0 0 0",
+  modelRotation: "0 0 0",
+  modelScale: "1 1 1",
+  modelSlices: 55,
+  modelSpacing: { x: 2, y: 2, z: 1 },
   useDefaultColorMaps: true,
   useTransferFunction: true,
-
-  // position: "0 0 0",
-  // rotation: "0 0 0",
-  // scale: "1 1 1",
-  // slices: 55,
-  // spacing: { x: 2, y: 2, z: 1 },
-  // useDefaultColorMaps: true,
-  // useTransferFunction: true,
 };
 
 export { VolumeViewer };
