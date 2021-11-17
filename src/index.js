@@ -8,47 +8,80 @@ function VolumeViewer(props) {
 }
 
 // TODO: String validation for position, rotation, scale
-// TODO: Force user to pass min and max but not unit for dataRange?
-// TODO: Combine model into a single object? - What happens when one property changes?
-// TODO: ColorMap should be passed as a string, not the path itself - access width colorMaps[colorMap]
 VolumeViewer.propTypes = {
-  colorMap: PropTypes.string, // The current color map (import image and pass that)
+  /** The current color map (path to the image) */
+  colorMap: PropTypes.string,
+
+  /** 
+   * Dictionary of color maps available in the controls.
+   *  key: Name of the color map
+   *  value: Path to the color map
+  */
   colorMaps: PropTypes.shape({
-    Example: PropTypes.string, // Key is the name of the color map
-  }), // Default Color Maps
-  controlsVisible: PropTypes.bool, // Whether or not the controls can be seen
-  initialTransferFunction: PropTypes.arrayOf(
+    Example: PropTypes.string,
+  }),
+
+  /** Whether or not the controls can be seen */
+  controlsVisible: PropTypes.bool,
+
+  /** 
+   * The transfer function applied to the color map
+   * Array of 2D points
+  */
+  transferFunction: PropTypes.arrayOf(
     PropTypes.exact({
       x: PropTypes.number,
       y: PropTypes.number,
     })
-  ), // The initial transfer function (pass to change default in context)
+  ),
 
+  /** 
+   * Minimum and maximum values of the model's dataset 
+   * Min and max values are required
+  */
   modelRange: PropTypes.exact({
-    min: PropTypes.number,
-    max: PropTypes.number,
+    min: PropTypes.number.isRequired,
+    max: PropTypes.number.isRequired,
     unit: PropTypes.string,
-  }), // Data points used in OpacityControls.js from unmerged branch
-  modelPath: PropTypes.string.isRequired, // Path to the model (REQUIRED)
-  modelPosition: PropTypes.string, // Position of the model
-  modelPotation: PropTypes.string, // Rotation of the model, default isn't the rotation of the RIDDC models
-  modelScale: PropTypes.string, // Scale of the models, default isn't the scale of the RIDDC models
-  modelSlices: PropTypes.number, // Number of slices in the png
+  }),
+
+  /** Path to the model REQUIRED */
+  modelPath: PropTypes.string.isRequired,
+
+  /** Position of the model in the scene */
+  modelPosition: PropTypes.string,
+
+  /** Position of the model in the scene */
+  modelRotation: PropTypes.string,
+
+  /** Scale of the model in the scene */
+  modelScale: PropTypes.string,
+
+  /** Number of slices used to generate's the model */
+  modelSlices: PropTypes.number,
+
+  /** Spacing between the slices of the model */
   modelSpacing: PropTypes.exact({
     x: PropTypes.number,
     y: PropTypes.number,
     z: PropTypes.number,
-  }), // Spacing of the slices, consolidated into 1 object
+  }),
 
-  useDefaultColorMaps: PropTypes.bool, // Whether or not to use the package's default color maps
-  useTransferFunction: PropTypes.bool, // Whether or not to color the model with the transfer function
+  /** 
+   * Whether or not to use the libraries default color maps 
+   * Default Color Maps: Grayscale, Natural, RGB
+  */
+  useDefaultColorMaps: PropTypes.bool,
+  
+  /** Whether or not to apply a transfer function to the model */
+  useTransferFunction: PropTypes.bool,
 };
 
 VolumeViewer.defaultProps = {
   colorMap: null,
   colorMaps: {},
   controlsVisible: true,
-  initTransferFunction: [
+  transferFunction: [
     { x: 0, y: 0 },
     { x: 0.11739130434782609, y: 0.11739130434782609 },
     { x: 0.34782608695652173, y: 0.34782608695652173 },

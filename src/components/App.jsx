@@ -22,7 +22,7 @@ function App(props) {
     colorMap,
     colorMaps,
     controlsVisible,
-    initTransferFunction,
+    transferFunction,
     modelRange,
     modelPath,
     modelPosition,
@@ -48,7 +48,7 @@ function App(props) {
     },
     colorMap:
       colorMap && useTransferFunction ? colorMap : defaultColorMaps.Grayscale,
-    transferFunction: useTransferFunction ? initTransferFunction : null,
+    transferFunction: useTransferFunction ? transferFunction : [],
     sliders: {
       x: [sliderRange.min, sliderRange.max],
       y: [sliderRange.min, sliderRange.max],
@@ -93,9 +93,9 @@ function App(props) {
   useEffect(() => {
     setState({
       ...state,
-      transferFunction: useTransferFunction ? initTransferFunction : [],
+      transferFunction: useTransferFunction ? transferFunction : [],
     });
-  }, [useTransferFunction, initTransferFunction]);
+  }, [useTransferFunction, transferFunction]);
 
   // Override sliders on prop change
   useEffect(() => {
