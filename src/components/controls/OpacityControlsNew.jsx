@@ -45,15 +45,18 @@ const scaleTransferFunctionToPaddedCanvasX = scaleLinear();
 const scaleTransferFunctionToPaddedCanvasY = scaleLinear();
 
 // TODO - Redraw when dataRange changes
-// TODO - dataRange has been renamed in main (state.model.range)
-function OpacityControls({ state, setState, dataRange }) {
+function OpacityControls({ state, setState }) {
   const canvasRef = useRef(null);
   const [canvasPoints, setCanvasPoints] = useState([]); // Was nodesCanvasSpace
   const [pointDragging, setPointDragging] = useState(null); // TODO: This will become a specific point
   const [pointHovering, setPointHovering] = useState(null); // TODO: This will become a specific point
   const [mouseStart, setMouseStart] = useState({ x: 0, y: 0 }); // Was dragStart [0, 0]
   const [pointStart, setPointStart] = useState({ x: 0, y: 0 }); // Was startPos, [0, 0]
-
+  const dataRange = {
+    ...state.model.range,
+    mid: (state.model.range.min + state.model.range.max) /2
+  }
+  
   // INITIAL RENDER
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -208,13 +211,14 @@ function OpacityControls({ state, setState, dataRange }) {
       <OutlinedCanvas ref={canvasRef} id="opacityControls" />
       <Labels>
         <LabelText>
-          {dataRange.min.toFixed(decimals)} {dataRange.units}
+          {dataRange.min.toFixed(decimals)} {dataRange.unit}
         </LabelText>
         <LabelText>
-          {dataRange.mid.toFixed(decimals)} {dataRange.units}
+          {dataRange.mid.toFixed(decimals)} 
+          {dataRange.unit}
         </LabelText>
         <LabelText>
-          {dataRange.max.toFixed(decimals)} {dataRange.units}
+          {dataRange.max.toFixed(decimals)} {dataRange.unit}
         </LabelText>
       </Labels>
 
