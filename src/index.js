@@ -18,24 +18,27 @@ VolumeViewer.propTypes = {
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
 
-  /**
-   * The model to be displayed
-   */
+  /** The model to be displayed and it's related information */
   model: PropTypes.shape({
-    path: PropTypes.string.isRequired /** Path to the model REQUIRED */,
-    position: PropTypes.string /** Position of the model in the scene */,
+    /** Path to the model REQUIRED */
+    path: PropTypes.string.isRequired,
+    /** Position of the model in the scene */
+    position: PropTypes.string,
+    /** Minimum and maximum values of the model's dataset. Min and max values are required */
     range: PropTypes.exact({
-      /** Minimum and maximum values of the model's dataset. Min and max values are required */
       min: PropTypes.number.isRequired,
       max: PropTypes.number.isRequired,
       unit: PropTypes.string,
     }),
-    rotation: PropTypes.string /** Position of the model in the scene */,
-    scale: PropTypes.string /** Scale of the model in the scene */,
-    slices:
-      PropTypes.number /** Number of slices used to generate's the model */,
+    /** Position of the model in the scene */
+    rotation: PropTypes.string,
+    /** Scale of the model in the scene */
+    scale: PropTypes.string,
+    /** Number of slices used to generate the model */
+    slices: PropTypes.number,
+    /** Spacing between the slices of the model */
     spacing: PropTypes.exact({
-      /** Spacing between the slices of the model */ x: PropTypes.number,
+      x: PropTypes.number,
       y: PropTypes.number,
       z: PropTypes.number,
     }),
