@@ -37,15 +37,15 @@ function VolumeViewer(props) {
   } = props;
 
   const [state, setState] = useState({
-    model: { ...defaultModel, ...model },
     colorMap:
       colorMap && useTransferFunction ? colorMap : defaultColorMaps.Grayscale,
-    transferFunction: useTransferFunction ? transferFunction : [],
+    model: { ...defaultModel, ...model },
     sliders: {
       x: [sliderRange.min, sliderRange.max],
       y: [sliderRange.min, sliderRange.max],
       z: [sliderRange.min, sliderRange.max],
     },
+    transferFunction: useTransferFunction ? transferFunction : [],
   });
 
   // Change model on props change
@@ -72,18 +72,6 @@ function VolumeViewer(props) {
       transferFunction: useTransferFunction ? transferFunction : [],
     });
   }, [useTransferFunction, transferFunction]);
-
-  // Override sliders on prop change
-  useEffect(() => {
-    setState({
-      ...state,
-      sliders: {
-        x: [sliderRange.min, sliderRange.max],
-        y: [sliderRange.min, sliderRange.max],
-        z: [sliderRange.min, sliderRange.max],
-      },
-    });
-  }, [sliderRange]);
 
   return (
     <Wrapper className={className} style={style}>
