@@ -38,14 +38,20 @@ export default function App() {
           }}
           colorMap={colorMap}
           controlsVisible={controlsVisible}
-          modelRange={{
-            min: 0.05,
-            max: 33.71,
-            unit: "°C",
+          model={{
+            range: { min: 0.05, max: 33.71, unit: "°C" },
+            path: model,
+            scale: "1 -1 1",
+            rotation: "-55 0 0",
           }}
-          modelPath={model}
-          modelScale="1 -1 1"
-          modelRotation="-55 0 0"
+          // modelRange={{
+          //   min: 0.05,
+          //   max: 33.71,
+          //   unit: "°C",
+          // }}
+          // modelPath={model}
+          // modelScale="1 -1 1"
+          // modelRotation="-55 0 0"
           useTransferFunction={useTransferFunction}
         />
         <hr />

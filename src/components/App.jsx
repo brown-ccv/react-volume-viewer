@@ -14,6 +14,14 @@ const defaultColorMaps = {
   Natural: natural,
   RGB: rgb,
 };
+const defaultModel = {
+  position: "0 0 0",
+  range: { min: 0, max: 1, unit: "" },
+  rotation: "0 0 0",
+  scale: "1 1 1",
+  slices: 55,
+  spacing: { x: 2, y: 2, z: 1 },
+};
 
 function App(props) {
   const {
@@ -22,29 +30,14 @@ function App(props) {
     colorMap,
     colorMaps,
     controlsVisible,
+    model,
     transferFunction,
-    modelRange,
-    modelPath,
-    modelPosition,
-    modelRotation,
-    modelScale,
-    modelSlices,
-    modelSpacing,
     useDefaultColorMaps,
     useTransferFunction,
   } = props;
-  console.log("PROPS", props); // TEMP
 
   const [state, setState] = useState({
-    model: {
-      range: modelRange,
-      path: modelPath,
-      position: modelPosition,
-      rotation: modelRotation,
-      scale: modelScale,
-      slices: modelSlices,
-      spacing: modelSpacing,
-    },
+    model: { ...defaultModel, ...model },
     colorMap:
       colorMap && useTransferFunction ? colorMap : defaultColorMaps.Grayscale,
     transferFunction: useTransferFunction ? transferFunction : [],
@@ -59,25 +52,9 @@ function App(props) {
   useEffect(() => {
     setState({
       ...state,
-      model: {
-        range: modelRange,
-        path: modelPath,
-        position: modelPosition,
-        rotation: modelRotation,
-        scale: modelScale,
-        slices: modelSlices,
-        spacing: modelSpacing,
-      },
+      model: { ...defaultModel, ...model },
     });
-  }, [
-    modelRange,
-    modelPath,
-    modelPosition,
-    modelRotation,
-    modelScale,
-    modelSlices,
-    modelSpacing,
-  ]);
+  }, [model]);
 
   // Override colorMap on props change
   useEffect(() => {
@@ -119,7 +96,7 @@ function App(props) {
           sliderRange={sliderRange}
           colorMaps={
             useDefaultColorMaps
-              ? { ...colorMaps, ...defaultColorMaps }
+              ? { ...defaultColorMaps, ...colorMaps }
               : colorMaps
           }
         />
