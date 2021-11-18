@@ -7,7 +7,7 @@ import OpacityControls from "./OpacityControlsNew.jsx";
 import ClipControls from "./ClipControls.jsx";
 
 function Controls(props) {
-  const { state, setState, sliderRange, dataRange, colorMaps } = props;
+  const { state, setState, sliderRange, colorMaps } = props;
 
   return (
     <Wrapper>
@@ -18,16 +18,7 @@ function Controls(props) {
       />
 
       {state.transferFunction && (
-        <OpacityControls
-          state={state}
-          setState={setState}
-          dataRange={{
-            min: dataRange.min,
-            mid: (dataRange.min + dataRange.max) / 2,
-            max: dataRange.max,
-            unit: dataRange.unit,
-          }}
-        />
+        <OpacityControls state={state} setState={setState} />
       )}
 
       <ClipControls

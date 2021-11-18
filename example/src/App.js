@@ -38,26 +38,22 @@ export default function App() {
           }}
           colorMap={colorMap}
           controlsVisible={controlsVisible}
-          useTransferFunction={useTransferFunction}
-          path={model}
-          dataRange={{
-            min: 0.05,
-            max: 33.71,
-            unit: "°C",
+          model={{
+            range: { min: 0.05, max: 33.71, unit: "°C" },
+            path: model,
+            scale: "1 -1 1",
+            rotation: "-55 0 0",
           }}
-          scale="1 -1 1"
-          rotation="-55 0 0"
+          useTransferFunction={useTransferFunction}
         />
         <hr />
-        {/* <VolumeViewer
+        <VolumeViewer
           style={{ height: "50vh", width: "1000px" }}
-          path={model}
-          dataRange={{
-            min: 0.05,
-            max: 33.71,
-            unit: "°C",
+          model={{
+            path: model,
+            range: { min: 0.05, max: 33.71, unit: "°C" },
           }}
-        /> */}
+        />
       </main>
 
       <footer>

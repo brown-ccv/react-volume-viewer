@@ -50,7 +50,7 @@ export default class OpacityControls extends Component {
       min: 0,
       max: this.canvasWidth * 0.92, // 250 * 0.92 = 230 which is 2*padding
     };
-    this.dataSpace = { min: 0, mid: 0, max: 1, units: "" };
+    this.dataSpace = { min: 0, mid: 0, max: 1, unit: "" };
     this.colorSpace = { min: 0, max: 256 };
     this.canvasSpaceToColorSpace = scaleLinear()
       .domain([this.paddedCanvasSpace.min, this.paddedCanvasSpace.max])
@@ -111,11 +111,12 @@ export default class OpacityControls extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    const { min, max, unit } = nextProps.state.model.range;
     this.dataSpace = {
-      min: nextProps.dataRange.min,
-      mid: (nextProps.dataRange.min + nextProps.dataRange.max) / 2,
-      max: nextProps.dataRange.max,
-      units: nextProps.dataRange.units,
+      min: min,
+      mid: (min + max) / 2,
+      max: max,
+      unit: unit,
     };
 
     this.colorSpaceToDataDomain = scaleLinear()
@@ -219,8 +220,8 @@ export default class OpacityControls extends Component {
         y: 1 - (node.y - this.padding) / this.height,
       });
     });
-    this.setState({
-      ...this.state,
+    this.props.setState({
+      ...this.props.state,
       transferFunction: this.transferFunctionNodes,
     });
   }
@@ -395,15 +396,15 @@ export default class OpacityControls extends Component {
         <Labels>
           <LabelText>
             {this.dataSpace.min.toFixed(this.displayedDecimals)}{" "}
-            {this.dataSpace.units}
+            {this.dataSpace.unit}
           </LabelText>
           <LabelText>
             {this.dataSpace.mid.toFixed(this.displayedDecimals)}{" "}
-            {this.dataSpace.units}
+            {this.dataSpace.unit}
           </LabelText>
           <LabelText>
             {this.dataSpace.max.toFixed(this.displayedDecimals)}{" "}
-            {this.dataSpace.units}
+            {this.dataSpace.unit}
           </LabelText>
         </Labels>
 
