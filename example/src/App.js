@@ -44,26 +44,16 @@ export default function App() {
             scale: "1 -1 1",
             rotation: "-55 0 0",
           }}
-          // modelRange={{
-          //   min: 0.05,
-          //   max: 33.71,
-          //   unit: "°C",
-          // }}
-          // modelPath={model}
-          // modelScale="1 -1 1"
-          // modelRotation="-55 0 0"
           useTransferFunction={useTransferFunction}
         />
         <hr />
-        {/* <VolumeViewer
+        <VolumeViewer
           style={{ height: "50vh", width: "1000px" }}
-          modelPath={model}
-          modelRange={{
-            min: 0.05,
-            max: 33.71,
-            units: "°C",
+          model={{
+            path: model,
+            range: { min: 0.05, max: 33.71, unit: "°C" }
           }}
-        /> */}
+        />
       </main>
 
       <footer>

@@ -1,11 +1,6 @@
-import React from "react";
 import PropTypes from "prop-types";
 
-import App from "./components/App.jsx";
-
-function VolumeViewer(props) {
-  return <App {...props} />;
-}
+import VolumeViewer from "./components/VolumeViewer.jsx"
 
 VolumeViewer.propTypes = {
   /** The current color map (path to the image) */

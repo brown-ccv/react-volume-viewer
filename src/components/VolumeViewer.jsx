@@ -23,7 +23,7 @@ const defaultModel = {
   spacing: { x: 2, y: 2, z: 1 },
 };
 
-function App(props) {
+function VolumeViewer(props) {
   const {
     className,
     style,
@@ -110,4 +110,4 @@ const Wrapper = styled.div`
   isolation: isolate;
 `;
 
-export default App;
+export default VolumeViewer;
