@@ -54,9 +54,9 @@ function OpacityControls({ state, setState }) {
   const [pointStart, setPointStart] = useState({ x: 0, y: 0 }); // Was startPos, [0, 0]
   const dataRange = {
     ...state.model.range,
-    mid: (state.model.range.min + state.model.range.max) /2
-  }
-  
+    mid: (state.model.range.min + state.model.range.max) / 2,
+  };
+
   // INITIAL RENDER
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -214,7 +214,7 @@ function OpacityControls({ state, setState }) {
           {dataRange.min.toFixed(decimals)} {dataRange.unit}
         </LabelText>
         <LabelText>
-          {dataRange.mid.toFixed(decimals)} 
+          {dataRange.mid.toFixed(decimals)}
           {dataRange.unit}
         </LabelText>
         <LabelText>
