@@ -142,10 +142,9 @@ function OpacityControls({ state, setState }) {
 
   function checkHovering(e) {
     // Mouse position relative to canvas
-    const canvasPos = e.target.getBoundingClientRect();
     const mousePos = {
-      x: e.clientX - canvasPos.x,
-      y: e.clientY - canvasPos.y,
+      x: e.clientX - e.target.getBoundingClientRect().x,
+      y: e.clientY - e.target.getBoundingClientRect().y,
     };
 
     // Check to see if cursor is above a point
