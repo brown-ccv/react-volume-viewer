@@ -18,13 +18,12 @@ npm install react-volume-viewer
 
 ## Props
 
-FOO BAR
+The only required props are the model's path and it's minimum and maximum data points. The model's path should be imported into the project and passed in from there - see the example project.
 
 ```jsx
 VolumeViewer.propTypes = {
   /** The current color map (path to the image) */
   colorMap: PropTypes.string,
-
   /**
    * Dictionary of color maps available in the controls.
    *  key: Name of the color map
@@ -33,10 +32,8 @@ VolumeViewer.propTypes = {
   colorMaps: PropTypes.shape({
     Example: PropTypes.string,
   }),
-
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
-
   /** The model to be displayed and it's related information */
   model: PropTypes.shape({
     /** Path to the model REQUIRED */
@@ -62,7 +59,6 @@ VolumeViewer.propTypes = {
       z: PropTypes.number,
     }),
   }),
-
   /**
    * The transfer function applied to the color map
    * Array of 2D points
@@ -73,13 +69,11 @@ VolumeViewer.propTypes = {
       y: PropTypes.number,
     })
   ),
-
   /**
    * Whether or not to use the libraries default color maps
    * Default Color Maps: Grayscale, Natural, RGB
    */
   useDefaultColorMaps: PropTypes.bool,
-
   /** Whether or not to apply a transfer function to the model */
   useTransferFunction: PropTypes.bool,
 ```
@@ -117,15 +111,15 @@ VolumeViewer.defaultProps = {
 import React from 'react'
 import VolumeViewer from 'react-volume-viewer'
 
+import haline from "./path/to/colormap/haline.png";
+import model from "./path/to/model.png";
+
 export default function App() {
   return (
     <VolumeViewer
       className="volumeViewer"
-      colorMaps={{
-        Haline: haline,
-        Thermal: thermal,
-      }}
-      colorMap={colorMap}
+      colorMaps={{ Haline: haline }}
+      colorMap={haline}
       controlsVisible={controlsVisible}
       model={{
         range: { min: 0.05, max: 33.71, unit: "°C" },
@@ -133,7 +127,7 @@ export default function App() {
         scale: "1 -1 1",
         rotation: "-55 0 0",
       }}
-      useTransferFunction={useTransferFunction}
+      useDefaultColorMaps={false}
     />
   )
 }
