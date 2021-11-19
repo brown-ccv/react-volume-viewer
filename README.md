@@ -80,6 +80,8 @@ VolumeViewer.propTypes = {
 
 ### Default Props
 
+The default values of `model`'s properties will be passed in for all properties not explicitly set by the `model` prop passed in.
+
 ```jsx
 VolumeViewer.defaultProps = {
   colorMap: null,
@@ -119,7 +121,6 @@ export default function App() {
 
   return (
     <VolumeViewer
-      className="volumeViewer"
       colorMaps={{ Haline: haline }}
       colorMap={haline}
       controlsVisible={controlsVisible}
