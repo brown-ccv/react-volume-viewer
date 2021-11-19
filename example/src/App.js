@@ -47,13 +47,13 @@ export default function App() {
           useTransferFunction={useTransferFunction}
         />
         <hr />
-        <VolumeViewer
+        {/* <VolumeViewer
           style={{ height: "50vh", width: "1000px" }}
           model={{
             path: model,
             range: { min: 0.05, max: 33.71, unit: "°C" },
           }}
-        />
+        /> */}
       </main>
 
       <footer>

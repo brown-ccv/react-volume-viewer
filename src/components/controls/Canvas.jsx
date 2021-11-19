@@ -93,7 +93,7 @@ function Canvas({ state, setState }) {
 
   /** DRAW FUNCTION **/
   useEffect(() => {
-    console.log("DRAWING");
+    console.log("DRAWING", canvasPoints);
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
 
