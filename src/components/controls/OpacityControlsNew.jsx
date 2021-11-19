@@ -4,14 +4,8 @@ import styled from "styled-components";
 import Title from "./SectionTitle.jsx";
 import Canvas from "./Canvas.jsx";
 
-/** CONSTANTS **/
-// const canvasPadding = 10; // Padding on the canvas
-const hoverRadius = 15; // Pixel offset for registering hovering/clicks
-const decimals = 2; // Number of decimals to display in labels
-const initCanvasPoints = []; // Starting canvas points, used for reset
-
-// TODO - Redraw when dataRange changes
 function OpacityControls({ state, setState }) {
+  const decimals = 2;
   const dataRange = {
     ...state.model.range,
     mid: (state.model.range.min + state.model.range.max) / 2,
@@ -20,8 +14,8 @@ function OpacityControls({ state, setState }) {
   return (
     <Wrapper>
       <Title>Transfer Function</Title>
-
       <Canvas state={state} setState={setState} />
+
       <Labels>
         <LabelText>
           {dataRange.min.toFixed(decimals)} {dataRange.unit}
@@ -47,16 +41,6 @@ function OpacityControls({ state, setState }) {
 const Wrapper = styled.div`
   margin: 25px 0;
 `;
-
-// // TODO: Change cursor
-// // Auto: not grabbing and not hovering
-// // Grab: hovering and not dragging
-// // Grabbing: Dragging
-// const OutlinedCanvas = styled.canvas`
-//   outline: 1px solid;
-//   cursor: ${(props) => props.cursor};
-//   /* cursor: grab; */
-// `;
 
 const Labels = styled.div`
   display: flex;

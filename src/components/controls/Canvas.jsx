@@ -1,11 +1,10 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { scaleLinear } from "d3-scale";
 import styled from "styled-components";
 
 /** CONSTANTS **/
 const canvasPadding = 10; // Padding on the canvas
 const hoverRadius = 15; // Pixel offset for registering hovering/clicks
-const decimals = 2; // Number of decimals to display in labels
 const initCanvasPoints = []; // Starting canvas points, used for reset
 
 // Data Ranges and Transformations
@@ -15,10 +14,9 @@ const initCanvasPoints = []; // Starting canvas points, used for reset
 // Color Range:         0 to 256 (Shouldn't it be 255?)
 // Data Range:          data.min to data.max
 const transferFunctionRange = {
-  // Was minLevel and maxLevel
   min: { x: 0, y: 0 },
   max: { x: 1, y: 1 },
-};
+}; // Was minLevel and maxLevel
 const colorRange = {
   min: 0,
   max: 256, // Shouldn't this be 255?
@@ -41,12 +39,13 @@ function Canvas({ state, setState }) {
   const [cursorType, setCursorType] = useState("auto"); // Type of curser over the canvas
   const [canvasPoints, setCanvasPoints] = useState([]); // Points on the canvas
 
-  const [pointHovering, setPointHovering] = useState(null); // Index of the point currently hovering over
+  const [pointHovering, setPointHovering] = useState(null); // Index of the point currently moused over
   const [pointDragging, setPointDragging] = useState(null); // Index of the point currently dragging
   const [mouseStart, setMouseStart] = useState({ x: 0, y: 0 }); // Was dragStart [0, 0]
   const [pointStart, setPointStart] = useState({ x: 0, y: 0 }); // Was startPos, [0, 0]
 
   /** INITIAL RENDER **/
+
   useEffect(() => {
     const canvas = canvasRef.current;
 
@@ -72,22 +71,22 @@ function Canvas({ state, setState }) {
       };
     });
     setCanvasPoints(points);
+    // canvasPoints.concat(points)
     initCanvasPoints.push(...points);
 
     document.addEventListener("mousemove", dragPoint); // was dragPointer
     document.addEventListener("mouseup", onMouseUp);
-    canvas.addEventListener("mousemove", checkHovering); // was changePointer
-    canvas.addEventListener("mousedown", onMouseDown);
-    canvas.addEventListener("dblclick", addPoint);
-    canvas.addEventListener("contextmenu", removePoint);
+
+    // canvas.addEventListener("mousedown", onMouseDown);
+    // canvas.addEventListener("dblclick", addPoint);
+    // canvas.addEventListener("contextmenu", removePoint);
 
     return () => {
       document.removeEventListener("mousemove", dragPoint); // was dragPointer
       document.removeEventListener("mouseup", onMouseUp);
-      canvas.removeEventListener("mousemove", checkHovering); // was changePointer
-      canvas.removeEventListener("mousedown", onMouseDown);
-      canvas.removeEventListener("dblclick", addPoint);
-      canvas.removeEventListener("contextmenu", removePoint);
+      // canvas.removeEventListener("mousedown", onMouseDown);
+      // canvas.removeEventListener("dblclick", addPoint);
+      // canvas.removeEventListener("contextmenu", removePoint);
     };
   }, []);
 
@@ -140,14 +139,30 @@ function Canvas({ state, setState }) {
 
   /** EVENT LISTENER FUNCTIONS **/
 
+  function checkHovering(e) {
+    // Mouse position relative to canvas
+    const canvasPos = e.target.getBoundingClientRect();
+    const mousePos = {
+      x: e.clientX - canvasPos.x,
+      y: e.clientY - canvasPos.y,
+    };
+
+    // Check to see if cursor is above a point
+    setPointHovering(
+      canvasPoints.find((p) => {
+        const distance = Math.sqrt(
+          Math.pow(mousePos.x - p.x, 2) + Math.pow(mousePos.y - p.y, 2)
+        );
+        return distance < hoverRadius;
+      })
+    );
+  }
+
   // Drag a point
   function dragPoint(e) {}
 
   // Release point
   function onMouseUp(e) {}
-
-  // Check to see if cursor is above a point
-  function checkHovering(e) {}
 
   // If hovering, begin dragging a point
   function onMouseDown(e) {
@@ -162,7 +177,15 @@ function Canvas({ state, setState }) {
   function removePoint(e) {}
 
   return (
-    <OutlinedCanvas ref={canvasRef} id="opacityControls" cursor={cursorType} />
+    <OutlinedCanvas
+      id="opacityControls"
+      ref={canvasRef}
+      cursor={cursorType}
+      onMouseMove={checkHovering}
+      onMouseDown={onMouseDown}
+      onDoubleClick={addPoint}
+      onContextMenu={removePoint}
+    />
   );
 }
 
