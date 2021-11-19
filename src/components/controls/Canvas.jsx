@@ -1,4 +1,4 @@
-import React, {useRef, useState, useEffect} from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { scaleLinear } from "d3-scale";
 import styled from "styled-components";
 
@@ -36,8 +36,7 @@ const paddedCanvasRange = {
 const scaleTransferFunctionToPaddedCanvasX = scaleLinear();
 const scaleTransferFunctionToPaddedCanvasY = scaleLinear();
 
-
-function Canvas({state, setState}) {
+function Canvas({ state, setState }) {
   const canvasRef = useRef(null); // Reference to the canvas
   const [cursorType, setCursorType] = useState("auto"); // Type of curser over the canvas
   const [canvasPoints, setCanvasPoints] = useState([]); // Points on the canvas
@@ -90,7 +89,7 @@ function Canvas({state, setState}) {
       canvas.removeEventListener("dblclick", addPoint);
       canvas.removeEventListener("contextmenu", removePoint);
     };
-  }, [])
+  }, []);
 
   /** DRAW FUNCTION **/
   useEffect(() => {
@@ -137,21 +136,18 @@ function Canvas({state, setState}) {
         };
       }),
     });
-  }, [canvasPoints, pointHovering, pointDragging])
+  }, [canvasPoints, pointHovering, pointDragging]);
 
   /** EVENT LISTENER FUNCTIONS **/
 
   // Drag a point
-  function dragPoint(e) {
-  }
+  function dragPoint(e) {}
 
   // Release point
-  function onMouseUp(e) {
-  }
+  function onMouseUp(e) {}
 
   // Check to see if cursor is above a point
-  function checkHovering(e) {
-  }
+  function checkHovering(e) {}
 
   // If hovering, begin dragging a point
   function onMouseDown(e) {
@@ -160,12 +156,10 @@ function Canvas({state, setState}) {
   }
 
   // Add point to canvas
-  function addPoint(e) {
-  }
+  function addPoint(e) {}
 
   // Remove hovered point - can't be first or last point
-  function removePoint(e) {
-  }
+  function removePoint(e) {}
 
   return (
     <OutlinedCanvas ref={canvasRef} id="opacityControls" cursor={cursorType} />
