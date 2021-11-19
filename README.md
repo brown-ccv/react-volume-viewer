@@ -115,6 +115,8 @@ import haline from "./path/to/colormap/haline.png";
 import model from "./path/to/model.png";
 
 export default function App() {
+  const [controlsVisible, setControlsVisible] = React.useState(true);
+
   return (
     <VolumeViewer
       className="volumeViewer"
