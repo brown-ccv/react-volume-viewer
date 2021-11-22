@@ -21,23 +21,17 @@ const colorRange = {
   max: 256, // Shouldn't this be 255?
 };
 const transferFunctionRange = {
-  // min: { x: 0, y: 0 },
-  // max: { x: 1, y: 1 },
   x: [0, 1],
-  y: [0, 1]
+  y: [0, 1],
 }; // Was minLevel and maxLevel
 
 const canvasRange = {
-  // min: { x: 0, y: undefined },
-  // max: { x: undefined, y: 0 },
   x: [0, undefined],
-  y: [undefined, 0]
+  y: [undefined, 0],
 };
 const paddedCanvasRange = {
-  // min: { x: CANVAS_PADDING, y: undefined },
-  // max: { x: undefined, y: CANVAS_PADDING },
   x: [CANVAS_PADDING, undefined],
-  y: [undefined, CANVAS_PADDING]
+  y: [undefined, CANVAS_PADDING],
 };
 
 // Transform transferFunction to paddedCanvas
@@ -65,17 +59,17 @@ function OpacityControls({ state, setState }) {
 
     // Set ranges
     canvasRange.x[1] = canvas.width;
-    canvasRange.y[0] = canvas.height
+    canvasRange.y[0] = canvas.height;
     paddedCanvasRange.x[1] = canvas.width - CANVAS_PADDING;
     paddedCanvasRange.y[0] = canvas.height - CANVAS_PADDING;
 
     // Set transformations
     scaleTransferFunctionToPaddedCanvasX
       .domain(transferFunctionRange.x)
-      .range(paddedCanvasRange.x)
+      .range(paddedCanvasRange.x);
     scaleTransferFunctionToPaddedCanvasY
       .domain(transferFunctionRange.y)
-      .range(paddedCanvasRange.y)
+      .range(paddedCanvasRange.y);
 
     // Initialize canvas points
     const points = state.transferFunction.map((p) => {
@@ -214,7 +208,10 @@ function OpacityControls({ state, setState }) {
         Double-click to add a point to the transfer function. Right-click to
         remove a point. Drag points to change the function.
       </p>
-      <Button onClick={() => setCanvasPoints(INIT_CANVAS_POINTS)}> Reset </Button>
+      <Button onClick={() => setCanvasPoints(INIT_CANVAS_POINTS)}>
+        {" "}
+        Reset{" "}
+      </Button>
     </Wrapper>
   );
 }
