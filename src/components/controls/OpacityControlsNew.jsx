@@ -96,7 +96,7 @@ function OpacityControls({ state, setState }) {
     console.log("DRAWING", canvasPoints);
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
-    console.log("SIZE", canvas.width, canvas.height)
+    console.log("SIZE", canvas.width, canvas.height);
 
     // Reset and Draw rule on canvas's midpoint
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -241,8 +241,8 @@ const LabelText = styled.p`
 
 const HelpText = styled.p`
   margin: 5px 0;
-`
-const Button = styled.button`
 `;
+
+const Button = styled.button``;
 
 export default OpacityControls;
