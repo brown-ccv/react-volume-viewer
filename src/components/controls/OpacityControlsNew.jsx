@@ -6,10 +6,10 @@ import Title from "./SectionTitle.jsx";
 // import Canvas from "./Canvas.jsx";
 
 /** CONSTANTS **/
-const decimals = 2; // Number of decimals to display
-const canvasPadding = 10; // Padding on the canvas
-const hoverRadius = 15; // Pixel offset for registering hovering/clicks
-const initCanvasPoints = []; // Starting canvas points, used for reset
+const DECIMALS = 2; // Number of decimals to display
+const CANVAS_PADDING = 10; // Padding on the canvas
+const HOVER_RADIUS = 15; // Pixel offset for registering hovering/clicks
+const INIT_CANVAS_POINTS = []; // Starting canvas points, used for reset
 
 // Data Ranges and Transformations
 // Transfer Function:   {x: 0, y: 0} to {x: 1, y: 1}
@@ -30,8 +30,8 @@ const canvasRange = {
   max: { x: undefined, y: 0 },
 };
 const paddedCanvasRange = {
-  min: { x: canvasPadding, y: undefined },
-  max: { x: undefined, y: canvasPadding },
+  min: { x: CANVAS_PADDING, y: undefined },
+  max: { x: undefined, y: CANVAS_PADDING },
 };
 
 // Transform transferFunction to paddedCanvas
@@ -60,8 +60,8 @@ function OpacityControls({ state, setState }) {
     // Set ranges
     canvasRange.max.x = canvas.width;
     canvasRange.min.y = canvas.height;
-    paddedCanvasRange.max.x = canvas.width - canvasPadding;
-    paddedCanvasRange.min.y = canvas.height - canvasPadding;
+    paddedCanvasRange.max.x = canvas.width - CANVAS_PADDING;
+    paddedCanvasRange.min.y = canvas.height - CANVAS_PADDING;
 
     // Set transformations
     scaleTransferFunctionToPaddedCanvasX
@@ -79,7 +79,7 @@ function OpacityControls({ state, setState }) {
       };
     });
     setCanvasPoints(points);
-    initCanvasPoints.push(...points);
+    INIT_CANVAS_POINTS.push(...points);
 
     document.addEventListener("mousemove", dragPoint); // was dragPointer
     document.addEventListener("mouseup", onMouseUp);
@@ -142,7 +142,7 @@ function OpacityControls({ state, setState }) {
 
   function checkHovering(e) {
     // Mouse position relative to canvas
-    const mousePos = {
+    const mouse = {
       x: e.clientX - e.target.getBoundingClientRect().x,
       y: e.clientY - e.target.getBoundingClientRect().y,
     };
@@ -150,9 +150,9 @@ function OpacityControls({ state, setState }) {
     // Check to see if cursor is above a point
     const point = canvasPoints.find((p) => {
       const distance = Math.sqrt(
-        Math.pow(mousePos.x - p.x, 2) + Math.pow(mousePos.y - p.y, 2)
+        Math.pow(mouse.x - p.x, 2) + Math.pow(mouse.y - p.y, 2)
       );
-      return distance < hoverRadius;
+      return distance < HOVER_RADIUS;
     });
 
     // Set hovered point and cursor
@@ -193,14 +193,14 @@ function OpacityControls({ state, setState }) {
 
       <Labels>
         <LabelText>
-          {dataRange.min.toFixed(decimals)} {dataRange.unit}
+          {dataRange.min.toFixed(DECIMALS)} {dataRange.unit}
         </LabelText>
         <LabelText>
-          {dataRange.mid.toFixed(decimals)}
+          {dataRange.mid.toFixed(DECIMALS)}
           {dataRange.unit}
         </LabelText>
         <LabelText>
-          {dataRange.max.toFixed(decimals)} {dataRange.unit}
+          {dataRange.max.toFixed(DECIMALS)} {dataRange.unit}
         </LabelText>
       </Labels>
 
@@ -208,7 +208,7 @@ function OpacityControls({ state, setState }) {
         Double-click to add a point to the transfer function. Right-click to
         remove a point. Drag points to change the function.
       </p>
-      <Button onClick={() => setCanvasPoints(initCanvasPoints)}> Reset </Button>
+      <Button onClick={() => setCanvasPoints(INIT_CANVAS_POINTS)}> Reset </Button>
     </Wrapper>
   );
 }
