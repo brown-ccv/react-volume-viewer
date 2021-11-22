@@ -96,6 +96,7 @@ function OpacityControls({ state, setState }) {
     console.log("DRAWING", canvasPoints);
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
+    console.log("SIZE", canvas.width, canvas.height)
 
     // Reset and Draw rule on canvas's midpoint
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -204,10 +205,10 @@ function OpacityControls({ state, setState }) {
         </LabelText>
       </Labels>
 
-      <p>
+      <HelpText>
         Double-click to add a point to the transfer function. Right-click to
         remove a point. Drag points to change the function.
-      </p>
+      </HelpText>
       <Button onClick={() => setCanvasPoints(INIT_CANVAS_POINTS)}>
         {" "}
         Reset{" "}
@@ -221,6 +222,7 @@ const Wrapper = styled.div`
 `;
 
 const OutlinedCanvas = styled.canvas`
+  width: 100%;
   outline: 1px solid;
   cursor: ${(props) => props.cursor};
 `;
@@ -237,6 +239,10 @@ const LabelText = styled.p`
   font-size: 11px;
 `;
 
-const Button = styled.button``;
+const HelpText = styled.p`
+  margin: 5px 0;
+`
+const Button = styled.button`
+`;
 
 export default OpacityControls;
