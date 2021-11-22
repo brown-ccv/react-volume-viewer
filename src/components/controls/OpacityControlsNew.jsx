@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { scaleLinear } from "d3-scale";
 
 import Title from "./SectionTitle.jsx";
-// import Canvas from "./Canvas.jsx";
 
 /** CONSTANTS **/
 const DECIMALS = 2; // Number of decimals to display
@@ -17,21 +16,28 @@ const INIT_CANVAS_POINTS = []; // Starting canvas points, used for reset
 // Padded Canvas Range: {x: p, y: h-p} to {x: w-p, y: p}
 // Color Range:         0 to 256 (Shouldn't it be 255?)
 // Data Range:          data.min to data.max
-const transferFunctionRange = {
-  min: { x: 0, y: 0 },
-  max: { x: 1, y: 1 },
-}; // Was minLevel and maxLevel
 const colorRange = {
   min: 0,
   max: 256, // Shouldn't this be 255?
 };
+const transferFunctionRange = {
+  // min: { x: 0, y: 0 },
+  // max: { x: 1, y: 1 },
+  x: [0, 1],
+  y: [0, 1]
+}; // Was minLevel and maxLevel
+
 const canvasRange = {
-  min: { x: 0, y: undefined },
-  max: { x: undefined, y: 0 },
+  // min: { x: 0, y: undefined },
+  // max: { x: undefined, y: 0 },
+  x: [0, undefined],
+  y: [undefined, 0]
 };
 const paddedCanvasRange = {
-  min: { x: CANVAS_PADDING, y: undefined },
-  max: { x: undefined, y: CANVAS_PADDING },
+  // min: { x: CANVAS_PADDING, y: undefined },
+  // max: { x: undefined, y: CANVAS_PADDING },
+  x: [CANVAS_PADDING, undefined],
+  y: [undefined, CANVAS_PADDING]
 };
 
 // Transform transferFunction to paddedCanvas
@@ -45,8 +51,8 @@ function OpacityControls({ state, setState }) {
 
   const [pointHovering, setPointHovering] = useState(null); // Index of the point currently moused over
   const [pointDragging, setPointDragging] = useState(null); // Index of the point currently dragging
-  const [mouseStart, setMouseStart] = useState({ x: 0, y: 0 }); // Was dragStart [0, 0]
-  const [pointStart, setPointStart] = useState({ x: 0, y: 0 }); // Was startPos, [0, 0]
+  const [mouseStart, setMouseStart] = useState({}); // Was dragStart [0, 0], will be { x: 0, y: 0 }
+  const [pointStart, setPointStart] = useState({}); // Was startPos, [0, 0], will be { x: 0, y: 0 }
   const dataRange = {
     ...state.model.range,
     mid: (state.model.range.min + state.model.range.max) / 2,
@@ -58,18 +64,18 @@ function OpacityControls({ state, setState }) {
     const canvas = canvasRef.current;
 
     // Set ranges
-    canvasRange.max.x = canvas.width;
-    canvasRange.min.y = canvas.height;
-    paddedCanvasRange.max.x = canvas.width - CANVAS_PADDING;
-    paddedCanvasRange.min.y = canvas.height - CANVAS_PADDING;
+    canvasRange.x[1] = canvas.width;
+    canvasRange.y[0] = canvas.height
+    paddedCanvasRange.x[1] = canvas.width - CANVAS_PADDING;
+    paddedCanvasRange.y[0] = canvas.height - CANVAS_PADDING;
 
     // Set transformations
     scaleTransferFunctionToPaddedCanvasX
-      .domain([transferFunctionRange.min.x, transferFunctionRange.max.x])
-      .range([paddedCanvasRange.min.x, paddedCanvasRange.max.x]);
+      .domain(transferFunctionRange.x)
+      .range(paddedCanvasRange.x)
     scaleTransferFunctionToPaddedCanvasY
-      .domain([transferFunctionRange.min.y, transferFunctionRange.max.y])
-      .range([paddedCanvasRange.min.y, paddedCanvasRange.max.y]);
+      .domain(transferFunctionRange.y)
+      .range(paddedCanvasRange.y)
 
     // Initialize canvas points
     const points = state.transferFunction.map((p) => {
