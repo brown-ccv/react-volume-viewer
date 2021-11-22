@@ -4,7 +4,10 @@
   "description": "Aframe container with custom controls for use in react applications",
   "author": "brown-ccv",
   "license": "MIT",
-  "repository": "brown-ccv/react-volume-viewer",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brown-ccv/react-volume-viewer.git"
+  },
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
   "source": "src/index.js",

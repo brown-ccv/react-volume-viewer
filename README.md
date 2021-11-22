@@ -18,7 +18,7 @@ npm install react-volume-viewer
 
 ## Props
 
-The only required props are the model's path and it's minimum and maximum data points. The model's path should be imported into the project and passed in from there - see the [example ](#example) project.
+The only required props are the model's path and it's minimum and maximum data points. The model's path should be imported into the project and passed in from there - see the [example](#example) project.
 
 ```jsx
 VolumeViewer.propTypes = {
