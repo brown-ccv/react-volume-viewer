@@ -148,9 +148,9 @@ function OpacityControls({ state, setState }) {
     };
 
     // Check to see if cursor is above a point
-    const point = canvasPoints.find((p) => {
+    const point = canvasPoints.find((point) => {
       const distance = Math.sqrt(
-        Math.pow(mouse.x - p.x, 2) + Math.pow(mouse.y - p.y, 2)
+        Math.pow(mouse.x - point.x, 2) + Math.pow(mouse.y - point.y, 2)
       );
       return distance < HOVER_RADIUS;
     });
