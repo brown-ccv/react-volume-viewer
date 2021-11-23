@@ -38,6 +38,11 @@ const paddedCanvasRange = {
 const scaleTransferFunctionToPaddedCanvasX = scaleLinear();
 const scaleTransferFunctionToPaddedCanvasY = scaleLinear();
 
+// Returns the mouse's  position relative to canvas
+function getRelativeMousePos(clientX, clientY, rect) {
+  return { x: clientX - rect.x, y: clientY - rect.y };
+}
+
 function OpacityControls({ state, setState }) {
   const canvasRef = useRef(null); // Reference to the canvas
   const [cursorType, setCursorType] = useState("auto"); // Type of curser over the canvas
@@ -80,11 +85,11 @@ function OpacityControls({ state, setState }) {
     setCanvasPoints(points);
     INIT_CANVAS_POINTS.push(...points);
 
-    document.addEventListener("mousemove", dragPoint); // was dragPointer
+    // document.addEventListener("mousemove", dragPoint); // was dragPointer
     document.addEventListener("mouseup", onMouseUp);
 
     return () => {
-      document.removeEventListener("mousemove", dragPoint); // was dragPointer
+      // document.removeEventListener("mousemove", dragPoint); // was dragPointer
       document.removeEventListener("mouseup", onMouseUp);
     };
   }, []);
@@ -139,12 +144,13 @@ function OpacityControls({ state, setState }) {
 
   /** EVENT LISTENER FUNCTIONS **/
 
-  function checkHovering(e) {
-    // Mouse position relative to canvas
-    const mouse = {
-      x: e.clientX - e.target.getBoundingClientRect().x,
-      y: e.clientY - e.target.getBoundingClientRect().y,
-    };
+  function checkHovering({ clientX, clientY, target }) {
+    // TODO: DO Nothing if dragging a point
+    const mouse = getRelativeMousePos(
+      clientX,
+      clientY,
+      target.getBoundingClientRect()
+    );
 
     // Check to see if cursor is above a point
     const point = canvasPoints.find((point) => {
@@ -153,22 +159,34 @@ function OpacityControls({ state, setState }) {
       );
       return distance < HOVER_RADIUS;
     });
-    
+
     // Set hovered point and cursor
     setPointHovering(point);
+    //TODO: Don't set if dragging a point
     point ? setCursorType("grab") : setCursorType("auto");
   }
 
   // Drag a point
   function dragPoint(e) {}
 
-  // Release point
-  function onMouseUp(e) {}
-
   // If hovering, begin dragging a point
-  function onMouseDown(e) {
-    // TODO
-    // console.log("MOUSE DOWN");
+  function onMouseDown({ clientX, clientY, target }) {
+    if (pointHovering) {
+      setPointDragging(pointHovering);
+      setPointStart(pointHovering);
+      setMouseStart(
+        getRelativeMousePos(clientX, clientY, target.getBoundingClientRect())
+      );
+      setCursorType("grabbing");
+    }
+  }
+
+  // Release point
+  function onMouseUp(e) {
+    setPointDragging(null);
+    setPointStart(null);
+    setMouseStart(null);
+    checkHovering(e);
   }
 
   // Add point to canvas
@@ -184,7 +202,7 @@ function OpacityControls({ state, setState }) {
         id="opacityControls"
         ref={canvasRef}
         cursor={cursorType}
-        onMouseMove={checkHovering}
+        onMouseMove={pointDragging ? dragPoint : checkHovering}
         onMouseDown={onMouseDown}
         onDoubleClick={addPoint}
         onContextMenu={removePoint}
