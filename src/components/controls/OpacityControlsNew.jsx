@@ -42,7 +42,6 @@ function OpacityControls({ state, setState }) {
   const canvasRef = useRef(null); // Reference to the canvas
   const [cursorType, setCursorType] = useState("auto"); // Type of curser over the canvas
   const [canvasPoints, setCanvasPoints] = useState([]); // Points on the canvas
-
   const [pointHovering, setPointHovering] = useState(null); // Index of the point currently moused over
   const [pointDragging, setPointDragging] = useState(null); // Index of the point currently dragging
   const [mouseStart, setMouseStart] = useState({}); // Was dragStart [0, 0], will be { x: 0, y: 0 }
@@ -96,7 +95,6 @@ function OpacityControls({ state, setState }) {
     console.log("DRAWING", canvasPoints);
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
-    console.log("SIZE", canvas.width, canvas.height);
 
     // Reset and Draw rule on canvas's midpoint
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -155,7 +153,7 @@ function OpacityControls({ state, setState }) {
       );
       return distance < HOVER_RADIUS;
     });
-
+    
     // Set hovered point and cursor
     setPointHovering(point);
     point ? setCursorType("grab") : setCursorType("auto");
