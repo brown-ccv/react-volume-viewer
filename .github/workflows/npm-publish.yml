@@ -23,7 +23,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
 
-  # Publish example on gh pages
+  # Deploy example on gh pages
   gh-pages:
     runs-on: ubuntu-latest
     steps:
