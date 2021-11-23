@@ -8,19 +8,29 @@ on:
     types: [released]
 
 jobs:
-  build:
+  # Publish to npm
+  publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
           node-version: 14
-      # Publish to npm
       - run: npm ci
       - run: npm test
       - run: npm run build
       - run: npm publish
-      # Publish example on gh pages
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+
+  # Publish example on gh pages
+  gh-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
       - run: npm run predeploy
       - run: npm run deploy
         env:
