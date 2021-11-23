@@ -68,6 +68,8 @@
     ]
   },
   "jest": {
-    "transformIgnorePatterns": ["/node_modules/(?!d3|d3-array|@reach/listbox|rc-slider|internmap|delaunator|robust-predicates)"]
+    "transformIgnorePatterns": [
+      "/node_modules/(?!d3|d3-array|@reach/listbox|rc-slider|internmap|delaunator|robust-predicates)"
+    ]
   }
 }
