@@ -39,8 +39,27 @@ const scaleTransferFunctionToPaddedCanvasX = scaleLinear();
 const scaleTransferFunctionToPaddedCanvasY = scaleLinear();
 
 // Returns the mouse's  position relative to canvas
-function getRelativeMousePos(clientX, clientY, rect) {
-  return { x: clientX - rect.x, y: clientY - rect.y };
+function getRelativeMousePos(e) {
+  const mouse = {
+    x: e.clientX - e.target.getBoundingClientRect().x,
+    y: e.clientY - e.target.getBoundingClientRect().y,
+  };
+
+  // TODO: mousePos must be inside padded canvas
+
+  // if(mouse.x < paddedCanvasRange.x[0]) {
+  //   mouse.x = paddedCanvasRange.x[0]
+  // } else if (mouse.x > paddedCanvasRange.x[1]) {
+  //   mouse.x = paddedCanvasRange.x[1]
+  // }
+
+  // if(mouse.y < paddedCanvasRange.y[0]) {
+  //   mouse.y = paddedCanvasRange.y[0]
+  // } else if (mouse.y > paddedCanvasRange.y[1]) {
+  //   mouse.y = paddedCanvasRange.y[1]
+  // }
+
+  return mouse;
 }
 
 function OpacityControls({ state, setState }) {
@@ -144,13 +163,8 @@ function OpacityControls({ state, setState }) {
 
   /** EVENT LISTENER FUNCTIONS **/
 
-  function checkHovering({ clientX, clientY, target }) {
-    // TODO: DO Nothing if dragging a point
-    const mouse = getRelativeMousePos(
-      clientX,
-      clientY,
-      target.getBoundingClientRect()
-    );
+  function checkHovering(e) {
+    const mouse = getRelativeMousePos(e);
 
     // Check to see if cursor is above a point
     const point = canvasPoints.find((point) => {
@@ -162,38 +176,64 @@ function OpacityControls({ state, setState }) {
 
     // Set hovered point and cursor
     setPointHovering(point);
-    //TODO: Don't set if dragging a point
     point ? setCursorType("grab") : setCursorType("auto");
   }
 
   // Drag a point
-  function dragPoint(e) {}
+  // TODO: Adding an element at -1?
+  // TODO: Drawing keeps happening but dragging not consistently changing
+  function dragPoint(e) {
+    e.preventDefault();
+    const mousePos = getRelativeMousePos(e);
+    const idx = canvasPoints.findIndex((p) => p === pointDragging);
+
+    // First and last point stay at the start/end of the canvas's range
+    if (idx === 0) mousePos.x = paddedCanvasRange.x[0];
+    else if (idx === canvasPoints.length - 1)
+      mousePos.x = paddedCanvasRange.x[1];
+
+    const temp = [...canvasPoints];
+    temp[idx] = mousePos;
+    setCanvasPoints(temp.sort((a, b) => a.x - b.x));
+  }
 
   // If hovering, begin dragging a point
-  function onMouseDown({ clientX, clientY, target }) {
+  function onMouseDown(e) {
+    e.preventDefault();
     if (pointHovering) {
       setPointDragging(pointHovering);
       setPointStart(pointHovering);
-      setMouseStart(
-        getRelativeMousePos(clientX, clientY, target.getBoundingClientRect())
-      );
+      setMouseStart(getRelativeMousePos(e));
       setCursorType("grabbing");
     }
   }
 
   // Release point
+  // TODO: Change
   function onMouseUp(e) {
     setPointDragging(null);
     setPointStart(null);
     setMouseStart(null);
-    checkHovering(e);
+    pointHovering ? setCursorType("grab") : setCursorType("auto");
+    // checkHovering(e);
   }
 
   // Add point to canvas
-  function addPoint(e) {}
+  // TODO: Point must be within paddedCanvasRange (do in getRelativeMousePos?)
+  function addPoint(e) {
+    console.log("ADD POINT", pointHovering);
+    e.preventDefault();
+    const mouse = getRelativeMousePos(e);
+
+    setCanvasPoints([...canvasPoints, mouse].sort((a, b) => a.x - b.x));
+  }
 
   // Remove hovered point - can't be first or last point
-  function removePoint(e) {}
+  // TODO: Remove pointHovering from canvasPoints
+  function removePoint(e) {
+    e.preventDefault();
+    console.log("REMOVE POINT", pointHovering);
+  }
 
   return (
     <Wrapper>
@@ -225,10 +265,7 @@ function OpacityControls({ state, setState }) {
         Double-click to add a point to the transfer function. Right-click to
         remove a point. Drag points to change the function.
       </HelpText>
-      <Button onClick={() => setCanvasPoints(INIT_CANVAS_POINTS)}>
-        {" "}
-        Reset{" "}
-      </Button>
+      <Button onClick={() => setCanvasPoints(INIT_CANVAS_POINTS)}>Reset</Button>
     </Wrapper>
   );
 }
