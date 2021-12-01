@@ -53,6 +53,7 @@ jobs:
           cd example
           npm install
           npm run build
+          
         # run: npm ci && npm run build
         # working-directory: "./example"
       - name: Deploy
