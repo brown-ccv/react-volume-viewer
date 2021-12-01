@@ -43,7 +43,7 @@ jobs:
       - run: npm ci
       - run: npm link
       - run: cd ..
-      - run: npm link react-volume-viewer-example
+      - run: npm link ./example
       # Run tests
       - run: npm test
       - run: npm run build
