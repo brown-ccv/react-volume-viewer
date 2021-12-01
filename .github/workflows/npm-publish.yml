@@ -34,18 +34,20 @@ jobs:
   #       env:
   #         NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
 
+
+  # with:
+    #   repoToken: ${{ secrets.GITHUB_TOKEN }}
+
   # Deploy example on gh pages
   gh-pages:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        # with:
-        #   repoToken: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Reconfigure git to use HTTP authentication
         run: >
           git config --global url."https://github.com/".insteadOf
           ssh://git@github.com/
-      
       - name: Install react-volume-viewer
       - run: npm ci
       - name: Install and build example
@@ -53,9 +55,6 @@ jobs:
           cd example
           npm install
           npm run build
-          
-        # run: npm ci && npm run build
-        # working-directory: "./example"
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@4.1.7
         with:
