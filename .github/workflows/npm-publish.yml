@@ -50,7 +50,7 @@ jobs:
           ssh://git@github.com/
       - name: Install react-volume-viewer
         run: npm ci
-      - name: Install and build example
+      # - name: Install and build example
         # run: |
         #   cd example
         #   npm install
