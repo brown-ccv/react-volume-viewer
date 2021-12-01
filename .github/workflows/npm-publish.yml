@@ -50,5 +50,5 @@ jobs:
           npm run build
       # - run: npm run predeploy
       - run: npm run deploy
-        with:
-            repo-token: ${{ secrets.GITHUB_TOKEN }}
+        # with:
+        #     repo-token: ${{ secrets.GITHUB_TOKEN }}
