@@ -4,6 +4,8 @@
 name: Publish on npm & host on gh-pages on merge
 
 on:
+  # release:
+  #   types: [published]
   push:
     branches:
       # Temp - keep on branch for testing
@@ -43,11 +45,8 @@ jobs:
           git config --global url."https://github.com/".insteadOf
           ssh://git@github.com/
       - run: npm ci
-      - name: npm run predeploy
-        run: |
-          cd example 
-          npm install 
-          npm run build
+      - run: cd example && npm install 
+      - run: npm run build
       # - run: npm run predeploy
       - run: npm run deploy
         # with:
