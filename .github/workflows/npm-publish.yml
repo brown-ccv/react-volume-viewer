@@ -1,17 +1,10 @@
-# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
-# For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
-
-name: Publish on npm & host on gh-pages on merge
+name: Publish on npm & gh-pages on release
 
 on:
-  # release:
-  #   types: [published]
-  push:
-    branches:
-      - npm-deployment
+  release:
+    types: [published]
 
 jobs:
-  # Publish to npm
   publish:
     runs-on: ubuntu-latest
     steps:
@@ -25,6 +18,7 @@ jobs:
           git config --global url."https://github.com/".insteadOf
           ssh://git@github.com/
       
+      # Publish to npm
       - name: Install react-volume-viewer
         run: npm ci
       - name: Run Tests
@@ -36,6 +30,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
       
+        # Publish to gh-pages
       - name: Build example 
         run: npm run predeploy
       - name: Publish example on gh-pages
