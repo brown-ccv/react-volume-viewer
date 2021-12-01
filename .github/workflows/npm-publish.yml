@@ -33,14 +33,14 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
 
   # Deploy example on gh pages
-  # gh-pages:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: Reconfigure git to use HTTP authentication
-  #       run: >
-  #         git config --global url."https://github.com/".insteadOf
-  #         ssh://git@github.com/
-  #     - run: npm ci
-  #     - run: npm run predeploy
-  #     - run: npm run deploy
+  gh-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Reconfigure git to use HTTP authentication
+        run: >
+          git config --global url."https://github.com/".insteadOf
+          ssh://git@github.com/
+      - run: npm ci
+      - run: npm run predeploy
+      - run: npm run deploy
