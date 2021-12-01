@@ -45,11 +45,13 @@ jobs:
         run: >
           git config --global url."https://github.com/".insteadOf
           ssh://git@github.com/
-      - run: npm install
-      - run: cd example && npm install
-      - run: cd example && npm run build
+      - run: npm install # npm ci?
+      - run: cd example && npm install # npm ci?
+      - run: npm run build
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@4.1.7
         with:
           branch: gh-pages
           folder: example/build
+
+        # npm run predeploy and npm run deploy?
