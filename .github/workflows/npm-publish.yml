@@ -44,20 +44,16 @@ jobs:
           git config --global url."https://github.com/".insteadOf
           ssh://git@github.com/
       
-      - name: Install and build react-volume-viewer
+      - name: Build react-volume-viewer
         run: npm ci && npm run build
 
-      # - name: Install example
-      #   run: npm install
-      #   working-directory: "./example"
-      # - name: Build example
-      #   run: npm run build
-      #   working-directory: "./example"
+      - name: Build example
+        run: npm run predeploy
 
-      - run: npm run predeploy
+      - run: npm run deploy
 
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@4.1.7
-        with:
-          branch: gh-pages
-          folder: example/build
+      # - name: Deploy
+      #   uses: JamesIves/github-pages-deploy-action@4.1.7
+      #   with:
+      #     branch: gh-pages
+      #     folder: example/build
