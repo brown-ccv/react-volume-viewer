@@ -20,11 +20,11 @@ jobs:
         with:
           node-version: '14'
           registry-url: 'https://registry.npmjs.org'
-
       - name: Reconfigure git to use HTTP authentication
         run: >
           git config --global url."https://github.com/".insteadOf
           ssh://git@github.com/
+      
       - name: Install react-volume-viewer
         run: npm ci
       - name: Run Tests
@@ -35,6 +35,7 @@ jobs:
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+      
       - name: Build example 
         run: npm run predeploy
       - name: Publish example on gh-pages
