@@ -12,25 +12,25 @@ on:
 
 jobs:
   # Publish to npm
-  publish:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-          registry-url: 'https://registry.npmjs.org'
+  # publish:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: actions/setup-node@v2
+  #       with:
+  #         node-version: '14'
+  #         registry-url: 'https://registry.npmjs.org'
 
-      - name: Reconfigure git to use HTTP authentication
-        run: >
-          git config --global url."https://github.com/".insteadOf
-          ssh://git@github.com/
-      - run: npm ci
-      - run: npm test
-      - run: npm run build
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+  #     - name: Reconfigure git to use HTTP authentication
+  #       run: >
+  #         git config --global url."https://github.com/".insteadOf
+  #         ssh://git@github.com/
+  #     - run: npm ci
+  #     - run: npm test
+  #     - run: npm run build
+  #     - run: npm publish
+  #       env:
+  #         NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
 
   # Deploy example on gh pages
   gh-pages:
@@ -42,5 +42,8 @@ jobs:
           git config --global url."https://github.com/".insteadOf
           ssh://git@github.com/
       - run: npm ci
-      - run: npm run predeploy
+      - run: cd example 
+      - run: npm install 
+      - run: npm run build
+      # - run: npm run predeploy
       - run: npm run deploy
