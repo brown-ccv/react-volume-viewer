@@ -46,9 +46,11 @@ jobs:
           git config --global url."https://github.com/".insteadOf
           ssh://git@github.com/
       
+      - name: Install react-volume-viewer
       - run: npm ci
-      - run: npm run predeploy
-      - run: cd ..
+      - name: Install and build example
+        working-directory: "./example"
+        run: npm ci && npm run build
 
 
       # - run: npm install # npm ci?
