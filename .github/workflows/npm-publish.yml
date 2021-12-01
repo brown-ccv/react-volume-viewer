@@ -12,48 +12,57 @@ on:
 
 jobs:
   # Publish to npm
-
-  # publish:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: actions/setup-node@v2
-  #       with:
-  #         node-version: '14'
-  #         registry-url: 'https://registry.npmjs.org'
-
-  #     - name: Reconfigure git to use HTTP authentication
-  #       run: >
-  #         git config --global url."https://github.com/".insteadOf
-  #         ssh://git@github.com/
-  #     - run: npm ci
-  #     - run: npm test
-  #     - run: npm run build
-  #     - run: npm publish
-  #       env:
-  #         NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
-
-  # Deploy example on gh pages
-  gh-pages:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Reconfigure git to use HTTP authentication
         run: >
           git config --global url."https://github.com/".insteadOf
           ssh://git@github.com/
-      
+      - name: Install react-volume-viewer
+        run: npm ci
+      - name: Run Tests
+        run: npm test
       - name: Build react-volume-viewer
-        run: npm ci && npm run build
-
-      - name: Build example
+        run: npm run build
+      - name: Publish to NPM  
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+      - name: Build example 
         run: npm run predeploy
+      - name: Publish example on gh-pages
+        uses: JamesIves/github-pages-deploy-action@4.1.7
+        with:
+          branch: gh-pages
+          folder: example/build
+              
 
-      - run: npm run deploy
+  # Deploy example on gh pages
+  # gh-pages:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      # - name: Deploy
-      #   uses: JamesIves/github-pages-deploy-action@4.1.7
-      #   with:
-      #     branch: gh-pages
-      #     folder: example/build
+  #     - name: Reconfigure git to use HTTP authentication
+  #       run: >
+  #         git config --global url."https://github.com/".insteadOf
+  #         ssh://git@github.com/
+      
+  #     - name: Build react-volume-viewer
+  #       run: npm ci && npm run build
+
+  #     - name: Build example
+  #       run: npm run predeploy
+
+  #     - name: Deploy
+  #       uses: JamesIves/github-pages-deploy-action@4.1.7
+  #       with:
+  #         branch: gh-pages
+  #         folder: example/build
