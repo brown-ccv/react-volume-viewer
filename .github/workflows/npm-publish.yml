@@ -49,18 +49,14 @@ jobs:
       - name: Install react-volume-viewer
       - run: npm ci
       - name: Install and build example
-        run: npm ci && npm run build
-        working-directory: "./example"
-
-
-      # - run: npm install # npm ci?
-      # - run: cd example
-      # - run: npm install # npm ci?
-      # - run: npm run build
+        run: |
+          cd example
+          npm install
+          npm run build
+        # run: npm ci && npm run build
+        # working-directory: "./example"
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@4.1.7
         with:
           branch: gh-pages
           folder: example/build
-
-        # npm run predeploy and npm run deploy?
