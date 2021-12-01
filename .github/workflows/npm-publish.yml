@@ -24,7 +24,7 @@ jobs:
         run: >
           git config --global url."https://github.com/".insteadOf
           ssh://git@github.com/
-      - run: npm ci
+      - run: npm install
       - run: npm test
       - run: npm run build
       - run: npm publish
