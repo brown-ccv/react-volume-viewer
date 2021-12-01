@@ -21,11 +21,29 @@ jobs:
           node-version: '10'
           registry-url: 'https://registry.npmjs.org'
 
+      # - name: Reconfigure git to use HTTP authentication
+      #   run: >
+      #     git config --global url."https://github.com/".insteadOf
+      #     ssh://git@github.com/
+      # - run: npm ci
+      # - run: npm test
+      # - run: npm run build
+      # - run: npm publish
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+
       - name: Reconfigure git to use HTTP authentication
         run: >
           git config --global url."https://github.com/".insteadOf
           ssh://git@github.com/
+
+      # Install and link
       - run: npm ci
+      - run: cd example && npm ci
+      - run: npm link
+      - run: cd ..
+      - run: npm link example
+      # Run tests
       - run: npm test
       - run: npm run build
       - run: npm publish
@@ -33,14 +51,14 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
 
   # Deploy example on gh pages
-  gh-pages:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Reconfigure git to use HTTP authentication
-        run: >
-          git config --global url."https://github.com/".insteadOf
-          ssh://git@github.com/
-      - run: npm ci
-      - run: npm run predeploy
-      - run: npm run deploy
+  # gh-pages:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Reconfigure git to use HTTP authentication
+  #       run: >
+  #         git config --global url."https://github.com/".insteadOf
+  #         ssh://git@github.com/
+  #     - run: npm ci
+  #     - run: npm run predeploy
+  #     - run: npm run deploy
