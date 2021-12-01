@@ -50,15 +50,25 @@ jobs:
           ssh://git@github.com/
       - name: Install react-volume-viewer
         run: npm ci
+
       # - name: Install and build example
         # run: |
         #   cd example
         #   npm install
         #   npm run build
-      - run: cd example
-      - run: npm install
-      - run: npm run build
-      - run: cd ..
+
+      # - run: cd example
+      # - run: npm install
+      # - run: npm run build
+      # - run: cd ..
+
+      - name: Install example
+        run: npm install
+        working-directory: "./example"
+      - name: Build example
+        run: npm run build
+        working-directory: "./example"
+
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@4.1.7
         with:
