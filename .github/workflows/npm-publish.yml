@@ -37,13 +37,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Reconfigure git to use HTTP authentication
         run: >
           git config --global url."https://github.com/".insteadOf
           ssh://git@github.com/
       - run: npm ci
-      - run: cd example 
-      - run: npm install 
-      - run: npm run build
-      # - run: npm run predeploy
+      # - run: cd example 
+      # - run: npm install 
+      # - run: npm run build
+      - run: npm run predeploy
       - run: npm run deploy
