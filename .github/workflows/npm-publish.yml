@@ -49,8 +49,8 @@ jobs:
       - name: Install react-volume-viewer
       - run: npm ci
       - name: Install and build example
-        working-directory: "./example"
         run: npm ci && npm run build
+        working-directory: "./example"
 
 
       # - run: npm install # npm ci?
