@@ -39,7 +39,8 @@ jobs:
 
       # Install and link
       - run: npm ci
-      - run: cd example && npm ci
+      - run: cd example
+      - run: npm ci
       - run: npm link
       - run: cd ..
       - run: npm link example
