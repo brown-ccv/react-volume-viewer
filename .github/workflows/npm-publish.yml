@@ -8,12 +8,11 @@ on:
   #   types: [published]
   push:
     branches:
-      # Temp - keep on branch for testing
-      # - main
       - npm-deployment
 
 jobs:
   # Publish to npm
+
   # publish:
   #   runs-on: ubuntu-latest
   #   steps:
@@ -34,10 +33,6 @@ jobs:
   #       env:
   #         NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
 
-
-  # with:
-    #   repoToken: ${{ secrets.GITHUB_TOKEN }}
-
   # Deploy example on gh pages
   gh-pages:
     runs-on: ubuntu-latest
@@ -48,8 +43,11 @@ jobs:
         run: >
           git config --global url."https://github.com/".insteadOf
           ssh://git@github.com/
-      - name: Install react-volume-viewer
-        run: npm install
+      # - name: Install react-volume-viewer
+      #   run: npm install
+
+      - name: Install and build react-volume-viewer
+        run: npm install && npm run build
 
       # - name: Install and build example
         # run: |
