@@ -47,8 +47,7 @@ jobs:
           ssh://git@github.com/
       - run: npm ci
       - run: cd example && npm ci
-      - run: npm run build
-      # - run: npm run predeploy
+      - run: cd example && npm run build
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@4.1.7
         with:
