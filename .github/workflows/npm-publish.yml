@@ -1,20 +1,38 @@
-name: NPM Publish
+name: Publish on npm & gh-pages on release
 
 on:
   release:
-    types: [created]
+    types: [published]
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
-          node-version: "12.x"
-          registry-url: "https://registry.npmjs.org"
-      - run: npm install
-      - run: npm build
-      - run: npm publish --access public
+          node-version: '14'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Reconfigure git to use HTTP authentication
+        run: >
+          git config --global url."https://github.com/".insteadOf
+          ssh://git@github.com/
+
+      - name: Install Library
+        run: npm ci
+      - name: Run Tests
+        run: npm test
+      - name: Build Library
+        run: npm run build
+      - name: Publish to NPM  
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+        
+      - name: Build Example 
+        run: npm run predeploy
+      - name: Publish Example on gh-pages
+        uses: JamesIves/github-pages-deploy-action@4.1.7
+        with:
+          branch: gh-pages
+          folder: example/build

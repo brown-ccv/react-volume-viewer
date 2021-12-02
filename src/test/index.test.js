@@ -1,4 +1,4 @@
-import VolumeViewer from "..";
+import { VolumeViewer } from "..";
 
 describe("VolumeViewer", () => {
   it("is truthy", () => {

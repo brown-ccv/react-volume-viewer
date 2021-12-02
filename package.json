@@ -1,10 +1,13 @@
 {
   "name": "react-volume-viewer",
-  "version": "0.1.0",
+  "version": "0.1.4",
   "description": "Aframe container with custom controls for use in react applications",
   "author": "brown-ccv",
   "license": "MIT",
-  "repository": "brown-ccv/react-volume-viewer",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brown-ccv/react-volume-viewer.git"
+  },
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
   "source": "src/index.js",
@@ -12,17 +15,14 @@
     "node": ">=10"
   },
   "scripts": {
-    "prepare": "run-s build",
+    "build": "rollup -c",
+    "start": "rollup -c -w",
+    "test": "cross-env CI=1 react-scripts test --env=jsdom && run-s test:unit test:build",
     "test:build": "run-s build",
-    "test:lint": "eslint .",
     "test:unit": "cross-env CI=1 react-scripts test --env=jsdom",
     "test:watch": "react-scripts test --env=jsdom",
     "predeploy": "cd example && npm install && npm run build",
     "deploy": "gh-pages -d example/build",
-    "test": "cross-env CI=1 react-scripts test --env=jsdom && run-s test:unit test:lint test:build",
-    "build": "rollup -c",
-    "start": "rollup -c -w",
-    "prepublish": "npm run build",
     "lint": "prettier --write src example/src"
   },
   "dependencies": {
@@ -53,11 +53,13 @@
     "npm-run-all": "^4.1.5",
     "prettier": "^2.4.1",
     "prop-types": "^15.7.2",
-    "react": "^17.0.2",
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0",
     "react-scripts": "^4.0.3",
     "rollup": "^2.59.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
-    "rollup-plugin-postcss": "^4.0.1"
+    "rollup-plugin-postcss": "^4.0.1",
+    "styled-components": "^5.0.0"
   },
   "files": [
     "dist"
@@ -65,6 +67,11 @@
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
       "prettier --write"
+    ]
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "/node_modules/(?!d3|d3-array|@reach/listbox|rc-slider|internmap|delaunator|robust-predicates)"
     ]
   }
 }
