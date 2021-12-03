@@ -49,6 +49,8 @@ function VolumeViewer(props) {
     transferFunction: useTransferFunction ? transferFunction : [],
   });
 
+  console.log("PROPS", model)
+
   // Change model on props change
   useEffect(() => {
     setState({
@@ -85,7 +87,7 @@ function VolumeViewer(props) {
           sliderRange={sliderRange}
           colorMaps={
             useDefaultColorMaps
-              ? { ...defaultColorMaps, ...colorMaps }
+              ? { ...colorMaps, ...defaultColorMaps }
               : colorMaps
           }
         />
