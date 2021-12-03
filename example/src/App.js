@@ -3,16 +3,16 @@ import React, { useState } from "react";
 import { VolumeViewer } from "react-volume-viewer";
 import "./index.css";
 
-const haline = "./assets/colormaps/haline.png"
-const thermal = "./assets/colormaps/thermal.png"
-const salt = "./assets/models/summer-high-salt.png"
-const temp = "./assets/models/summer-high-temp.png"
+const haline = "./assets/colormaps/haline.png";
+const thermal = "./assets/colormaps/thermal.png";
+const salt = "./assets/models/summer-high-salt.png";
+const temp = "./assets/models/summer-high-temp.png";
 
 export default function App() {
   const [colorMap, setColorMap] = useState(haline);
   const [controlsVisible, setControlsVisible] = useState(true);
   const [useTransferFunction, setUseTransferFunction] = useState(true);
-  const [modelPath, setModelPath] = useState(salt)
+  const [modelPath, setModelPath] = useState(salt);
 
   return (
     <>
@@ -22,11 +22,6 @@ export default function App() {
 
       <main style={{ margin: "25px" }}>
         <div>
-          <button
-            onClick={() => setColorMap(colorMap === haline ? thermal : haline)}
-          >
-            Color Map
-          </button>
           <button onClick={() => setControlsVisible(!controlsVisible)}>
             Controls Visible
           </button>
@@ -34,9 +29,21 @@ export default function App() {
             Use Transfer Function
           </button>
           <button
+            onClick={() => setColorMap(colorMap === haline ? thermal : haline)}
+          >
+            Color Map
+          </button>
+          <button
             onClick={() => {
-              setColorMap(colorMap === haline ? thermal : haline)
-              setModelPath(modelPath === salt ? temp : salt)
+              setModelPath(modelPath === salt ? temp : salt);
+            }}
+          >
+            Model
+          </button>
+          <button
+            onClick={() => {
+              setColorMap(colorMap === haline ? thermal : haline);
+              setModelPath(modelPath === salt ? temp : salt);
             }}
           >
             ColorMap and Model

@@ -9,13 +9,13 @@ import rgb from "../assets/rgb.png";
 import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
 
-const sliderRange = { min: 0, max: 1 };
-const defaultColorMaps = {
+const SLIDER_RANGE = { min: 0, max: 1 };
+const DEFAULT_COLOR_MAPS = {
   Grayscale: grayscale,
   Natural: natural,
   RGB: rgb,
 };
-const defaultModel = {
+const DEFAULT_MODEL = {
   position: "0 0 0",
   range: { min: 0, max: 1, unit: "" },
   rotation: "0 0 0",
@@ -23,6 +23,10 @@ const defaultModel = {
   slices: 55,
   spacing: { x: 2, y: 2, z: 1 },
 };
+const DEFAULT_TRANSFER_FUNCTION = [
+  { x: 0, y: 0 },
+  { x: 1, y: 1 },
+];
 
 function VolumeViewer(props) {
   const {
@@ -38,43 +42,43 @@ function VolumeViewer(props) {
   } = props;
 
   const [state, setState] = useState({
-    colorMap:
-      colorMap && useTransferFunction ? colorMap : defaultColorMaps.Grayscale,
-    model: { ...defaultModel, ...model },
+    colorMap: colorMap,
+    model: { ...DEFAULT_MODEL, ...model },
     sliders: {
-      x: [sliderRange.min, sliderRange.max],
-      y: [sliderRange.min, sliderRange.max],
-      z: [sliderRange.min, sliderRange.max],
+      x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+      y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+      z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
     },
-    transferFunction: useTransferFunction ? transferFunction : [],
+    transferFunction: useTransferFunction
+      ? transferFunction
+      : DEFAULT_TRANSFER_FUNCTION,
   });
 
-  // console.log("PROPS", model)
-
-  // Change model on props change
+  // Update colorMap on prop change
   useEffect(() => {
-    setState({
+    setState((state) => ({
       ...state,
-      model: { ...defaultModel, ...model },
-    });
+      colorMap: colorMap,
+    }));
+  }, [colorMap]);
+
+  // Update model on prop change
+  useEffect(() => {
+    setState((state) => ({
+      ...state,
+      model: { ...DEFAULT_MODEL, ...model },
+    }));
   }, [model]);
 
-  // Override colorMap on props change
+  // Update transferFunction on prop change
   useEffect(() => {
-    setState({
+    setState((state) => ({
       ...state,
-      colorMap:
-        colorMap && useTransferFunction ? colorMap : defaultColorMaps.Grayscale,
-    });
-  }, [colorMap, useTransferFunction]);
-
-  // Override transferFunction on prop change
-  useEffect(() => {
-    setState({
-      ...state,
-      transferFunction: useTransferFunction ? transferFunction : [],
-    });
-  }, [useTransferFunction, transferFunction]);
+      transferFunction: useTransferFunction
+        ? transferFunction
+        : DEFAULT_TRANSFER_FUNCTION,
+    }));
+  }, [transferFunction, useTransferFunction]);
 
   return (
     <Wrapper className={className} style={style}>
@@ -84,12 +88,13 @@ function VolumeViewer(props) {
         <Controls
           state={state}
           setState={setState}
-          sliderRange={sliderRange}
           colorMaps={
             useDefaultColorMaps
-              ? { ...colorMaps, ...defaultColorMaps }
+              ? { ...colorMaps, ...DEFAULT_COLOR_MAPS }
               : colorMaps
           }
+          SLIDER_RANGE={SLIDER_RANGE}
+          useTransferFunction={useTransferFunction}
         />
       )}
     </Wrapper>

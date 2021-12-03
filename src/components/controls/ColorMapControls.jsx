@@ -20,7 +20,9 @@ function ColorMapControls({ state, setState, colorMaps }) {
       <StyledListboxInput
         aria-labelledby="ColorMap dropdown"
         value={state.colorMap.name}
-        onChange={(color) => setState({ ...state, colorMap: colorMaps[color] })}
+        onChange={(color) =>
+          setState((state) => ({ ...state, colorMap: colorMaps[color] }))
+        }
       >
         <ListboxButton>
           <img

@@ -220,10 +220,10 @@ export default class OpacityControls extends Component {
         y: 1 - (node.y - this.padding) / this.height,
       });
     });
-    this.props.setState({
-      ...this.props.state,
+    this.props.setState((state) => ({
+      ...state,
       transferFunction: this.transferFunctionNodes,
-    });
+    }));
   }
 
   resetOpacityPoints() {
