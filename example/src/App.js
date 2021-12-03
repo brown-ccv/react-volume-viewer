@@ -1,55 +1,61 @@
 import React, { useState } from "react";
 
-import config from "./assets/config.json";
+import { VolumeViewer } from "react-volume-viewer";
+import "./index.css";
+
 import haline from "./assets/colormaps/haline.png";
 import thermal from "./assets/colormaps/thermal.png";
-
-import ModelSelector from "./components/ModelSelector";
-import VolumeViewerWrapper from "./components/VolumeViewerWrapper";
-import "./styles/main.scss"
-
-const ALL_COLOR_MAPS = {
-  Haline: haline,
-  Thermal: thermal,
-};
-const BUTTONS = {
-  season: config.season,
-  tide: config.tide,
-  measurement: config.measurement,
-};
+import model from "./assets/models/summer-high-salt.png";
 
 export default function App() {
-  const [controlsVisible, setControlsVisible] = useState(false);
-
-  const [selection, setSelection] = useState({
-    season: BUTTONS.season[0],
-    tide: BUTTONS.tide[0],
-    measurement: BUTTONS.measurement[0],
-  });
-  const [colorMap, setColorMap] = useState(ALL_COLOR_MAPS.Haline);
+  const [colorMap, setColorMap] = useState(haline);
+  const [controlsVisible, setControlsVisible] = useState(true);
+  const [useTransferFunction, setUseTransferFunction] = useState(true);
 
   return (
     <>
       <header>
         <h1>Hello, World</h1>
+        <button
+          onClick={() => setColorMap(colorMap === haline ? thermal : haline)}
+        >
+          Color Map
+        </button>
+        <button onClick={() => setControlsVisible(!controlsVisible)}>
+          Controls Visible
+        </button>
+        <button onClick={() => setUseTransferFunction(!useTransferFunction)}>
+          Use Transfer Function
+        </button>
       </header>
 
       <main style={{ margin: "25px" }}>
-        <ModelSelector
-          BUTTONS={BUTTONS}
-          ALL_COLOR_MAPS={ALL_COLOR_MAPS}
-          selection={selection}
-          setSelection={setSelection}
-          setColorMap={setColorMap}
-          toggleControls={() => setControlsVisible(!controlsVisible)}
-        />
-        <VolumeViewerWrapper
-          ALL_COLOR_MAPS={ALL_COLOR_MAPS}
+        <VolumeViewer
+          className="volumeViewer"
+          colorMaps={{
+            Haline: haline,
+            Thermal: thermal,
+          }}
           colorMap={colorMap}
-          selection={selection}
           controlsVisible={controlsVisible}
+          model={{
+            range: { min: 0.05, max: 33.71, unit: "°C" },
+            path: model,
+            scale: "1 -1 1",
+            rotation: "-55 0 0",
+          }}
+          useTransferFunction={useTransferFunction}
         />
+        <hr />
+        {/* <VolumeViewer
+          style={{ height: "50vh", width: "1000px" }}
+          model={{
+            path: model,
+            range: { min: 0.05, max: 33.71, unit: "°C" },
+          }}
+        /> */}
       </main>
+
       <footer>
         <h1>Goodbye, World!</h1>
       </footer>
