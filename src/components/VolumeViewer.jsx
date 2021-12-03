@@ -49,7 +49,7 @@ function VolumeViewer(props) {
     transferFunction: useTransferFunction ? transferFunction : [],
   });
 
-  console.log("PROPS", model)
+  // console.log("PROPS", model)
 
   // Change model on props change
   useEffect(() => {
