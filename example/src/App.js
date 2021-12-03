@@ -6,7 +6,7 @@ import thermal from "./assets/colormaps/thermal.png";
 
 import ModelSelector from "./components/ModelSelector";
 import VolumeViewerWrapper from "./components/VolumeViewerWrapper";
-import "./styles/main.scss";
+import "./styles/main.scss"
 
 const ALL_COLOR_MAPS = {
   Haline: haline,
