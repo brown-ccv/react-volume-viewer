@@ -173,13 +173,7 @@ VolumeViewer.defaultProps = {
   colorMap: null,
   colorMaps: {},
   controlsVisible: true,
-
-  transferFunction: [
-    { x: 0, y: 0 },
-    { x: 0.11739130434782609, y: 0.11739130434782609 },
-    { x: 0.34782608695652173, y: 0.34782608695652173 },
-    { x: 1, y: 1 },
-  ],
+  transferFunction: DEFAULT_TRANSFER_FUNCTION,
   useDefaultColorMaps: true,
   useTransferFunction: true,
 };
