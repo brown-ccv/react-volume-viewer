@@ -2,31 +2,15 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
-import grayscale from "../assets/grayscale.png";
-import natural from "../assets/natural.png";
-import rgb from "../assets/rgb.png";
+import {
+  DEFAULT_COLOR_MAPS,
+  DEFAULT_MODEL,
+  DEFAULT_TRANSFER_FUNCTION,
+  SLIDER_RANGE,
+} from "../constants/constants";
 
 import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
-
-const SLIDER_RANGE = { min: 0, max: 1 };
-const DEFAULT_COLOR_MAPS = {
-  Grayscale: grayscale,
-  Natural: natural,
-  RGB: rgb,
-};
-const DEFAULT_MODEL = {
-  position: "0 0 0",
-  range: { min: 0, max: 1, unit: "" },
-  rotation: "0 0 0",
-  scale: "1 1 1",
-  slices: 55,
-  spacing: { x: 2, y: 2, z: 1 },
-};
-const DEFAULT_TRANSFER_FUNCTION = [
-  { x: 0, y: 0 },
-  { x: 1, y: 1 },
-];
 
 function VolumeViewer(props) {
   const {
@@ -93,7 +77,6 @@ function VolumeViewer(props) {
               ? { ...colorMaps, ...DEFAULT_COLOR_MAPS }
               : colorMaps
           }
-          sliderRange={SLIDER_RANGE}
           useTransferFunction={useTransferFunction}
         />
       )}

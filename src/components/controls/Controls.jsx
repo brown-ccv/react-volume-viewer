@@ -21,11 +21,7 @@ function Controls(props) {
         <OpacityControls state={state} setState={setState} />
       )}
 
-      <ClipControls
-        state={state}
-        setState={setState}
-        sliderRange={sliderRange}
-      />
+      <ClipControls state={state} setState={setState} />
     </Wrapper>
   );
 }
