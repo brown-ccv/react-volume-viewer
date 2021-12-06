@@ -6,7 +6,9 @@ import "rc-slider/assets/index.css";
 import Title from "./SectionTitle.jsx";
 
 // TODO: Slider range should be 0-1000 with a step of 1 (changes needed in AframeScene)
-function ClipControls({ state, setState, SLIDER_RANGE }) {
+function ClipControls(props) {
+  const { state, setState, sliderRange } = props;
+
   function handleChange(axis, val) {
     setState((state) => ({
       ...state,
@@ -24,8 +26,8 @@ function ClipControls({ state, setState, SLIDER_RANGE }) {
         <SliderGroup key={axis}>
           <h4> {axis.toUpperCase()} Axis</h4>
           <Range
-            min={SLIDER_RANGE.min}
-            max={SLIDER_RANGE.max}
+            min={sliderRange.min}
+            max={sliderRange.max}
             step={0.001}
             value={state.sliders[axis]}
             allowCross={false}

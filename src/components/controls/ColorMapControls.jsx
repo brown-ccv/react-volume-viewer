@@ -12,7 +12,8 @@ import "@reach/listbox/styles.css";
 
 import Title from "./SectionTitle.jsx";
 
-function ColorMapControls({ state, setState, colorMaps }) {
+function ColorMapControls(props) {
+  const { state, setState, colorMaps } = props;
   return (
     <Wrapper>
       <Title>Color Map</Title>

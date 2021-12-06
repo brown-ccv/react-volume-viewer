@@ -93,7 +93,7 @@ function VolumeViewer(props) {
               ? { ...colorMaps, ...DEFAULT_COLOR_MAPS }
               : colorMaps
           }
-          SLIDER_RANGE={SLIDER_RANGE}
+          sliderRange={SLIDER_RANGE}
           useTransferFunction={useTransferFunction}
         />
       )}

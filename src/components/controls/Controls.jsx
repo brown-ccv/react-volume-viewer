@@ -6,7 +6,7 @@ import OpacityControls from "./OpacityControls.js";
 import ClipControls from "./ClipControls.jsx";
 
 function Controls(props) {
-  const { state, setState, colorMaps, SLIDER_RANGE, useTransferFunction } =
+  const { state, setState, colorMaps, sliderRange, useTransferFunction } =
     props;
 
   return (
@@ -24,7 +24,7 @@ function Controls(props) {
       <ClipControls
         state={state}
         setState={setState}
-        SLIDER_RANGE={SLIDER_RANGE}
+        sliderRange={sliderRange}
       />
     </Wrapper>
   );
