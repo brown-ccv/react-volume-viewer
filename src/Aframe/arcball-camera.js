@@ -37,7 +37,7 @@ AFRAME.registerComponent("arcball-camera", {
 
     el.getObject3D("camera").position.copy(this.data.initialPosition);
 
-    // set the pointer to grab/grabbing when over the vr canvas
+    // Set the pointer to grab/grabbing when over the vr canvas
     const aCanvas = document.querySelector(".a-canvas");
     aCanvas.style.cursor = "grab";
 
@@ -93,7 +93,6 @@ AFRAME.registerComponent("arcball-camera", {
     }
     this.controls.enabled = true;
     el.getObject3D("camera").position.set(0, 0, 2);
-    //console.log("this.meshObjectHandler.matrixWorld");
     console.log(
       "this.meshObjectHandler.el.getAttribute('loader').meshPosition"
     );

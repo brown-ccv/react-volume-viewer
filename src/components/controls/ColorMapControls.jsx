@@ -12,19 +12,26 @@ import "@reach/listbox/styles.css";
 
 import Title from "./SectionTitle.jsx";
 
-function ColorMapControls({ state, setState, colorMaps }) {
+function ColorMapControls(props) {
+  const {
+    state: { colorMap },
+    setState,
+    colorMaps,
+  } = props;
   return (
     <Wrapper>
       <Title>Color Map</Title>
 
       <StyledListboxInput
         aria-labelledby="ColorMap dropdown"
-        value={state.colorMap.name}
-        onChange={(color) => setState({ ...state, colorMap: colorMaps[color] })}
+        value={colorMap.name}
+        onChange={(color) =>
+          setState((state) => ({ ...state, colorMap: colorMaps[color] }))
+        }
       >
         <ListboxButton>
           <img
-            src={state.colorMap}
+            src={colorMap}
             alt="The current color map"
             height="20px"
             width="95%"
