@@ -14,7 +14,7 @@ import "../Aframe/render-2d-clipplane";
 
 function AframeScene(props) {
   const {
-    state: { model, colorMap, transferFunction, sliders },
+    state: { colorMap, model, sliders, transferFunction },
     useTransferFunction,
   } = props;
 
