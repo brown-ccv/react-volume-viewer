@@ -116,6 +116,7 @@ VolumeViewer.propTypes = {
     /** Minimum and maximum values of the model's dataset. Min and max values are required */
     range: PropTypes.exact({
       min: PropTypes.number.isRequired,
+      mid: PropTypes.number,
       max: PropTypes.number.isRequired,
       unit: PropTypes.string,
     }),
