@@ -19,7 +19,10 @@ function AframeScene(props) {
   } = props;
 
   return (
+    // TODO: Scene is from react-aframe
     <StyledScene id="volumeViewerScene" background="color: black" embedded>
+
+      {/* HAND */}
       <Entity
         id="rhand"
         raycaster="objects: .clickableMesh"
@@ -27,6 +30,8 @@ function AframeScene(props) {
         collider-check={{ intersecting: false }}
       />
 
+      {/* Event listener for sliders and rotations? */}
+      {/* TODO: Scene is from react-aframe*/}
       <Entity
         id="clipplane2DListener"
         render-2d-clipplane={{
@@ -39,6 +44,8 @@ function AframeScene(props) {
           clipX: "0 0",
         }}
       />
+
+      {/* Some sort of red plane? */}
       <a-plane
         class="clickable"
         id="clipplane2D"
@@ -49,6 +56,8 @@ function AframeScene(props) {
         cursor-listener
       />
 
+      {/* MODEL */}
+      {/* TODO: Scene is from react-aframe */}
       <Entity
         id="volumeCube"
         class="clickableMesh"
@@ -68,7 +77,11 @@ function AframeScene(props) {
         scale={model.scale}
       />
 
+      {/* MOUSE */}
       <a-entity cursor="rayOrigin:mouse" raycaster="objects: .clickable" />
+
+      {/* CAMERA */}
+      {/* TODO: Scene is from react-aframe */}
       <Entity
         id="camera"
         camera="active: true"
