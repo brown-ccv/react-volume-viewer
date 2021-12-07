@@ -10,7 +10,7 @@ const DEFAULT_COLOR_MAPS = {
 
 const DEFAULT_MODEL = {
   position: "0 0 0",
-  range: { min: 0, max: 1, unit: "" },
+  range: { min: 0, mid: 0.5, max: 1, unit: "" },
   rotation: "0 0 0",
   scale: "1 1 1",
   slices: 55,

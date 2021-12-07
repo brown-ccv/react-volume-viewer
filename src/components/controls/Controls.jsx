@@ -6,9 +6,7 @@ import ColorMapControls from "./ColorMapControls.jsx";
 import OpacityControls from "./OpacityControlsNew.jsx";
 import ClipControls from "./ClipControls.jsx";
 
-function Controls(props) {
-  const { state, setState, colorMaps, useTransferFunction } = props;
-
+function Controls({ state, setState, colorMaps, useTransferFunction }) {
   return (
     <Wrapper>
       <ColorMapControls

@@ -5,31 +5,21 @@ import { scaleLinear } from "d3-scale";
 import Title from "./SectionTitle.jsx";
 
 /** CONSTANTS **/
+
 const DECIMALS = 2; // Number of decimals to display
 const CANVAS_PADDING = 10; // Padding on the canvas
 const HOVER_RADIUS = 15; // Pixel offset for registering hovering/clicks
 const INIT_CANVAS_POINTS = []; // Starting canvas points, used for reset
 
-// Data Ranges and Transformations
-// Transfer Function:   {x: 0, y: 0} to {x: 1, y: 1}
-// Canvas Range:        {x: 0, y: h} to {x: w, y: 0}
-// Padded Canvas Range: {x: p, y: h-p} to {x: w-p, y: p}
-// Color Range:         0 to 256 (Shouldn't it be 255?)
-// Data Range:          data.min to data.max
-const colorRange = {
-  min: 0,
-  max: 256, // Shouldn't this be 255?
-};
+/** Data Ranges and Transformations **/
+
 const transferFunctionRange = {
   x: [0, 1],
   y: [0, 1],
-}; // Was minLevel and maxLevel
-
-const canvasRange = {
-  x: [0, undefined],
-  y: [undefined, 0],
 };
-const paddedCanvasRange = {
+
+// {x: p, y: height-p} to {x: width-p, y: p}
+const canvasRange = {
   x: [CANVAS_PADDING, undefined],
   y: [undefined, CANVAS_PADDING],
 };
@@ -45,35 +35,32 @@ function getRelativeMousePos(e) {
     y: e.clientY - e.target.getBoundingClientRect().y,
   };
 
-  // TODO: mousePos must be inside padded canvas
+  if (mouse.x < canvasRange.x[0]) {
+    mouse.x = canvasRange.x[0];
+  } else if (mouse.x > canvasRange.x[1]) {
+    mouse.x = canvasRange.x[1];
+  }
 
-  // if(mouse.x < paddedCanvasRange.x[0]) {
-  //   mouse.x = paddedCanvasRange.x[0]
-  // } else if (mouse.x > paddedCanvasRange.x[1]) {
-  //   mouse.x = paddedCanvasRange.x[1]
-  // }
-
-  // if(mouse.y < paddedCanvasRange.y[0]) {
-  //   mouse.y = paddedCanvasRange.y[0]
-  // } else if (mouse.y > paddedCanvasRange.y[1]) {
-  //   mouse.y = paddedCanvasRange.y[1]
-  // }
+  if (mouse.y > canvasRange.y[0]) {
+    mouse.y = canvasRange.y[0];
+  } else if (mouse.y < canvasRange.y[1]) {
+    mouse.y = canvasRange.y[1];
+  }
 
   return mouse;
 }
 
-function OpacityControls({ state, setState }) {
-  const canvasRef = useRef(null); // Reference to the canvas
-  const [cursorType, setCursorType] = useState("auto"); // Type of curser over the canvas
-  const [canvasPoints, setCanvasPoints] = useState([]); // Points on the canvas
-  const [pointHovering, setPointHovering] = useState(null); // Index of the point currently moused over
-  const [pointDragging, setPointDragging] = useState(null); // Index of the point currently dragging
-  const [mouseStart, setMouseStart] = useState({}); // Was dragStart [0, 0], will be { x: 0, y: 0 }
-  const [pointStart, setPointStart] = useState({}); // Was startPos, [0, 0], will be { x: 0, y: 0 }
-  const dataRange = {
-    ...state.model.range,
-    mid: (state.model.range.min + state.model.range.max) / 2,
-  };
+function OpacityControls(props) {
+  const {
+    state: { transferFunction, model },
+    setState,
+  } = props;
+
+  const canvasRef = useRef(null);
+  const [cursorType, setCursorType] = useState("pointer"); // Cursor type (styled-components)
+  const [canvasPoints, setCanvasPoints] = useState([]); // Points in canvas space
+  const [pointHovering, setPointHovering] = useState(null); // The point currently moused over
+  const [pointDragging, setPointDragging] = useState(null); // The point currently dragging
 
   /** INITIAL RENDER **/
 
@@ -81,21 +68,19 @@ function OpacityControls({ state, setState }) {
     const canvas = canvasRef.current;
 
     // Set ranges
-    canvasRange.x[1] = canvas.width;
-    canvasRange.y[0] = canvas.height;
-    paddedCanvasRange.x[1] = canvas.width - CANVAS_PADDING;
-    paddedCanvasRange.y[0] = canvas.height - CANVAS_PADDING;
+    canvasRange.x[1] = canvas.width - CANVAS_PADDING;
+    canvasRange.y[0] = canvas.height - CANVAS_PADDING;
 
     // Set transformations
     scaleTransferFunctionToPaddedCanvasX
       .domain(transferFunctionRange.x)
-      .range(paddedCanvasRange.x);
+      .range(canvasRange.x);
     scaleTransferFunctionToPaddedCanvasY
       .domain(transferFunctionRange.y)
-      .range(paddedCanvasRange.y);
+      .range(canvasRange.y);
 
     // Initialize canvas points
-    const points = state.transferFunction.map((p) => {
+    const points = transferFunction.map((p) => {
       return {
         x: scaleTransferFunctionToPaddedCanvasX(p.x),
         y: scaleTransferFunctionToPaddedCanvasY(p.y),
@@ -103,20 +88,11 @@ function OpacityControls({ state, setState }) {
     });
     setCanvasPoints(points);
     INIT_CANVAS_POINTS.push(...points);
-
-    // document.addEventListener("mousemove", dragPoint); // was dragPointer
-    document.addEventListener("mouseup", onMouseUp);
-
-    return () => {
-      // document.removeEventListener("mousemove", dragPoint); // was dragPointer
-      document.removeEventListener("mouseup", onMouseUp);
-    };
   }, []);
 
   /** DRAW FUNCTION **/
 
   useEffect(() => {
-    console.log("DRAWING", canvasPoints);
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
 
@@ -150,7 +126,7 @@ function OpacityControls({ state, setState }) {
     });
 
     // Update transferFunction
-    setState({
+    setState((state) => ({
       ...state,
       transferFunction: canvasPoints.map((p) => {
         return {
@@ -158,15 +134,14 @@ function OpacityControls({ state, setState }) {
           y: scaleTransferFunctionToPaddedCanvasY.invert(p.y),
         };
       }),
-    });
+    }));
   }, [canvasPoints, pointHovering, pointDragging]);
 
   /** EVENT LISTENER FUNCTIONS **/
 
+  // Check to see if cursor is above a point
   function checkHovering(e) {
     const mouse = getRelativeMousePos(e);
-
-    // Check to see if cursor is above a point
     const point = canvasPoints.find((point) => {
       const distance = Math.sqrt(
         Math.pow(mouse.x - point.x, 2) + Math.pow(mouse.y - point.y, 2)
@@ -176,65 +151,72 @@ function OpacityControls({ state, setState }) {
 
     // Set hovered point and cursor
     setPointHovering(point);
-    point ? setCursorType("grab") : setCursorType("auto");
-  }
-
-  // Drag a point
-  // TODO: Adding an element at -1?
-  // TODO: Drawing keeps happening but dragging not consistently changing
-  function dragPoint(e) {
-    e.preventDefault();
-    const mousePos = getRelativeMousePos(e);
-    const idx = canvasPoints.findIndex((p) => p === pointDragging);
-
-    // First and last point stay at the start/end of the canvas's range
-    if (idx === 0) mousePos.x = paddedCanvasRange.x[0];
-    else if (idx === canvasPoints.length - 1)
-      mousePos.x = paddedCanvasRange.x[1];
-
-    const temp = [...canvasPoints];
-    temp[idx] = mousePos;
-    setCanvasPoints(temp.sort((a, b) => a.x - b.x));
+    point ? setCursorType("grab") : setCursorType("pointer");
   }
 
   // If hovering, begin dragging a point
-  function onMouseDown(e) {
+  function checkDragging(e) {
     e.preventDefault();
     if (pointHovering) {
       setPointDragging(pointHovering);
-      setPointStart(pointHovering);
-      setMouseStart(getRelativeMousePos(e));
       setCursorType("grabbing");
     }
   }
 
-  // Release point
-  // TODO: Change
-  function onMouseUp(e) {
-    setPointDragging(null);
-    setPointStart(null);
-    setMouseStart(null);
-    pointHovering ? setCursorType("grab") : setCursorType("auto");
-    // checkHovering(e);
+  // Drag a point
+  function dragPoint(e) {
+    e.preventDefault();
+    const mousePos = getRelativeMousePos(e);
+
+    // First and last point stay at the start/end of the x axis
+    const idx = canvasPoints.findIndex((p) => p === pointDragging);
+    if (idx === 0) mousePos.x = canvasRange.x[0];
+    else if (idx === canvasPoints.length - 1)
+      mousePos.x = canvasRange.x[1];
+
+    // Remove pointDragging and add current position
+    setCanvasPoints(
+      [...canvasPoints.filter((p) => p !== pointDragging), mousePos].sort(
+        (a, b) => a.x - b.x
+      )
+    );
+    setPointDragging(mousePos);
+    setPointHovering(mousePos);
   }
 
   // Add point to canvas
-  // TODO: Point must be within paddedCanvasRange (do in getRelativeMousePos?)
   function addPoint(e) {
-    console.log("ADD POINT", pointHovering);
     e.preventDefault();
-    const mouse = getRelativeMousePos(e);
-
-    setCanvasPoints([...canvasPoints, mouse].sort((a, b) => a.x - b.x));
+    setCanvasPoints(
+      [...canvasPoints, getRelativeMousePos(e)].sort((a, b) => a.x - b.x)
+    );
   }
 
-  // Remove hovered point - can't be first or last point
-  // TODO: Remove pointHovering from canvasPoints
+  // Remove hovered point - can't be first or last
   function removePoint(e) {
     e.preventDefault();
-    console.log("REMOVE POINT", pointHovering);
+    const idx = canvasPoints.findIndex((p) => p === pointHovering);
+
+    if (idx !== 0 && idx !== canvasPoints.length - 1) {
+      setCanvasPoints(canvasPoints.filter((p) => p !== pointHovering));
+    }
+    setCursorType("pointer");
   }
 
+  // Release point onMouseUp
+  function releasePoint(e) {
+    e.preventDefault();
+    setPointDragging(null);
+    pointHovering ? setCursorType("grab") : setCursorType("pointer");
+  }
+
+  function leaveCanvas(e) {
+    e.preventDefault();
+    setPointDragging(null);
+    setPointHovering(null);
+    setCursorType("inherit");
+  }
+  console.log("MODEL", model.range);
   return (
     <Wrapper>
       <Title>Transfer Function</Title>
@@ -243,21 +225,27 @@ function OpacityControls({ state, setState }) {
         ref={canvasRef}
         cursor={cursorType}
         onMouseMove={pointDragging ? dragPoint : checkHovering}
-        onMouseDown={onMouseDown}
+        onMouseDown={checkDragging}
         onDoubleClick={addPoint}
         onContextMenu={removePoint}
+        onMouseUp={releasePoint}
+        onMouseLeave={leaveCanvas}
       />
 
       <Labels>
         <LabelText>
-          {dataRange.min.toFixed(DECIMALS)} {dataRange.unit}
+          {model.range.min.toFixed(DECIMALS)} {model.range.unit}
         </LabelText>
+
+        {model.range.mid && (
+          <LabelText>
+            {model.range.mid.toFixed(DECIMALS)}
+            {model.range.unit}
+          </LabelText>
+        )}
+
         <LabelText>
-          {dataRange.mid.toFixed(DECIMALS)}
-          {dataRange.unit}
-        </LabelText>
-        <LabelText>
-          {dataRange.max.toFixed(DECIMALS)} {dataRange.unit}
+          {model.range.max.toFixed(DECIMALS)} {model.range.unit}
         </LabelText>
       </Labels>
 
