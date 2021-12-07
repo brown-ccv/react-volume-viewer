@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { scaleLinear } from "d3-scale";
 
 import Title from "./SectionTitle.jsx";
+import { DEFAULT_MODEL, SLIDER_RANGE } from "../../constants/constants.js";
 
 /** CONSTANTS **/
 
@@ -17,7 +18,6 @@ const transferFunctionRange = {
   x: [0, 1],
   y: [0, 1],
 };
-
 // {x: p, y: height-p} to {x: width-p, y: p}
 const canvasRange = {
   x: [CANVAS_PADDING, undefined],
@@ -54,6 +54,7 @@ function OpacityControls(props) {
   const {
     state: { transferFunction, model },
     setState,
+    initColorMap
   } = props;
 
   const canvasRef = useRef(null);
@@ -171,8 +172,7 @@ function OpacityControls(props) {
     // First and last point stay at the start/end of the x axis
     const idx = canvasPoints.findIndex((p) => p === pointDragging);
     if (idx === 0) mousePos.x = canvasRange.x[0];
-    else if (idx === canvasPoints.length - 1)
-      mousePos.x = canvasRange.x[1];
+    else if (idx === canvasPoints.length - 1) mousePos.x = canvasRange.x[1];
 
     // Remove pointDragging and add current position
     setCanvasPoints(
@@ -216,7 +216,21 @@ function OpacityControls(props) {
     setPointHovering(null);
     setCursorType("inherit");
   }
-  console.log("MODEL", model.range);
+
+  function reset() {
+    setCanvasPoints(INIT_CANVAS_POINTS)
+    setState(state => ({
+      ...state,
+      colorMap: initColorMap,
+      // model: { ...DEFAULT_MODEL, ...model },
+      sliders: {
+        x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+        y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+        z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+      },
+    }))
+  }
+
   return (
     <Wrapper>
       <Title>Transfer Function</Title>
@@ -253,7 +267,7 @@ function OpacityControls(props) {
         Double-click to add a point to the transfer function. Right-click to
         remove a point. Drag points to change the function.
       </HelpText>
-      <Button onClick={() => setCanvasPoints(INIT_CANVAS_POINTS)}>Reset</Button>
+      <Button onClick={reset}>Reset</Button>
     </Wrapper>
   );
 }

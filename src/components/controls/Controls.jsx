@@ -2,11 +2,10 @@ import React from "react";
 import styled from "styled-components";
 
 import ColorMapControls from "./ColorMapControls.jsx";
-// import OpacityControls from "./OpacityControls.js";
-import OpacityControls from "./OpacityControlsNew.jsx";
+import OpacityControls from "./OpacityControls.jsx";
 import ClipControls from "./ClipControls.jsx";
 
-function Controls({ state, setState, colorMaps, useTransferFunction }) {
+function Controls({ state, setState, colorMaps, initColorMap, useTransferFunction }) {
   return (
     <Wrapper>
       <ColorMapControls
@@ -16,7 +15,7 @@ function Controls({ state, setState, colorMaps, useTransferFunction }) {
       />
 
       {useTransferFunction && (
-        <OpacityControls state={state} setState={setState} />
+        <OpacityControls state={state} setState={setState} initColorMap={initColorMap} />
       )}
 
       <ClipControls state={state} setState={setState} />

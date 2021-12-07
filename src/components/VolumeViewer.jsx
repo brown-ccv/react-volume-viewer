@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 
 import {
+  DEFAULT_COLOR_MAP,
   DEFAULT_COLOR_MAPS,
   DEFAULT_MODEL,
   DEFAULT_TRANSFER_FUNCTION,
@@ -26,7 +27,7 @@ function VolumeViewer(props) {
   } = props;
 
   const [state, setState] = useState({
-    colorMap: colorMap,
+    colorMap: colorMap ? colorMap : DEFAULT_COLOR_MAP,
     model: { ...DEFAULT_MODEL, ...model },
     sliders: {
       x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
@@ -77,6 +78,7 @@ function VolumeViewer(props) {
               ? { ...colorMaps, ...DEFAULT_COLOR_MAPS }
               : colorMaps
           }
+          initColorMap={colorMap}
           useTransferFunction={useTransferFunction}
         />
       )}
@@ -144,7 +146,9 @@ VolumeViewer.propTypes = {
 
   /**
    * Whether or not to use the libraries default color maps
-   * Default Color Maps: Grayscale, Natural, RGB
+   * Default Color Maps: grayscale, natural, rgb
+   * 
+   * If defaultColorMaps is false and no colorMap is present the model will use grayscale
    */
   useDefaultColorMaps: PropTypes.bool,
 
