@@ -5,7 +5,13 @@ import ColorMapControls from "./ColorMapControls.jsx";
 import OpacityControls from "./OpacityControls.jsx";
 import ClipControls from "./ClipControls.jsx";
 
-function Controls({ state, setState, colorMaps, initColorMap, useTransferFunction }) {
+function Controls({
+  state,
+  setState,
+  colorMaps,
+  initColorMap,
+  useTransferFunction,
+}) {
   return (
     <Wrapper>
       <ColorMapControls
@@ -15,7 +21,11 @@ function Controls({ state, setState, colorMaps, initColorMap, useTransferFunctio
       />
 
       {useTransferFunction && (
-        <OpacityControls state={state} setState={setState} initColorMap={initColorMap} />
+        <OpacityControls
+          state={state}
+          setState={setState}
+          initColorMap={initColorMap}
+        />
       )}
 
       <ClipControls state={state} setState={setState} />

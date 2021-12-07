@@ -147,7 +147,7 @@ VolumeViewer.propTypes = {
   /**
    * Whether or not to use the libraries default color maps
    * Default Color Maps: grayscale, natural, rgb
-   * 
+   *
    * If defaultColorMaps is false and no colorMap is present the model will use grayscale
    */
   useDefaultColorMaps: PropTypes.bool,

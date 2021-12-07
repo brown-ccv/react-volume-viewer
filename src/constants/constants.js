@@ -9,8 +9,8 @@ const DEFAULT_COLOR_MAPS = {
 };
 
 const DEFAULT_COLOR_MAP = {
-  grayscale
-}
+  grayscale,
+};
 
 const DEFAULT_MODEL = {
   position: "0 0 0",

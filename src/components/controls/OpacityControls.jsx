@@ -54,7 +54,7 @@ function OpacityControls(props) {
   const {
     state: { transferFunction, model },
     setState,
-    initColorMap
+    initColorMap,
   } = props;
 
   const canvasRef = useRef(null);
@@ -218,8 +218,8 @@ function OpacityControls(props) {
   }
 
   function reset() {
-    setCanvasPoints(INIT_CANVAS_POINTS)
-    setState(state => ({
+    setCanvasPoints(INIT_CANVAS_POINTS);
+    setState((state) => ({
       ...state,
       colorMap: initColorMap,
       // model: { ...DEFAULT_MODEL, ...model },
@@ -228,7 +228,7 @@ function OpacityControls(props) {
         y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
         z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
       },
-    }))
+    }));
   }
 
   return (
