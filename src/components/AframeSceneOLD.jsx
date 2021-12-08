@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { Entity, Scene } from "aframe-react";
 
 import "aframe";
 import "aframe-event-set-component";
@@ -9,7 +10,7 @@ import "../Aframe/arcball-camera";
 import "../Aframe/buttons-check";
 import "../Aframe/cursor-listener";
 import "../Aframe/loader";
-// import "../Aframe/render-2d-clipplane";
+import "../Aframe/render-2d-clipplane";
 
 function AframeScene(props) {
   const {
@@ -19,24 +20,18 @@ function AframeScene(props) {
 
   return (
     // TODO: Scene is from react-aframe
-    <a-scene id="volumeViewerScene" background="color: black" embedded>
-      <a-sphere 
-        position="0 1.6 -3" 
-        radius="1" 
-        color="#EF2D5E" 
-      />
-
+    <StyledScene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
-      {/* <Entity
+      <Entity
         id="rhand"
         raycaster="objects: .clickableMesh"
         buttons-check={{ clipPlane: false, grabObject: false }}
         collider-check={{ intersecting: false }}
-      /> */}
+      />
 
       {/* Event listener for sliders and rotations? */}
       {/* TODO: Scene is from react-aframe*/}
-      {/* <Entity
+      <Entity
         id="clipplane2DListener"
         render-2d-clipplane={{
           activateClipPlane: true,
@@ -47,7 +42,7 @@ function AframeScene(props) {
           rotateAngle: "0 0 0",
           clipX: "0 0",
         }}
-      /> */}
+      />
 
       {/* Invisible plane used sliders, rotation, etc. */}
       <a-plane
@@ -62,7 +57,7 @@ function AframeScene(props) {
 
       {/* MODEL */}
       {/* TODO: Scene is from react-aframe */}
-      {/* <Entity
+      <Entity
         id="volumeCube"
         class="clickableMesh"
         loader={{
@@ -79,21 +74,25 @@ function AframeScene(props) {
         position={model.position}
         rotation={model.rotation}
         scale={model.scale}
-      /> */}
+      />
 
       {/* MOUSE */}
-      {/* <a-entity cursor="rayOrigin:mouse" raycaster="objects: .clickable" /> */}
+      <a-entity cursor="rayOrigin:mouse" raycaster="objects: .clickable" />
 
       {/* CAMERA */}
       {/* TODO: Scene is from react-aframe */}
-      {/* <Entity
+      <Entity
         id="camera"
         camera="active: true"
         look-controls
         arcball-camera="initialPosition:0 0 1"
-      /> */}
-    </a-scene>
+      />
+    </StyledScene>
   );
 }
+
+const StyledScene = styled(Scene)`
+  position: relative;
+`;
 
 export default AframeScene;

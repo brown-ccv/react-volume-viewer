@@ -59,7 +59,12 @@ export default function App() {
           colorMap={colorMap}
           controlsVisible={controlsVisible}
           model={{
-            range: { min: 0.05, mid: (0.05 + 33.71) / 2, max: 33.71, unit: "°C" },
+            range: {
+              min: 0.05,
+              mid: (0.05 + 33.71) / 2,
+              max: 33.71,
+              unit: "°C",
+            },
             path: modelPath,
             scale: "1 -1 1",
             rotation: "-55 0 0",
