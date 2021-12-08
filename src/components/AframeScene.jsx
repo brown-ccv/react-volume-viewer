@@ -9,7 +9,7 @@ import "../Aframe/arcball-camera";
 import "../Aframe/buttons-check";
 import "../Aframe/cursor-listener";
 import "../Aframe/loader";
-// import "../Aframe/render-2d-clipplane";
+import "../Aframe/render-2d-clipplane";
 
 function AframeScene(props) {
   const {
@@ -20,12 +20,6 @@ function AframeScene(props) {
   return (
     // TODO: Scene is from react-aframe
     <a-scene id="volumeViewerScene" background="color: black" embedded>
-      <a-sphere 
-        position="0 1.6 -3" 
-        radius="1" 
-        color="#EF2D5E" 
-      />
-
       {/* HAND */}
       {/* <Entity
         id="rhand"
@@ -50,7 +44,7 @@ function AframeScene(props) {
       /> */}
 
       {/* Invisible plane used sliders, rotation, etc. */}
-      <a-plane
+      {/* <a-plane
         class="clickable"
         id="clipplane2D"
         visible="true"
@@ -58,7 +52,7 @@ function AframeScene(props) {
         width="1"
         material="color: red ; side:double; transparent:true;opacity:0.3"
         cursor-listener
-      />
+      /> */}
 
       {/* MODEL */}
       {/* TODO: Scene is from react-aframe */}
