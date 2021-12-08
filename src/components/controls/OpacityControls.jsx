@@ -94,32 +94,31 @@ function OpacityControls({
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
-
-    // Reset and Draw rule on canvas's midpoint
     context.clearRect(0, 0, canvas.width, canvas.height);
-    const middle = canvas.width / 2;
-    context.moveTo(middle, canvas.height);
-    context.lineTo(middle, canvas.height - 10);
+
+    // Draw rule on canvas's midpoint
+
+    context.beginPath();
+    context.strokeStyle = "rgba(0, 0, 0, 1)";
+    context.moveTo(canvas.width / 2, canvas.height);
+    context.lineTo(canvas.width / 2, canvas.height - 10);
     context.stroke();
 
     // Draw lines
+    context.beginPath();
     context.strokeStyle = "rgba(128, 128, 128, 0.8)";
     context.lineWidth = 2;
-    context.beginPath();
-    for (let i = 0; i < canvasPoints.length - 1; i++) {
-      context.moveTo(canvasPoints[i].x, canvasPoints[i].y);
-      context.lineTo(canvasPoints[i + 1].x, canvasPoints[i + 1].y);
-      context.stroke();
-    }
+    canvasPoints.map((point) => {
+      context.lineTo(point.x, point.y);
+    });
+    context.stroke();
 
     // Draw points
-    context.strokeStyle = "#AAAAAA";
-    context.lineWidth = 2;
     canvasPoints.map((point) => {
+      context.beginPath();
       if (pointHovering === point) context.fillStyle = "#FFFF55";
       else context.fillStyle = "#FFAA00";
 
-      context.beginPath();
       context.arc(point.x, point.y, 5, 0, 2 * Math.PI);
       context.fill();
     });
