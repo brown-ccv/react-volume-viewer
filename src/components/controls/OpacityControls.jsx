@@ -10,7 +10,7 @@ import { DEFAULT_MODEL, SLIDER_RANGE } from "../../constants/constants.js";
 const DECIMALS = 2; // Number of decimals to display
 const CANVAS_PADDING = 10; // Padding on the canvas
 const HOVER_RADIUS = 15; // Pixel offset for registering hovering/clicks
-const INIT_CANVAS_POINTS = []; // Starting canvas points, used for reset
+let initCanvasPoints = []; // Starting canvas points, used for reset
 
 /** Data Ranges and Transformations **/
 
@@ -34,7 +34,7 @@ function getRelativeMousePos(e) {
     y: e.clientY - e.target.getBoundingClientRect().y,
   };
 
-  // Scale to padding
+  // Conform min/max position to padding
   if (mouse.x < canvasRange.x[0]) mouse.x = canvasRange.x[0];
   else if (mouse.x > canvasRange.x[1]) mouse.x = canvasRange.x[1];
 
@@ -60,11 +60,9 @@ function OpacityControls({
   useEffect(() => {
     const canvas = canvasRef.current;
 
-    // Set ranges
+    // Set ranges and transformations
     canvasRange.x[1] = canvas.width - CANVAS_PADDING;
     canvasRange.y[0] = canvas.height - CANVAS_PADDING;
-
-    // Set transformations
     scaleTransferFunctionToCanvasX
       .domain(transferFunctionRange.x)
       .range(canvasRange.x);
@@ -72,7 +70,7 @@ function OpacityControls({
       .domain(transferFunctionRange.y)
       .range(canvasRange.y);
 
-    // Initialize canvas points
+    // Initialize canvasPoints
     const points = transferFunction.map((p) => {
       return {
         x: scaleTransferFunctionToCanvasX(p.x),
@@ -80,7 +78,7 @@ function OpacityControls({
       };
     });
     setCanvasPoints(points);
-    INIT_CANVAS_POINTS.push(...points);
+    initCanvasPoints = points;
   }, []);
 
   /** DRAW FUNCTION **/
@@ -115,7 +113,6 @@ function OpacityControls({
       context.fill();
     });
 
-    // Update transferFunction
     setState((state) => ({
       ...state,
       transferFunction: canvasPoints.map((p) => {
@@ -129,7 +126,7 @@ function OpacityControls({
 
   /** EVENT LISTENER FUNCTIONS **/
 
-  // Check to see if cursor is above a point
+  // Check to see if cursor is above a point - change cursor if so
   function checkHovering(e) {
     const mouse = getRelativeMousePos(e);
     const point = canvasPoints.find((point) => {
@@ -139,12 +136,11 @@ function OpacityControls({
       return distance < HOVER_RADIUS;
     });
 
-    // Set hovered point and cursor
     setPointHovering(point);
     point ? setCursorType("grab") : setCursorType("pointer");
   }
 
-  // If hovering, begin dragging a point
+  // Check to see if cursor should start dragging a point
   function checkDragging(e) {
     e.preventDefault();
     if (pointHovering) {
@@ -163,7 +159,7 @@ function OpacityControls({
     if (idx === 0) mousePos.x = canvasRange.x[0];
     else if (idx === canvasPoints.length - 1) mousePos.x = canvasRange.x[1];
 
-    // Remove pointDragging and add current position
+    // Update point to mouse position
     setCanvasPoints(
       [...canvasPoints.filter((p) => p !== pointDragging), mousePos].sort(
         (a, b) => a.x - b.x
@@ -199,6 +195,7 @@ function OpacityControls({
     pointHovering ? setCursorType("grab") : setCursorType("pointer");
   }
 
+  // Stop point interaction when cursor leaves the canvas
   function leaveCanvas(e) {
     e.preventDefault();
     setPointDragging(null);
@@ -206,8 +203,9 @@ function OpacityControls({
     setCursorType("inherit");
   }
 
+  // Reset sliders and set colorMap and model to props
   function reset() {
-    setCanvasPoints(INIT_CANVAS_POINTS);
+    setCanvasPoints(initCanvasPoints);
     setState((state) => ({
       ...state,
       colorMap: initColorMap,
