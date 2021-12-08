@@ -50,13 +50,11 @@ function getRelativeMousePos(e) {
   return mouse;
 }
 
-function OpacityControls(props) {
-  const {
-    state: { transferFunction, model },
-    setState,
-    initColorMap,
-  } = props;
-
+function OpacityControls({
+  state: { transferFunction, model },
+  setState,
+  initColorMap,
+}) {
   const canvasRef = useRef(null);
   const [cursorType, setCursorType] = useState("pointer"); // Cursor type (styled-components)
   const [canvasPoints, setCanvasPoints] = useState([]); // Points in canvas space
@@ -222,7 +220,7 @@ function OpacityControls(props) {
     setState((state) => ({
       ...state,
       colorMap: initColorMap,
-      // model: { ...DEFAULT_MODEL, ...model },
+      model: { ...DEFAULT_MODEL, ...model },
       sliders: {
         x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
         y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
