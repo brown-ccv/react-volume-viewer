@@ -18,15 +18,14 @@ const transferFunctionRange = {
   x: [0, 1],
   y: [0, 1],
 };
-// {x: p, y: height-p} to {x: width-p, y: p}
 const canvasRange = {
-  x: [CANVAS_PADDING, undefined],
-  y: [undefined, CANVAS_PADDING],
+  x: [CANVAS_PADDING, undefined], // Padding to width - padding
+  y: [undefined, CANVAS_PADDING], // Height - padding to padding
 };
 
-// Transform transferFunction to paddedCanvas
-const scaleTransferFunctionToPaddedCanvasX = scaleLinear();
-const scaleTransferFunctionToPaddedCanvasY = scaleLinear();
+// Transform transferFunction space to canvas space
+const scaleTransferFunctionToCanvasX = scaleLinear();
+const scaleTransferFunctionToCanvasY = scaleLinear();
 
 // Returns the mouse's  position relative to canvas
 function getRelativeMousePos(e) {
@@ -35,17 +34,12 @@ function getRelativeMousePos(e) {
     y: e.clientY - e.target.getBoundingClientRect().y,
   };
 
-  if (mouse.x < canvasRange.x[0]) {
-    mouse.x = canvasRange.x[0];
-  } else if (mouse.x > canvasRange.x[1]) {
-    mouse.x = canvasRange.x[1];
-  }
+  // Scale to padding
+  if (mouse.x < canvasRange.x[0]) mouse.x = canvasRange.x[0];
+  else if (mouse.x > canvasRange.x[1]) mouse.x = canvasRange.x[1];
 
-  if (mouse.y > canvasRange.y[0]) {
-    mouse.y = canvasRange.y[0];
-  } else if (mouse.y < canvasRange.y[1]) {
-    mouse.y = canvasRange.y[1];
-  }
+  if (mouse.y > canvasRange.y[0]) mouse.y = canvasRange.y[0];
+  else if (mouse.y < canvasRange.y[1]) mouse.y = canvasRange.y[1];
 
   return mouse;
 }
@@ -71,18 +65,18 @@ function OpacityControls({
     canvasRange.y[0] = canvas.height - CANVAS_PADDING;
 
     // Set transformations
-    scaleTransferFunctionToPaddedCanvasX
+    scaleTransferFunctionToCanvasX
       .domain(transferFunctionRange.x)
       .range(canvasRange.x);
-    scaleTransferFunctionToPaddedCanvasY
+    scaleTransferFunctionToCanvasY
       .domain(transferFunctionRange.y)
       .range(canvasRange.y);
 
     // Initialize canvas points
     const points = transferFunction.map((p) => {
       return {
-        x: scaleTransferFunctionToPaddedCanvasX(p.x),
-        y: scaleTransferFunctionToPaddedCanvasY(p.y),
+        x: scaleTransferFunctionToCanvasX(p.x),
+        y: scaleTransferFunctionToCanvasY(p.y),
       };
     });
     setCanvasPoints(points);
@@ -97,7 +91,6 @@ function OpacityControls({
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw rule on canvas's midpoint
-
     context.beginPath();
     context.strokeStyle = "rgba(0, 0, 0, 1)";
     context.moveTo(canvas.width / 2, canvas.height);
@@ -118,7 +111,6 @@ function OpacityControls({
       context.beginPath();
       if (pointHovering === point) context.fillStyle = "#FFFF55";
       else context.fillStyle = "#FFAA00";
-
       context.arc(point.x, point.y, 5, 0, 2 * Math.PI);
       context.fill();
     });
@@ -128,8 +120,8 @@ function OpacityControls({
       ...state,
       transferFunction: canvasPoints.map((p) => {
         return {
-          x: scaleTransferFunctionToPaddedCanvasX.invert(p.x),
-          y: scaleTransferFunctionToPaddedCanvasY.invert(p.y),
+          x: scaleTransferFunctionToCanvasX.invert(p.x),
+          y: scaleTransferFunctionToCanvasY.invert(p.y),
         };
       }),
     }));
