@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 
 import "aframe";
 import "aframe-event-set-component";
@@ -17,49 +16,56 @@ function AframeScene(props) {
     useTransferFunction,
   } = props;
 
+  // aframe data is passed a string
+  function toAframeString(obj) {
+    let str = "";
+
+    Object.entries(obj).forEach(([key, val]) => {
+      str += `${key}: ${val}; `
+    });
+    return str;
+  }
   return (
-    // TODO: Scene is from react-aframe
     <a-scene id="volumeViewerScene" background="color: black" embedded>
+      
       {/* HAND */}
-      {/* <Entity
+      <a-entity
         id="rhand"
         raycaster="objects: .clickableMesh"
-        buttons-check={{ clipPlane: false, grabObject: false }}
-        collider-check={{ intersecting: false }}
-      /> */}
+        buttons-check={toAframeString({
+          clipPlane: false,
+          grabObject: false,
+        })}
+        collider-check={toAframeString({
+          intersecting: false,
+        })}
+      />
 
-      {/* Event listener for sliders and rotations? */}
-      {/* TODO: Scene is from react-aframe*/}
-      {/* <Entity
+      <a-entity
         id="clipplane2DListener"
-        render-2d-clipplane={{
+        render-2d-clipplane={toAframeString({
           activateClipPlane: true,
           xBounds: sliders.x,
           yBounds: sliders.y,
           zBounds: sliders.z,
-          currentAxisAngle: "0 0 0",
-          rotateAngle: "0 0 0",
-          clipX: "0 0",
-        }}
-      /> */}
+        })}
+      />
 
-      {/* Invisible plane used sliders, rotation, etc. */}
-      {/* <a-plane
+      <a-plane
         class="clickable"
         id="clipplane2D"
-        visible="true"
+        visible="false"
         height="1"
         width="1"
         material="color: red ; side:double; transparent:true;opacity:0.3"
         cursor-listener
-      /> */}
+      />
 
       {/* MODEL */}
-      {/* TODO: Scene is from react-aframe */}
-      {/* <Entity
+      <a-entity
         id="volumeCube"
         class="clickableMesh"
-        loader={{
+        loader={toAframeString({
           useTransferFunction: useTransferFunction,
           colorMap: colorMap,
           alphaXDataArray: transferFunction.map((p) => p["x"]),
@@ -69,23 +75,22 @@ function AframeScene(props) {
           x_spacing: model.spacing.x,
           y_spacing: model.spacing.y,
           z_spacing: model.spacing.z,
-        }}
+        })}
         position={model.position}
         rotation={model.rotation}
         scale={model.scale}
-      /> */}
+      />
 
       {/* MOUSE */}
-      {/* <a-entity cursor="rayOrigin:mouse" raycaster="objects: .clickable" /> */}
+      <a-entity cursor="rayOrigin:mouse" raycaster="objects: .clickable" />
 
       {/* CAMERA */}
-      {/* TODO: Scene is from react-aframe */}
-      {/* <Entity
+      <a-entity
         id="camera"
         camera="active: true"
         look-controls
         arcball-camera="initialPosition:0 0 1"
-      /> */}
+      />
     </a-scene>
   );
 }
