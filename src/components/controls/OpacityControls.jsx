@@ -91,6 +91,7 @@ function OpacityControls({
     // Draw rule on canvas's midpoint
     context.beginPath();
     context.strokeStyle = "rgba(0, 0, 0, 1)";
+    context.lineWidth = 1;
     context.moveTo(canvas.width / 2, canvas.height);
     context.lineTo(canvas.width / 2, canvas.height - 10);
     context.stroke();
