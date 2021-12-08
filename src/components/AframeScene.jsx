@@ -16,18 +16,17 @@ function AframeScene(props) {
     useTransferFunction,
   } = props;
 
-  // aframe data is passed a string
+  // aframe data is passed as a string
   function toAframeString(obj) {
     let str = "";
 
     Object.entries(obj).forEach(([key, val]) => {
-      str += `${key}: ${val}; `
+      str += `${key}: ${val}; `;
     });
     return str;
   }
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
-      
       {/* HAND */}
       <a-entity
         id="rhand"
