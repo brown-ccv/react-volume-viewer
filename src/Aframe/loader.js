@@ -262,10 +262,7 @@ AFRAME.registerComponent("loader", {
     const { x_spacing, y_spacing, z_spacing, slices, path } = this.data;
     if (currentVolume !== undefined) {
       //clear mesh
-      currentVolume.geometry.dispose();
-      currentVolume.material.dispose();
       this.el.removeObject3D("mesh");
-      this.el.sceneEl.object3D.dispose();
       currentVolume = undefined;
     }
 
