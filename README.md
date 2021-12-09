@@ -111,7 +111,7 @@ VolumeViewer.defaultProps = {
 
 ```jsx
 import React from 'react'
-import VolumeViewer from 'react-volume-viewer'
+import { VolumeViewer } from "react-volume-viewer";
 
 import haline from "./path/to/colormap/haline.png";
 import model from "./path/to/model.png";
