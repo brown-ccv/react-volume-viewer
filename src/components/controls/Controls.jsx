@@ -12,7 +12,6 @@ function Controls({
   initColorMap,
   useTransferFunction,
 }) {
-  console.log(colorMaps);
   return (
     <Wrapper>
       <ColorMapControls

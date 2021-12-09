@@ -1,8 +1,8 @@
 import React from "react";
 
-// import "aframe";
-// import "aframe-event-set-component";
-// import "aframe-orbit-controls";
+import "aframe";
+import "aframe-event-set-component";
+import "aframe-orbit-controls";
 
 import "../Aframe/arcball-camera";
 import "../Aframe/buttons-check";
@@ -19,9 +19,15 @@ function AframeScene(props) {
   // aframe data is passed as a string
   function toAframeString(obj) {
     let str = "";
-
     Object.entries(obj).forEach(([key, val]) => {
-      str += `${key}: ${val}; `;
+      let propStr = `${key}: ${val};`;
+
+      // Image imports begin with data:image/png;64
+      // Remove ; to parse into aframe correctly
+      // The ; is re-injected in loader.js
+      if (key === "colorMap") propStr = propStr.replace(";", "") + ";";
+
+      str += propStr;
     });
     return str;
   }

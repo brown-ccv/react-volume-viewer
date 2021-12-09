@@ -197,7 +197,6 @@ AFRAME.registerComponent("loader", {
 
   updateTransferTexture: function () {
     if (this.colorTransferMap.has(this.currentColorMap)) {
-      // console.log(this.colorTransferMap, this.currentColorMap, this.data.colorMap)
       const colorTransfer = this.colorTransferMap.get(
         this.currentColorMap
       ).data;
@@ -387,6 +386,14 @@ AFRAME.registerComponent("loader", {
         height: imgHeight,
         data: null,
       };
+
+      // Re-inject local image with comma
+      if (this.currentColorMap.startsWith("data:image/png")) {
+        this.currentColorMap =
+          this.currentColorMap.substring(0, 14) +
+          ";" +
+          this.currentColorMap.substring(14);
+      }
 
       newColorMap.img.src = this.currentColorMap;
       this.colorTransferMap.set(this.currentColorMap, newColorMap);
