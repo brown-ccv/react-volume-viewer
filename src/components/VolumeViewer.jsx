@@ -20,6 +20,7 @@ function VolumeViewer(props) {
     colorMap,
     colorMaps,
     controlsVisible,
+    embedded,
     model,
     transferFunction,
     useDefaultColorMaps,
@@ -28,6 +29,7 @@ function VolumeViewer(props) {
 
   const [state, setState] = useState({
     colorMap: colorMap ? colorMap : DEFAULT_COLOR_MAP,
+    embedded: embedded,
     model: { ...DEFAULT_MODEL, ...model },
     sliders: {
       x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
@@ -46,6 +48,14 @@ function VolumeViewer(props) {
       colorMap: colorMap,
     }));
   }, [colorMap]);
+
+  // Update embedded on prop change
+  useEffect(() => {
+    setState((state) => ({
+      ...state,
+      embedded: embedded,
+    }));
+  }, [embedded]);
 
   // Update model on prop change
   useEffect(() => {
@@ -107,6 +117,9 @@ VolumeViewer.propTypes = {
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
 
+  /** Whether or not the aframe scene is embedded in the website */
+  embedded: PropTypes.bool,
+
   /** The model to be displayed and it's related information */
   model: PropTypes.shape({
     /** Path to the model REQUIRED */
@@ -161,6 +174,7 @@ VolumeViewer.defaultProps = {
   colorMap: null,
   colorMaps: {},
   controlsVisible: true,
+  embedded: true,
   transferFunction: DEFAULT_TRANSFER_FUNCTION,
   useDefaultColorMaps: true,
   useTransferFunction: true,

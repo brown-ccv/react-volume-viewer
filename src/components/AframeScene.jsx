@@ -12,7 +12,7 @@ import "../Aframe/render-2d-clipplane";
 
 function AframeScene(props) {
   const {
-    state: { colorMap, model, sliders, transferFunction },
+    state: { colorMap, embedded, model, sliders, transferFunction },
     useTransferFunction,
   } = props;
 
@@ -26,7 +26,12 @@ function AframeScene(props) {
     return str;
   }
   return (
-    <a-scene id="volumeViewerScene" background="color: black" embedded>
+    <a-scene
+      id="volumeViewerScene"
+      background="color: black"
+      // embedded={embedded}
+      embedded
+    >
       {/* HAND */}
       <a-entity
         id="rhand"
