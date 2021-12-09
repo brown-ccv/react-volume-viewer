@@ -1,6 +1,6 @@
-import grayscale from "../assets/grayscale.png";
-import natural from "../assets/natural.png";
-import rgb from "../assets/rgb.png";
+import grayscale from "../images/grayscale.png";
+import natural from "../images/natural.png";
+import rgb from "../images/rgb.png";
 
 const DEFAULT_COLOR_MAPS = {
   grayscale: grayscale,

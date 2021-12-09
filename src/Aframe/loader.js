@@ -39,19 +39,16 @@ AFRAME.registerComponent("loader", {
   schema: {
     rayCollided: { type: "boolean", default: false },
     modelLoaded: { type: "boolean", default: false },
-    useTransferFunction: { type: "boolean", default: false },
-    colorMap: {
-      type: "string",
-      default: "./assets/images/colormaps/haline.png",
-    },
+    meshPosition: { type: "vec3", default: { x: 0, y: 0, z: 0 } },
     alphaXDataArray: { type: "array" },
     alphaYDataArray: { type: "array" },
-    meshPosition: { type: "vec3", default: { x: 0, y: 0, z: 0 } },
+    colorMap: { type: "string", default: "" },
     path: { type: "string", default: "" },
     slices: { type: "number", default: 55 },
     x_spacing: { type: "number", default: 2.0 },
     y_spacing: { type: "number", default: 2.0 },
     z_spacing: { type: "number", default: 1.0 },
+    useTransferFunction: { type: "boolean", default: false },
   },
 
   init: function () {
@@ -200,6 +197,7 @@ AFRAME.registerComponent("loader", {
 
   updateTransferTexture: function () {
     if (this.colorTransferMap.has(this.currentColorMap)) {
+      // console.log(this.colorTransferMap, this.currentColorMap, this.data.colorMap)
       const colorTransfer = this.colorTransferMap.get(
         this.currentColorMap
       ).data;
@@ -395,7 +393,6 @@ AFRAME.registerComponent("loader", {
       const mappedColorMap = newColorMap;
 
       const updateTransferTexture = this.updateTransferTexture;
-
       newColorMap.img.onload = function (data) {
         colorCanvas.height = imgHeight;
         colorCanvas.width = imgWidth;

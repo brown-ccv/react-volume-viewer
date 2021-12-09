@@ -1,8 +1,8 @@
 import React from "react";
 
-import "aframe";
-import "aframe-event-set-component";
-import "aframe-orbit-controls";
+// import "aframe";
+// import "aframe-event-set-component";
+// import "aframe-orbit-controls";
 
 import "../Aframe/arcball-camera";
 import "../Aframe/buttons-check";
@@ -65,15 +65,15 @@ function AframeScene(props) {
         id="volumeCube"
         class="clickableMesh"
         loader={toAframeString({
-          useTransferFunction: useTransferFunction,
-          colorMap: colorMap,
           alphaXDataArray: transferFunction.map((p) => p["x"]),
           alphaYDataArray: transferFunction.map((p) => p["y"]),
+          colorMap: colorMap,
           path: model.path,
           slices: model.slices,
           x_spacing: model.spacing.x,
           y_spacing: model.spacing.y,
           z_spacing: model.spacing.z,
+          useTransferFunction: useTransferFunction,
         })}
         position={model.position}
         rotation={model.rotation}
