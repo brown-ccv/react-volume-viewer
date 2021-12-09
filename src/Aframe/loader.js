@@ -314,11 +314,9 @@ AFRAME.registerComponent("loader", {
           uniforms["dim"].value = dim;
 
           if (!useTransferFunction) {
-            console.log("NOT USING LUT");
             uniforms["channel"].value = 6;
             uniforms["useLut"].value = false;
           } else {
-            console.log("USING LUT");
             uniforms["useLut"].value = false;
           }
           uniforms["step_size"].value = new THREE.Vector3(
