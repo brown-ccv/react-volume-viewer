@@ -1,6 +1,6 @@
-import grayscale from "../assets/grayscale.png";
-import natural from "../assets/natural.png";
-import rgb from "../assets/rgb.png";
+import grayscale from "../images/grayscale.png";
+import natural from "../images/natural.png";
+import rgb from "../images/rgb.png";
 
 const DEFAULT_COLOR_MAPS = {
   grayscale: grayscale,
@@ -8,9 +8,7 @@ const DEFAULT_COLOR_MAPS = {
   rgb: rgb,
 };
 
-const DEFAULT_COLOR_MAP = {
-  grayscale,
-};
+const DEFAULT_COLOR_MAP = grayscale;
 
 const DEFAULT_MODEL = {
   position: "0 0 0",

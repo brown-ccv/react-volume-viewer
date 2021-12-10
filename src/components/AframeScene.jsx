@@ -19,9 +19,15 @@ function AframeScene(props) {
   // aframe data is passed as a string
   function toAframeString(obj) {
     let str = "";
-
     Object.entries(obj).forEach(([key, val]) => {
-      str += `${key}: ${val}; `;
+      let propStr = `${key}: ${val};`;
+
+      // Image imports begin with data:image/png;64
+      // Remove ; to parse into aframe correctly
+      // The ; is re-injected in loader.js
+      if (key === "colorMap") propStr = propStr.replace(";", "") + ";";
+
+      str += propStr;
     });
     return str;
   }
@@ -70,15 +76,15 @@ function AframeScene(props) {
         id="volumeCube"
         class="clickableMesh"
         loader={toAframeString({
-          useTransferFunction: useTransferFunction,
-          colorMap: colorMap,
           alphaXDataArray: transferFunction.map((p) => p["x"]),
           alphaYDataArray: transferFunction.map((p) => p["y"]),
+          colorMap: colorMap,
           path: model.path,
           slices: model.slices,
           x_spacing: model.spacing.x,
           y_spacing: model.spacing.y,
           z_spacing: model.spacing.z,
+          useTransferFunction: useTransferFunction,
         })}
         position={model.position}
         rotation={model.rotation}
