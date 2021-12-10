@@ -1,6 +1,7 @@
 import "./arcball-controller.js";
 
 let bind = AFRAME.utils.bind;
+import { THREE } from "aframe";
 
 AFRAME.registerComponent("arcball-camera", {
   dependencies: ["camera"],
