@@ -3,14 +3,12 @@ import styled from "styled-components";
 import { scaleLinear } from "d3-scale";
 
 import Title from "./SectionTitle.jsx";
-import { DEFAULT_MODEL, SLIDER_RANGE } from "../../constants/constants.js";
 
 /** CONSTANTS **/
 
 const DECIMALS = 2; // Number of decimals to display
 const CANVAS_PADDING = 10; // Padding on the canvas
 const HOVER_RADIUS = 15; // Pixel offset for registering hovering/clicks
-let initCanvasPoints = []; // Starting canvas points, used for reset
 
 /** Data Ranges and Transformations **/
 
@@ -47,11 +45,12 @@ function getRelativeMousePos(e) {
 function OpacityControls({
   state: { transferFunction, model },
   setState,
-  initColorMap,
+  setInitCanvasPoints,
+  canvasPoints,
+  setCanvasPoints,
 }) {
   const canvasRef = useRef(null);
   const [cursorType, setCursorType] = useState("pointer"); // Cursor type (styled-components)
-  const [canvasPoints, setCanvasPoints] = useState([]); // Points in canvas space
   const [pointHovering, setPointHovering] = useState(null); // The point currently moused over
   const [pointDragging, setPointDragging] = useState(null); // The point currently dragging
 
@@ -78,7 +77,7 @@ function OpacityControls({
       };
     });
     setCanvasPoints(points);
-    initCanvasPoints = points;
+    setInitCanvasPoints(points)
   }, []);
 
   /** DRAW FUNCTION **/
@@ -204,21 +203,6 @@ function OpacityControls({
     setCursorType("inherit");
   }
 
-  // Reset sliders and set colorMap and model to props
-  function reset() {
-    setCanvasPoints(initCanvasPoints);
-    setState((state) => ({
-      ...state,
-      colorMap: initColorMap,
-      model: { ...DEFAULT_MODEL, ...model },
-      sliders: {
-        x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-        y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-        z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-      },
-    }));
-  }
-
   return (
     <Wrapper>
       <Title>Transfer Function</Title>
@@ -255,7 +239,6 @@ function OpacityControls({
         Double-click to add a point to the transfer function. Right-click to
         remove a point. Drag points to change the function.
       </HelpText>
-      <Button onClick={reset}>Reset</Button>
     </Wrapper>
   );
 }
@@ -285,7 +268,5 @@ const LabelText = styled.p`
 const HelpText = styled.p`
   margin: 5px 0;
 `;
-
-const Button = styled.button``;
 
 export default OpacityControls;

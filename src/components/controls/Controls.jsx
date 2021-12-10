@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 import ColorMapControls from "./ColorMapControls.jsx";
 import OpacityControls from "./OpacityControls.jsx";
 import ClipControls from "./ClipControls.jsx";
+import ButtonControls from "./ButtonControls.jsx";
 
 function Controls({
   state,
@@ -11,9 +12,19 @@ function Controls({
   colorMaps,
   initColorMap,
   useTransferFunction,
+  useColorMap,
 }) {
+  const [initCanvasPoints, setInitCanvasPoints] = useState([]);
+  const [canvasPoints, setCanvasPoints] = useState([])
   return (
     <Wrapper>
+      <ButtonControls
+        setState={setState}
+        initColorMap={initColorMap}
+        initCanvasPoints={initCanvasPoints}
+        setCanvasPoints={setCanvasPoints}
+      />
+
       <ColorMapControls
         state={state}
         setState={setState}
@@ -24,7 +35,9 @@ function Controls({
         <OpacityControls
           state={state}
           setState={setState}
-          initColorMap={initColorMap}
+          setInitCanvasPoints={setInitCanvasPoints}
+          canvasPoints={canvasPoints}
+          setCanvasPoints={setCanvasPoints}
         />
       )}
 
