@@ -36,7 +36,6 @@ AFRAME.registerComponent("render-2d-clipplane", {
   },
 
   tick: function (time, timeDelta) {
-
     // TODO: Figure out how these deal with loader.js
     this.data.clipX = { x: this.data.xBounds[0], y: this.data.xBounds[1] };
     this.data.clipY = { x: this.data.yBounds[0], y: this.data.yBounds[1] };
