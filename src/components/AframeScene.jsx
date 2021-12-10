@@ -76,17 +76,6 @@ function AframeScene(props) {
         })}
       />
 
-      {/* Renders the model */}
-      <a-entity
-        id="clipplane2DListener"
-        render-2d-clipplane={toAframeString({
-          activateClipPlane: true,
-          xBounds: sliders.x,
-          yBounds: sliders.y,
-          zBounds: sliders.z,
-        })}
-      />
-
       {/* Invisible plane over the model used to click/move it */}
       <a-plane
         class="clickable"
@@ -97,8 +86,19 @@ function AframeScene(props) {
         position={model.position}
         rotation={model.rotation}
         scale={model.scale}
-        cursor-listener
         visible="false"
+        cursor-listener
+      />
+
+      {/* Renders the model */}
+      <a-entity
+        id="clipplane2DListener"
+        render-2d-clipplane={toAframeString({
+          activateClipPlane: true,
+          xBounds: sliders.x,
+          yBounds: sliders.y,
+          zBounds: sliders.z,
+        })}
       />
     </a-scene>
   );
