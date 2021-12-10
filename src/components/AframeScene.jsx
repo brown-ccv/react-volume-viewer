@@ -41,11 +41,7 @@ function AframeScene(props) {
       <a-entity cursor="rayOrigin:mouse" raycaster="objects: .clickable" />
 
       {/* HAND CONTROLS */}
-      <a-entity
-        id="rhand"
-        raycaster="objects: .clickableMesh"
-        buttons-check
-      />
+      <a-entity id="rhand" raycaster="objects: .clickableMesh" buttons-check />
 
       {/* MODEL */}
       <a-entity
@@ -84,7 +80,6 @@ function AframeScene(props) {
       <a-entity
         id="clipplane2DListener"
         render-2d-clipplane={toAframeString({
-          activateClipPlane: true,
           xBounds: sliders.x,
           yBounds: sliders.y,
           zBounds: sliders.z,

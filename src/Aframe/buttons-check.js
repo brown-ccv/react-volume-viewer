@@ -3,7 +3,7 @@
 AFRAME.registerComponent("buttons-check", {
   init: function () {
     this.clipPlane = false;
-    
+
     this.setClipPlane = this.setClipPlane.bind(this);
     this.el.addEventListener("gripdown", (e) => this.setClipPlane(e, true));
     this.el.addEventListener("gripup", (e) => this.setClipPlane(e, false));
