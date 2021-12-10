@@ -1,6 +1,4 @@
-/* globals AFRAME  */
-
-let KEYS = [
+const KEYS = [
   "KeyW",
   "KeyA",
   "KeyS",

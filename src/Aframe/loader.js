@@ -1,39 +1,5 @@
-/* globals AFRAME THREE */
 import "./ccvLibVolumeShader.js";
 let bind = AFRAME.utils.bind;
-
-AFRAME.registerComponent("collider-check", {
-  dependencies: ["raycaster", "buttons-check"],
-
-  schema: {
-    intersecting: { type: "boolean", default: false },
-  },
-
-  init: function () {
-    this.onCollide = this.onCollide.bind(this);
-    this.el.addEventListener("raycaster-intersection", this.onCollide);
-  },
-
-  onCollide: function (event) {
-    this.data.intersecting = true;
-  },
-});
-
-AFRAME.registerComponent("entity-collider-check", {
-  schema: {
-    intersected: { type: "boolean", default: false },
-  },
-
-  init: function () {
-    this.onCollide = this.onCollide.bind(this);
-    this.el.addEventListener("raycaster-intersected", this.onCollide);
-  },
-
-  onCollide: function (event) {
-    this.data.intersected = true;
-    console.log("entity-intersected");
-  },
-});
 
 AFRAME.registerComponent("loader", {
   schema: {

@@ -1,4 +1,3 @@
-/* globals AFRAME  THREE*/
 import "./arcball-controller.js";
 
 let bind = AFRAME.utils.bind;
