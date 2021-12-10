@@ -1,12 +1,9 @@
 // TODO: I don't think we need this at all
 
 AFRAME.registerComponent("buttons-check", {
-  schema: {
-    clipPlane: { type: "boolean", default: false },
-    grabObject: { type: "boolean", default: false },
-  },
-
   init: function () {
+    this.clipPlane = false;
+    
     this.setClipPlane = this.setClipPlane.bind(this);
     this.el.addEventListener("gripdown", (e) => this.setClipPlane(e, true));
     this.el.addEventListener("gripup", (e) => this.setClipPlane(e, false));
@@ -26,6 +23,6 @@ AFRAME.registerComponent("buttons-check", {
   },
 
   setClipPlane: function (e, bool) {
-    this.data.clipPlane = bool;
+    this.clipPlane = bool;
   },
 });

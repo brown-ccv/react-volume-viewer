@@ -34,10 +34,9 @@ function AframeScene(props) {
         id="camera"
         camera="active: true"
         look-controls
-        arcball-camera={toAframeString({
-          initialPosition: "0 0 1",
-        })}
+        arcball-camera
       />
+
       {/* MOUSE */}
       <a-entity cursor="rayOrigin:mouse" raycaster="objects: .clickable" />
 
@@ -45,10 +44,7 @@ function AframeScene(props) {
       <a-entity
         id="rhand"
         raycaster="objects: .clickableMesh"
-        buttons-check={toAframeString({
-          clipPlane: false,
-          grabObject: false,
-        })}
+        buttons-check
       />
 
       {/* MODEL */}

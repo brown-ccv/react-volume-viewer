@@ -3,10 +3,6 @@ import "./arcball-controller.js";
 AFRAME.registerComponent("arcball-camera", {
   dependencies: ["camera"],
 
-  schema: {
-    initialPosition: { type: "vec3" },
-  },
-
   init: function () {
     const el = this.el;
 
@@ -14,8 +10,8 @@ AFRAME.registerComponent("arcball-camera", {
     this.onEnterVR = AFRAME.utils.bind(this.onEnterVR, this);
     this.onExitVR = AFRAME.utils.bind(this.onExitVR, this);
 
-    // Move camera to initial position
-    el.getObject3D("camera").position.copy(this.data.initialPosition);
+    // Move camera to 0, 0, 1
+    el.getObject3D("camera").position.copy({ x: 0, y: 0, z: 1 });
 
     // Initialize controls
     this.controls = new THREE.TrackballControls(
