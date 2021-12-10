@@ -1,7 +1,5 @@
 import "./arcball-controller.js";
-
-let bind = AFRAME.utils.bind;
-import { THREE } from "aframe";
+const bind = AFRAME.utils.bind;
 
 AFRAME.registerComponent("arcball-camera", {
   dependencies: ["camera"],
@@ -11,45 +9,25 @@ AFRAME.registerComponent("arcball-camera", {
   },
 
   init: function () {
-    let el = this.el;
-    this.vrcam = document.querySelector("#camera");
+    const el = this.el;
+
     this.controls = new THREE.TrackballControls(
       el.getObject3D("camera"),
       el.sceneEl.renderer.domElement
     );
-
-    this.meshObjectHandler = document.getElementById("volumeCube").object3D;
     this.controls.rotateSpeed = 1.0;
     this.controls.zoomSpeed = 1.2;
     this.controls.panSpeed = 0.8;
-    this.oldPosition = new THREE.Vector3();
-    this.oldMatrix = new THREE.Matrix4();
 
-    this.debugPosition = false;
-
-    this.bindMethods();
-    this.onWindowResize = this.onWindowResize.bind(this);
+    this.meshObjectHandler = document.getElementById("volumeCube").object3D;
 
     el.sceneEl.addEventListener("enter-vr", this.onEnterVR);
     el.sceneEl.addEventListener("exit-vr", this.onExitVR);
 
-    window.addEventListener("resize", this.onWindowResize, false);
-
     el.getObject3D("camera").position.copy(this.data.initialPosition);
 
-    // Set the pointer to grab/grabbing when over the vr canvas
-    const aCanvas = document.querySelector(".a-canvas");
-    aCanvas.style.cursor = "grab";
-
-    document.addEventListener("mousedown", () => {
-      aCanvas.style.cursor = "grabbing";
-    });
-    document.addEventListener("mouseup", () => {
-      aCanvas.style.cursor = "grab";
-    });
+    this.bindMethods();
   },
-
-  onWindowResize() {},
 
   bindMethods: function () {
     this.onEnterVR = bind(this.onEnterVR, this);
@@ -57,8 +35,7 @@ AFRAME.registerComponent("arcball-camera", {
   },
 
   onEnterVR: function () {
-    let el = this.el;
-    this.debugPosition = true;
+    const el = this.el;
     if (
       !AFRAME.utils.device.checkHeadsetConnected() &&
       !AFRAME.utils.device.isMobile()
@@ -68,31 +45,20 @@ AFRAME.registerComponent("arcball-camera", {
     this.controls.enabled = false;
     if (el.hasAttribute("look-controls")) {
       el.setAttribute("look-controls", "enabled", true);
-      this.oldMatrix.copy(this.meshObjectHandler.matrixWorld);
-      this.oldPosition.copy(el.getObject3D("camera").position);
       el.getObject3D("camera").position.set(0, 0, 0);
     }
   },
 
-  update: function (oldData) {
-    let controls = this.controls;
-    controls.rotateSpeed = 1.0;
-    controls.zoomSpeed = 1.2;
-    controls.panSpeed = 0.8;
-  },
-
   onExitVR: function () {
-    let el = this.el;
+    const el = this.el;
     this.debugPosition = false;
     if (
       !AFRAME.utils.device.checkHeadsetConnected() &&
       !AFRAME.utils.device.isMobile()
-    ) {
+    )
       return;
-    }
     this.controls.enabled = true;
     el.getObject3D("camera").position.set(0, 0, 2);
-    let mesh = this.meshObjectHandler.el.getAttribute("loader").meshPosition;
 
     if (el.hasAttribute("look-controls")) {
       el.setAttribute("look-controls", "enabled", false);
@@ -103,14 +69,12 @@ AFRAME.registerComponent("arcball-camera", {
     if (this.controls.enabled) {
       this.controls.update();
     }
-    if (this.debugPosition) {
-    }
   },
 
   remove: function () {
     this.controls.reset();
     this.controls.dispose();
-    this.el.sceneEl.removeEventListener("enter-vr", this.onEnterVR);
-    this.el.sceneEl.removeEventListener("exit-vr", this.onExitVR);
+    // this.el.sceneEl.removeEventListener("enter-vr", this.onEnterVR);
+    // this.el.sceneEl.removeEventListener("exit-vr", this.onExitVR);
   },
 });

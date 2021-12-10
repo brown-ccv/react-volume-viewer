@@ -1,8 +1,5 @@
 import React from "react";
-
 import "aframe";
-// import "aframe-event-set-component";
-// import "aframe-orbit-controls";
 
 import "../Aframe/collider-check";
 import "../Aframe/arcball-camera";
@@ -34,7 +31,19 @@ function AframeScene(props) {
   }
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
-      {/* HAND */}
+      {/* CAMERA */}
+      <a-entity
+        id="camera"
+        camera="active: true"
+        look-controls
+        arcball-camera={toAframeString({
+          initialPosition: "0 0 1",
+        })}
+      />
+      {/* MOUSE */}
+      <a-entity cursor="rayOrigin:mouse" raycaster="objects: .clickable" />
+
+      {/* HAND CONTROLS */}
       <a-entity
         id="rhand"
         raycaster="objects: .clickableMesh"
@@ -47,30 +56,13 @@ function AframeScene(props) {
         })}
       />
 
-      <a-entity
-        id="clipplane2DListener"
-        render-2d-clipplane={toAframeString({
-          activateClipPlane: true,
-          xBounds: sliders.x,
-          yBounds: sliders.y,
-          zBounds: sliders.z,
-        })}
-      />
-
-      <a-plane
-        class="clickable"
-        id="clipplane2D"
-        visible="false"
-        height="1"
-        width="1"
-        material="color: red ; side:double; transparent:true;opacity:0.3"
-        cursor-listener
-      />
-
       {/* MODEL */}
       <a-entity
         id="volumeCube"
         class="clickableMesh"
+        position={model.position}
+        rotation={model.rotation}
+        scale={model.scale}
         loader={toAframeString({
           alphaXDataArray: transferFunction.map((p) => p["x"]),
           alphaYDataArray: transferFunction.map((p) => p["y"]),
@@ -82,20 +74,31 @@ function AframeScene(props) {
           z_spacing: model.spacing.z,
           useTransferFunction: useTransferFunction,
         })}
+      />
+
+      {/* Renders the model */}
+      <a-entity
+        id="clipplane2DListener"
+        render-2d-clipplane={toAframeString({
+          activateClipPlane: true,
+          xBounds: sliders.x,
+          yBounds: sliders.y,
+          zBounds: sliders.z,
+        })}
+      />
+
+      {/* Invisible plane over the model used to click/move it */}
+      <a-plane
+        class="clickable"
+        id="clipplane2D"
+        height="1"
+        width="1"
+        material="color: red ; side:double; transparent:true;opacity:0.3"
         position={model.position}
         rotation={model.rotation}
         scale={model.scale}
-      />
-
-      {/* MOUSE */}
-      <a-entity cursor="rayOrigin:mouse" raycaster="objects: .clickable" />
-
-      {/* CAMERA */}
-      <a-entity
-        id="camera"
-        camera="active: true"
-        look-controls
-        arcball-camera="initialPosition:0 0 1"
+        cursor-listener
+        visible="false"
       />
     </a-scene>
   );
