@@ -38,75 +38,6 @@ AFRAME.registerComponent("loader", {
       "clipplane2DListener"
     ).object3D;
 
-
-    // Set up control points
-    const pData = [];
-    this.alphaData = [];
-    this.newAlphaData = [];
-    const indices = [];
-    this.opacityControlPoints = [0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
-    const jet_values = [
-      [0, 0, 0.5],
-      [0, 0, 1],
-      [0, 0.5, 1],
-      [0, 1, 1],
-      [0.5, 1, 0.5],
-      [1, 1, 0],
-      [1, 0.5, 0],
-      [1, 0, 0],
-      [0.5, 0, 0],
-    ];
-    for (let i = 0; i < 9; i++) {
-      const index = i * 28;
-      while (pData.length < index) {
-        pData.push([0, 0, 0, 0]);
-      }
-
-      pData.push([
-        jet_values[i][0] * 255,
-        jet_values[i][1] * 255,
-        jet_values[i][2] * 255,
-        this.opacityControlPoints[i] * 255,
-      ]);
-      indices.push(index);
-    }
-
-    //interpolation between opacity control points
-    for (let j = 0; j < 9 - 1; j++) {
-      const dDataA = pData[indices[j + 1]][3] - pData[indices[j]][3];
-      const dIndex = indices[j + 1] - indices[j];
-      const dDataIncA = dDataA / dIndex;
-      for (let idx = indices[j] + 1; idx < indices[j + 1]; idx++) {
-        let alpha = pData[idx - 1][3] + dDataIncA;
-        this.alphaData[idx] = alpha;
-      }
-    }
-
-    // interpolation between colors control points
-    for (let j = 0; j < 9 - 1; j++) {
-      const dDataR = pData[indices[j + 1]][0] - pData[indices[j]][0];
-      const dDataG = pData[indices[j + 1]][1] - pData[indices[j]][1];
-      const dDataB = pData[indices[j + 1]][2] - pData[indices[j]][2];
-      const dDataA = pData[indices[j + 1]][3] - pData[indices[j]][3];
-      const dIndex = indices[j + 1] - indices[j];
-
-      const dDataIncR = dDataR / dIndex;
-      const dDataIncG = dDataG / dIndex;
-      const dDataIncB = dDataB / dIndex;
-      const dDataIncA = dDataA / dIndex;
-
-      for (let idx = indices[j] + 1; idx < indices[j + 1]; idx++) {
-        const alpha = pData[idx - 1][3] + dDataIncA;
-        this.alphaData[idx] = alpha;
-        pData[idx] = [
-          pData[idx - 1][0] + dDataIncR,
-          pData[idx - 1][1] + dDataIncG,
-          pData[idx - 1][2] + dDataIncB,
-          alpha,
-        ];
-      }
-    }
-
     // Activate camera
     const cameraEl = document.querySelector("#camera");
     cameraEl.setAttribute("camera", "active", true);
@@ -337,8 +268,6 @@ AFRAME.registerComponent("loader", {
     if (oldData === undefined) {
       return;
     }
-
-    // this part updates the opacity control points
     if (
       (this.data.transferFunctionX !== undefined &&
         oldData.transferFunctionX !== this.data.transferFunctionX) ||
