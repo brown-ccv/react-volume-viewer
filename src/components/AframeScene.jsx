@@ -1,7 +1,6 @@
 import React from "react";
 import "aframe";
 
-import "../Aframe/collider-check";
 import "../Aframe/arcball-camera";
 import "../Aframe/buttons-check";
 import "../Aframe/loader";
@@ -49,9 +48,6 @@ function AframeScene(props) {
         buttons-check={toAframeString({
           clipPlane: false,
           grabObject: false,
-        })}
-        collider-check={toAframeString({
-          intersecting: false,
         })}
       />
 
