@@ -217,7 +217,13 @@ AFRAME.registerComponent("loader", {
   },
 
   remove: function () {
-    // Do something the component or its entity is detached.
+    this.el.removeEventListener("raycaster-intersected", this.onCollide);
+    this.el.removeEventListener(
+      "raycaster-intersected-cleared",
+      this.onClearCollide
+    );
+    this.el.sceneEl.removeEventListener("enter-vr", this.onEnterVR);
+    this.el.sceneEl.removeEventListener("exit-vr", this.onExitVR);
   },
 
   updateColorMapping: function () {
