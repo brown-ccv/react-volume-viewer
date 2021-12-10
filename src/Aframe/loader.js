@@ -319,7 +319,6 @@ AFRAME.registerComponent("loader", {
     this.data.rayCollided = false;
   },
   onSelectStart: function (event) {
-    console.log("onSelectStart");
   },
 
   remove: function () {
