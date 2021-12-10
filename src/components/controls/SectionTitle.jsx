@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
-function SectionTitle(props) {
-  return <Title>{props.children}</Title>;
+function SectionTitle({ children }) {
+  return <Title>{children}</Title>;
 }
 
 const Title = styled.h2`

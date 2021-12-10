@@ -7,12 +7,7 @@ import { SLIDER_RANGE } from "../../constants/constants.js";
 import Title from "./SectionTitle.jsx";
 
 // TODO: Slider range should be 0-1000 with a step of 1 (changes needed in AframeScene)
-function ClipControls(props) {
-  const {
-    state: { sliders },
-    setState,
-  } = props;
-
+function ClipControls({ state: { sliders }, setState }) {
   function handleChange(axis, val) {
     setState((state) => ({
       ...state,

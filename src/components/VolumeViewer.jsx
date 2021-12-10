@@ -13,19 +13,17 @@ import {
 import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
 
-function VolumeViewer(props) {
-  const {
-    className,
-    style,
-    colorMap,
-    colorMaps,
-    controlsVisible,
-    model,
-    transferFunction,
-    useDefaultColorMaps,
-    useTransferFunction,
-  } = props;
-
+function VolumeViewer({
+  className,
+  style,
+  colorMap,
+  colorMaps,
+  controlsVisible,
+  model,
+  transferFunction,
+  useDefaultColorMaps,
+  useTransferFunction,
+}) {
   const [state, setState] = useState({
     colorMap: colorMap ? colorMap : DEFAULT_COLOR_MAP,
     model: { ...DEFAULT_MODEL, ...model },
