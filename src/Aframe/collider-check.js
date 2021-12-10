@@ -10,7 +10,11 @@ AFRAME.registerComponent("collider-check", {
     this.el.addEventListener("raycaster-intersection", this.onCollide);
   },
 
-  onCollide: function (event) {
+  remove: function () {
+    this.el.removeEventListener("raycaster-intersection", this.onCollide);
+  },
+
+  onCollide: function (e) {
     this.data.intersecting = true;
   },
 });
