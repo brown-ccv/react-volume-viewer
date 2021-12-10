@@ -45,8 +45,6 @@ AFRAME.registerComponent("render-2d-clipplane", {
     if (this.keys.KeyQ && !this.active) this.active = true;
     if (this.keys.KeyS && this.active) this.active = false;
 
-
-    
     // activateClipPlane when active is true and rendererPlane is false
     if (this.active && !this.rendererPlane) {
       this.data.activateClipPlane = true;

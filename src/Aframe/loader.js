@@ -6,9 +6,8 @@ AFRAME.registerComponent("loader", {
     modelLoaded: { type: "boolean", default: false },
     meshPosition: { type: "vec3", default: { x: 0, y: 0, z: 0 } },
 
-    
-    transferFunctionX: { type: "array", default: [0, 1]},
-    transferFunctionY: { type: "array", default: [0, 1]},
+    transferFunctionX: { type: "array", default: [0, 1] },
+    transferFunctionY: { type: "array", default: [0, 1] },
     colorMap: { type: "string", default: "" },
     path: { type: "string", default: "" },
     slices: { type: "number", default: 55 },
@@ -22,66 +21,31 @@ AFRAME.registerComponent("loader", {
 
   init: function () {
     // TODO: Combine spacing and transferFunction
+    this.colorMap = this.data.colorMap;
+    this.canvas = this.el.sceneEl.canvas;
+    this.sceneHandler = this.el.sceneEl;
     this.grabbed = false;
     this.colorMapNeedsUpdate = false;
-    this.colorMap = this.data.colorMap;
-    
-
-    this.loadModel = this.loadModel.bind(this);
-    this.updateTransferTexture = this.updateTransferTexture.bind(this);
-    this.updateColorMapping = this.updateColorMapping.bind(this);
-    this.updateOpacityData = this.updateOpacityData.bind(this);
-    
-
-
-    this.onCollide = this.onCollide.bind(this);
-    this.onClearCollide = this.onClearCollide.bind(this);
-    this.el.addEventListener("raycaster-intersected", this.onCollide);
-    this.el.addEventListener(
-      "raycaster-intersected-cleared",
-      this.onClearCollide
-    );
-
     this.colorTransferMap = new Map();
+    this.clip2DPlaneRendered = false;
 
-    this.group = new THREE.Group();
-
-    this.isVrModeOn = false;
-
-    this.sceneHandler = this.el.sceneEl;
-    this.group = new THREE.Group();
-
+    // Get rhand entity
     this.controllerHandler = document.getElementById("rhand").object3D;
+    this.controllerHandler.matrixAutoUpdate = false;
 
+    // Get clipplane2DListener entity
     this.clipPlaneListenerHandler = document.getElementById(
       "clipplane2DListener"
     ).object3D;
-    this.clip2DPlaneRendered = false;
 
-    this.clipPlaneHandler = document.getElementById("clipplane2D").object3D;
 
-    this.controllerHandler.matrixAutoUpdate = false;
-    this.grabState =
-      this.controllerHandler.el.getAttribute("buttons-check").grabObject;
-    let clipplane2D = document.getElementById("clipplane2D");
-    if (clipplane2D !== undefined) {
-      this.clipplane2DHandler = clipplane2D.object3D;
-    }
-
-    // save mesh vr position and rotation on switch between desktop and vr
-    this.vrPosition = new THREE.Vector3(0, 0, 0);
-    this.vrRotation = new THREE.Vector3(0, 0, 0);
-    this.debugVRPos = false;
-
-    // bind onenterVR and onexitVR
-    this.onEnterVR = AFRAME.utils.bind(this.onEnterVR, this);
-    this.onExitVR = AFRAME.utils.bind(this.onExitVR, this);
-
-    this.el.sceneEl.addEventListener("enter-vr", this.onEnterVR);
-    this.el.sceneEl.addEventListener("exit-vr", this.onExitVR);
-
+    // Set up control points
+    const pData = [];
+    this.alphaData = [];
+    this.newAlphaData = [];
+    const indices = [];
     this.opacityControlPoints = [0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
-    let jet_values = [
+    const jet_values = [
       [0, 0, 0.5],
       [0, 0, 1],
       [0, 0.5, 1],
@@ -92,18 +56,10 @@ AFRAME.registerComponent("loader", {
       [1, 0, 0],
       [0.5, 0, 0],
     ];
-
-    const pData = [];
-    this.alphaData = [];
-    this.newAlphaData = [];
-    const indices = [];
-    const zeroArray = [0, 0, 0, 0];
-
-    //setting up control points
     for (let i = 0; i < 9; i++) {
       const index = i * 28;
       while (pData.length < index) {
-        pData.push(zeroArray);
+        pData.push([0, 0, 0, 0]);
       }
 
       pData.push([
@@ -151,12 +107,28 @@ AFRAME.registerComponent("loader", {
       }
     }
 
-    this.canvas = this.el.sceneEl.canvas;
-
-    this.printedLog = false;
-
-    let cameraEl = document.querySelector("#camera");
+    // Activate camera
+    const cameraEl = document.querySelector("#camera");
     cameraEl.setAttribute("camera", "active", true);
+
+    this.loadModel = this.loadModel.bind(this);
+    this.updateTransferTexture = this.updateTransferTexture.bind(this);
+    this.updateColorMapping = this.updateColorMapping.bind(this);
+    this.updateOpacityData = this.updateOpacityData.bind(this);
+
+    this.onCollide = this.onCollide.bind(this);
+    this.onClearCollide = this.onClearCollide.bind(this);
+    this.el.addEventListener("raycaster-intersected", this.onCollide);
+    this.el.addEventListener(
+      "raycaster-intersected-cleared",
+      this.onClearCollide
+    );
+
+    // bind onenterVR and onexitVR
+    this.onEnterVR = AFRAME.utils.bind(this.onEnterVR, this);
+    this.onExitVR = AFRAME.utils.bind(this.onExitVR, this);
+    this.el.sceneEl.addEventListener("enter-vr", this.onEnterVR);
+    this.el.sceneEl.addEventListener("exit-vr", this.onExitVR);
   },
 
   getMesh: function () {
@@ -165,9 +137,7 @@ AFRAME.registerComponent("loader", {
 
   updateTransferTexture: function () {
     if (this.colorTransferMap.has(this.colorMap)) {
-      const colorTransfer = this.colorTransferMap.get(
-        this.colorMap
-      ).data;
+      const colorTransfer = this.colorTransferMap.get(this.colorMap).data;
       const imageTransferData = new Uint8Array(4 * 256);
       for (let i = 0; i < 256; i++) {
         imageTransferData[i * 4 + 0] = colorTransfer[i * 3 + 0];
@@ -201,7 +171,6 @@ AFRAME.registerComponent("loader", {
       this.data.meshPosition.y = this.getMesh().position.y;
       this.data.meshPosition.z = this.getMesh().position.z;
 
-      this.vrRotation = this.getMesh().rotation;
       this.getMesh().position.copy(new THREE.Vector3());
       this.getMesh().rotation.set(0, 0, 0);
 
@@ -336,9 +305,7 @@ AFRAME.registerComponent("loader", {
       // Re-inject local image with comma
       if (this.colorMap.startsWith("data:image/png")) {
         this.colorMap =
-          this.colorMap.substring(0, 14) +
-          ";" +
-          this.colorMap.substring(14);
+          this.colorMap.substring(0, 14) + ";" + this.colorMap.substring(14);
       }
 
       newColorMap.img.src = this.colorMap;
@@ -415,11 +382,6 @@ AFRAME.registerComponent("loader", {
   },
 
   tick: function (time, timeDelta) {
-    // Do something on every scene tick or frame.
-    if (this.debugVRPos) {
-      this.debugVRPos = false;
-    }
-
     const isVrModeActive = this.sceneHandler.is("vr-mode");
     if (this.data.modelLoaded) {
       if (this.clipPlaneListenerHandler !== undefined && !isVrModeActive) {
