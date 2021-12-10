@@ -5,7 +5,6 @@ import "aframe";
 // import "aframe-orbit-controls";
 
 import "../Aframe/collider-check"
-import "../Aframe/entity-collider-check"
 import "../Aframe/arcball-camera";
 import "../Aframe/buttons-check";
 import "../Aframe/cursor-listener";
