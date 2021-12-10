@@ -4,7 +4,6 @@ import "aframe";
 import "../Aframe/collider-check";
 import "../Aframe/arcball-camera";
 import "../Aframe/buttons-check";
-import "../Aframe/cursor-listener";
 import "../Aframe/loader";
 import "../Aframe/render-2d-clipplane";
 
@@ -87,7 +86,6 @@ function AframeScene(props) {
         rotation={model.rotation}
         scale={model.scale}
         visible="false"
-        cursor-listener
       />
 
       {/* Renders the model */}
