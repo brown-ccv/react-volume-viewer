@@ -7,7 +7,7 @@ function ButtonControls({
   setState,
   initColorMap,
   initCanvasPoints,
-  setCanvasPoints
+  setCanvasPoints,
 }) {
   // Reset sliders and set colorMap and model to props
   function reset() {
@@ -25,10 +25,10 @@ function ButtonControls({
   }
 
   function setFullscreen() {
-    setState(state => ({
+    setState((state) => ({
       ...state,
-      embedded: true
-    }))
+      embedded: true,
+    }));
   }
 
   return (

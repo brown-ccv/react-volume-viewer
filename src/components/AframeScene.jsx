@@ -32,11 +32,7 @@ function AframeScene(props) {
     return str;
   }
   return (
-    <a-scene
-      id="volumeViewerScene"
-      background="color: black"
-      embedded
-    >
+    <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
       <a-entity
         id="rhand"

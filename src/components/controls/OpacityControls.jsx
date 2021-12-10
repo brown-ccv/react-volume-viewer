@@ -77,7 +77,7 @@ function OpacityControls({
       };
     });
     setCanvasPoints(points);
-    setInitCanvasPoints(points)
+    setInitCanvasPoints(points);
   }, []);
 
   /** DRAW FUNCTION **/

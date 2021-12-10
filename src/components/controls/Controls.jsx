@@ -15,7 +15,7 @@ function Controls({
   useColorMap,
 }) {
   const [initCanvasPoints, setInitCanvasPoints] = useState([]);
-  const [canvasPoints, setCanvasPoints] = useState([])
+  const [canvasPoints, setCanvasPoints] = useState([]);
   return (
     <Wrapper>
       <ButtonControls
