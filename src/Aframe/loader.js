@@ -507,7 +507,7 @@ AFRAME.registerComponent("loader", {
           !this.grabbed
         ) {
           const inverseControllerPos = new THREE.Matrix4();
-          inverseControllerPos.getInverse(this.controllerHandler.matrixWorld);
+          inverseControllerPos.copy( this.controllerHandler.matrixWorld ).invert();
           this.el.getObject3D("mesh").matrix.premultiply(inverseControllerPos);
           this.el
             .getObject3D("mesh")
@@ -545,7 +545,8 @@ AFRAME.registerComponent("loader", {
 
     //inverse of the clipMatrix
     const currentSpaceClipMatrix_inverse = new THREE.Matrix4();
-    currentSpaceClipMatrix_inverse.getInverse(currentSpaceClipMatrix);
+    currentSpaceClipMatrix_inverse.copy( currentSpaceClipMatrix ).invert();
+
 
     //outputmatrix - controller_inverse * volume * scale * translation
     const clipMatrix = new THREE.Matrix4();
