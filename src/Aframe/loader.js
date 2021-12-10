@@ -1,10 +1,10 @@
+import { THREE } from "aframe";
 import "./ccvLibVolumeShader.js";
 
 AFRAME.registerComponent("loader", {
   schema: {
     rayCollided: { type: "boolean", default: false },
     modelLoaded: { type: "boolean", default: false },
-    meshPosition: { type: "vec3", default: { x: 0, y: 0, z: 0 } },
 
     transferFunctionX: { type: "array", default: [0, 1] },
     transferFunctionY: { type: "array", default: [0, 1] },
@@ -38,32 +38,138 @@ AFRAME.registerComponent("loader", {
       "clipplane2DListener"
     ).object3D;
 
-    // Activate camera
-    const cameraEl = document.querySelector("#camera");
-    cameraEl.setAttribute("camera", "active", true);
-
+    // Bind functions
     this.loadModel = this.loadModel.bind(this);
     this.updateTransferTexture = this.updateTransferTexture.bind(this);
     this.updateColorMapping = this.updateColorMapping.bind(this);
     this.updateOpacityData = this.updateOpacityData.bind(this);
-
     this.onCollide = this.onCollide.bind(this);
     this.onClearCollide = this.onClearCollide.bind(this);
+    this.onEnterVR = AFRAME.utils.bind(this.onEnterVR, this);
+    this.onExitVR = AFRAME.utils.bind(this.onExitVR, this);
+
+    // Add event listeners
+    this.el.sceneEl.addEventListener("enter-vr", this.onEnterVR);
+    this.el.sceneEl.addEventListener("exit-vr", this.onExitVR);
     this.el.addEventListener("raycaster-intersected", this.onCollide);
     this.el.addEventListener(
       "raycaster-intersected-cleared",
       this.onClearCollide
     );
-
-    // bind onenterVR and onexitVR
-    this.onEnterVR = AFRAME.utils.bind(this.onEnterVR, this);
-    this.onExitVR = AFRAME.utils.bind(this.onExitVR, this);
-    this.el.sceneEl.addEventListener("enter-vr", this.onEnterVR);
-    this.el.sceneEl.addEventListener("exit-vr", this.onExitVR);
   },
 
   getMesh: function () {
     return this.el.getObject3D("mesh");
+  },
+
+  onEnterVR: function () {},
+
+  onExitVR: function () {
+    if (this.getMesh()) {
+      this.getMesh().position.copy(new THREE.Vector3());
+      this.getMesh().rotation.set(0, 0, 0);
+    }
+  },
+
+  onCollide: function (event) {
+    this.data.rayCollided = true;
+  },
+
+  onClearCollide: function (event) {
+    this.data.rayCollided = false;
+  },
+
+  loadModel: function () {
+    const el = this.el;
+    const data = this.data;
+    const updateColorMapping = this.updateColorMapping;
+    const canvasWidth = this.canvas.width;
+    const canvasHeight = this.canvas.height;
+    const {
+      x_spacing,
+      y_spacing,
+      z_spacing,
+      slices,
+      path,
+      useTransferFunction,
+    } = data;
+
+    if (!path || path === "") return;
+
+    // Load model as a 2D texture
+    new THREE.TextureLoader().load(
+      path,
+      function (texture) {
+        const dim = Math.ceil(Math.sqrt(slices));
+        const spacing = [x_spacing, y_spacing, z_spacing];
+        const volumeScale = [
+          1.0 / ((texture.image.width / dim) * spacing[0]),
+          1.0 / ((texture.image.height / dim) * spacing[1]),
+          1.0 / (slices * spacing[2]),
+        ];
+        const zScale = volumeScale[0] / volumeScale[2];
+
+        texture.minFilter = texture.magFilter = THREE.LinearFilter;
+        texture.unpackAlignment = 1;
+        texture.needsUpdate = true;
+
+        // Material
+        const shader = THREE.ShaderLib["ccvLibVolumeRenderShader"];
+        const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+        uniforms["u_data"].value = texture;
+        uniforms["u_lut"].value = null;
+        uniforms["clipPlane"].value = new THREE.Matrix4();
+        uniforms["clipping"].value = false;
+        uniforms["threshold"].value = 1;
+        uniforms["multiplier"].value = 1;
+        uniforms["slice"].value = slices;
+        uniforms["dim"].value = dim;
+
+        // TODO: What to do when not using transfer function?
+        if (!useTransferFunction) {
+          uniforms["channel"].value = 6;
+        }
+
+        uniforms["useLut"].value = false;
+        uniforms["step_size"].value = new THREE.Vector3(
+          1 / 100,
+          1 / 100,
+          1 / 100
+        );
+        uniforms["viewPort"].value = new THREE.Vector2(
+          canvasWidth,
+          canvasHeight
+        );
+        uniforms["P_inv"].value = new THREE.Matrix4();
+        uniforms["depth"].value = null;
+        uniforms["zScale"].value = zScale;
+        uniforms["controllerPoseMatrix"].value = new THREE.Matrix4();
+        uniforms["grabMesh"].value = false;
+        uniforms["box_min"].value = new THREE.Vector3(0, 0, 0);
+        uniforms["box_max"].value = new THREE.Vector3(1, 1, 1);
+
+        const material = new THREE.ShaderMaterial({
+          uniforms: uniforms,
+          transparent: true,
+          vertexShader: shader.vertexShader,
+          fragmentShader: shader.fragmentShader,
+          side: THREE.BackSide, // The volume shader uses the backface as its "reference point"
+        });
+
+        // Mesh
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+
+        el.setObject3D("mesh", new THREE.Mesh(geometry, material));
+        data.modelLoaded = true;
+        material.needsUpdate = true;
+
+        updateColorMapping();
+      },
+      function () {},
+      function () {
+        console.error("Could not load model:", path);
+      }
+    );
   },
 
   updateTransferTexture: function () {
@@ -85,145 +191,13 @@ AFRAME.registerComponent("loader", {
       );
       transferTexture.needsUpdate = true;
 
-      if (this.getMesh() !== undefined) {
+      if (this.getMesh()) {
         let material = this.getMesh().material;
         material.uniforms.u_lut.value = transferTexture;
         material.uniforms.useLut.value = true;
         material.needsUpdate = true;
       }
     }
-  },
-
-  onEnterVR: function () {},
-
-  onExitVR: function () {
-    if (this.getMesh() !== undefined) {
-      this.data.meshPosition.x = this.getMesh().position.x;
-      this.data.meshPosition.y = this.getMesh().position.y;
-      this.data.meshPosition.z = this.getMesh().position.z;
-
-      this.getMesh().position.copy(new THREE.Vector3());
-      this.getMesh().rotation.set(0, 0, 0);
-
-      this.debugVRPos = true;
-    }
-  },
-
-  loadModel: function () {
-    let currentVolume = this.getMesh();
-    const { x_spacing, y_spacing, z_spacing, slices, path } = this.data;
-    if (currentVolume !== undefined) {
-      //clear mesh
-      this.el.removeObject3D("mesh");
-      currentVolume = undefined;
-    }
-
-    if (path !== "") {
-      const el = this.el;
-      const data = this.data;
-      const canvasWidth = this.canvas.width;
-      const canvasHeight = this.canvas.height;
-
-      const useTransferFunction = this.data.useTransferFunction;
-
-      const updateColorMapping = this.updateColorMapping;
-
-      //load as 2D texture
-      new THREE.TextureLoader().load(
-        path,
-        function (texture) {
-          const dim = Math.ceil(Math.sqrt(slices));
-          const spacing = [x_spacing, y_spacing, z_spacing];
-
-          const volumeScale = [
-            1.0 / ((texture.image.width / dim) * spacing[0]),
-            1.0 / ((texture.image.height / dim) * spacing[1]),
-            1.0 / (slices * spacing[2]),
-          ];
-
-          const zScale = volumeScale[0] / volumeScale[2];
-
-          texture.minFilter = texture.magFilter = THREE.LinearFilter;
-          texture.unpackAlignment = 1;
-          texture.needsUpdate = true;
-
-          // Material
-          const shader = THREE.ShaderLib["ccvLibVolumeRenderShader"];
-          const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-          uniforms["u_data"].value = texture;
-          uniforms["u_lut"].value = null;
-          uniforms["clipPlane"].value = new THREE.Matrix4();
-          uniforms["clipping"].value = false;
-          uniforms["threshold"].value = 1;
-          uniforms["multiplier"].value = 1;
-          uniforms["slice"].value = slices;
-          uniforms["dim"].value = dim;
-
-          if (!useTransferFunction) {
-            uniforms["channel"].value = 6;
-            uniforms["useLut"].value = false;
-          } else {
-            uniforms["useLut"].value = false;
-          }
-          uniforms["step_size"].value = new THREE.Vector3(
-            1 / 100,
-            1 / 100,
-            1 / 100
-          );
-
-          uniforms["viewPort"].value = new THREE.Vector2(
-            canvasWidth,
-            canvasHeight
-          );
-          uniforms["P_inv"].value = new THREE.Matrix4();
-          uniforms["depth"].value = null;
-          uniforms["zScale"].value = zScale;
-          uniforms["controllerPoseMatrix"].value = new THREE.Matrix4();
-          uniforms["grabMesh"].value = false;
-          uniforms["box_min"].value = new THREE.Vector3(0, 0, 0);
-          uniforms["box_max"].value = new THREE.Vector3(1, 1, 1);
-
-          const material = new THREE.ShaderMaterial({
-            uniforms: uniforms,
-            transparent: true,
-            vertexShader: shader.vertexShader,
-            fragmentShader: shader.fragmentShader,
-            side: THREE.BackSide, // The volume shader uses the backface as its "reference point"
-          });
-
-          // Mesh
-          const geometry = new THREE.BoxGeometry(1, 1, 1);
-
-          el.setObject3D("mesh", new THREE.Mesh(geometry, material));
-          data.modelLoaded = true;
-          material.needsUpdate = true;
-
-          updateColorMapping();
-        },
-        function () {},
-        function () {
-          console.log("Could not load the data, Data not found");
-        }
-      );
-    }
-  },
-
-  onCollide: function (event) {
-    this.data.rayCollided = true;
-  },
-
-  onClearCollide: function (event) {
-    this.data.rayCollided = false;
-  },
-
-  remove: function () {
-    this.el.removeEventListener("raycaster-intersected", this.onCollide);
-    this.el.removeEventListener(
-      "raycaster-intersected-cleared",
-      this.onClearCollide
-    );
-    this.el.sceneEl.removeEventListener("enter-vr", this.onEnterVR);
-    this.el.sceneEl.removeEventListener("exit-vr", this.onExitVR);
   },
 
   updateColorMapping: function () {
@@ -333,7 +307,7 @@ AFRAME.registerComponent("loader", {
         ) {
           this.clip2DPlaneRendered = false;
 
-          if (this.getMesh() !== undefined) {
+          if (this.getMesh()) {
             const material = this.getMesh().material;
             material.uniforms.box_min.value = new THREE.Vector3(0, 0, 0);
             material.uniforms.box_max.value = new THREE.Vector3(1, 1, 1);
@@ -341,7 +315,7 @@ AFRAME.registerComponent("loader", {
         }
 
         if (this.clip2DPlaneRendered) {
-          if (this.getMesh() !== undefined) {
+          if (this.getMesh()) {
             const material = this.getMesh().material;
 
             if (material !== undefined) {
@@ -414,10 +388,6 @@ AFRAME.registerComponent("loader", {
         this.updateMeshClipMatrix(this.controllerHandler.matrixWorld);
       }
     }
-
-    if (this.getMesh() !== undefined) {
-      this.data.meshPosition = this.getMesh().position;
-    }
   },
 
   updateMeshClipMatrix: function (currentSpaceClipMatrix) {
@@ -451,5 +421,15 @@ AFRAME.registerComponent("loader", {
       !this.grabbed;
     material.uniforms.clipPlane.value = clipMatrix;
     material.uniforms.clipping.value = doClip;
+  },
+
+  remove: function () {
+    this.el.removeEventListener("raycaster-intersected", this.onCollide);
+    this.el.removeEventListener(
+      "raycaster-intersected-cleared",
+      this.onClearCollide
+    );
+    this.el.sceneEl.removeEventListener("enter-vr", this.onEnterVR);
+    this.el.sceneEl.removeEventListener("exit-vr", this.onExitVR);
   },
 });
