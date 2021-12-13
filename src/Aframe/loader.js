@@ -11,11 +11,7 @@ AFRAME.registerComponent("loader", {
     colorMap: { type: "string", default: "" },
     path: { type: "string", default: "" },
     slices: { type: "number", default: 55 },
-
-    // TODO: Spacing should be a vec3
-    x_spacing: { type: "number", default: 2.0 },
-    y_spacing: { type: "number", default: 2.0 },
-    z_spacing: { type: "number", default: 1.0 },
+    spacing: { type: "array", default: [1, 1, 1] },
     useTransferFunction: { type: "boolean", default: false },
   },
 
@@ -89,14 +85,7 @@ AFRAME.registerComponent("loader", {
     const updateColorMapping = this.updateColorMapping;
     const canvasWidth = this.canvas.width;
     const canvasHeight = this.canvas.height;
-    const {
-      x_spacing,
-      y_spacing,
-      z_spacing,
-      slices,
-      path,
-      useTransferFunction,
-    } = data;
+    const { path, slices, spacing, useTransferFunction } = data;
 
     if (!path || path === "") return;
 
@@ -105,7 +94,6 @@ AFRAME.registerComponent("loader", {
       path,
       function (texture) {
         const dim = Math.ceil(Math.sqrt(slices));
-        const spacing = [x_spacing, y_spacing, z_spacing];
         const volumeScale = [
           1.0 / ((texture.image.width / dim) * spacing[0]),
           1.0 / ((texture.image.height / dim) * spacing[1]),
@@ -118,10 +106,7 @@ AFRAME.registerComponent("loader", {
         texture.needsUpdate = true;
 
         // Material
-        // const shader = THREE.ShaderLib["ccvLibVolumeRenderShader"];
         const shader = THREE.ShaderLib.volumeViewer;
-        console.log(THREE.ShaderLib);
-        // console.log(shader);
         const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
         console.log();
         uniforms["u_data"].value = texture;

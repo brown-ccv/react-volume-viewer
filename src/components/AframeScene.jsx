@@ -56,9 +56,7 @@ function AframeScene(props) {
           colorMap: colorMap,
           path: model.path,
           slices: model.slices,
-          x_spacing: model.spacing.x,
-          y_spacing: model.spacing.y,
-          z_spacing: model.spacing.z,
+          spacing: [model.spacing.x, model.spacing.y, model.spacing.z],
           useTransferFunction: useTransferFunction,
         })}
       />
