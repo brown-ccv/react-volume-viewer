@@ -4,7 +4,6 @@ import "./VolumeViewerShader";
 AFRAME.registerComponent("loader", {
   schema: {
     rayCollided: { type: "boolean", default: false },
-    modelLoaded: { type: "boolean", default: false },
 
     // TODO: Combine transferFunction?
     transferFunctionX: { type: "array", default: [0, 1] },
@@ -17,7 +16,6 @@ AFRAME.registerComponent("loader", {
   },
 
   init: function () {
-    this.colorMap = this.data.colorMap;
     this.canvas = this.el.sceneEl.canvas;
     this.sceneHandler = this.el.sceneEl;
     this.grabbed = false;
@@ -38,7 +36,6 @@ AFRAME.registerComponent("loader", {
     this.loadModel = this.loadModel.bind(this);
     this.updateTransferTexture = this.updateTransferTexture.bind(this);
     this.loadColorMap = this.loadColorMap.bind(this);
-    this.updateOpacityData = this.updateOpacityData.bind(this);
     this.onCollide = this.onCollide.bind(this);
     this.onClearCollide = this.onClearCollide.bind(this);
     this.onEnterVR = AFRAME.utils.bind(this.onEnterVR, this);
@@ -55,35 +52,36 @@ AFRAME.registerComponent("loader", {
   },
 
   update: function (oldData) {
-    if (oldData === undefined) {
-      return;
-    }
+    const { colorMap, path, transferFunctionX, transferFunctionY } = this.data;
     if (
-      (this.data.transferFunctionX !== undefined &&
-        oldData.transferFunctionX !== this.data.transferFunctionX) ||
-      (this.data.transferFunctionY !== undefined &&
-        oldData.transferFunctionY !== this.data.transferFunctionY)
+      (transferFunctionX && oldData.transferFunctionX !== transferFunctionX) ||
+      (transferFunctionY && oldData.transferFunctionY !== transferFunctionY)
     ) {
-      this.updateOpacityData(
-        this.data.transferFunctionX,
-        this.data.transferFunctionY
-      );
+      // Update opacity data
+      // TODO: This should be included in updateTransferTexture
+      this.newAlphaData = [];
+      for (let i = 0; i <= transferFunctionX.length - 2; i++) {
+        const scaledColorInit = transferFunctionX[i] * 255;
+        const scaledColorEnd = transferFunctionX[i + 1] * 255;
+        const scaledAlphaInit = transferFunctionY[i] * 255;
+        const scaledAlphaEnd = transferFunctionY[i + 1] * 255;
+        const deltaX = scaledColorEnd - scaledColorInit;
+        // linear interpolation
+        for (let j = 1 / deltaX; j < 1; j += 1 / deltaX) {
+          this.newAlphaData.push(
+            scaledAlphaInit * (1 - j) + scaledAlphaEnd * j
+          );
+        }
+      }
       this.updateTransferTexture();
     }
 
-    if (oldData.colorMap !== this.data.colorMap) {
-      this.colorMap = this.data.colorMap;
-      this.loadColorMap();
-    }
-
-    if (oldData.path !== this.data.path) {
-      this.loadModel();
-    }
+    if (colorMap && oldData.colorMap !== colorMap) this.loadColorMap();
+    if (path && oldData.path !== path) this.loadModel();
   },
 
   tick: function (time, timeDelta) {
     const inVR = this.sceneHandler.is("vr-mode");
-    if (this.data.modelLoaded) {
       if (this.clipPlaneListenerHandler !== undefined && !inVR) {
         if (
           this.clipPlaneListenerHandler.el.getAttribute("render-2d-clipplane")
@@ -178,7 +176,6 @@ AFRAME.registerComponent("loader", {
 
         this.updateMeshClipMatrix(this.controllerHandler.matrixWorld);
       }
-    }
   },
 
   remove: function () {
@@ -248,7 +245,6 @@ AFRAME.registerComponent("loader", {
         material.needsUpdate = true;
         const geometry = new THREE.BoxGeometry(1, 1, 1);
         el.setObject3D("mesh", new THREE.Mesh(geometry, material));
-        data.modelLoaded = true;
 
         loadColorMap();
       },
@@ -259,55 +255,30 @@ AFRAME.registerComponent("loader", {
     );
   },
 
-  updateTransferTexture: function () {
-    if (this.colorTransferMap.has(this.colorMap)) {
-      const colorTransfer = this.colorTransferMap.get(this.colorMap).data;
-      const imageTransferData = new Uint8Array(4 * 256);
-      for (let i = 0; i < 256; i++) {
-        imageTransferData[i * 4 + 0] = colorTransfer[i * 3 + 0];
-        imageTransferData[i * 4 + 1] = colorTransfer[i * 3 + 1];
-        imageTransferData[i * 4 + 2] = colorTransfer[i * 3 + 2];
-        imageTransferData[i * 4 + 3] = this.newAlphaData[i];
-      }
-
-      const transferTexture = new THREE.DataTexture(
-        imageTransferData,
-        256,
-        1,
-        THREE.RGBAFormat
-      );
-      transferTexture.needsUpdate = true;
-
-      if (this.getMesh()) {
-        let material = this.getMesh().material;
-        material.uniforms.u_lut.value = transferTexture;
-        material.uniforms.useLut.value = true;
-        material.needsUpdate = true;
-      }
-    }
-  },
-
   loadColorMap: function () {
-    if (!this.colorTransferMap.has(this.colorMap)) {
+    // TODO: Parse error if can't load this.data.colorMap
+    if (!this.colorTransferMap.has(this.data.colorMap)) {
       const colorCanvas = document.createElement("canvas");
-
       const imgWidth = 255;
       const imgHeight = 15;
+
+      // Re-inject local image with comma
+      if (this.data.colorMap.startsWith("data:image/png")) {
+        this.data.colorMap =
+          this.data.colorMap.substring(0, 14) +
+          ";" +
+          this.data.colorMap.substring(14);
+      }
+
       const newColorMap = {
         img: document.createElement("img"),
         width: imgWidth,
         height: imgHeight,
         data: null,
       };
+      newColorMap.img.src = this.data.colorMap;
 
-      // Re-inject local image with comma
-      if (this.colorMap.startsWith("data:image/png")) {
-        this.colorMap =
-          this.colorMap.substring(0, 14) + ";" + this.colorMap.substring(14);
-      }
-
-      newColorMap.img.src = this.colorMap;
-      this.colorTransferMap.set(this.colorMap, newColorMap);
+      this.colorTransferMap.set(this.data.colorMap, newColorMap);
       const mappedColorMap = newColorMap;
 
       const updateTransferTexture = this.updateTransferTexture;
@@ -331,21 +302,30 @@ AFRAME.registerComponent("loader", {
     }
   },
 
-  updateOpacityData: function (arrayX, arrayY) {
-    this.newAlphaData = [];
+  updateTransferTexture: function () {
+    if (this.colorTransferMap.has(this.data.colorMap)) {
+      const colorTransfer = this.colorTransferMap.get(this.data.colorMap).data;
+      const imageTransferData = new Uint8Array(4 * 256);
+      for (let i = 0; i < 256; i++) {
+        imageTransferData[i * 4 + 0] = colorTransfer[i * 3 + 0];
+        imageTransferData[i * 4 + 1] = colorTransfer[i * 3 + 1];
+        imageTransferData[i * 4 + 2] = colorTransfer[i * 3 + 2];
+        imageTransferData[i * 4 + 3] = this.newAlphaData[i];
+      }
 
-    for (let i = 0; i <= arrayX.length - 2; i++) {
-      const scaledColorInit = arrayX[i] * 255;
-      const scaledColorEnd = arrayX[i + 1] * 255;
+      const transferTexture = new THREE.DataTexture(
+        imageTransferData,
+        256,
+        1,
+        THREE.RGBAFormat
+      );
+      transferTexture.needsUpdate = true;
 
-      const scaledAplhaInit = arrayY[i] * 255;
-      const scaledAlphaEnd = arrayY[i + 1] * 255;
-
-      const deltaX = scaledColorEnd - scaledColorInit;
-
-      for (let j = 1 / deltaX; j < 1; j += 1 / deltaX) {
-        // linear interpolation
-        this.newAlphaData.push(scaledAplhaInit * (1 - j) + scaledAlphaEnd * j);
+      if (this.getMesh()) {
+        let material = this.getMesh().material;
+        material.uniforms.u_lut.value = transferTexture;
+        material.uniforms.useLut.value = true;
+        material.needsUpdate = true;
       }
     }
   },
@@ -383,22 +363,22 @@ AFRAME.registerComponent("loader", {
     material.uniforms.clipping.value = doClip;
   },
 
-    /* EVENT LISTENERS FUNCTIONS */
+  /* EVENT LISTENERS FUNCTIONS */
 
-    onEnterVR: function () {},
+  onEnterVR: function () {},
 
-    onExitVR: function () {
-      if (this.getMesh()) {
-        this.getMesh().position.copy(new THREE.Vector3());
-        this.getMesh().rotation.set(0, 0, 0);
-      }
-    },
-  
-    onCollide: function (e) {
-      this.data.rayCollided = true;
-    },
-  
-    onClearCollide: function (e) {
-      this.data.rayCollided = false;
-    },
+  onExitVR: function () {
+    if (this.getMesh()) {
+      this.getMesh().position.copy(new THREE.Vector3());
+      this.getMesh().rotation.set(0, 0, 0);
+    }
+  },
+
+  onCollide: function (e) {
+    this.data.rayCollided = true;
+  },
+
+  onClearCollide: function (e) {
+    this.data.rayCollided = false;
+  },
 });
