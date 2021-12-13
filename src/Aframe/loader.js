@@ -54,165 +54,6 @@ AFRAME.registerComponent("loader", {
     );
   },
 
-  getMesh: function () {
-    return this.el.getObject3D("mesh");
-  },
-
-  /* EVENT LISTENERS FUNCTIONS */
-
-  onEnterVR: function () {},
-
-  onExitVR: function () {
-    if (this.getMesh()) {
-      this.getMesh().position.copy(new THREE.Vector3());
-      this.getMesh().rotation.set(0, 0, 0);
-    }
-  },
-
-  onCollide: function (e) {
-    this.data.rayCollided = true;
-  },
-
-  onClearCollide: function (e) {
-    this.data.rayCollided = false;
-  },
-
-  /* HELPER FUNCTIONS */
-
-  loadModel: function () {
-    const el = this.el;
-    const data = this.data;
-    const width = this.canvas.width;
-    const height = this.canvas.height;
-    const loadColorMap = this.loadColorMap;
-
-    // Load model as a 2D texture
-    new THREE.TextureLoader().load(
-      data.path,
-      // onLoad callback
-      (texture) => {
-        texture.minFilter = texture.magFilter = THREE.LinearFilter;
-        texture.unpackAlignment = 1;
-        texture.needsUpdate = true;
-
-        const { slices, spacing, useTransferFunction } = this.data;
-        const shader = THREE.ShaderLib.volumeViewer;
-        const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-        const dim = Math.ceil(Math.sqrt(slices));
-        const volumeScale = [
-          1.0 / ((texture.image.width / dim) * spacing[0]),
-          1.0 / ((texture.image.height / dim) * spacing[1]),
-          1.0 / (slices * spacing[2]),
-        ];
-        const zScale = volumeScale[0] / volumeScale[2];
-
-        uniforms.u_data.value = texture;
-        uniforms.slice.value = slices;
-        uniforms.dim.value = dim;
-        uniforms.step_size.value = new THREE.Vector3(0.01, 0.01, 0.01);
-        uniforms.viewPort.value = new THREE.Vector2(width, height);
-        uniforms.P_inv.value = new THREE.Matrix4();
-        uniforms.zScale.value = zScale;
-
-        // TODO: What to do when not using transfer function?
-        if (!useTransferFunction) {
-          uniforms.channel.value = 6;
-          uniforms.useLut.value = false;
-        }
-
-        const material = new THREE.ShaderMaterial({
-          uniforms: uniforms,
-          transparent: true,
-          vertexShader: shader.vertexShader,
-          fragmentShader: shader.fragmentShader,
-          side: THREE.BackSide, // Use the backface as its "reference point"
-        });
-        material.needsUpdate = true;
-        const geometry = new THREE.BoxGeometry(1, 1, 1);
-        el.setObject3D("mesh", new THREE.Mesh(geometry, material));
-        data.modelLoaded = true;
-        
-        loadColorMap();
-      },
-      // onProgress callback
-      null,
-      // onError callback
-      (err) => console.error("Could not load model:", path, err)
-    );
-  },
-
-  updateTransferTexture: function () {
-    if (this.colorTransferMap.has(this.colorMap)) {
-      const colorTransfer = this.colorTransferMap.get(this.colorMap).data;
-      const imageTransferData = new Uint8Array(4 * 256);
-      for (let i = 0; i < 256; i++) {
-        imageTransferData[i * 4 + 0] = colorTransfer[i * 3 + 0];
-        imageTransferData[i * 4 + 1] = colorTransfer[i * 3 + 1];
-        imageTransferData[i * 4 + 2] = colorTransfer[i * 3 + 2];
-        imageTransferData[i * 4 + 3] = this.newAlphaData[i];
-      }
-
-      const transferTexture = new THREE.DataTexture(
-        imageTransferData,
-        256,
-        1,
-        THREE.RGBAFormat
-      );
-      transferTexture.needsUpdate = true;
-
-      if (this.getMesh()) {
-        let material = this.getMesh().material;
-        material.uniforms.u_lut.value = transferTexture;
-        material.uniforms.useLut.value = true;
-        material.needsUpdate = true;
-      }
-    }
-  },
-
-  loadColorMap: function () {
-    if (!this.colorTransferMap.has(this.colorMap)) {
-      const colorCanvas = document.createElement("canvas");
-
-      const imgWidth = 255;
-      const imgHeight = 15;
-      const newColorMap = {
-        img: document.createElement("img"),
-        width: imgWidth,
-        height: imgHeight,
-        data: null,
-      };
-
-      // Re-inject local image with comma
-      if (this.colorMap.startsWith("data:image/png")) {
-        this.colorMap =
-          this.colorMap.substring(0, 14) + ";" + this.colorMap.substring(14);
-      }
-
-      newColorMap.img.src = this.colorMap;
-      this.colorTransferMap.set(this.colorMap, newColorMap);
-      const mappedColorMap = newColorMap;
-
-      const updateTransferTexture = this.updateTransferTexture;
-      newColorMap.img.onload = function (data) {
-        colorCanvas.height = imgHeight;
-        colorCanvas.width = imgWidth;
-        const colorContext = colorCanvas.getContext("2d");
-        colorContext.drawImage(newColorMap.img, 0, 0);
-        const colorData = colorContext.getImageData(0, 0, imgWidth, 1).data;
-        const colorTransfer = new Uint8Array(3 * 256);
-        for (let i = 0; i < 256; i++) {
-          colorTransfer[i * 3] = colorData[i * 4];
-          colorTransfer[i * 3 + 1] = colorData[i * 4 + 1];
-          colorTransfer[i * 3 + 2] = colorData[i * 4 + 2];
-        }
-        mappedColorMap.data = colorTransfer;
-        updateTransferTexture();
-      };
-    } else {
-      this.updateTransferTexture();
-    }
-  },
-
   update: function (oldData) {
     if (oldData === undefined) {
       return;
@@ -237,25 +78,6 @@ AFRAME.registerComponent("loader", {
 
     if (oldData.path !== this.data.path) {
       this.loadModel();
-    }
-  },
-
-  updateOpacityData: function (arrayX, arrayY) {
-    this.newAlphaData = [];
-
-    for (let i = 0; i <= arrayX.length - 2; i++) {
-      const scaledColorInit = arrayX[i] * 255;
-      const scaledColorEnd = arrayX[i + 1] * 255;
-
-      const scaledAplhaInit = arrayY[i] * 255;
-      const scaledAlphaEnd = arrayY[i + 1] * 255;
-
-      const deltaX = scaledColorEnd - scaledColorInit;
-
-      for (let j = 1 / deltaX; j < 1; j += 1 / deltaX) {
-        // linear interpolation
-        this.newAlphaData.push(scaledAplhaInit * (1 - j) + scaledAlphaEnd * j);
-      }
     }
   },
 
@@ -359,6 +181,194 @@ AFRAME.registerComponent("loader", {
     }
   },
 
+  remove: function () {
+    this.el.removeEventListener("raycaster-intersected", this.onCollide);
+    this.el.removeEventListener(
+      "raycaster-intersected-cleared",
+      this.onClearCollide
+    );
+    this.el.sceneEl.removeEventListener("enter-vr", this.onEnterVR);
+    this.el.sceneEl.removeEventListener("exit-vr", this.onExitVR);
+  },
+
+  /* EVENT LISTENERS FUNCTIONS */
+
+  onEnterVR: function () {},
+
+  onExitVR: function () {
+    if (this.getMesh()) {
+      this.getMesh().position.copy(new THREE.Vector3());
+      this.getMesh().rotation.set(0, 0, 0);
+    }
+  },
+
+  onCollide: function (e) {
+    this.data.rayCollided = true;
+  },
+
+  onClearCollide: function (e) {
+    this.data.rayCollided = false;
+  },
+
+  /* HELPER FUNCTIONS */
+
+  getMesh: function () {
+    return this.el.getObject3D("mesh");
+  },
+
+  loadModel: function () {
+    const el = this.el;
+    const data = this.data;
+    const width = this.canvas.width;
+    const height = this.canvas.height;
+    const loadColorMap = this.loadColorMap;
+
+    // Load model as a 2D texture
+    new THREE.TextureLoader().load(
+      data.path,
+      // onLoad callback
+      (texture) => {
+        texture.minFilter = texture.magFilter = THREE.LinearFilter;
+        texture.unpackAlignment = 1;
+        texture.needsUpdate = true;
+
+        const { slices, spacing, useTransferFunction } = this.data;
+        const shader = THREE.ShaderLib.volumeViewer;
+        const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+        const dim = Math.ceil(Math.sqrt(slices));
+        const volumeScale = [
+          1.0 / ((texture.image.width / dim) * spacing[0]),
+          1.0 / ((texture.image.height / dim) * spacing[1]),
+          1.0 / (slices * spacing[2]),
+        ];
+        const zScale = volumeScale[0] / volumeScale[2];
+
+        uniforms.u_data.value = texture;
+        uniforms.slice.value = slices;
+        uniforms.dim.value = dim;
+        uniforms.step_size.value = new THREE.Vector3(0.01, 0.01, 0.01);
+        uniforms.viewPort.value = new THREE.Vector2(width, height);
+        uniforms.P_inv.value = new THREE.Matrix4();
+        uniforms.zScale.value = zScale;
+
+        // TODO: What to do when not using transfer function?
+        if (!useTransferFunction) {
+          uniforms.channel.value = 6;
+          uniforms.useLut.value = false;
+        }
+
+        const material = new THREE.ShaderMaterial({
+          uniforms: uniforms,
+          transparent: true,
+          vertexShader: shader.vertexShader,
+          fragmentShader: shader.fragmentShader,
+          side: THREE.BackSide, // Use the backface as its "reference point"
+        });
+        material.needsUpdate = true;
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        el.setObject3D("mesh", new THREE.Mesh(geometry, material));
+        data.modelLoaded = true;
+
+        loadColorMap();
+      },
+      // onProgress callback
+      null,
+      // onError callback
+      (err) => console.error("Could not load model:", path, err)
+    );
+  },
+
+  updateTransferTexture: function () {
+    if (this.colorTransferMap.has(this.colorMap)) {
+      const colorTransfer = this.colorTransferMap.get(this.colorMap).data;
+      const imageTransferData = new Uint8Array(4 * 256);
+      for (let i = 0; i < 256; i++) {
+        imageTransferData[i * 4 + 0] = colorTransfer[i * 3 + 0];
+        imageTransferData[i * 4 + 1] = colorTransfer[i * 3 + 1];
+        imageTransferData[i * 4 + 2] = colorTransfer[i * 3 + 2];
+        imageTransferData[i * 4 + 3] = this.newAlphaData[i];
+      }
+
+      const transferTexture = new THREE.DataTexture(
+        imageTransferData,
+        256,
+        1,
+        THREE.RGBAFormat
+      );
+      transferTexture.needsUpdate = true;
+
+      if (this.getMesh()) {
+        let material = this.getMesh().material;
+        material.uniforms.u_lut.value = transferTexture;
+        material.uniforms.useLut.value = true;
+        material.needsUpdate = true;
+      }
+    }
+  },
+
+  loadColorMap: function () {
+    if (!this.colorTransferMap.has(this.colorMap)) {
+      const colorCanvas = document.createElement("canvas");
+
+      const imgWidth = 255;
+      const imgHeight = 15;
+      const newColorMap = {
+        img: document.createElement("img"),
+        width: imgWidth,
+        height: imgHeight,
+        data: null,
+      };
+
+      // Re-inject local image with comma
+      if (this.colorMap.startsWith("data:image/png")) {
+        this.colorMap =
+          this.colorMap.substring(0, 14) + ";" + this.colorMap.substring(14);
+      }
+
+      newColorMap.img.src = this.colorMap;
+      this.colorTransferMap.set(this.colorMap, newColorMap);
+      const mappedColorMap = newColorMap;
+
+      const updateTransferTexture = this.updateTransferTexture;
+      newColorMap.img.onload = function (data) {
+        colorCanvas.height = imgHeight;
+        colorCanvas.width = imgWidth;
+        const colorContext = colorCanvas.getContext("2d");
+        colorContext.drawImage(newColorMap.img, 0, 0);
+        const colorData = colorContext.getImageData(0, 0, imgWidth, 1).data;
+        const colorTransfer = new Uint8Array(3 * 256);
+        for (let i = 0; i < 256; i++) {
+          colorTransfer[i * 3] = colorData[i * 4];
+          colorTransfer[i * 3 + 1] = colorData[i * 4 + 1];
+          colorTransfer[i * 3 + 2] = colorData[i * 4 + 2];
+        }
+        mappedColorMap.data = colorTransfer;
+        updateTransferTexture();
+      };
+    } else {
+      this.updateTransferTexture();
+    }
+  },
+
+  updateOpacityData: function (arrayX, arrayY) {
+    this.newAlphaData = [];
+
+    for (let i = 0; i <= arrayX.length - 2; i++) {
+      const scaledColorInit = arrayX[i] * 255;
+      const scaledColorEnd = arrayX[i + 1] * 255;
+
+      const scaledAplhaInit = arrayY[i] * 255;
+      const scaledAlphaEnd = arrayY[i + 1] * 255;
+
+      const deltaX = scaledColorEnd - scaledColorInit;
+
+      for (let j = 1 / deltaX; j < 1; j += 1 / deltaX) {
+        // linear interpolation
+        this.newAlphaData.push(scaledAplhaInit * (1 - j) + scaledAlphaEnd * j);
+      }
+    }
+  },
+
   updateMeshClipMatrix: function (currentSpaceClipMatrix) {
     const volumeMatrix = this.getMesh().matrixWorld;
     //material for setting the clipPlane and clipping value
@@ -390,15 +400,5 @@ AFRAME.registerComponent("loader", {
       !this.grabbed;
     material.uniforms.clipPlane.value = clipMatrix;
     material.uniforms.clipping.value = doClip;
-  },
-
-  remove: function () {
-    this.el.removeEventListener("raycaster-intersected", this.onCollide);
-    this.el.removeEventListener(
-      "raycaster-intersected-cleared",
-      this.onClearCollide
-    );
-    this.el.sceneEl.removeEventListener("enter-vr", this.onEnterVR);
-    this.el.sceneEl.removeEventListener("exit-vr", this.onExitVR);
   },
 });
