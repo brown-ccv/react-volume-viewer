@@ -6,6 +6,7 @@ AFRAME.registerComponent("loader", {
     rayCollided: { type: "boolean", default: false },
     modelLoaded: { type: "boolean", default: false },
 
+    // TODO: Combine transferFunction?
     transferFunctionX: { type: "array", default: [0, 1] },
     transferFunctionY: { type: "array", default: [0, 1] },
     colorMap: { type: "string", default: "" },
@@ -16,7 +17,6 @@ AFRAME.registerComponent("loader", {
   },
 
   init: function () {
-    // TODO: Combine spacing and transferFunction
     this.colorMap = this.data.colorMap;
     this.canvas = this.el.sceneEl.canvas;
     this.sceneHandler = this.el.sceneEl;
@@ -37,7 +37,7 @@ AFRAME.registerComponent("loader", {
     // Bind functions
     this.loadModel = this.loadModel.bind(this);
     this.updateTransferTexture = this.updateTransferTexture.bind(this);
-    this.updateColorMapping = this.updateColorMapping.bind(this);
+    this.loadColorMap = this.loadColorMap.bind(this);
     this.updateOpacityData = this.updateOpacityData.bind(this);
     this.onCollide = this.onCollide.bind(this);
     this.onClearCollide = this.onClearCollide.bind(this);
@@ -69,11 +69,11 @@ AFRAME.registerComponent("loader", {
     }
   },
 
-  onCollide: function (event) {
+  onCollide: function (e) {
     this.data.rayCollided = true;
   },
 
-  onClearCollide: function (event) {
+  onClearCollide: function (e) {
     this.data.rayCollided = false;
   },
 
@@ -82,17 +82,22 @@ AFRAME.registerComponent("loader", {
   loadModel: function () {
     const el = this.el;
     const data = this.data;
-    const updateColorMapping = this.updateColorMapping;
-    const canvasWidth = this.canvas.width;
-    const canvasHeight = this.canvas.height;
-    const { path, slices, spacing, useTransferFunction } = data;
-
-    if (!path || path === "") return;
+    const width = this.canvas.width;
+    const height = this.canvas.height;
+    const loadColorMap = this.loadColorMap;
 
     // Load model as a 2D texture
     new THREE.TextureLoader().load(
-      path,
-      function (texture) {
+      data.path,
+      // onLoad callback
+      (texture) => {
+        texture.minFilter = texture.magFilter = THREE.LinearFilter;
+        texture.unpackAlignment = 1;
+        texture.needsUpdate = true;
+
+        const { slices, spacing, useTransferFunction } = this.data;
+        const shader = THREE.ShaderLib.volumeViewer;
+        const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
         const dim = Math.ceil(Math.sqrt(slices));
         const volumeScale = [
           1.0 / ((texture.image.width / dim) * spacing[0]),
@@ -101,67 +106,38 @@ AFRAME.registerComponent("loader", {
         ];
         const zScale = volumeScale[0] / volumeScale[2];
 
-        texture.minFilter = texture.magFilter = THREE.LinearFilter;
-        texture.unpackAlignment = 1;
-        texture.needsUpdate = true;
-
-        // Material
-        const shader = THREE.ShaderLib.volumeViewer;
-        const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-        console.log();
-        uniforms["u_data"].value = texture;
-        uniforms["u_lut"].value = null;
-        uniforms["clipPlane"].value = new THREE.Matrix4();
-        uniforms["clipping"].value = false;
-        uniforms["threshold"].value = 1;
-        uniforms["multiplier"].value = 1;
-        uniforms["slice"].value = slices;
-        uniforms["dim"].value = dim;
+        uniforms.u_data.value = texture;
+        uniforms.slice.value = slices;
+        uniforms.dim.value = dim;
+        uniforms.step_size.value = new THREE.Vector3(0.01, 0.01, 0.01);
+        uniforms.viewPort.value = new THREE.Vector2(width, height);
+        uniforms.P_inv.value = new THREE.Matrix4();
+        uniforms.zScale.value = zScale;
 
         // TODO: What to do when not using transfer function?
         if (!useTransferFunction) {
-          uniforms["channel"].value = 6;
+          uniforms.channel.value = 6;
+          uniforms.useLut.value = false;
         }
-
-        uniforms["useLut"].value = false;
-        uniforms["step_size"].value = new THREE.Vector3(
-          1 / 100,
-          1 / 100,
-          1 / 100
-        );
-        uniforms["viewPort"].value = new THREE.Vector2(
-          canvasWidth,
-          canvasHeight
-        );
-        uniforms["P_inv"].value = new THREE.Matrix4();
-        uniforms["depth"].value = null;
-        uniforms["zScale"].value = zScale;
-        uniforms["controllerPoseMatrix"].value = new THREE.Matrix4();
-        uniforms["grabMesh"].value = false;
-        uniforms["box_min"].value = new THREE.Vector3(0, 0, 0);
-        uniforms["box_max"].value = new THREE.Vector3(1, 1, 1);
 
         const material = new THREE.ShaderMaterial({
           uniforms: uniforms,
           transparent: true,
           vertexShader: shader.vertexShader,
           fragmentShader: shader.fragmentShader,
-          side: THREE.BackSide, // The volume shader uses the backface as its "reference point"
+          side: THREE.BackSide, // Use the backface as its "reference point"
         });
-
-        // Mesh
+        material.needsUpdate = true;
         const geometry = new THREE.BoxGeometry(1, 1, 1);
-
         el.setObject3D("mesh", new THREE.Mesh(geometry, material));
         data.modelLoaded = true;
-        material.needsUpdate = true;
-
-        updateColorMapping();
+        
+        loadColorMap();
       },
-      () => {},
-      () => {
-        console.error("Could not load model:", path);
-      }
+      // onProgress callback
+      null,
+      // onError callback
+      (err) => console.error("Could not load model:", path, err)
     );
   },
 
@@ -193,7 +169,7 @@ AFRAME.registerComponent("loader", {
     }
   },
 
-  updateColorMapping: function () {
+  loadColorMap: function () {
     if (!this.colorTransferMap.has(this.colorMap)) {
       const colorCanvas = document.createElement("canvas");
 
@@ -256,7 +232,7 @@ AFRAME.registerComponent("loader", {
 
     if (oldData.colorMap !== this.data.colorMap) {
       this.colorMap = this.data.colorMap;
-      this.updateColorMapping();
+      this.loadColorMap();
     }
 
     if (oldData.path !== this.data.path) {
