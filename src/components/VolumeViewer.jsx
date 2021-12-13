@@ -41,7 +41,7 @@ function VolumeViewer({
   useEffect(() => {
     setState((state) => ({
       ...state,
-      colorMap: colorMap,
+      colorMap: colorMap ?? DEFAULT_COLOR_MAP,
     }));
   }, [colorMap]);
 
