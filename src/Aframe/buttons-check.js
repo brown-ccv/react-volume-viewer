@@ -5,24 +5,24 @@ AFRAME.registerComponent("buttons-check", {
     this.clipPlane = false;
 
     this.setClipPlane = this.setClipPlane.bind(this);
-    this.el.addEventListener("gripdown", (e) => this.setClipPlane(e, true));
-    this.el.addEventListener("gripup", (e) => this.setClipPlane(e, false));
-    this.el.addEventListener("triggerdown", (e) => this.setClipPlane(e, true));
-    this.el.addEventListener("triggerup", (e) => this.setClipPlane(e, false));
+    this.stopClipPlane = this.stopClipPlane.bind(this);
+    this.el.addEventListener("gripdown", (e) => this.setClipPlane(e));
+    this.el.addEventListener("gripup", (e) => this.stopClipPlane(e));
+    this.el.addEventListener("triggerdown", (e) => this.setClipPlane(e));
+    this.el.addEventListener("triggerup", (e) => this.stopClipPlane(e));
   },
 
   remove: function () {
-    this.el.removeEventListener("gripdown", (e) => this.setClipPlane(e, true));
-    this.el.removeEventListener("gripup", (e) => this.setClipPlane(e, false));
-    this.el.removeEventListener("triggerdown", (e) =>
-      this.setClipPlane(e, true)
-    );
-    this.el.removeEventListener("triggerup", (e) =>
-      this.setClipPlane(e, false)
-    );
+    this.el.removeEventListener("gripdown", (e) => this.setClipPlane(e));
+    this.el.removeEventListener("gripup", (e) => this.stopClipPlane(e));
+    this.el.removeEventListener("triggerdown", (e) => this.setClipPlane(e));
+    this.el.removeEventListener("triggerup", (e) => this.stopClipPlane(e));
   },
 
-  setClipPlane: function (e, bool) {
-    this.clipPlane = bool;
+  setClipPlane: function (e) {
+    this.clipPlane = true;
+  },
+  stopClipPlane: function (e) {
+    this.clipPlane = false;
   },
 });

@@ -1,7 +1,6 @@
-// import { THREE } from "aframe";
 import "./VolumeViewerShader";
 
-AFRAME.registerComponent("loader", {
+AFRAME.registerComponent("model", {
   schema: {
     rayCollided: { type: "boolean", default: false },
 
@@ -108,13 +107,12 @@ AFRAME.registerComponent("loader", {
   },
 
   tick: function (time, timeDelta) {
-    const inVR = this.sceneHandler.is("vr-mode");
-    if (this.controllerHandler && inVR) {
+    if (this.controllerHandler && this.sceneHandler.is("vr-mode")) {
+      const mesh = this.getMesh();
       const buttonsCheck =
         this.controllerHandler.el.getAttribute("buttons-check");
 
       if (!buttonsCheck.grabObject && this.grabbed) {
-        const mesh = this.getMesh();
         mesh.matrix.premultiply(this.controllerHandler.matrixWorld);
         mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
         this.el.object3D.add(mesh);
@@ -125,7 +123,7 @@ AFRAME.registerComponent("loader", {
       // grab mesh
       if (buttonsCheck.grabObject && this.data.rayCollided && !this.grabbed) {
         const inverseControllerPos = new THREE.Matrix4();
-        const mesh = this.getMesh();
+
         inverseControllerPos.copy(this.controllerHandler.matrixWorld).invert();
         mesh.matrix.premultiply(inverseControllerPos);
         mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
@@ -291,31 +289,29 @@ AFRAME.registerComponent("loader", {
 
   updateMeshClipMatrix: function (currentSpaceClipMatrix) {
     const volumeMatrix = this.getMesh().matrixWorld;
-    //material for setting the clipPlane and clipping value
     const material = this.getMesh().material;
 
-    //scalematrix for zscaling
+    // scaleMatrix for zscaling
     const scaleMatrix = new THREE.Matrix4();
     scaleMatrix.makeScale(1, 1, material.uniforms.zScale.value);
 
-    //translationmatrix to cube-coordinates ranging from 0 -1
+    // translationMatrix to cube-coordinates ranging from 0 -1
     const translationMatrix = new THREE.Matrix4();
     translationMatrix.makeTranslation(-0.5, -0.5, -0.5);
 
-    //inverse of the clipMatrix
+    // Inverse of the clipMatrix
     const currentSpaceClipMatrix_inverse = new THREE.Matrix4();
     currentSpaceClipMatrix_inverse.copy(currentSpaceClipMatrix).invert();
 
-    //outputmatrix - controller_inverse * volume * scale * translation
+    // outputmatrix - controller_inverse * volume * scale * translation
     const clipMatrix = new THREE.Matrix4();
     clipMatrix.multiplyMatrices(currentSpaceClipMatrix_inverse, volumeMatrix);
     clipMatrix.multiplyMatrices(clipMatrix, scaleMatrix);
     clipMatrix.multiplyMatrices(clipMatrix, translationMatrix);
 
-    //set uniforms of shader
-    const inVR = this.sceneHandler.is("vr-mode");
+    // Set uniforms of shader
     const doClip =
-      inVR &&
+      this.sceneHandler.is("vr-mode") &&
       this.controllerHandler.el.getAttribute("buttons-check").clipPlane &&
       !this.grabbed;
     material.uniforms.clipPlane.value = clipMatrix;

@@ -3,7 +3,7 @@ import "aframe";
 
 import "../Aframe/arcball-camera";
 import "../Aframe/buttons-check";
-import "../Aframe/loader";
+import "../Aframe/model";
 
 function AframeScene(props) {
   const {
@@ -27,10 +27,9 @@ function AframeScene(props) {
     return str;
   }
 
-  // TODO: Add back cursor change when over model
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
-      {/* CAMERA */}
+      {/* ARCBALL CAMERA */}
       <a-entity
         id="camera"
         camera="active: true"
@@ -41,17 +40,17 @@ function AframeScene(props) {
       {/* MOUSE */}
       <a-entity cursor="rayOrigin:mouse" raycaster="objects: .clickable" />
 
-      {/* HAND CONTROLS */}
+      {/* BUTTONS CHECK */}
       <a-entity id="rhand" raycaster="objects: .clickableMesh" buttons-check />
 
-      {/* MODEL */}
+      {/* MODEL*/}
       <a-entity
         id="volumeCube"
         class="clickableMesh clickable"
         position={model.position}
         rotation={model.rotation}
         scale={model.scale}
-        loader={toAframeString({
+        model={toAframeString({
           transferFunctionX: transferFunction.map((p) => p["x"]),
           transferFunctionY: transferFunction.map((p) => p["y"]),
           colorMap: colorMap,
