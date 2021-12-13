@@ -25,7 +25,7 @@ function VolumeViewer({
   useTransferFunction,
 }) {
   const [state, setState] = useState({
-    colorMap: colorMap ? colorMap : DEFAULT_COLOR_MAP,
+    colorMap: colorMap ?? DEFAULT_COLOR_MAP,
     model: { ...DEFAULT_MODEL, ...model },
     sliders: {
       x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
