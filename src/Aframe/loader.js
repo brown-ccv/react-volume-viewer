@@ -82,9 +82,9 @@ AFRAME.registerComponent("loader", {
   },
 
   tick: function (time, timeDelta) {
-    const isVrModeActive = this.sceneHandler.is("vr-mode");
+    const inVR = this.sceneHandler.is("vr-mode");
     if (this.data.modelLoaded) {
-      if (this.clipPlaneListenerHandler !== undefined && !isVrModeActive) {
+      if (this.clipPlaneListenerHandler !== undefined && !inVR) {
         if (
           this.clipPlaneListenerHandler.el.getAttribute("render-2d-clipplane")
             .activateClipPlane &&
@@ -133,7 +133,7 @@ AFRAME.registerComponent("loader", {
             }
           }
         }
-      } else if (this.controllerHandler !== undefined && isVrModeActive) {
+      } else if (this.controllerHandler !== undefined && inVR) {
         if (
           !this.controllerHandler.el.getAttribute("buttons-check").grabObject &&
           this.grabbed
@@ -191,25 +191,6 @@ AFRAME.registerComponent("loader", {
     this.el.sceneEl.removeEventListener("exit-vr", this.onExitVR);
   },
 
-  /* EVENT LISTENERS FUNCTIONS */
-
-  onEnterVR: function () {},
-
-  onExitVR: function () {
-    if (this.getMesh()) {
-      this.getMesh().position.copy(new THREE.Vector3());
-      this.getMesh().rotation.set(0, 0, 0);
-    }
-  },
-
-  onCollide: function (e) {
-    this.data.rayCollided = true;
-  },
-
-  onClearCollide: function (e) {
-    this.data.rayCollided = false;
-  },
-
   /* HELPER FUNCTIONS */
 
   getMesh: function () {
@@ -243,12 +224,12 @@ AFRAME.registerComponent("loader", {
         ];
         const zScale = volumeScale[0] / volumeScale[2];
 
-        uniforms.u_data.value = texture;
-        uniforms.slice.value = slices;
         uniforms.dim.value = dim;
-        uniforms.step_size.value = new THREE.Vector3(0.01, 0.01, 0.01);
-        uniforms.viewPort.value = new THREE.Vector2(width, height);
         uniforms.P_inv.value = new THREE.Matrix4();
+        uniforms.slice.value = slices;
+        uniforms.step_size.value = new THREE.Vector3(0.01, 0.01, 0.01);
+        uniforms.u_data.value = texture;
+        uniforms.viewPort.value = new THREE.Vector2(width, height);
         uniforms.zScale.value = zScale;
 
         // TODO: What to do when not using transfer function?
@@ -393,12 +374,31 @@ AFRAME.registerComponent("loader", {
     clipMatrix.multiplyMatrices(clipMatrix, translationMatrix);
 
     //set uniforms of shader
-    const isVrModeActive = this.sceneHandler.is("vr-mode");
+    const inVR = this.sceneHandler.is("vr-mode");
     const doClip =
-      isVrModeActive &&
+      inVR &&
       this.controllerHandler.el.getAttribute("buttons-check").clipPlane &&
       !this.grabbed;
     material.uniforms.clipPlane.value = clipMatrix;
     material.uniforms.clipping.value = doClip;
   },
+
+    /* EVENT LISTENERS FUNCTIONS */
+
+    onEnterVR: function () {},
+
+    onExitVR: function () {
+      if (this.getMesh()) {
+        this.getMesh().position.copy(new THREE.Vector3());
+        this.getMesh().rotation.set(0, 0, 0);
+      }
+    },
+  
+    onCollide: function (e) {
+      this.data.rayCollided = true;
+    },
+  
+    onClearCollide: function (e) {
+      this.data.rayCollided = false;
+    },
 });
