@@ -13,6 +13,9 @@ AFRAME.registerComponent("loader", {
     slices: { type: "number", default: 55 },
     spacing: { type: "array", default: [1, 1, 1] },
     useTransferFunction: { type: "boolean", default: false },
+    xBounds: { type: "array", default: [0, 1] },
+    yBounds: { type: "array", default: [0, 1] },
+    zBounds: { type: "array", default: [0, 1] },
   },
 
   init: function () {
@@ -21,16 +24,10 @@ AFRAME.registerComponent("loader", {
     this.grabbed = false;
     this.colorMapNeedsUpdate = false;
     this.colorTransferMap = new Map();
-    this.clip2DPlaneRendered = false;
 
     // Get rhand entity
     this.controllerHandler = document.getElementById("rhand").object3D;
     this.controllerHandler.matrixAutoUpdate = false;
-
-    // Get clipplane2DListener entity
-    this.clipPlaneListenerHandler = document.getElementById(
-      "clipplane2DListener"
-    ).object3D;
 
     // Bind functions
     this.loadModel = this.loadModel.bind(this);
@@ -82,100 +79,70 @@ AFRAME.registerComponent("loader", {
 
   tick: function (time, timeDelta) {
     const inVR = this.sceneHandler.is("vr-mode");
-      if (this.clipPlaneListenerHandler !== undefined && !inVR) {
-        if (
-          this.clipPlaneListenerHandler.el.getAttribute("render-2d-clipplane")
-            .activateClipPlane &&
-          !this.clip2DPlaneRendered
-        ) {
-          this.clip2DPlaneRendered = true;
-        } else if (
-          !this.clipPlaneListenerHandler.el.getAttribute("render-2d-clipplane")
-            .activateClipPlane &&
-          this.clip2DPlaneRendered
-        ) {
-          this.clip2DPlaneRendered = false;
+    if (!inVR) {
+      // What to do when not in VR
+      // TODO: material changes should be handled in update not here
 
-          if (this.getMesh()) {
-            const material = this.getMesh().material;
-            material.uniforms.box_min.value = new THREE.Vector3(0, 0, 0);
-            material.uniforms.box_max.value = new THREE.Vector3(1, 1, 1);
-          }
+      if (this.getMesh()) {
+        const material = this.getMesh().material;
+
+        if (material) {
+          material.uniforms.box_min.value = new THREE.Vector3(
+            this.data.xBounds[0],
+            this.data.yBounds[0],
+            this.data.zBounds[0]
+          );
+          material.uniforms.box_max.value = new THREE.Vector3(
+            this.data.xBounds[1],
+            this.data.yBounds[1],
+            this.data.zBounds[1]
+          );
         }
-
-        if (this.clip2DPlaneRendered) {
-          if (this.getMesh()) {
-            const material = this.getMesh().material;
-
-            if (material !== undefined) {
-              const sliceX = this.clipPlaneListenerHandler.el.getAttribute(
-                "render-2d-clipplane"
-              ).clipX;
-              const sliceY = this.clipPlaneListenerHandler.el.getAttribute(
-                "render-2d-clipplane"
-              ).clipY;
-              const sliceZ = this.clipPlaneListenerHandler.el.getAttribute(
-                "render-2d-clipplane"
-              ).clipZ;
-
-              material.uniforms.box_min.value = new THREE.Vector3(
-                sliceX.x,
-                sliceY.x,
-                sliceZ.x
-              );
-              material.uniforms.box_max.value = new THREE.Vector3(
-                sliceX.y,
-                sliceY.y,
-                sliceZ.y
-              );
-            }
-          }
-        }
-      } else if (this.controllerHandler !== undefined && inVR) {
-        if (
-          !this.controllerHandler.el.getAttribute("buttons-check").grabObject &&
-          this.grabbed
-        ) {
-          this.el
-            .getObject3D("mesh")
-            .matrix.premultiply(this.controllerHandler.matrixWorld);
-          this.el
-            .getObject3D("mesh")
-            .matrix.decompose(
-              this.getMesh().position,
-              this.getMesh().quaternion,
-              this.getMesh().scale
-            );
-          this.el.object3D.add(this.getMesh());
-
-          this.grabbed = false;
-        }
-
-        // grab mesh
-        if (
-          this.controllerHandler.el.getAttribute("buttons-check").grabObject &&
-          this.data.rayCollided &&
-          !this.grabbed
-        ) {
-          const inverseControllerPos = new THREE.Matrix4();
-          inverseControllerPos
-            .copy(this.controllerHandler.matrixWorld)
-            .invert();
-          this.getMesh().matrix.premultiply(inverseControllerPos);
-          this.el
-            .getObject3D("mesh")
-            .matrix.decompose(
-              this.getMesh().position,
-              this.getMesh().quaternion,
-              this.getMesh().scale
-            );
-          this.controllerHandler.add(this.getMesh());
-
-          this.grabbed = true;
-        }
-
-        this.updateMeshClipMatrix(this.controllerHandler.matrixWorld);
       }
+    } else if (this.controllerHandler && inVR) {
+      // What to do when in VR
+      if (
+        !this.controllerHandler.el.getAttribute("buttons-check").grabObject &&
+        this.grabbed
+      ) {
+        this.el
+          .getObject3D("mesh")
+          .matrix.premultiply(this.controllerHandler.matrixWorld);
+        this.el
+          .getObject3D("mesh")
+          .matrix.decompose(
+            this.getMesh().position,
+            this.getMesh().quaternion,
+            this.getMesh().scale
+          );
+        this.el.object3D.add(this.getMesh());
+
+        this.grabbed = false;
+      }
+
+      // grab mesh
+      if (
+        this.controllerHandler.el.getAttribute("buttons-check").grabObject &&
+        this.data.rayCollided &&
+        !this.grabbed
+      ) {
+        const inverseControllerPos = new THREE.Matrix4();
+        inverseControllerPos.copy(this.controllerHandler.matrixWorld).invert();
+        this.getMesh().matrix.premultiply(inverseControllerPos);
+        this.el
+          .getObject3D("mesh")
+          .matrix.decompose(
+            this.getMesh().position,
+            this.getMesh().quaternion,
+            this.getMesh().scale
+          );
+        this.controllerHandler.add(this.getMesh());
+
+        this.grabbed = true;
+      }
+
+      this.updateMeshClipMatrix(this.controllerHandler.matrixWorld);
+    }
   },
 
   remove: function () {
