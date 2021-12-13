@@ -26,6 +26,8 @@ function AframeScene(props) {
     });
     return str;
   }
+
+  // TODO: Add back cursor change when over model
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* CAMERA */}
@@ -45,7 +47,7 @@ function AframeScene(props) {
       {/* MODEL */}
       <a-entity
         id="volumeCube"
-        class="clickableMesh"
+        class="clickableMesh clickable"
         position={model.position}
         rotation={model.rotation}
         scale={model.scale}
