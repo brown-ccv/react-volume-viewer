@@ -22,7 +22,7 @@ The only required props are the model's path and it's minimum and maximum data p
 
 ```jsx
 VolumeViewer.propTypes = {
-  /** The current color map (path to the image) */
+  /** The current color map (path to the image). It will default to grayscale if no colorMap is provided. */
   colorMap: PropTypes.string,
   /**
    * Dictionary of color maps available in the controls.

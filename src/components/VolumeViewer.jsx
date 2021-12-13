@@ -90,7 +90,7 @@ const Wrapper = styled.div`
 `;
 
 VolumeViewer.propTypes = {
-  /** The current color map (path to the image) */
+  /** The current color map (path to the image). It will default to grayscale if no colorMap is provided. */
   colorMap: PropTypes.string,
 
   /**
