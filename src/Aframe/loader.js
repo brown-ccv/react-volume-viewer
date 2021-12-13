@@ -49,7 +49,15 @@ AFRAME.registerComponent("loader", {
   },
 
   update: function (oldData) {
-    const { colorMap, path, transferFunctionX, transferFunctionY } = this.data;
+    const {
+      colorMap,
+      path,
+      transferFunctionX,
+      transferFunctionY,
+      xBounds,
+      yBounds,
+      zBounds,
+    } = this.data;
     if (
       (transferFunctionX && oldData.transferFunctionX !== transferFunctionX) ||
       (transferFunctionY && oldData.transferFunctionY !== transferFunctionY)
@@ -73,6 +81,28 @@ AFRAME.registerComponent("loader", {
       this.updateTransferTexture();
     }
 
+    if (
+      this.getMesh() &&
+      xBounds &&
+      yBounds &&
+      zBounds &&
+      (oldData.xBounds !== xBounds ||
+        oldData.yBounds !== yBounds ||
+        oldData.zBounds !== zBounds)
+    ) {
+      const material = this.getMesh().material;
+      material.uniforms.box_min.value = new THREE.Vector3(
+        xBounds[0],
+        yBounds[0],
+        zBounds[0]
+      );
+      material.uniforms.box_max.value = new THREE.Vector3(
+        xBounds[1],
+        yBounds[1],
+        zBounds[1]
+      );
+    }
+
     if (colorMap && oldData.colorMap !== colorMap) this.loadColorMap();
     if (path && oldData.path !== path) this.loadModel();
   },
@@ -82,23 +112,21 @@ AFRAME.registerComponent("loader", {
     if (!inVR) {
       // What to do when not in VR
       // TODO: material changes should be handled in update not here
-
-      if (this.getMesh()) {
-        const material = this.getMesh().material;
-
-        if (material) {
-          material.uniforms.box_min.value = new THREE.Vector3(
-            this.data.xBounds[0],
-            this.data.yBounds[0],
-            this.data.zBounds[0]
-          );
-          material.uniforms.box_max.value = new THREE.Vector3(
-            this.data.xBounds[1],
-            this.data.yBounds[1],
-            this.data.zBounds[1]
-          );
-        }
-      }
+      // if (this.getMesh()) {
+      //   const material = this.getMesh().material;
+      //   if (material) {
+      //     material.uniforms.box_min.value = new THREE.Vector3(
+      //       this.data.xBounds[0],
+      //       this.data.yBounds[0],
+      //       this.data.zBounds[0]
+      //     );
+      //     material.uniforms.box_max.value = new THREE.Vector3(
+      //       this.data.xBounds[1],
+      //       this.data.yBounds[1],
+      //       this.data.zBounds[1]
+      //     );
+      //   }
+      // }
     } else if (this.controllerHandler && inVR) {
       // What to do when in VR
       if (
