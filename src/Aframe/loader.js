@@ -1,5 +1,5 @@
-import { THREE } from "aframe";
-import "./ccvLibVolumeShader.js";
+// import { THREE } from "aframe";
+import "./VolumeViewerShader";
 
 AFRAME.registerComponent("loader", {
   schema: {
@@ -62,6 +62,8 @@ AFRAME.registerComponent("loader", {
     return this.el.getObject3D("mesh");
   },
 
+  /* EVENT LISTENERS FUNCTIONS */
+
   onEnterVR: function () {},
 
   onExitVR: function () {
@@ -78,6 +80,8 @@ AFRAME.registerComponent("loader", {
   onClearCollide: function (event) {
     this.data.rayCollided = false;
   },
+
+  /* HELPER FUNCTIONS */
 
   loadModel: function () {
     const el = this.el;
@@ -114,8 +118,12 @@ AFRAME.registerComponent("loader", {
         texture.needsUpdate = true;
 
         // Material
-        const shader = THREE.ShaderLib["ccvLibVolumeRenderShader"];
+        // const shader = THREE.ShaderLib["ccvLibVolumeRenderShader"];
+        const shader = THREE.ShaderLib.volumeViewer;
+        console.log(THREE.ShaderLib);
+        // console.log(shader);
         const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+        console.log();
         uniforms["u_data"].value = texture;
         uniforms["u_lut"].value = null;
         uniforms["clipPlane"].value = new THREE.Matrix4();
@@ -165,8 +173,8 @@ AFRAME.registerComponent("loader", {
 
         updateColorMapping();
       },
-      function () {},
-      function () {
+      () => {},
+      () => {
         console.error("Could not load model:", path);
       }
     );
