@@ -76,7 +76,7 @@ function VolumeViewer({
               ? { ...colorMaps, ...DEFAULT_COLOR_MAPS }
               : colorMaps
           }
-          initColorMap={colorMap}
+          initColorMap={colorMap ?? DEFAULT_COLOR_MAP}
           useTransferFunction={useTransferFunction}
         />
       )}
