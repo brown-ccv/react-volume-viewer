@@ -109,66 +109,30 @@ AFRAME.registerComponent("loader", {
 
   tick: function (time, timeDelta) {
     const inVR = this.sceneHandler.is("vr-mode");
-    if (!inVR) {
-      // What to do when not in VR
-      // TODO: material changes should be handled in update not here
-      // if (this.getMesh()) {
-      //   const material = this.getMesh().material;
-      //   if (material) {
-      //     material.uniforms.box_min.value = new THREE.Vector3(
-      //       this.data.xBounds[0],
-      //       this.data.yBounds[0],
-      //       this.data.zBounds[0]
-      //     );
-      //     material.uniforms.box_max.value = new THREE.Vector3(
-      //       this.data.xBounds[1],
-      //       this.data.yBounds[1],
-      //       this.data.zBounds[1]
-      //     );
-      //   }
-      // }
-    } else if (this.controllerHandler && inVR) {
-      // What to do when in VR
-      if (
-        !this.controllerHandler.el.getAttribute("buttons-check").grabObject &&
-        this.grabbed
-      ) {
-        this.el
-          .getObject3D("mesh")
-          .matrix.premultiply(this.controllerHandler.matrixWorld);
-        this.el
-          .getObject3D("mesh")
-          .matrix.decompose(
-            this.getMesh().position,
-            this.getMesh().quaternion,
-            this.getMesh().scale
-          );
-        this.el.object3D.add(this.getMesh());
+    if (this.controllerHandler && inVR) {
+      const buttonsCheck =
+        this.controllerHandler.el.getAttribute("buttons-check");
+
+      if (!buttonsCheck.grabObject && this.grabbed) {
+        const mesh = this.getMesh();
+        mesh.matrix.premultiply(this.controllerHandler.matrixWorld);
+        mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+        this.el.object3D.add(mesh);
 
         this.grabbed = false;
       }
 
       // grab mesh
-      if (
-        this.controllerHandler.el.getAttribute("buttons-check").grabObject &&
-        this.data.rayCollided &&
-        !this.grabbed
-      ) {
+      if (buttonsCheck.grabObject && this.data.rayCollided && !this.grabbed) {
         const inverseControllerPos = new THREE.Matrix4();
+        const mesh = this.getMesh();
         inverseControllerPos.copy(this.controllerHandler.matrixWorld).invert();
-        this.getMesh().matrix.premultiply(inverseControllerPos);
-        this.el
-          .getObject3D("mesh")
-          .matrix.decompose(
-            this.getMesh().position,
-            this.getMesh().quaternion,
-            this.getMesh().scale
-          );
-        this.controllerHandler.add(this.getMesh());
+        mesh.matrix.premultiply(inverseControllerPos);
+        mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+        this.controllerHandler.add(mesh);
 
         this.grabbed = true;
       }
-
       this.updateMeshClipMatrix(this.controllerHandler.matrixWorld);
     }
   },
