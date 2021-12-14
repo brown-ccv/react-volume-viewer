@@ -13,21 +13,19 @@ import {
 import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
 
-function VolumeViewer(props) {
-  const {
-    className,
-    style,
-    colorMap,
-    colorMaps,
-    controlsVisible,
-    model,
-    transferFunction,
-    useDefaultColorMaps,
-    useTransferFunction,
-  } = props;
-
+function VolumeViewer({
+  className,
+  style,
+  colorMap,
+  colorMaps,
+  controlsVisible,
+  model,
+  transferFunction,
+  useDefaultColorMaps,
+  useTransferFunction,
+}) {
   const [state, setState] = useState({
-    colorMap: colorMap ? colorMap : DEFAULT_COLOR_MAP,
+    colorMap: colorMap ?? DEFAULT_COLOR_MAP,
     model: { ...DEFAULT_MODEL, ...model },
     sliders: {
       x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
@@ -43,7 +41,7 @@ function VolumeViewer(props) {
   useEffect(() => {
     setState((state) => ({
       ...state,
-      colorMap: colorMap ? colorMap : DEFAULT_COLOR_MAP,
+      colorMap: colorMap ?? DEFAULT_COLOR_MAP,
     }));
   }, [colorMap]);
 
@@ -78,7 +76,7 @@ function VolumeViewer(props) {
               ? { ...colorMaps, ...DEFAULT_COLOR_MAPS }
               : colorMaps
           }
-          initColorMap={colorMap}
+          initColorMap={colorMap ?? DEFAULT_COLOR_MAP}
           useTransferFunction={useTransferFunction}
         />
       )}
@@ -92,7 +90,7 @@ const Wrapper = styled.div`
 `;
 
 VolumeViewer.propTypes = {
-  /** The current color map (path to the image) */
+  /** The current color map (path to the image). It will default to grayscale if no colorMap is provided. */
   colorMap: PropTypes.string,
 
   /**
