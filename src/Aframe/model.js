@@ -215,6 +215,7 @@ AFRAME.registerComponent("model", {
   loadColorMap: function () {
     // TODO: Parse error if can't load this.data.colorMap
     if (!this.colorTransferMap.has(this.data.colorMap)) {
+      const updateTransferTexture = this.updateTransferTexture;
       const colorCanvas = document.createElement("canvas");
       const imgWidth = 255;
       const imgHeight = 15;
@@ -238,7 +239,6 @@ AFRAME.registerComponent("model", {
       this.colorTransferMap.set(this.data.colorMap, newColorMap);
       const mappedColorMap = newColorMap;
 
-      const updateTransferTexture = this.updateTransferTexture;
       newColorMap.img.onload = function (data) {
         colorCanvas.height = imgHeight;
         colorCanvas.width = imgWidth;
