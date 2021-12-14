@@ -115,7 +115,6 @@ function OpacityControls({
       context.arc(point.x, point.y, 5, 0, 2 * Math.PI);
       context.fill();
     });
-    
 
     setState((state) => ({
       ...state,
