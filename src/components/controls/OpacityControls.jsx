@@ -108,13 +108,14 @@ function OpacityControls({
     // Draw points
     canvasPoints.map((point) => {
       context.beginPath();
-      context.fill =
+      context.fillStyle =
         pointHovering === point
           ? "rgba(255, 255, 85, 1)"
           : "rgba(255, 170, 0, 1)";
       context.arc(point.x, point.y, 5, 0, 2 * Math.PI);
       context.fill();
     });
+    
 
     setState((state) => ({
       ...state,

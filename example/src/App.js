@@ -10,7 +10,7 @@ const temp = "./assets/models/summer-high-temp.png";
 
 export default function App() {
   const [colorMap, setColorMap] = useState(haline);
-  const [controlsVisible, setControlsVisible] = useState(true);
+  const [controlsVisible, setControlsVisible] = useState(false);
   const [useTransferFunction, setUseTransferFunction] = useState(true);
   const [modelPath, setModelPath] = useState(salt);
 
