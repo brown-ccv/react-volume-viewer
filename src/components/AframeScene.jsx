@@ -34,7 +34,7 @@ function AframeScene(props) {
         id="camera"
         camera="active: true"
         look-controls
-        arcball-camera
+        arcball-camera="initialPosition: 0 0 1"
       />
 
       {/* MOUSE */}
@@ -43,10 +43,21 @@ function AframeScene(props) {
       {/* BUTTONS CHECK */}
       <a-entity id="rhand" raycaster="objects: .clickableMesh" buttons-check />
 
+      <a-plane
+        class="clickable"
+        // visible="false"
+        height="1"
+        width="1"
+        material="color: red; side: double; transparent: true; opacity: 0.2"
+        position={model.position}
+        rotation={model.rotation}
+        scale={model.scale}
+      />
+
       {/* MODEL*/}
       <a-entity
         id="volumeCube"
-        class="clickableMesh clickable"
+        class="clickableMesh"
         position={model.position}
         rotation={model.rotation}
         scale={model.scale}
