@@ -254,16 +254,16 @@ AFRAME.registerComponent("model", {
         mappedColorMap.data = colorTransfer;
         updateTransferTexture();
       };
-    } else {
-      this.updateTransferTexture();
-    }
+    } else this.updateTransferTexture();
   },
 
   updateTransferTexture: function () {
     if (this.colorTransferMap.has(this.data.colorMap)) {
+      const width = 256;
       const colorTransfer = this.colorTransferMap.get(this.data.colorMap).data;
-      const imageTransferData = new Uint8Array(4 * 256);
-      for (let i = 0; i < 256; i++) {
+
+      const imageTransferData = new Uint8Array(4 * width);
+      for (let i = 0; i < width; i++) {
         imageTransferData[i * 4 + 0] = colorTransfer[i * 3 + 0];
         imageTransferData[i * 4 + 1] = colorTransfer[i * 3 + 1];
         imageTransferData[i * 4 + 2] = colorTransfer[i * 3 + 2];
@@ -272,7 +272,7 @@ AFRAME.registerComponent("model", {
 
       const transferTexture = new THREE.DataTexture(
         imageTransferData,
-        256,
+        width,
         1,
         THREE.RGBAFormat
       );
