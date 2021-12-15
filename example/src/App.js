@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-
 import { VolumeViewer } from "react-volume-viewer";
-import "./index.css";
 
 const haline = "./assets/colormaps/haline.png";
 const thermal = "./assets/colormaps/thermal.png";

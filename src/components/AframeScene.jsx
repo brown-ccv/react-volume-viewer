@@ -1,6 +1,4 @@
 import React from "react";
-import styled from "styled-components";
-import { Entity, Scene } from "aframe-react";
 
 import "aframe";
 import "aframe-event-set-component";
@@ -12,31 +10,52 @@ import "../Aframe/cursor-listener";
 import "../Aframe/loader";
 import "../Aframe/render-2d-clipplane";
 
-function AframeScene({
-  state: { colorMap, model, sliders, transferFunction },
-  useTransferFunction,
-}) {
+function AframeScene(props) {
+  const {
+    state: { colorMap, model, sliders, transferFunction },
+    useTransferFunction,
+  } = props;
+
+  // aframe data is passed as a string
+  function toAframeString(obj) {
+    let str = "";
+    Object.entries(obj).forEach(([key, val]) => {
+      let propStr = `${key}: ${val};`;
+
+      // Image imports begin with data:image/png;64
+      // Remove ; to parse into aframe correctly
+      // The ; is re-injected in loader.js
+      if (key === "colorMap") propStr = propStr.replace(";", "") + ";";
+
+      str += propStr;
+    });
+    return str;
+  }
   return (
-    <StyledScene id="volumeViewerScene" background="color: black" embedded>
-      <Entity
+    <a-scene id="volumeViewerScene" background="color: black" embedded>
+      {/* HAND */}
+      <a-entity
         id="rhand"
         raycaster="objects: .clickableMesh"
-        buttons-check={{ clipPlane: false, grabObject: false }}
-        collider-check={{ intersecting: false }}
+        buttons-check={toAframeString({
+          clipPlane: false,
+          grabObject: false,
+        })}
+        collider-check={toAframeString({
+          intersecting: false,
+        })}
       />
 
-      <Entity
+      <a-entity
         id="clipplane2DListener"
-        render-2d-clipplane={{
+        render-2d-clipplane={toAframeString({
           activateClipPlane: true,
           xBounds: sliders.x,
           yBounds: sliders.y,
           zBounds: sliders.z,
-          currentAxisAngle: "0 0 0",
-          rotateAngle: "0 0 0",
-          clipX: "0 0",
-        }}
+        })}
       />
+
       <a-plane
         class="clickable"
         id="clipplane2D"
@@ -47,38 +66,38 @@ function AframeScene({
         cursor-listener
       />
 
-      <Entity
+      {/* MODEL */}
+      <a-entity
         id="volumeCube"
         class="clickableMesh"
-        loader={{
-          useTransferFunction: useTransferFunction,
-          colorMap: colorMap,
+        loader={toAframeString({
           alphaXDataArray: transferFunction.map((p) => p["x"]),
           alphaYDataArray: transferFunction.map((p) => p["y"]),
+          colorMap: colorMap,
           path: model.path,
           slices: model.slices,
           x_spacing: model.spacing.x,
           y_spacing: model.spacing.y,
           z_spacing: model.spacing.z,
-        }}
+          useTransferFunction: useTransferFunction,
+        })}
         position={model.position}
         rotation={model.rotation}
         scale={model.scale}
       />
 
+      {/* MOUSE */}
       <a-entity cursor="rayOrigin:mouse" raycaster="objects: .clickable" />
-      <Entity
+
+      {/* CAMERA */}
+      <a-entity
         id="camera"
         camera="active: true"
         look-controls
         arcball-camera="initialPosition:0 0 1"
       />
-    </StyledScene>
+    </a-scene>
   );
 }
-
-const StyledScene = styled(Scene)`
-  position: relative;
-`;
 
 export default AframeScene;
