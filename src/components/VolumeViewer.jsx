@@ -51,13 +51,13 @@ function VolumeViewer({
     return useTransferFunction ? transferFunction : DEFAULT_TRANSFER_FUNCTION;
   }
   function getColorMaps() {
-    const cMap = getColorMap()
+    const cMap = getColorMap();
     let out = useDefaultColorMaps
       ? { ...colorMaps, ...DEFAULT_COLOR_MAPS }
       : colorMaps;
 
     // If cMap not in out, add it
-    
+
     return out;
   }
 

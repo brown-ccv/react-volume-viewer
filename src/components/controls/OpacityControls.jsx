@@ -37,8 +37,14 @@ function getRelativeMousePos(e) {
   };
 
   // Clamp to the canvas padding
-  position.x = Math.min(Math.max(position.x, canvasRange.x[0]), canvasRange.x[1])
-  position.y = Math.max(Math.min(position.y, canvasRange.y[0]), canvasRange.y[1])
+  position.x = Math.min(
+    Math.max(position.x, canvasRange.x[0]),
+    canvasRange.x[1]
+  );
+  position.y = Math.max(
+    Math.min(position.y, canvasRange.y[0]),
+    canvasRange.y[1]
+  );
 
   return position;
 }
@@ -131,10 +137,11 @@ function OpacityControls({
   // Check to see if cursor is above a point - change cursor if so
   function checkHovering(e) {
     const relativeMouse = getRelativeMousePos(e);
-    console.log(relativeMouse, canvasPoints[1])
+    console.log(relativeMouse, canvasPoints[1]);
     const point = canvasPoints.find((point) => {
       const distance = Math.sqrt(
-        Math.pow(relativeMouse.x - point.x, 2) + Math.pow(relativeMouse.y - point.y, 2)
+        Math.pow(relativeMouse.x - point.x, 2) +
+          Math.pow(relativeMouse.y - point.y, 2)
       );
       return distance < HOVER_RADIUS;
     });
