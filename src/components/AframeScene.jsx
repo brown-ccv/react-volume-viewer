@@ -26,7 +26,7 @@ function AframeScene(props) {
     });
     return str;
   }
-  
+
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* ARCBALL CAMERA */}
@@ -45,7 +45,7 @@ function AframeScene(props) {
 
       <a-plane
         class="clickable"
-        // visible="false"
+        visible="false"
         height="1"
         width="1"
         material="color: red; side: double; transparent: true; opacity: 0.2"

@@ -13,6 +13,7 @@ import {
 import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
 
+// TODO: Make colorMaps an array
 function VolumeViewer({
   className,
   style,

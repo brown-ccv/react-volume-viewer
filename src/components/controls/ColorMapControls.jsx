@@ -12,6 +12,7 @@ import "@reach/listbox/styles.css";
 
 import Title from "./SectionTitle.jsx";
 
+// TODO: Pass along the value as an index?
 function ColorMapControls({ state: { colorMap, colorMaps }, setState }) {
   return (
     <Wrapper>
