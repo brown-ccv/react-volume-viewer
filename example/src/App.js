@@ -52,11 +52,11 @@ export default function App() {
 
         <VolumeViewer
           className="volumeViewer"
-          colorMaps={{
-            Haline: haline,
-            Thermal: thermal,
-          }}
-          colorMap={colorMap}
+          // colorMaps={{
+          //   Haline: haline,
+          //   Thermal: thermal,
+          // }}
+          // colorMap={colorMap}
           controlsVisible={controlsVisible}
           model={{
             range: {
@@ -69,6 +69,7 @@ export default function App() {
             rotation: "-55 0 0",
           }}
           useTransferFunction={useTransferFunction}
+          useDefaultColorMaps={false}
         />
         <hr />
       </main>
