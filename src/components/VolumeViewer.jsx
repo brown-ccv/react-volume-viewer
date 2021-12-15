@@ -166,7 +166,6 @@ VolumeViewer.propTypes = {
   useTransferFunction: PropTypes.bool,
 };
 
-// TODO: Should be able to set DEFAULT_COLOR_MAP here
 VolumeViewer.defaultProps = {
   colorMap: DEFAULT_COLOR_MAP,
   controlsVisible: true,
