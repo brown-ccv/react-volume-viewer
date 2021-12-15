@@ -35,7 +35,6 @@ function ColorMapControls({ state: { colorMap }, setState, colorMaps }) {
             />
             <ListboxArrow />
           </ListboxButton>
-
           <ListboxPopover>
             <ListboxList>
               {Object.keys(colorMaps).map((color) => (
