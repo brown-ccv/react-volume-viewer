@@ -25,7 +25,18 @@ function VolumeViewer({
   useTransferFunction,
 }) {
   function getColorMap() {
-    return colorMap ?? DEFAULT_COLOR_MAP;
+    // colorMap is passed in colorMap
+    // If no colorMap -> first property of colorMaps
+    // If no colorMap and no colorMaps -> DEFAULT_COLOR_MAP
+
+    // Return colorMap if given
+    if (colorMap) return colorMap;
+
+    const out = colorMaps
+      ? colorMaps[Object.keys(colorMaps)[0]]
+      : DEFAULT_COLOR_MAP;
+    console.log("getColorMap", colorMaps, colorMap, out);
+    return out;
   }
   function getModel() {
     const range = model.range ?? DEFAULT_MODEL.range;
@@ -39,6 +50,17 @@ function VolumeViewer({
   function getTransferFunction() {
     return useTransferFunction ? transferFunction : DEFAULT_TRANSFER_FUNCTION;
   }
+  function getColorMaps() {
+    const cMap = getColorMap()
+    let out = useDefaultColorMaps
+      ? { ...colorMaps, ...DEFAULT_COLOR_MAPS }
+      : colorMaps;
+
+    // If cMap not in out, add it
+    
+    return out;
+  }
+
   const [state, setState] = useState({
     colorMap: getColorMap(),
     model: getModel(),
@@ -82,12 +104,8 @@ function VolumeViewer({
         <Controls
           state={state}
           setState={setState}
-          colorMaps={
-            useDefaultColorMaps
-              ? { ...colorMaps, ...DEFAULT_COLOR_MAPS }
-              : colorMaps
-          }
-          initColorMap={colorMap ?? DEFAULT_COLOR_MAP}
+          colorMaps={getColorMaps()}
+          initColorMap={getColorMap()}
           useTransferFunction={useTransferFunction}
         />
       )}
@@ -157,7 +175,6 @@ VolumeViewer.propTypes = {
    * Whether or not to use the libraries default color maps
    * Default Color Maps: grayscale, natural, rgb
    *
-   * If defaultColorMaps is false and no colorMap is present the model will use grayscale
    */
   useDefaultColorMaps: PropTypes.bool,
 
@@ -167,8 +184,8 @@ VolumeViewer.propTypes = {
 
 // TODO: Should be able to set DEFAULT_COLOR_MAP here
 VolumeViewer.defaultProps = {
-  colorMap: null,
-  colorMaps: {},
+  // colorMap: DEFAULT_COLOR_MAP,
+  // colorMaps: {},
   controlsVisible: true,
   transferFunction: DEFAULT_TRANSFER_FUNCTION,
   useDefaultColorMaps: true,

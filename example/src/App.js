@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import styled from "styled-components";
 
 import { VolumeViewer } from "react-volume-viewer";
 import "./index.css";
@@ -8,7 +9,7 @@ const thermal = "./assets/colormaps/thermal.png";
 const salt = "./assets/models/summer-high-salt.png";
 const temp = "./assets/models/summer-high-temp.png";
 
-export default function App() {
+function App() {
   const [colorMap, setColorMap] = useState(haline);
   const [controlsVisible, setControlsVisible] = useState(false);
   const [useTransferFunction, setUseTransferFunction] = useState(true);
@@ -20,7 +21,7 @@ export default function App() {
         <h1>Hello, World</h1>
       </header>
 
-      <main style={{ margin: "25px" }}>
+      <Main>
         <div>
           <button onClick={() => setControlsVisible(!controlsVisible)}>
             Controls Visible
@@ -50,13 +51,12 @@ export default function App() {
           </button>
         </div>
 
-        <VolumeViewer
-          className="volumeViewer"
+        <StyledVolumeViewer
           colorMaps={{
-            Haline: haline,
+            // Haline: haline,
             Thermal: thermal,
           }}
-          colorMap={colorMap}
+          // colorMap={colorMap}
           controlsVisible={controlsVisible}
           model={{
             range: {
@@ -69,9 +69,10 @@ export default function App() {
             rotation: "-55 0 0",
           }}
           useTransferFunction={useTransferFunction}
+          useDefaultColorMaps={false}
         />
         <hr />
-      </main>
+      </Main>
 
       <footer>
         <h1>Goodbye, World!</h1>
@@ -79,3 +80,13 @@ export default function App() {
     </>
   );
 }
+
+const StyledVolumeViewer = styled(VolumeViewer)`
+  height: 75vh;
+`;
+
+const Main = styled.main`
+  margin: 25px;
+`;
+
+export default App;
