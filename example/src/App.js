@@ -53,10 +53,10 @@ function App() {
 
         <StyledVolumeViewer
           colorMaps={{
-            // Haline: haline,
+            Haline: haline,
             Thermal: thermal,
           }}
-          // colorMap={colorMap}
+          colorMap={colorMap}
           controlsVisible={controlsVisible}
           model={{
             range: {
@@ -69,7 +69,6 @@ function App() {
             rotation: "-55 0 0",
           }}
           useTransferFunction={useTransferFunction}
-          useDefaultColorMaps={false}
         />
         <hr />
       </Main>

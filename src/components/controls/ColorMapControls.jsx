@@ -14,7 +14,6 @@ import Title from "./SectionTitle.jsx";
 
 // TODO: colorMaps === null, just display colorMap
 function ColorMapControls({ state: { colorMap }, setState, colorMaps }) {
-  // console.log(colorMaps, colorMap);
   return (
     <Wrapper>
       <Title>Color Map</Title>
