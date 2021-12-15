@@ -39,7 +39,7 @@ function VolumeViewer({
   function getTransferFunction() {
     return useTransferFunction ? transferFunction : DEFAULT_TRANSFER_FUNCTION;
   }
-  
+
   const [state, setState] = useState({
     colorMap: getColorMap(),
     model: getModel(),
