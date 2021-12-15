@@ -1,24 +1,24 @@
-THREE.ShaderLib["ccvLibVolumeRenderShader"] = {
+THREE.ShaderLib.volumeViewer = {
   uniforms: {
-    slice: { value: 1.0 },
-    dim: { value: 1.0 },
-    clipPlane: { value: new THREE.Matrix4() },
-    clipping: { value: false },
-    threshold: { value: 1 },
-    multiplier: { value: 1 },
-    step_size: { value: new THREE.Vector3(1, 1, 1) },
+    box_max: { value: new THREE.Vector3(1, 1, 1) },
+    box_min: { value: new THREE.Vector3(0, 0, 0) },
     channel: { value: 1 },
+    clipping: { value: false },
+    clipPlane: { value: new THREE.Matrix4() },
+    controllerPoseMatrix: { value: new THREE.Matrix4() },
+    depth: { value: null },
+    dim: { value: 1.0 },
+    grabMesh: { value: false },
+    multiplier: { value: 1 },
+    P_inv: { value: new THREE.Matrix4() },
+    slice: { value: 1.0 },
+    step_size: { value: new THREE.Vector3(1, 1, 1) },
+    threshold: { value: 1 },
     u_lut: { value: null },
+    u_data: { value: null },
     useLut: { value: true },
     viewPort: { value: new THREE.Vector2() },
-    P_inv: { value: new THREE.Matrix4() },
-    u_data: { value: null },
-    depth: { value: null },
     zScale: { value: 1.0 },
-    controllerPoseMatrix: { value: new THREE.Matrix4() },
-    grabMesh: { value: false },
-    box_min: { value: new THREE.Vector3(0, 0, 0) },
-    box_max: { value: new THREE.Vector3(1, 1, 1) },
   },
 
   vertexShader: [
@@ -82,11 +82,9 @@ THREE.ShaderLib["ccvLibVolumeRenderShader"] = {
 
     "vec4 Dot0 = vec4(m[0] * Row0);",
     "float Dot1 = (Dot0.x + Dot0.y) + (Dot0.z + Dot0.w);",
-
     "float OneOverDeterminant = 1.0 / Dot1;",
 
     "return Inverse * OneOverDeterminant;",
-
     "}",
 
     "mat4 translate(mat4 m, vec3 v){",
@@ -112,16 +110,6 @@ THREE.ShaderLib["ccvLibVolumeRenderShader"] = {
   ].join("\n"),
 
   fragmentShader: [
-    /*'#version 330 core\n',
-		'mat4 scaleMatrix(ma4 m, vec3 v){',
-		  'mat4 Result;',
-		  'Result[0] = m[0] * v[0];',
-		  'Result[1] = m[1] * v[1];',
-		  'Result[2] = m[2] * v[2];',
-		  'Result[3] = m[3];',
-		  'return Result;  ',
-        '}',*/
-
     "mat4 translate(mat4 m, vec3 v){",
     "mat4 Result;",
     "Result[3] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3];",
@@ -171,7 +159,6 @@ THREE.ShaderLib["ccvLibVolumeRenderShader"] = {
     "uniform bool clipping;",
     "uniform float threshold;",
     "uniform float multiplier;",
-    //'uniform vec3 camPos;',						//camera position
     "uniform vec3 step_size;", //ray step size
     "const int MAX_SAMPLES = 3000;", //total samples for each ray march step
     "uniform int channel;",
@@ -184,10 +171,8 @@ THREE.ShaderLib["ccvLibVolumeRenderShader"] = {
     "uniform vec3 box_max;",
     "vec4 vFragColor;",
     "varying vec3 camPos;",
-    //'in mat4 nClipPlane; ',
 
-    "void main()",
-    "{",
+    "void main(){",
     //get the 3D texture coordinates for lookup into the volume dataset
     "vec3 dataPos = vUV;",
     "vFragColor = vec4(0);",
@@ -237,16 +222,6 @@ THREE.ShaderLib["ccvLibVolumeRenderShader"] = {
     "}",
     "}",
 
-    //Compute occlusion point in volume coordinates
-    //'float d = texture2D(depth, vec2(gl_FragCoord.x/viewport.x,gl_FragCoord.y/viewport.y)).r;',
-    //'vec4 d_ndc = vec4((gl_FragCoord.x / viewport.x - 0.5) * 2.0,(gl_FragCoord.y / viewport.y - 0.5) * 2.0, (d - 0.5) * 2.0, 1.0);',
-    //'d_ndc = P_inv * d_ndc;',
-    //'d_ndc = d_ndc / d_ndc.w;',
-
-    //compute t_occ and check if it closer than the exit point
-    //'float t_occ = length(d_ndc.xyz - (dataPos - vec3(0.5)));',
-    //'t_hit.y = min(t_hit.y, t_occ);',
-
     //compute step size as the minimum of the stepsize
     "float dt = min(step_size.x, min(step_size.y, step_size.z));",
 
@@ -273,25 +248,12 @@ THREE.ShaderLib["ccvLibVolumeRenderShader"] = {
     "}else{ ",
     "smple = sampleAs3DTexture(u_data, dataPos);",
     "smple.a = max(smple.r, max(smple.g,smple.b)) ; ",
-    "if(smple.a < 0.25)",
-    //'if(smple.a < 0.000001)',
-    "{",
+    "if(smple.a < 0.25){",
     "smple.a = 0.1*smple.a;",
-    //'discard;',
     "}",
-
     "}",
-
-    //'smple.a = max(smple.r, max(smple.g,smple.b)) ; ',
-    //'smple.a = 0.1*smple.a;',
     "if(useLut)",
     "smple = texture2D(u_lut, vec2(clamp(smple.a,0.0,1.0),0.5));",
-
-    //assume alpha is the highest channel and gamma correction
-    //"sample.a = pow(sample.a , multiplier); \n"  ///needs changing
-
-    //threshold based on alpha
-    //'if (smple.a < 0.001) continue;',
 
     //blending (front to back)
     "vFragColor.rgb += (1.0 - vFragColor.a) * smple.a * smple.rgb;",
@@ -303,15 +265,8 @@ THREE.ShaderLib["ccvLibVolumeRenderShader"] = {
 
     //advance point
     "dataPos += geomDir * dt; ",
-
     "}",
-
-    //remove fragments for correct depthbuffer
-    //'if (vFragColor.a == 0.0f)',
-    //	'discard;',
-
     "gl_FragColor = vFragColor;",
-    //'gl_FragColor = vec4(0,1,0,0);',
     "}",
   ].join("\n"),
 };

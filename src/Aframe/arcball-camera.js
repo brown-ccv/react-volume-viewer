@@ -1,115 +1,72 @@
-/* globals AFRAME  THREE*/
 import "./arcball-controller.js";
-
-let bind = AFRAME.utils.bind;
 
 AFRAME.registerComponent("arcball-camera", {
   dependencies: ["camera"],
 
   schema: {
-    initialPosition: { type: "vec3" },
+    initialPosition: { type: "vec3", default: { x: 0, y: 0, z: 1 } },
   },
 
   init: function () {
-    let el = this.el;
-    this.vrcam = document.querySelector("#camera");
+    const el = this.el;
+    // Bind functions
+    this.onEnterVR = AFRAME.utils.bind(this.onEnterVR, this);
+    this.onExitVR = AFRAME.utils.bind(this.onExitVR, this);
+
+    // Initialize controls
     this.controls = new THREE.TrackballControls(
       el.getObject3D("camera"),
       el.sceneEl.renderer.domElement
     );
-
-    this.meshObjectHandler = document.getElementById("volumeCube").object3D;
     this.controls.rotateSpeed = 1.0;
     this.controls.zoomSpeed = 1.2;
     this.controls.panSpeed = 0.8;
-    this.oldPosition = new THREE.Vector3();
-    this.oldMatrix = new THREE.Matrix4();
 
-    this.debugPosition = false;
-
-    this.bindMethods();
-    this.onWindowResize = this.onWindowResize.bind(this);
-
+    // Add event listeners
     el.sceneEl.addEventListener("enter-vr", this.onEnterVR);
     el.sceneEl.addEventListener("exit-vr", this.onExitVR);
-
-    window.addEventListener("resize", this.onWindowResize, false);
-
-    el.getObject3D("camera").position.copy(this.data.initialPosition);
-
-    // Set the pointer to grab/grabbing when over the vr canvas
-    const aCanvas = document.querySelector(".a-canvas");
-    aCanvas.style.cursor = "grab";
-
-    document.addEventListener("mousedown", () => {
-      aCanvas.style.cursor = "grabbing";
-    });
-    document.addEventListener("mouseup", () => {
-      aCanvas.style.cursor = "grab";
-    });
-  },
-
-  onWindowResize() {},
-
-  bindMethods: function () {
-    this.onEnterVR = bind(this.onEnterVR, this);
-    this.onExitVR = bind(this.onExitVR, this);
-  },
-
-  onEnterVR: function () {
-    let el = this.el;
-    this.debugPosition = true;
-    if (
-      !AFRAME.utils.device.checkHeadsetConnected() &&
-      !AFRAME.utils.device.isMobile()
-    ) {
-      return;
-    }
-    this.controls.enabled = false;
-    if (el.hasAttribute("look-controls")) {
-      el.setAttribute("look-controls", "enabled", true);
-      this.oldMatrix.copy(this.meshObjectHandler.matrixWorld);
-      this.oldPosition.copy(el.getObject3D("camera").position);
-      el.getObject3D("camera").position.set(0, 0, 0);
-    }
   },
 
   update: function (oldData) {
-    let controls = this.controls;
-    controls.rotateSpeed = 1.0;
-    controls.zoomSpeed = 1.2;
-    controls.panSpeed = 0.8;
+    if (this.data.initialPosition)
+      this.el.getObject3D("camera").position.copy(this.data.initialPosition);
   },
 
-  onExitVR: function () {
-    console.log("exit VR");
-    let el = this.el;
-    this.debugPosition = false;
+  // Set controls false and look-controls true
+  onEnterVR: function () {
     if (
       !AFRAME.utils.device.checkHeadsetConnected() &&
       !AFRAME.utils.device.isMobile()
     ) {
       return;
+    } else {
+      this.controls.enabled = false;
+      this.el.getObject3D("camera").position.set(0, 0, 0);
+      if (this.el.hasAttribute("look-controls")) {
+        this.el.setAttribute("look-controls", "enabled", true);
+      }
     }
-    this.controls.enabled = true;
-    el.getObject3D("camera").position.set(0, 0, 2);
-    console.log(
-      "this.meshObjectHandler.el.getAttribute('loader').meshPosition"
-    );
-    let mesh = this.meshObjectHandler.el.getAttribute("loader").meshPosition;
-    console.log(mesh);
+  },
 
-    if (el.hasAttribute("look-controls")) {
-      el.setAttribute("look-controls", "enabled", false);
+  // Set controls true and look-controls false
+  onExitVR: function () {
+    if (
+      !AFRAME.utils.device.checkHeadsetConnected() &&
+      !AFRAME.utils.device.isMobile()
+    ) {
+      return;
+    } else {
+      this.controls.enabled = true;
+      this.el.getObject3D("camera").position.set(0, 0, 2);
+
+      if (this.el.hasAttribute("look-controls")) {
+        this.el.setAttribute("look-controls", "enabled", false);
+      }
     }
   },
 
   tick: function () {
-    if (this.controls.enabled) {
-      this.controls.update();
-    }
-    if (this.debugPosition) {
-    }
+    this.controls.enabled && this.controls.update();
   },
 
   remove: function () {

@@ -1,14 +1,9 @@
 import React from "react";
-
 import "aframe";
-import "aframe-event-set-component";
-import "aframe-orbit-controls";
 
 import "../Aframe/arcball-camera";
 import "../Aframe/buttons-check";
-import "../Aframe/cursor-listener";
-import "../Aframe/loader";
-import "../Aframe/render-2d-clipplane";
+import "../Aframe/model";
 
 function AframeScene(props) {
   const {
@@ -31,70 +26,53 @@ function AframeScene(props) {
     });
     return str;
   }
+  
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
-      {/* HAND */}
+      {/* ARCBALL CAMERA */}
       <a-entity
-        id="rhand"
-        raycaster="objects: .clickableMesh"
-        buttons-check={toAframeString({
-          clipPlane: false,
-          grabObject: false,
-        })}
-        collider-check={toAframeString({
-          intersecting: false,
-        })}
-      />
-
-      <a-entity
-        id="clipplane2DListener"
-        render-2d-clipplane={toAframeString({
-          activateClipPlane: true,
-          xBounds: sliders.x,
-          yBounds: sliders.y,
-          zBounds: sliders.z,
-        })}
-      />
-
-      <a-plane
-        class="clickable"
-        id="clipplane2D"
-        visible="false"
-        height="1"
-        width="1"
-        material="color: red ; side:double; transparent:true;opacity:0.3"
-        cursor-listener
-      />
-
-      {/* MODEL */}
-      <a-entity
-        id="volumeCube"
-        class="clickableMesh"
-        loader={toAframeString({
-          alphaXDataArray: transferFunction.map((p) => p["x"]),
-          alphaYDataArray: transferFunction.map((p) => p["y"]),
-          colorMap: colorMap,
-          path: model.path,
-          slices: model.slices,
-          x_spacing: model.spacing.x,
-          y_spacing: model.spacing.y,
-          z_spacing: model.spacing.z,
-          useTransferFunction: useTransferFunction,
-        })}
-        position={model.position}
-        rotation={model.rotation}
-        scale={model.scale}
+        id="camera"
+        camera="active: true"
+        look-controls
+        arcball-camera="initialPosition: 0 0 1"
       />
 
       {/* MOUSE */}
       <a-entity cursor="rayOrigin:mouse" raycaster="objects: .clickable" />
 
-      {/* CAMERA */}
+      {/* BUTTONS CHECK */}
+      <a-entity id="rhand" raycaster="objects: .clickableMesh" buttons-check />
+
+      <a-plane
+        class="clickable"
+        // visible="false"
+        height="1"
+        width="1"
+        material="color: red; side: double; transparent: true; opacity: 0.2"
+        position={model.position}
+        rotation={model.rotation}
+        scale={model.scale}
+      />
+
+      {/* MODEL*/}
       <a-entity
-        id="camera"
-        camera="active: true"
-        look-controls
-        arcball-camera="initialPosition:0 0 1"
+        id="volumeCube"
+        class="clickableMesh"
+        position={model.position}
+        rotation={model.rotation}
+        scale={model.scale}
+        model={toAframeString({
+          transferFunctionX: transferFunction.map((p) => p["x"]),
+          transferFunctionY: transferFunction.map((p) => p["y"]),
+          colorMap: colorMap,
+          path: model.path,
+          slices: model.slices,
+          spacing: [model.spacing.x, model.spacing.y, model.spacing.z],
+          useTransferFunction: useTransferFunction,
+          xBounds: sliders.x,
+          yBounds: sliders.y,
+          zBounds: sliders.z,
+        })}
       />
     </a-scene>
   );
