@@ -25,18 +25,14 @@ function VolumeViewer({
   useTransferFunction,
 }) {
   function getColorMap() {
-    // colorMap is passed in colorMap
-    // If no colorMap -> first property of colorMaps
-    // If no colorMap and no colorMaps -> DEFAULT_COLOR_MAP
-
-    // Return colorMap if given
+    // colorMap -> colorMap
     if (colorMap) return colorMap;
 
-    const out = colorMaps
-      ? colorMaps[Object.keys(colorMaps)[0]]
-      : DEFAULT_COLOR_MAP;
-    console.log("getColorMap", colorMaps, colorMap, out);
-    return out;
+    // If no colorMap -> first property of colorMaps
+    // If no colorMap and no colorMaps -> DEFAULT_COLOR_MAP
+    if (Object.keys(colorMaps).length > 1)
+      return colorMaps[Object.keys(colorMaps)[0]];
+    else return DEFAULT_COLOR_MAP;
   }
   function getModel() {
     const range = model.range ?? DEFAULT_MODEL.range;
@@ -51,18 +47,24 @@ function VolumeViewer({
     return useTransferFunction ? transferFunction : DEFAULT_TRANSFER_FUNCTION;
   }
   function getColorMaps() {
-    const cMap = getColorMap();
+    const colorMap = getColorMap();
     let out = useDefaultColorMaps
       ? { ...colorMaps, ...DEFAULT_COLOR_MAPS }
-      : colorMaps;
+      : { ...colorMaps };
 
-    // If cMap not in out, add it
-
+    // If colorMap not in out, add it
+    if (!out || Object.values(out).indexOf(colorMap) < 0) {
+      out = {
+        colorMap: colorMap,
+        ...out,
+      };
+    }
     return out;
   }
 
   const [state, setState] = useState({
     colorMap: getColorMap(),
+    colorMaps: getColorMaps(),
     model: getModel(),
     sliders: {
       x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
@@ -78,7 +80,15 @@ function VolumeViewer({
       ...state,
       colorMap: getColorMap(),
     }));
-  }, [colorMap]);
+  }, [colorMap, colorMaps]);
+
+  // Update colorMaps on prop change
+  useEffect(() => {
+    setState((state) => ({
+      ...state,
+      colorMaps: getColorMaps(),
+    }));
+  }, [colorMap, colorMaps, useDefaultColorMaps]);
 
   // Update model on prop change
   useEffect(() => {
@@ -104,7 +114,6 @@ function VolumeViewer({
         <Controls
           state={state}
           setState={setState}
-          colorMaps={getColorMaps()}
           initColorMap={getColorMap()}
           useTransferFunction={useTransferFunction}
         />

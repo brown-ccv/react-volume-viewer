@@ -13,7 +13,7 @@ import "@reach/listbox/styles.css";
 import Title from "./SectionTitle.jsx";
 
 // TODO: colorMaps === null, just display colorMap
-function ColorMapControls({ state: { colorMap }, setState, colorMaps }) {
+function ColorMapControls({ state: { colorMap, colorMaps }, setState }) {
   return (
     <Wrapper>
       <Title>Color Map</Title>

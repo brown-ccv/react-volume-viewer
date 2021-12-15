@@ -38,7 +38,9 @@ function App() {
             Use Default Color Maps
           </button>
           <button
-            onClick={() => setColorMaps(colorMaps ? null : initColorMaps)}
+            onClick={() =>
+              setColorMaps(colorMaps === initColorMaps ? {} : initColorMaps)
+            }
           >
             Pass in Color Maps
           </button>
