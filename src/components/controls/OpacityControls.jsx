@@ -3,13 +3,15 @@ import styled from "styled-components";
 import { scaleLinear } from "d3-scale";
 
 import Title from "./SectionTitle.jsx";
-import { DEFAULT_MODEL, SLIDER_RANGE } from "../../constants/constants.js";
+import {
+  SLIDER_RANGE,
+  DECIMALS,
+  CANVAS_PADDING,
+  HOVER_RADIUS,
+} from "../../constants/constants.js";
 
 /** CONSTANTS **/
 
-const DECIMALS = 2; // Number of decimals to display
-const CANVAS_PADDING = 10; // Padding on the canvas
-const HOVER_RADIUS = 15; // Pixel offset for registering hovering/clicks
 let initCanvasPoints = []; // Starting canvas points, used for reset
 
 /** Data Ranges and Transformations **/
@@ -88,12 +90,12 @@ function OpacityControls({
     const context = canvas.getContext("2d");
     context.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw rule on canvas's midpoint
+    // Draw midpoint tick on the axis
     context.beginPath();
     context.strokeStyle = "rgba(0, 0, 0, 1)";
     context.lineWidth = 1;
     context.moveTo(canvas.width / 2, canvas.height);
-    context.lineTo(canvas.width / 2, canvas.height - 10);
+    context.lineTo(canvas.width / 2, canvas.height - CANVAS_PADDING);
     context.stroke();
 
     // Draw lines
@@ -115,7 +117,6 @@ function OpacityControls({
       context.arc(point.x, point.y, 5, 0, 2 * Math.PI);
       context.fill();
     });
-    
 
     setState((state) => ({
       ...state,
@@ -213,7 +214,6 @@ function OpacityControls({
     setState((state) => ({
       ...state,
       colorMap: initColorMap,
-      model: { ...DEFAULT_MODEL, ...model },
       sliders: {
         x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
         y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
@@ -243,10 +243,7 @@ function OpacityControls({
         </LabelText>
 
         <LabelText>
-          {model.range.mid
-            ? model.range.mid.toFixed(DECIMALS)
-            : (model.range.min + model.range.max / 2).toFixed(DECIMALS)}
-          {model.range.unit}
+          {model.range.mid.toFixed(DECIMALS)} {model.range.unit}
         </LabelText>
 
         <LabelText>

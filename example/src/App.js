@@ -61,7 +61,6 @@ export default function App() {
           model={{
             range: {
               min: 0.05,
-              mid: (0.05 + 33.71) / 2,
               max: 33.71,
               unit: "°C",
             },

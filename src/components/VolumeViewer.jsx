@@ -24,24 +24,37 @@ function VolumeViewer({
   useDefaultColorMaps,
   useTransferFunction,
 }) {
+  function getColorMap() {
+    return colorMap ?? DEFAULT_COLOR_MAP;
+  }
+  function getModel() {
+    const range = model.range ?? DEFAULT_MODEL.range;
+    range.mid = (range.min + range.max) / 2;
+    return {
+      ...DEFAULT_MODEL,
+      ...model,
+      range: range,
+    };
+  }
+  function getTransferFunction() {
+    return useTransferFunction ? transferFunction : DEFAULT_TRANSFER_FUNCTION;
+  }
   const [state, setState] = useState({
-    colorMap: colorMap ?? DEFAULT_COLOR_MAP,
-    model: { ...DEFAULT_MODEL, ...model },
+    colorMap: getColorMap(),
+    model: getModel(),
     sliders: {
       x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
       y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
       z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
     },
-    transferFunction: useTransferFunction
-      ? transferFunction
-      : DEFAULT_TRANSFER_FUNCTION,
+    transferFunction: getTransferFunction(),
   });
 
   // Update colorMap on prop change
   useEffect(() => {
     setState((state) => ({
       ...state,
-      colorMap: colorMap ?? DEFAULT_COLOR_MAP,
+      colorMap: getColorMap(),
     }));
   }, [colorMap]);
 
@@ -49,7 +62,7 @@ function VolumeViewer({
   useEffect(() => {
     setState((state) => ({
       ...state,
-      model: { ...DEFAULT_MODEL, ...model },
+      model: getModel(),
     }));
   }, [model]);
 
@@ -57,9 +70,7 @@ function VolumeViewer({
   useEffect(() => {
     setState((state) => ({
       ...state,
-      transferFunction: useTransferFunction
-        ? transferFunction
-        : DEFAULT_TRANSFER_FUNCTION,
+      transferFunction: getTransferFunction(),
     }));
   }, [transferFunction, useTransferFunction]);
 
@@ -112,9 +123,8 @@ VolumeViewer.propTypes = {
     /** Position of the model in the scene */
     position: PropTypes.string,
     /** Minimum and maximum values of the model's dataset. Min and max values are required */
-    range: PropTypes.exact({
+    range: PropTypes.shape({
       min: PropTypes.number.isRequired,
-      mid: PropTypes.number,
       max: PropTypes.number.isRequired,
       unit: PropTypes.string,
     }),
@@ -155,6 +165,7 @@ VolumeViewer.propTypes = {
   useTransferFunction: PropTypes.bool,
 };
 
+// TODO: Should be able to set DEFAULT_COLOR_MAP here
 VolumeViewer.defaultProps = {
   colorMap: null,
   colorMaps: {},
