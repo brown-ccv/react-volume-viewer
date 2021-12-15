@@ -26,7 +26,6 @@ function VolumeViewer({
 }) {
   function getColorMap() {
     return colorMap;
-    // return colorMap ?? DEFAULT_COLOR_MAP;
   }
   function getModel() {
     const range = model.range ?? DEFAULT_MODEL.range;
@@ -40,6 +39,7 @@ function VolumeViewer({
   function getTransferFunction() {
     return useTransferFunction ? transferFunction : DEFAULT_TRANSFER_FUNCTION;
   }
+  
   const [state, setState] = useState({
     colorMap: getColorMap(),
     model: getModel(),
