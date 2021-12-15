@@ -25,7 +25,8 @@ function VolumeViewer({
   useTransferFunction,
 }) {
   function getColorMap() {
-    return colorMap ?? DEFAULT_COLOR_MAP;
+    return colorMap;
+    // return colorMap ?? DEFAULT_COLOR_MAP;
   }
   function getModel() {
     const range = model.range ?? DEFAULT_MODEL.range;
@@ -167,8 +168,7 @@ VolumeViewer.propTypes = {
 
 // TODO: Should be able to set DEFAULT_COLOR_MAP here
 VolumeViewer.defaultProps = {
-  colorMap: null,
-  colorMaps: {},
+  colorMap: DEFAULT_COLOR_MAP,
   controlsVisible: true,
   transferFunction: DEFAULT_TRANSFER_FUNCTION,
   useDefaultColorMaps: true,
