@@ -24,16 +24,17 @@ function VolumeViewer({
   useDefaultColorMaps,
   useTransferFunction,
 }) {
+  // colorMap is first property of colorMaps if no colorMap
+  // or DEFAULT_COLOR_MAP if no colorMap or colorMaps
   function getColorMap() {
-    // colorMap -> colorMap
     if (colorMap) return colorMap;
 
-    // If no colorMap -> first property of colorMaps
-    // If no colorMap and no colorMaps -> DEFAULT_COLOR_MAP
     if (Object.keys(colorMaps).length > 1)
       return colorMaps[Object.keys(colorMaps)[0]];
     else return DEFAULT_COLOR_MAP;
   }
+
+  // Add a midpoint to the model's range
   function getModel() {
     const range = model.range ?? DEFAULT_MODEL.range;
     range.mid = (range.min + range.max) / 2;
@@ -43,23 +44,23 @@ function VolumeViewer({
       range: range,
     };
   }
+
+  // Use DEFAULT if !useTransferFunction
+  // Note that transferFunction defaults to DEFAULT_TRANSFER_FUNCTION if not passed in
   function getTransferFunction() {
     return useTransferFunction ? transferFunction : DEFAULT_TRANSFER_FUNCTION;
   }
+
+  // Conditionally add DEFAULT_COLOR_MAPS and make sure colorMap is in colorMaps
   function getColorMaps() {
     const colorMap = getColorMap();
-    let out = useDefaultColorMaps
-      ? { ...colorMaps, ...DEFAULT_COLOR_MAPS }
-      : { ...colorMaps };
-
-    // If colorMap not in out, add it
-    if (!out || Object.values(out).indexOf(colorMap) < 0) {
-      out = {
+    return {
+      ...(Object.values(colorMaps).indexOf(colorMap) < 0 && {
         colorMap: colorMap,
-        ...out,
-      };
-    }
-    return out;
+      }),
+      ...colorMaps,
+      ...(useDefaultColorMaps && DEFAULT_COLOR_MAPS),
+    };
   }
 
   const [state, setState] = useState({
@@ -192,8 +193,7 @@ VolumeViewer.propTypes = {
 };
 
 VolumeViewer.defaultProps = {
-  // colorMap: DEFAULT_COLOR_MAP,
-  // colorMaps: {},
+  colorMaps: {},
   controlsVisible: true,
   transferFunction: DEFAULT_TRANSFER_FUNCTION,
   useDefaultColorMaps: true,

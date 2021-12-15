@@ -12,13 +12,12 @@ import "@reach/listbox/styles.css";
 
 import Title from "./SectionTitle.jsx";
 
-// TODO: colorMaps === null, just display colorMap
 function ColorMapControls({ state: { colorMap, colorMaps }, setState }) {
   return (
     <Wrapper>
       <Title>Color Map</Title>
 
-      {colorMaps && Object.keys(colorMaps).length > 1 ? (
+      {Object.keys(colorMaps).length > 1 ? (
         <StyledListboxInput
           aria-labelledby="ColorMap dropdown"
           value={colorMap.name}
