@@ -24,18 +24,9 @@ function VolumeViewer({
   useDefaultColorMaps,
   useTransferFunction,
 }) {
-  function getColorMap() {
-    return colorMap;
-  }
-  function getModel() {
-    const range = model.range ?? DEFAULT_MODEL.range;
-    range.mid = (range.min + range.max) / 2;
-    return {
-      ...DEFAULT_MODEL,
-      ...model,
-      range: range,
-    };
-  }
+
+  function getColorMap() { return colorMap }
+  function getModel() { return {...DEFAULT_MODEL, ...model} }
   function getTransferFunction() {
     return useTransferFunction ? transferFunction : DEFAULT_TRANSFER_FUNCTION;
   }
