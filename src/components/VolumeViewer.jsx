@@ -125,20 +125,10 @@ VolumeViewer.propTypes = {
    *  name: Common name of the color map - used internally
    *  path: Path to the color map src
    */
-  // colorMap: PropTypes.string,
   colorMap: PropTypes.exact({
     name: PropTypes.string,
     path: PropTypes.string,
   }),
-
-  /**
-   * Dictionary of color maps available in the controls.
-   *  key: Name of the color map
-   *  value: Path to the color map
-   */
-  // colorMaps: PropTypes.shape({
-  //   Example: PropTypes.string,
-  // }),
 
   /**
    * Array of color maps available in the controls.

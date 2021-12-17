@@ -24,18 +24,30 @@ CSS styling for the height must be provided and a custom width can be provided a
 
 ```jsx
 VolumeViewer.propTypes = {
-  /** The current color map (path to the image). It will default to grayscale if no colorMap is provided. */
-  colorMap: PropTypes.string,
-  /**
-   * Dictionary of color maps available in the controls.
-   *  key: Name of the color map
-   *  value: Path to the color map
+  /** The current color map. It will default to grayscale if no colorMap is provided.
+   *  name: Common name of the color map - used internally
+   *  path: Path to the color map src
    */
-  colorMaps: PropTypes.shape({
-    Example: PropTypes.string,
+  colorMap: PropTypes.exact({
+    name: PropTypes.string,
+    path: PropTypes.string,
   }),
+
+  /**
+   * Array of color maps available in the controls.
+   *  name: Common name of the color map - used internally
+   *  path: Path to the color map src
+   */
+  colorMaps: PropTypes.arrayOf(
+    PropTypes.exact({
+      name: PropTypes.string,
+      path: PropTypes.string,
+    })
+  ),
+
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
+
   /** The model to be displayed and it's related information */
   model: PropTypes.shape({
     /** Path to the model REQUIRED */
@@ -61,6 +73,7 @@ VolumeViewer.propTypes = {
       z: PropTypes.number,
     }),
   }),
+
   /**
    * The transfer function applied to the color map
    * Array of 2D points
@@ -71,6 +84,7 @@ VolumeViewer.propTypes = {
       y: PropTypes.number,
     })
   ),
+
   /**
    * Whether or not to use the libraries default color maps
    * Default Color Maps: grayscale, natural, rgb
@@ -78,6 +92,7 @@ VolumeViewer.propTypes = {
    * If defaultColorMaps is false and no colorMap is present the model will use grayscale
    */
   useDefaultColorMaps: PropTypes.bool,
+
   /** Whether or not to apply a transfer function to the model */
   useTransferFunction: PropTypes.bool,
 ```
@@ -87,9 +102,9 @@ VolumeViewer.propTypes = {
 The default values of `model`'s properties will be passed in for all properties not explicitly set by the `model` prop passed in.
 
 ```jsx
+
 VolumeViewer.defaultProps = {
-  colorMap: null,
-  colorMaps: {},
+  colorMaps: [],
   controlsVisible: true,
   model: {
     position: "0 0 0",
@@ -114,15 +129,17 @@ import styled from 'styled-components'
 import { VolumeViewer } from 'react-volume-viewer'
 
 import haline from "./path/to/colormap/haline.png";
+import thermal from "./path/to/colormap/thermal.png";
 import model from "./path/to/model.png";
 
 function App() {
   const [controlsVisible, setControlsVisible] = React.useState(true);
+  const colorMap = {name: "Haline", path: haline}
   
   return (
     <StyledVolumeViewer
-      colorMaps={{ Haline: haline }}
-      colorMap={haline}
+      colorMaps={colorMap, {name: "Thermal", path: thermal}}
+      colorMap={colorMap}
       controlsVisible={controlsVisible}
       model={{
         range: { min: 0.05, max: 33.71, unit: "°C" },
