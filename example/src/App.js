@@ -81,7 +81,6 @@ function App() {
           useTransferFunction={useTransferFunction}
           useDefaultColorMaps={useDefaultColorMaps}
         />
-        <hr />
       </Main>
 
       <footer>

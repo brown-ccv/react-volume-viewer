@@ -121,7 +121,11 @@ const Wrapper = styled.div`
 `;
 
 VolumeViewer.propTypes = {
-  /** The current color map. It will default to grayscale if no colorMap is provided.
+  /**
+   * The current color map applied by the transferFunction
+   * It will default to the first object in colorMaps if no colorMap is provided
+   * It will default to grayscale if neither colorMap nor colorMaps is provided.
+   *
    *  name: Common name of the color map - used internally
    *  path: Path to the color map src
    */
