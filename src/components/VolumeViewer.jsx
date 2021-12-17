@@ -13,7 +13,6 @@ import {
 import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
 
-// TODO: Make colorMaps an array
 function VolumeViewer({
   className,
   style,
@@ -30,20 +29,13 @@ function VolumeViewer({
   function getColorMap() {
     if (colorMap) return colorMap;
 
-    if (Object.keys(colorMaps).length > 1)
-      return colorMaps[Object.keys(colorMaps)[0]];
+    if (colorMaps.length > 1) return colorMaps[0];
     else return DEFAULT_COLOR_MAP;
   }
 
   // Add a midpoint to the model's range
   function getModel() {
-    const range = model.range ?? DEFAULT_MODEL.range;
-    range.mid = (range.min + range.max) / 2;
-    return {
-      ...DEFAULT_MODEL,
-      ...model,
-      range: range,
-    };
+    return { ...DEFAULT_MODEL, ...model };
   }
 
   // Use DEFAULT if !useTransferFunction
@@ -55,13 +47,12 @@ function VolumeViewer({
   // Conditionally add DEFAULT_COLOR_MAPS and make sure colorMap is in colorMaps
   function getColorMaps() {
     const colorMap = getColorMap();
-    return {
-      ...(Object.values(colorMaps).indexOf(colorMap) < 0 && {
-        colorMap: colorMap,
-      }),
-      ...colorMaps,
-      ...(useDefaultColorMaps && DEFAULT_COLOR_MAPS),
-    };
+    const allColorMaps = useDefaultColorMaps
+      ? colorMaps.concat(DEFAULT_COLOR_MAPS)
+      : colorMaps;
+    if (allColorMaps.indexOf(colorMap) < 0) allColorMaps.unshift(colorMap);
+
+    return allColorMaps;
   }
 
   const [state, setState] = useState({
@@ -130,17 +121,36 @@ const Wrapper = styled.div`
 `;
 
 VolumeViewer.propTypes = {
-  /** The current color map (path to the image). It will default to grayscale if no colorMap is provided. */
-  colorMap: PropTypes.string,
+  /** The current color map. It will default to grayscale if no colorMap is provided.
+   *  name: Common name of the color map - used internally
+   *  path: Path to the color map src
+   */
+  // colorMap: PropTypes.string,
+  colorMap: PropTypes.exact({
+    name: PropTypes.string,
+    path: PropTypes.string,
+  }),
 
   /**
    * Dictionary of color maps available in the controls.
    *  key: Name of the color map
    *  value: Path to the color map
    */
-  colorMaps: PropTypes.shape({
-    Example: PropTypes.string,
-  }),
+  // colorMaps: PropTypes.shape({
+  //   Example: PropTypes.string,
+  // }),
+
+  /**
+   * Array of color maps available in the controls.
+   *  name: Common name of the color map - used internally
+   *  path: Path to the color map src
+   */
+  colorMaps: PropTypes.arrayOf(
+    PropTypes.exact({
+      name: PropTypes.string,
+      path: PropTypes.string,
+    })
+  ),
 
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
@@ -194,7 +204,7 @@ VolumeViewer.propTypes = {
 };
 
 VolumeViewer.defaultProps = {
-  colorMaps: {},
+  colorMaps: [],
   controlsVisible: true,
   transferFunction: DEFAULT_TRANSFER_FUNCTION,
   useDefaultColorMaps: true,

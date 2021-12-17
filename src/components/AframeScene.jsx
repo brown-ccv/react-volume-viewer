@@ -64,7 +64,7 @@ function AframeScene(props) {
         model={toAframeString({
           transferFunctionX: transferFunction.map((p) => p["x"]),
           transferFunctionY: transferFunction.map((p) => p["y"]),
-          colorMap: colorMap,
+          colorMap: colorMap.path,
           path: model.path,
           slices: model.slices,
           spacing: [model.spacing.x, model.spacing.y, model.spacing.z],

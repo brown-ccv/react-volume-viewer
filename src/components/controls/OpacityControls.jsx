@@ -248,7 +248,8 @@ function OpacityControls({
         </LabelText>
 
         <LabelText>
-          {model.range.mid.toFixed(DECIMALS)} {model.range.unit}
+          {((model.range.min + model.range.max) / 2).toFixed(DECIMALS)}{" "}
+          {model.range.unit}
         </LabelText>
 
         <LabelText>

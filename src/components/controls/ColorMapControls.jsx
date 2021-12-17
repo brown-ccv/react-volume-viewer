@@ -18,17 +18,20 @@ function ColorMapControls({ state: { colorMap, colorMaps }, setState }) {
     <Wrapper>
       <Title>Color Map</Title>
 
-      {Object.keys(colorMaps).length > 1 ? (
+      {colorMaps.length > 1 ? (
         <StyledListboxInput
           aria-labelledby="ColorMap dropdown"
           value={colorMap.name}
           onChange={(color) =>
-            setState((state) => ({ ...state, colorMap: colorMaps[color] }))
+            setState((state) => ({
+              ...state,
+              colorMap: colorMaps.find((colorMap) => colorMap.name === color),
+            }))
           }
         >
           <ListboxButton>
             <OutlinedImage
-              src={colorMap}
+              src={colorMap.path}
               alt="The current color map"
               height="20px"
               width="95%"
@@ -37,11 +40,11 @@ function ColorMapControls({ state: { colorMap, colorMaps }, setState }) {
           </ListboxButton>
           <ListboxPopover>
             <ListboxList>
-              {Object.keys(colorMaps).map((color) => (
-                <ListboxOption key={color} value={color}>
+              {colorMaps.map((color) => (
+                <ListboxOption key={color.name} value={color.name}>
                   <img
-                    src={colorMaps[color]}
-                    alt={color}
+                    src={color.path}
+                    alt={color.name}
                     height="15px"
                     width="100%"
                   />
@@ -52,7 +55,7 @@ function ColorMapControls({ state: { colorMap, colorMaps }, setState }) {
         </StyledListboxInput>
       ) : (
         <OutlinedImage
-          src={colorMap}
+          src={colorMap.path}
           alt="The current color map"
           height="20px"
           width="100%"
