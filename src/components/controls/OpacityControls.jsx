@@ -238,17 +238,17 @@ function OpacityControls({
       />
 
       <Labels>
-        <LabelText>
+        <LeftLabel>
           {model.range.min.toFixed(DECIMALS)} {model.range.unit}
-        </LabelText>
+        </LeftLabel>
 
-        <LabelText>
+        <CenterLabel>
           {((model.range.min + model.range.max) / 2).toFixed(DECIMALS)} {model.range.unit}
-        </LabelText>
+        </CenterLabel>
 
-        <LabelText>
+        <RightLabel>
           {model.range.max.toFixed(DECIMALS)} {model.range.unit}
-        </LabelText>
+        </RightLabel>
       </Labels>
 
       <HelpText>
@@ -280,7 +280,20 @@ const LabelText = styled.p`
   font-weight: bold;
   margin: 0;
   font-size: 11px;
+  width: 33%;
 `;
+
+const LeftLabel = styled(LabelText)`
+  text-align: left;
+`
+
+const CenterLabel = styled(LabelText)`
+  text-align: center;
+`
+
+const RightLabel = styled(LabelText)`
+  text-align: right;
+`
 
 const HelpText = styled.p`
   margin: 5px 0;
