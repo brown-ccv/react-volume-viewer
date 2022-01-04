@@ -4,11 +4,7 @@ import rgb from "../assets/rgb.png";
 
 /** Default Props */
 
-const DEFAULT_COLOR_MAPS = {
-  grayscale: grayscale,
-  natural: natural,
-  rgb: rgb,
-};
+const DEFAULT_COLOR_MAPS = { grayscale, natural, rgb };
 
 const DEFAULT_COLOR_MAP = grayscale;
 
