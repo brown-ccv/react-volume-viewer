@@ -12,12 +12,10 @@ import "../Aframe/cursor-listener";
 import "../Aframe/loader";
 import "../Aframe/render-2d-clipplane";
 
-function AframeScene(props) {
-  const {
-    state: { colorMap, model, sliders, transferFunction },
-    useTransferFunction,
-  } = props;
-
+function AframeScene({
+  state: { colorMap, model, sliders, transferFunction },
+  useTransferFunction,
+}) {
   return (
     <StyledScene id="volumeViewerScene" background="color: black" embedded>
       <Entity

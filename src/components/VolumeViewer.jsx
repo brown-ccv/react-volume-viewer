@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 
 import {
+  DEFAULT_COLOR_MAP,
   DEFAULT_COLOR_MAPS,
   DEFAULT_MODEL,
   DEFAULT_TRANSFER_FUNCTION,
@@ -12,37 +13,43 @@ import {
 import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
 
-function VolumeViewer(props) {
-  const {
-    className,
-    style,
-    colorMap,
-    colorMaps,
-    controlsVisible,
-    model,
-    transferFunction,
-    useDefaultColorMaps,
-    useTransferFunction,
-  } = props;
+function VolumeViewer({
+  className,
+  style,
+  colorMap,
+  colorMaps,
+  controlsVisible,
+  model,
+  transferFunction,
+  useDefaultColorMaps,
+  useTransferFunction,
+}) {
+  function getColorMap() {
+    return colorMap;
+  }
+  function getModel() {
+    return { ...DEFAULT_MODEL, ...model };
+  }
+  function getTransferFunction() {
+    return useTransferFunction ? transferFunction : DEFAULT_TRANSFER_FUNCTION;
+  }
 
   const [state, setState] = useState({
-    colorMap: colorMap,
-    model: { ...DEFAULT_MODEL, ...model },
+    colorMap: getColorMap(),
+    model: getModel(),
     sliders: {
       x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
       y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
       z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
     },
-    transferFunction: useTransferFunction
-      ? transferFunction
-      : DEFAULT_TRANSFER_FUNCTION,
+    transferFunction: getTransferFunction(),
   });
 
   // Update colorMap on prop change
   useEffect(() => {
     setState((state) => ({
       ...state,
-      colorMap: colorMap,
+      colorMap: getColorMap(),
     }));
   }, [colorMap]);
 
@@ -50,7 +57,7 @@ function VolumeViewer(props) {
   useEffect(() => {
     setState((state) => ({
       ...state,
-      model: { ...DEFAULT_MODEL, ...model },
+      model: getModel(),
     }));
   }, [model]);
 
@@ -58,9 +65,7 @@ function VolumeViewer(props) {
   useEffect(() => {
     setState((state) => ({
       ...state,
-      transferFunction: useTransferFunction
-        ? transferFunction
-        : DEFAULT_TRANSFER_FUNCTION,
+      transferFunction: getTransferFunction(),
     }));
   }, [transferFunction, useTransferFunction]);
 
@@ -77,6 +82,7 @@ function VolumeViewer(props) {
               ? { ...colorMaps, ...DEFAULT_COLOR_MAPS }
               : colorMaps
           }
+          initColorMap={colorMap ?? DEFAULT_COLOR_MAP}
           useTransferFunction={useTransferFunction}
         />
       )}
@@ -90,7 +96,7 @@ const Wrapper = styled.div`
 `;
 
 VolumeViewer.propTypes = {
-  /** The current color map (path to the image) */
+  /** The current color map (path to the image). It will default to grayscale if no colorMap is provided. */
   colorMap: PropTypes.string,
 
   /**
@@ -112,7 +118,7 @@ VolumeViewer.propTypes = {
     /** Position of the model in the scene */
     position: PropTypes.string,
     /** Minimum and maximum values of the model's dataset. Min and max values are required */
-    range: PropTypes.exact({
+    range: PropTypes.shape({
       min: PropTypes.number.isRequired,
       max: PropTypes.number.isRequired,
       unit: PropTypes.string,
@@ -144,7 +150,9 @@ VolumeViewer.propTypes = {
 
   /**
    * Whether or not to use the libraries default color maps
-   * Default Color Maps: Grayscale, Natural, RGB
+   * Default Color Maps: grayscale, natural, rgb
+   *
+   * If defaultColorMaps is false and no colorMap is present the model will use grayscale
    */
   useDefaultColorMaps: PropTypes.bool,
 
@@ -153,8 +161,7 @@ VolumeViewer.propTypes = {
 };
 
 VolumeViewer.defaultProps = {
-  colorMap: null,
-  colorMaps: {},
+  colorMap: DEFAULT_COLOR_MAP,
   controlsVisible: true,
   transferFunction: DEFAULT_TRANSFER_FUNCTION,
   useDefaultColorMaps: true,

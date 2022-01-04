@@ -2,12 +2,16 @@ import React from "react";
 import styled from "styled-components";
 
 import ColorMapControls from "./ColorMapControls.jsx";
-import OpacityControls from "./OpacityControls.js";
+import OpacityControls from "./OpacityControls.jsx";
 import ClipControls from "./ClipControls.jsx";
 
-function Controls(props) {
-  const { state, setState, colorMaps, useTransferFunction } = props;
-
+function Controls({
+  state,
+  setState,
+  colorMaps,
+  initColorMap,
+  useTransferFunction,
+}) {
   return (
     <Wrapper>
       <ColorMapControls
@@ -17,7 +21,11 @@ function Controls(props) {
       />
 
       {useTransferFunction && (
-        <OpacityControls state={state} setState={setState} />
+        <OpacityControls
+          state={state}
+          setState={setState}
+          initColorMap={initColorMap}
+        />
       )}
 
       <ClipControls state={state} setState={setState} />
@@ -34,7 +42,7 @@ const Wrapper = styled.div`
   margin: auto 0;
   width: 300px;
   height: fit-content;
-  max-height: calc(100% - 80px);
+  max-height: calc(100% - 50px); // Leaves 25px to the edge of the AframeScene
   padding: 15px;
   background-color: white;
   border-radius: 5%;

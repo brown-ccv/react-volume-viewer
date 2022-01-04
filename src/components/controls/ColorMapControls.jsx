@@ -12,47 +12,51 @@ import "@reach/listbox/styles.css";
 
 import Title from "./SectionTitle.jsx";
 
-function ColorMapControls(props) {
-  const {
-    state: { colorMap },
-    setState,
-    colorMaps,
-  } = props;
+function ColorMapControls({ state: { colorMap }, setState, colorMaps }) {
   return (
     <Wrapper>
       <Title>Color Map</Title>
 
-      <StyledListboxInput
-        aria-labelledby="ColorMap dropdown"
-        value={colorMap.name}
-        onChange={(color) =>
-          setState((state) => ({ ...state, colorMap: colorMaps[color] }))
-        }
-      >
-        <ListboxButton>
-          <img
-            src={colorMap}
-            alt="The current color map"
-            height="20px"
-            width="95%"
-          />
-          <ListboxArrow />
-        </ListboxButton>
-        <ListboxPopover>
-          <ListboxList>
-            {Object.keys(colorMaps).map((color) => (
-              <ListboxOption key={color} value={color}>
-                <img
-                  src={colorMaps[color]}
-                  alt={color}
-                  height="15px"
-                  width="100%"
-                />
-              </ListboxOption>
-            ))}
-          </ListboxList>
-        </ListboxPopover>
-      </StyledListboxInput>
+      {colorMaps ? (
+        <StyledListboxInput
+          aria-labelledby="ColorMap dropdown"
+          value={colorMap.name}
+          onChange={(color) =>
+            setState((state) => ({ ...state, colorMap: colorMaps[color] }))
+          }
+        >
+          <ListboxButton>
+            <OutlinedImage
+              src={colorMap}
+              alt="The current color map"
+              height="20px"
+              width="95%"
+            />
+            <ListboxArrow />
+          </ListboxButton>
+          <ListboxPopover>
+            <ListboxList>
+              {Object.keys(colorMaps).map((color) => (
+                <ListboxOption key={color} value={color}>
+                  <img
+                    src={colorMaps[color]}
+                    alt={color}
+                    height="15px"
+                    width="100%"
+                  />
+                </ListboxOption>
+              ))}
+            </ListboxList>
+          </ListboxPopover>
+        </StyledListboxInput>
+      ) : (
+        <OutlinedImage
+          src={colorMap}
+          alt="The current color map"
+          height="20px"
+          width="100%"
+        />
+      )}
     </Wrapper>
   );
 }
@@ -60,6 +64,10 @@ function ColorMapControls(props) {
 const Wrapper = styled.div`
   margin: 25px 0;
   margin-top: 0;
+`;
+
+const OutlinedImage = styled.img`
+  outline: solid 1px;
 `;
 
 const StyledListboxInput = styled(ListboxInput)`

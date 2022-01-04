@@ -22,7 +22,7 @@ The only required props are the model's path and it's minimum and maximum data p
 
 ```jsx
 VolumeViewer.propTypes = {
-  /** The current color map (path to the image) */
+  /** The current color map (path to the image). It will default to grayscale if no colorMap is provided. */
   colorMap: PropTypes.string,
   /**
    * Dictionary of color maps available in the controls.
@@ -71,7 +71,9 @@ VolumeViewer.propTypes = {
   ),
   /**
    * Whether or not to use the libraries default color maps
-   * Default Color Maps: Grayscale, Natural, RGB
+   * Default Color Maps: grayscale, natural, rgb
+   * 
+   * If defaultColorMaps is false and no colorMap is present the model will use grayscale
    */
   useDefaultColorMaps: PropTypes.bool,
   /** Whether or not to apply a transfer function to the model */
@@ -95,12 +97,7 @@ VolumeViewer.defaultProps = {
     slices: 55,
     spacing: { x: 2, y: 2, z: 1 },
   }
-  transferFunction: [
-    { x: 0, y: 0 },
-    { x: 0.11739130434782609, y: 0.11739130434782609 },
-    { x: 0.34782608695652173, y: 0.34782608695652173 },
-    { x: 1, y: 1 },
-  ],
+  transferFunction: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
   useDefaultColorMaps: true,
   useTransferFunction: true,
 };
