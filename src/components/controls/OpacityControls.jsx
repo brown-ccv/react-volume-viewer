@@ -3,13 +3,15 @@ import styled from "styled-components";
 import { scaleLinear } from "d3-scale";
 
 import Title from "./SectionTitle.jsx";
-import { DEFAULT_MODEL, SLIDER_RANGE } from "../../constants/constants.js";
+import {
+  SLIDER_RANGE,
+  DECIMALS,
+  CANVAS_PADDING,
+  HOVER_RADIUS,
+} from "../../constants/constants.js";
 
 /** CONSTANTS **/
 
-const DECIMALS = 2; // Number of decimals to display
-const CANVAS_PADDING = 10; // Padding on the canvas
-const HOVER_RADIUS = 15; // Pixel offset for registering hovering/clicks
 let initCanvasPoints = []; // Starting canvas points, used for reset
 
 /** Data Ranges and Transformations **/
@@ -85,12 +87,12 @@ function OpacityControls({
     const context = canvas.getContext("2d");
     context.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw rule on canvas's midpoint
+    // Draw midpoint tick on the axis
     context.beginPath();
     context.strokeStyle = "rgba(0, 0, 0, 1)";
     context.lineWidth = 1;
     context.moveTo(canvas.width / 2, canvas.height);
-    context.lineTo(canvas.width / 2, canvas.height - 10);
+    context.lineTo(canvas.width / 2, canvas.height - CANVAS_PADDING);
     context.stroke();
 
     // Draw lines
@@ -210,7 +212,6 @@ function OpacityControls({
     setState((state) => ({
       ...state,
       colorMap: initColorMap,
-      model: { ...DEFAULT_MODEL, ...model },
       sliders: {
         x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
         y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
@@ -235,20 +236,18 @@ function OpacityControls({
       />
 
       <Labels>
-        <LabelText>
+        <LeftLabel>
           {model.range.min.toFixed(DECIMALS)} {model.range.unit}
-        </LabelText>
+        </LeftLabel>
 
-        <LabelText>
-          {model.range.mid
-            ? model.range.mid.toFixed(DECIMALS)
-            : (model.range.min + model.range.max / 2).toFixed(DECIMALS)}
+        <CenterLabel>
+          {((model.range.min + model.range.max) / 2).toFixed(DECIMALS)}{" "}
           {model.range.unit}
-        </LabelText>
+        </CenterLabel>
 
-        <LabelText>
+        <RightLabel>
           {model.range.max.toFixed(DECIMALS)} {model.range.unit}
-        </LabelText>
+        </RightLabel>
       </Labels>
 
       <HelpText>
@@ -280,6 +279,19 @@ const LabelText = styled.p`
   font-weight: bold;
   margin: 0;
   font-size: 11px;
+  width: 33%;
+`;
+
+const LeftLabel = styled(LabelText)`
+  text-align: left;
+`;
+
+const CenterLabel = styled(LabelText)`
+  text-align: center;
+`;
+
+const RightLabel = styled(LabelText)`
+  text-align: right;
 `;
 
 const HelpText = styled.p`
