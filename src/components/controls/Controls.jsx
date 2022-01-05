@@ -5,8 +5,6 @@ import ColorMapControls from "./ColorMapControls.jsx";
 import OpacityControls from "./OpacityControls.jsx";
 import ClipControls from "./ClipControls.jsx";
 
-import { SLIDER_RANGE } from "../../constants/constants.js";
-
 function Controls({
   colorMaps,
   useTransferFunction,

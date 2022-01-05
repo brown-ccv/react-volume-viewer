@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
@@ -30,35 +30,35 @@ function VolumeViewer({
   const [remountKey, setRemountKey] = useState(Math.random());
 
   // Control colorMap in state and update on prop change
-  function getColorMap() {
+  const getColorMap = useCallback(() => {
     return colorMapProp ?? DEFAULT_COLOR_MAP;
-  }
+  }, [colorMapProp])
   const [colorMap, setColorMap] = useState(getColorMap());
   useEffect(() => {
     setColorMap(getColorMap());
-  }, [colorMapProp]);
+  }, [colorMapProp, getColorMap]);
 
   // Control model in state and update on prop change
-  function getModel() {
+  const getModel = useCallback(() =>  {
     return { ...DEFAULT_MODEL, ...modelProp };
-  }
+  }, [modelProp])
   const [model, setModel] = useState(getModel());
   useEffect(() => {
     setModel(getModel());
-  }, [modelProp]);
+  }, [modelProp, getModel]);
 
   // Control transferFunction in state and update on prop change
-  function getTransferFunction() {
+  const getTransferFunction = useCallback(() => {
     return useTransferFunction
       ? transferFunctionProp
       : DEFAULT_TRANSFER_FUNCTION;
-  }
+  }, [useTransferFunction, transferFunctionProp])
   const [transferFunction, setTransferFunction] = useState(
     getTransferFunction()
   );
   useEffect(() => {
     setTransferFunction(getTransferFunction());
-  }, [transferFunctionProp, useTransferFunction]);
+  }, [transferFunctionProp, useTransferFunction, getTransferFunction]);
 
   // Control sliders in state, sliders isn't exposed as a prop
   const [sliders, setSliders] = useState({
