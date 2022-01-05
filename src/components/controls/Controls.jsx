@@ -10,16 +10,14 @@ import { SLIDER_RANGE } from "../../constants/constants.js";
 function Controls({
   colorMaps,
   useTransferFunction,
-  initColorMap,
   initTransferFunction,
   model,
   colorMap,
   setColorMap,
-  transferFunction,
   setTransferFunction,
   sliders,
   setSliders,
-  remount,
+  reset,
 }) {
   return (
     <Wrapper>
@@ -36,7 +34,7 @@ function Controls({
           setTransferFunction={setTransferFunction}
         />
       )}
-      <Button onClick={remount}> Reset </Button>
+      <Button onClick={reset}> Reset </Button>
 
       <ClipControls sliders={sliders} setSliders={setSliders} />
     </Wrapper>

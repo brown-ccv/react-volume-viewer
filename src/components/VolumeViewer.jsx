@@ -94,7 +94,7 @@ function VolumeViewer({
           setTransferFunction={setTransferFunction}
           sliders={sliders}
           setSliders={setSliders}
-          remount={() => {
+          reset={() => {
             setColorMap(getColorMap());
             setSliders({
               x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
