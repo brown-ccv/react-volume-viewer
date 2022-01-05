@@ -32,16 +32,16 @@ function VolumeViewer({
   // Control colorMap in state and update on prop change
   const getColorMap = useCallback(() => {
     return colorMapProp ?? DEFAULT_COLOR_MAP;
-  }, [colorMapProp])
+  }, [colorMapProp]);
   const [colorMap, setColorMap] = useState(getColorMap());
   useEffect(() => {
     setColorMap(getColorMap());
   }, [colorMapProp, getColorMap]);
 
   // Control model in state and update on prop change
-  const getModel = useCallback(() =>  {
+  const getModel = useCallback(() => {
     return { ...DEFAULT_MODEL, ...modelProp };
-  }, [modelProp])
+  }, [modelProp]);
   const [model, setModel] = useState(getModel());
   useEffect(() => {
     setModel(getModel());
@@ -52,7 +52,7 @@ function VolumeViewer({
     return useTransferFunction
       ? transferFunctionProp
       : DEFAULT_TRANSFER_FUNCTION;
-  }, [useTransferFunction, transferFunctionProp])
+  }, [useTransferFunction, transferFunctionProp]);
   const [transferFunction, setTransferFunction] = useState(
     getTransferFunction()
   );
