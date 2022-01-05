@@ -38,17 +38,17 @@ function VolumeViewer({
 
   const [state, setState] = useState({
     colorMap: getColorMap(),
-    sliders: {
-      x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-      y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-      z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-    },
   });
 
   const [model, setModel] = useState(getModel());
   const [transferFunction, setTransferFunction] = useState(
     getTransferFunction()
   );
+  const [sliders, setSliders] = useState({
+    x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+    y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+    z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+  });
 
   // Update colorMap on prop change
   useEffect(() => {
@@ -75,6 +75,7 @@ function VolumeViewer({
         model={model}
         transferFunction={transferFunction}
         useTransferFunction={useTransferFunction}
+        sliders={sliders}
       />
 
       {controlsVisible && (
@@ -84,6 +85,8 @@ function VolumeViewer({
           model={model}
           transferFunction={transferFunction}
           setTransferFunction={setTransferFunction}
+          sliders={sliders}
+          setSliders={setSliders}
           colorMaps={
             useDefaultColorMaps
               ? { ...colorMaps, ...DEFAULT_COLOR_MAPS }

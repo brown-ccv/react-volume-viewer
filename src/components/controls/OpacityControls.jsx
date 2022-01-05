@@ -51,6 +51,8 @@ function OpacityControls({
   range,
   transferFunction,
   setTransferFunction,
+  sliders,
+  setSliders,
   initColorMap,
 }) {
   const canvasRef = useRef(null);
@@ -120,15 +122,6 @@ function OpacityControls({
       context.fill();
     });
 
-    // setState((state) => ({
-    //   ...state,
-    //   transferFunction: canvasPoints.map((p) => {
-    //     return {
-    //       x: scaleTransferFunctionToCanvasX.invert(p.x),
-    //       y: scaleTransferFunctionToCanvasY.invert(p.y),
-    //     };
-    //   }),
-    // }));
     setTransferFunction(
       canvasPoints.map((p) => {
         return {
@@ -224,12 +217,12 @@ function OpacityControls({
     setState((state) => ({
       ...state,
       colorMap: initColorMap,
-      sliders: {
-        x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-        y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-        z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-      },
     }));
+    setSliders({
+      x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+      y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+      z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+    });
   }
 
   return (

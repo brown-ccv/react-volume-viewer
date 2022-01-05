@@ -11,6 +11,8 @@ function Controls({
   model,
   transferFunction,
   setTransferFunction,
+  sliders,
+  setSliders,
   colorMaps,
   initColorMap,
   useTransferFunction,
@@ -30,10 +32,11 @@ function Controls({
           transferFunction={transferFunction}
           setTransferFunction={setTransferFunction}
           initColorMap={initColorMap}
+          setSliders={setSliders}
         />
       )}
 
-      <ClipControls state={state} setState={setState} />
+      <ClipControls sliders={sliders} setSliders={setSliders} />
     </Wrapper>
   );
 }
