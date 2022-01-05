@@ -17,7 +17,7 @@ function VolumeViewer({
   className,
   style,
   colorMap: colorMapProp,
-  colorMaps,
+  colorMaps: colorMapsProp,
   controlsVisible,
   model: modelProp,
   transferFunction: transferFunctionProp,
@@ -37,6 +37,21 @@ function VolumeViewer({
   useEffect(() => {
     setColorMap(getColorMap());
   }, [colorMapProp, getColorMap]);
+
+  // Control colorMaps in state and update on prop change
+  const getColorMaps = useCallback(() => {
+    const colorMap = getColorMap();
+    const colorMaps = useDefaultColorMaps
+      ? colorMapsProp.concat(DEFAULT_COLOR_MAPS)
+      : colorMapsProp;
+    if (colorMaps.indexOf(colorMap) < 0) colorMaps.unshift(colorMap);
+
+    return colorMaps;
+  }, [useDefaultColorMaps, colorMapsProp, getColorMap])
+  const [colorMaps, setColorMaps] = useState(getColorMaps())
+  useEffect(() => {
+    setColorMaps(getColorMaps())
+  }, [colorMapProp, colorMapsProp, useDefaultColorMaps, getColorMaps])
 
   // Control model in state and update on prop change
   const getModel = useCallback(() => {
@@ -79,15 +94,11 @@ function VolumeViewer({
 
       {controlsVisible && (
         <Controls
-          // colorMaps={
-          //   useDefaultColorMaps
-          //     ? { ...colorMaps, ...DEFAULT_COLOR_MAPS }
-          //     : colorMaps
-          // }
           useTransferFunction={useTransferFunction}
           initColorMap={getColorMap()}
           initTransferFunction={getTransferFunction()}
           model={model}
+          colorMaps={colorMaps}
           colorMap={colorMap}
           setColorMap={setColorMap}
           transferFunction={transferFunction}
