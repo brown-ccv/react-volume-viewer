@@ -5,11 +5,13 @@ import "../Aframe/arcball-camera";
 import "../Aframe/buttons-check";
 import "../Aframe/model";
 
-function AframeScene(props) {
-  const {
-    state: { colorMap, model, sliders, transferFunction },
-    useTransferFunction,
-  } = props;
+function AframeScene({
+  model,
+  colorMap,
+  transferFunction,
+  sliders,
+  useTransferFunction,
+}) {
 
   // aframe data is passed as a string
   function toAframeString(obj) {
