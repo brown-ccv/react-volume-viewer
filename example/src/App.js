@@ -65,10 +65,7 @@ function App() {
         </div>
 
         <StyledVolumeViewer
-          colorMaps={{
-            Haline: haline,
-            Thermal: thermal,
-          }}
+          colorMaps={colorMaps}
           colorMap={colorMap}
           controlsVisible={controlsVisible}
           model={{
