@@ -5,6 +5,8 @@ import ColorMapControls from "./ColorMapControls.jsx";
 import OpacityControls from "./OpacityControls.jsx";
 import ClipControls from "./ClipControls.jsx";
 
+import { SLIDER_RANGE } from "../../constants/constants.js";
+
 function Controls({
   colorMaps,
   initColorMap,
@@ -29,9 +31,14 @@ function Controls({
         <OpacityControls
           range={model.range}
           transferFunction={transferFunction}
-          initColorMap={initColorMap}
-          setColorMap={setColorMap}
-          setSliders={setSliders}
+          resetColorMap={() => setColorMap(initColorMap)}
+          resetSliders={() =>
+            setSliders({
+              x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+              y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+              z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+            })
+          }
           setTransferFunction={setTransferFunction}
         />
       )}

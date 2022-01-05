@@ -4,7 +4,6 @@ import { scaleLinear } from "d3-scale";
 
 import Title from "./SectionTitle.jsx";
 import {
-  SLIDER_RANGE,
   DECIMALS,
   CANVAS_PADDING,
   HOVER_RADIUS,
@@ -49,10 +48,9 @@ function getRelativeMousePos(e) {
 function OpacityControls({
   range,
   transferFunction,
-  initColorMap,
-  setColorMap,
   setTransferFunction,
-  setSliders,
+  resetColorMap,
+  resetSliders,
 }) {
   const canvasRef = useRef(null);
   const [cursorType, setCursorType] = useState("pointer"); // Cursor type (styled-components)
@@ -213,12 +211,14 @@ function OpacityControls({
   // Reset sliders and set colorMap and model to props
   function reset() {
     setCanvasPoints(initCanvasPoints);
-    setColorMap(initColorMap);
-    setSliders({
-      x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-      y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-      z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-    });
+    // setColorMap(initColorMap);
+    // setSliders({
+    //   x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+    //   y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+    //   z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+    // });
+    resetColorMap();
+    resetSliders();
   }
 
   return (
