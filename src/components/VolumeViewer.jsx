@@ -20,7 +20,7 @@ function VolumeViewer({
   colorMaps,
   controlsVisible,
   model: modelProp,
-  transferFunction,
+  transferFunction: transferFunctionProp,
   useDefaultColorMaps,
   useTransferFunction,
 }) {
@@ -31,7 +31,9 @@ function VolumeViewer({
     return { ...DEFAULT_MODEL, ...modelProp };
   }
   function getTransferFunction() {
-    return useTransferFunction ? transferFunction : DEFAULT_TRANSFER_FUNCTION;
+    return useTransferFunction
+      ? transferFunctionProp
+      : DEFAULT_TRANSFER_FUNCTION;
   }
 
   const [state, setState] = useState({
@@ -41,10 +43,12 @@ function VolumeViewer({
       y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
       z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
     },
-    transferFunction: getTransferFunction(),
   });
 
   const [model, setModel] = useState(getModel());
+  const [transferFunction, setTransferFunction] = useState(
+    getTransferFunction()
+  );
 
   // Update colorMap on prop change
   useEffect(() => {
@@ -61,18 +65,16 @@ function VolumeViewer({
 
   // Update transferFunction on prop change
   useEffect(() => {
-    setState((state) => ({
-      ...state,
-      transferFunction: getTransferFunction(),
-    }));
-  }, [transferFunction, useTransferFunction]);
+    setTransferFunction(getTransferFunction());
+  }, [transferFunctionProp, useTransferFunction]);
 
   return (
     <Wrapper className={className} style={style}>
-      <AframeScene 
-        state={state} 
+      <AframeScene
+        state={state}
         model={model}
-        useTransferFunction={useTransferFunction} 
+        transferFunction={transferFunction}
+        useTransferFunction={useTransferFunction}
       />
 
       {controlsVisible && (
@@ -80,6 +82,8 @@ function VolumeViewer({
           state={state}
           setState={setState}
           model={model}
+          transferFunction={transferFunction}
+          setTransferFunction={setTransferFunction}
           colorMaps={
             useDefaultColorMaps
               ? { ...colorMaps, ...DEFAULT_COLOR_MAPS }

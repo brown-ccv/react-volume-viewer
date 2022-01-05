@@ -9,6 +9,8 @@ function Controls({
   state,
   setState,
   model,
+  transferFunction,
+  setTransferFunction,
   colorMaps,
   initColorMap,
   useTransferFunction,
@@ -23,9 +25,10 @@ function Controls({
 
       {useTransferFunction && (
         <OpacityControls
-          state={state}
           setState={setState}
           model={model}
+          transferFunction={transferFunction}
+          setTransferFunction={setTransferFunction}
           initColorMap={initColorMap}
         />
       )}

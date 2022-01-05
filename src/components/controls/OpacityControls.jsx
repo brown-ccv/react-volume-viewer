@@ -47,9 +47,10 @@ function getRelativeMousePos(e) {
 }
 
 function OpacityControls({
-  state: { transferFunction },
   setState,
   model,
+  transferFunction,
+  setTransferFunction,
   initColorMap,
 }) {
   const canvasRef = useRef(null);
@@ -119,15 +120,23 @@ function OpacityControls({
       context.fill();
     });
 
-    setState((state) => ({
-      ...state,
-      transferFunction: canvasPoints.map((p) => {
+    // setState((state) => ({
+    //   ...state,
+    //   transferFunction: canvasPoints.map((p) => {
+    //     return {
+    //       x: scaleTransferFunctionToCanvasX.invert(p.x),
+    //       y: scaleTransferFunctionToCanvasY.invert(p.y),
+    //     };
+    //   }),
+    // }));
+    setTransferFunction(
+      canvasPoints.map((p) => {
         return {
           x: scaleTransferFunctionToCanvasX.invert(p.x),
           y: scaleTransferFunctionToCanvasY.invert(p.y),
         };
-      }),
-    }));
+      })
+    );
   }, [canvasPoints, pointHovering, pointDragging]);
 
   /** EVENT LISTENER FUNCTIONS **/
