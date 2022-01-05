@@ -26,7 +26,7 @@ function Controls({
       {useTransferFunction && (
         <OpacityControls
           setState={setState}
-          model={model}
+          range={model.range}
           transferFunction={transferFunction}
           setTransferFunction={setTransferFunction}
           initColorMap={initColorMap}

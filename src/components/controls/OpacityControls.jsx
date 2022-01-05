@@ -48,7 +48,7 @@ function getRelativeMousePos(e) {
 
 function OpacityControls({
   setState,
-  model,
+  range,
   transferFunction,
   setTransferFunction,
   initColorMap,
@@ -249,16 +249,16 @@ function OpacityControls({
 
       <Labels>
         <LeftLabel>
-          {model.range.min.toFixed(DECIMALS)} {model.range.unit}
+          {range.min.toFixed(DECIMALS)} {range.unit}
         </LeftLabel>
 
         <CenterLabel>
-          {((model.range.min + model.range.max) / 2).toFixed(DECIMALS)}{" "}
-          {model.range.unit}
+          {((range.min + range.max) / 2).toFixed(DECIMALS)}{" "}
+          {range.unit}
         </CenterLabel>
 
         <RightLabel>
-          {model.range.max.toFixed(DECIMALS)} {model.range.unit}
+          {range.max.toFixed(DECIMALS)} {range.unit}
         </RightLabel>
       </Labels>
 
