@@ -12,7 +12,6 @@ function AframeScene({
   sliders,
   useTransferFunction,
 }) {
-
   // aframe data is passed as a string
   function toAframeString(obj) {
     let str = "";
@@ -28,7 +27,7 @@ function AframeScene({
     });
     return str;
   }
-  
+
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* ARCBALL CAMERA */}

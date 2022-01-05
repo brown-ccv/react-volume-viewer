@@ -39,6 +39,7 @@ function VolumeViewer({
   }, [colorMapProp, getColorMap]);
 
   // Control colorMaps in state and update on prop change
+  // TODo: No state, just callback?
   const getColorMaps = useCallback(() => {
     const colorMap = getColorMap();
     const colorMaps = useDefaultColorMaps
@@ -47,13 +48,14 @@ function VolumeViewer({
     if (colorMaps.indexOf(colorMap) < 0) colorMaps.unshift(colorMap);
 
     return colorMaps;
-  }, [useDefaultColorMaps, colorMapsProp, getColorMap])
-  const [colorMaps, setColorMaps] = useState(getColorMaps())
+  }, [useDefaultColorMaps, colorMapsProp, getColorMap]);
+  const [colorMaps, setColorMaps] = useState(getColorMaps());
   useEffect(() => {
-    setColorMaps(getColorMaps())
-  }, [colorMapProp, colorMapsProp, useDefaultColorMaps, getColorMaps])
+    setColorMaps(getColorMaps());
+  }, [colorMapProp, colorMapsProp, useDefaultColorMaps, getColorMaps]);
 
   // Control model in state and update on prop change
+  // TODO: No state? Just callback?
   const getModel = useCallback(() => {
     return { ...DEFAULT_MODEL, ...modelProp };
   }, [modelProp]);
