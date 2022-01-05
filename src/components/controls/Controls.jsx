@@ -42,7 +42,7 @@ const Wrapper = styled.div`
   margin: auto 0;
   width: 300px;
   height: fit-content;
-  max-height: calc(100% - 50px);
+  max-height: calc(100% - 50px); // Leaves 25px to the edge of the AframeScene
   padding: 15px;
   background-color: white;
   border-radius: 5%;

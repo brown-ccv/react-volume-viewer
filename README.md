@@ -20,9 +20,11 @@ npm install react-volume-viewer
 
 The only required props are the model's path and it's minimum and maximum data points. The model's path should be imported into the project and passed in from there - see the [example](#example) project.
 
+CSS styling for the height must be provided and a custom width can be provided as well. The styling can be passed in through classes or inline styles.
+
 ```jsx
 VolumeViewer.propTypes = {
-  /** The current color map (path to the image) */
+  /** The current color map (path to the image). It will default to grayscale if no colorMap is provided. */
   colorMap: PropTypes.string,
   /**
    * Dictionary of color maps available in the controls.
@@ -97,12 +99,7 @@ VolumeViewer.defaultProps = {
     slices: 55,
     spacing: { x: 2, y: 2, z: 1 },
   }
-  transferFunction: [
-    { x: 0, y: 0 },
-    { x: 0.11739130434782609, y: 0.11739130434782609 },
-    { x: 0.34782608695652173, y: 0.34782608695652173 },
-    { x: 1, y: 1 },
-  ],
+  transferFunction: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
   useDefaultColorMaps: true,
   useTransferFunction: true,
 };
@@ -113,16 +110,17 @@ VolumeViewer.defaultProps = {
 
 ```jsx
 import React from 'react'
-import VolumeViewer from 'react-volume-viewer'
+import styled from 'styled-components'
+import { VolumeViewer } from 'react-volume-viewer'
 
 import haline from "./path/to/colormap/haline.png";
 import model from "./path/to/model.png";
 
-export default function App() {
+function App() {
   const [controlsVisible, setControlsVisible] = React.useState(true);
 
   return (
-    <VolumeViewer
+    <StyledVolumeViewer
       colorMaps={{ Haline: haline }}
       colorMap={haline}
       controlsVisible={controlsVisible}
@@ -136,6 +134,12 @@ export default function App() {
     />
   )
 }
+
+const StyledVolumeViewer = styled(VolumeViewer)`
+  height: 75vh;
+`;
+
+export default App
 ```
 
 ## License

@@ -3,13 +3,15 @@ import styled from "styled-components";
 import { scaleLinear } from "d3-scale";
 
 import Title from "./SectionTitle.jsx";
-import { DEFAULT_MODEL, SLIDER_RANGE } from "../../constants/constants.js";
+import {
+  SLIDER_RANGE,
+  DECIMALS,
+  CANVAS_PADDING,
+  HOVER_RADIUS,
+} from "../../constants/constants.js";
 
 /** CONSTANTS **/
 
-const DECIMALS = 2; // Number of decimals to display
-const CANVAS_PADDING = 10; // Padding on the canvas
-const HOVER_RADIUS = 15; // Pixel offset for registering hovering/clicks
 let initCanvasPoints = []; // Starting canvas points, used for reset
 
 /** Data Ranges and Transformations **/
@@ -29,19 +31,22 @@ const scaleTransferFunctionToCanvasY = scaleLinear();
 
 // Returns the mouse's  position relative to canvas
 function getRelativeMousePos(e) {
-  const mouse = {
+  const position = {
     x: e.clientX - e.target.getBoundingClientRect().x,
     y: e.clientY - e.target.getBoundingClientRect().y,
   };
 
-  // Conform min/max position to padding
-  if (mouse.x < canvasRange.x[0]) mouse.x = canvasRange.x[0];
-  else if (mouse.x > canvasRange.x[1]) mouse.x = canvasRange.x[1];
+  // Clamp to the canvas padding
+  position.x = Math.min(
+    Math.max(position.x, canvasRange.x[0]),
+    canvasRange.x[1]
+  );
+  position.y = Math.max(
+    Math.min(position.y, canvasRange.y[0]),
+    canvasRange.y[1]
+  );
 
-  if (mouse.y > canvasRange.y[0]) mouse.y = canvasRange.y[0];
-  else if (mouse.y < canvasRange.y[1]) mouse.y = canvasRange.y[1];
-
-  return mouse;
+  return position;
 }
 
 function OpacityControls({
@@ -88,28 +93,30 @@ function OpacityControls({
     const context = canvas.getContext("2d");
     context.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw rule on canvas's midpoint
+    // Draw midpoint tick on the axis
     context.beginPath();
     context.strokeStyle = "rgba(0, 0, 0, 1)";
     context.lineWidth = 1;
     context.moveTo(canvas.width / 2, canvas.height);
-    context.lineTo(canvas.width / 2, canvas.height - 10);
+    context.lineTo(canvas.width / 2, canvas.height - CANVAS_PADDING);
     context.stroke();
 
     // Draw lines
     context.beginPath();
     context.strokeStyle = "rgba(128, 128, 128, 0.8)";
     context.lineWidth = 2;
-    canvasPoints.map((point) => {
+    canvasPoints.forEach((point) => {
       context.lineTo(point.x, point.y);
     });
     context.stroke();
 
     // Draw points
-    canvasPoints.map((point) => {
+    canvasPoints.forEach((point) => {
       context.beginPath();
-      if (pointHovering === point) context.fillStyle = "rgba(255, 255, 85, 1)";
-      else context.fillStyle = "rgba(255, 170, 0, 1)";
+      context.fillStyle =
+        pointHovering === point
+          ? "rgba(255, 255, 85, 1)"
+          : "rgba(255, 170, 0, 1)";
       context.arc(point.x, point.y, 5, 0, 2 * Math.PI);
       context.fill();
     });
@@ -123,16 +130,18 @@ function OpacityControls({
         };
       }),
     }));
-  }, [canvasPoints, pointHovering, pointDragging]);
+  }, [canvasPoints, pointHovering, pointDragging, setState]);
 
   /** EVENT LISTENER FUNCTIONS **/
 
   // Check to see if cursor is above a point - change cursor if so
   function checkHovering(e) {
-    const mouse = getRelativeMousePos(e);
+    const relativeMouse = getRelativeMousePos(e);
+    console.log(relativeMouse, canvasPoints[1]);
     const point = canvasPoints.find((point) => {
       const distance = Math.sqrt(
-        Math.pow(mouse.x - point.x, 2) + Math.pow(mouse.y - point.y, 2)
+        Math.pow(relativeMouse.x - point.x, 2) +
+          Math.pow(relativeMouse.y - point.y, 2)
       );
       return distance < HOVER_RADIUS;
     });
@@ -153,21 +162,21 @@ function OpacityControls({
   // Drag a point
   function dragPoint(e) {
     e.preventDefault();
-    const mousePos = getRelativeMousePos(e);
+    const newPoint = getRelativeMousePos(e);
 
     // First and last point stay at the start/end of the x axis
     const idx = canvasPoints.findIndex((p) => p === pointDragging);
-    if (idx === 0) mousePos.x = canvasRange.x[0];
-    else if (idx === canvasPoints.length - 1) mousePos.x = canvasRange.x[1];
+    if (idx === 0) newPoint.x = canvasRange.x[0];
+    else if (idx === canvasPoints.length - 1) newPoint.x = canvasRange.x[1];
 
     // Update point to mouse position
     setCanvasPoints(
-      [...canvasPoints.filter((p) => p !== pointDragging), mousePos].sort(
+      [...canvasPoints.filter((p) => p !== pointDragging), newPoint].sort(
         (a, b) => a.x - b.x
       )
     );
-    setPointDragging(mousePos);
-    setPointHovering(mousePos);
+    setPointDragging(newPoint);
+    setPointHovering(newPoint);
   }
 
   // Add point to canvas
@@ -210,7 +219,6 @@ function OpacityControls({
     setState((state) => ({
       ...state,
       colorMap: initColorMap,
-      model: { ...DEFAULT_MODEL, ...model },
       sliders: {
         x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
         y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
@@ -235,20 +243,18 @@ function OpacityControls({
       />
 
       <Labels>
-        <LabelText>
+        <LeftLabel>
           {model.range.min.toFixed(DECIMALS)} {model.range.unit}
-        </LabelText>
+        </LeftLabel>
 
-        {model.range.mid && (
-          <LabelText>
-            {model.range.mid.toFixed(DECIMALS)}
-            {model.range.unit}
-          </LabelText>
-        )}
+        <CenterLabel>
+          {((model.range.min + model.range.max) / 2).toFixed(DECIMALS)}{" "}
+          {model.range.unit}
+        </CenterLabel>
 
-        <LabelText>
+        <RightLabel>
           {model.range.max.toFixed(DECIMALS)} {model.range.unit}
-        </LabelText>
+        </RightLabel>
       </Labels>
 
       <HelpText>
@@ -280,6 +286,19 @@ const LabelText = styled.p`
   font-weight: bold;
   margin: 0;
   font-size: 11px;
+  width: 33%;
+`;
+
+const LeftLabel = styled(LabelText)`
+  text-align: left;
+`;
+
+const CenterLabel = styled(LabelText)`
+  text-align: center;
+`;
+
+const RightLabel = styled(LabelText)`
+  text-align: right;
 `;
 
 const HelpText = styled.p`
