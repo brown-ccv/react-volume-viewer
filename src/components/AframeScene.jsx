@@ -13,7 +13,8 @@ import "../Aframe/loader";
 import "../Aframe/render-2d-clipplane";
 
 function AframeScene({
-  state: { colorMap, model, sliders, transferFunction },
+  state: { colorMap, sliders, transferFunction },
+  model,
   useTransferFunction,
 }) {
   return (

@@ -47,8 +47,9 @@ function getRelativeMousePos(e) {
 }
 
 function OpacityControls({
-  state: { transferFunction, model },
+  state: { transferFunction },
   setState,
+  model,
   initColorMap,
 }) {
   const canvasRef = useRef(null);
