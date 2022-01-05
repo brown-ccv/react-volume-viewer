@@ -49,20 +49,20 @@ function VolumeViewer({
 
     return colorMaps;
   }, [useDefaultColorMaps, colorMapsProp, getColorMap]);
-  const [colorMaps, setColorMaps] = useState(getColorMaps());
-  useEffect(() => {
-    setColorMaps(getColorMaps());
-  }, [colorMapProp, colorMapsProp, useDefaultColorMaps, getColorMaps]);
+  // const [colorMaps, setColorMaps] = useState(getColorMaps());
+  // useEffect(() => {
+  //   setColorMaps(getColorMaps());
+  // }, [colorMapProp, colorMapsProp, useDefaultColorMaps, getColorMaps]);
 
   // Control model in state and update on prop change
   // TODO: No state? Just callback?
   const getModel = useCallback(() => {
     return { ...DEFAULT_MODEL, ...modelProp };
   }, [modelProp]);
-  const [model, setModel] = useState(getModel());
-  useEffect(() => {
-    setModel(getModel());
-  }, [modelProp, getModel]);
+  // const [model, setModel] = useState(getModel());
+  // useEffect(() => {
+  //   setModel(getModel());
+  // }, [modelProp, getModel]);
 
   // Control transferFunction in state and update on prop change
   const getTransferFunction = useCallback(() => {
@@ -87,7 +87,8 @@ function VolumeViewer({
   return (
     <Wrapper key={remountKey} className={className} style={style}>
       <AframeScene
-        model={model}
+        // model={model}
+        model={getModel()}
         colorMap={colorMap}
         transferFunction={transferFunction}
         useTransferFunction={useTransferFunction}
@@ -99,8 +100,8 @@ function VolumeViewer({
           useTransferFunction={useTransferFunction}
           initColorMap={getColorMap()}
           initTransferFunction={getTransferFunction()}
-          model={model}
-          colorMaps={colorMaps}
+          model={getModel()}
+          colorMaps={getColorMaps()}
           colorMap={colorMap}
           setColorMap={setColorMap}
           transferFunction={transferFunction}

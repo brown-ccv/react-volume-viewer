@@ -21,7 +21,9 @@ function ColorMapControls({ colorMaps, colorMap, setColorMap }) {
         <StyledListboxInput
           aria-labelledby="ColorMap dropdown"
           value={colorMap.name}
-          onChange={(color) => setColorMap(colorMaps[color])}
+          onChange={(color) =>
+            setColorMap(colorMaps.find((colorMap) => colorMap.name === color))
+          }
         >
           <ListboxButton>
             <OutlinedImage
