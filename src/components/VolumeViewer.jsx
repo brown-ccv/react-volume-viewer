@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
@@ -24,15 +24,15 @@ function VolumeViewer({
   useDefaultColorMaps,
   useTransferFunction,
 }) {
-  function getColorMap() {
-    return colorMap;
-  }
-  function getModel() {
+  const getColorMap = useCallback(() => {return colorMap}, [colorMap]);
+
+  const getModel = useCallback(() => {
     return { ...DEFAULT_MODEL, ...model };
-  }
-  function getTransferFunction() {
+  }, [model]);
+
+  const getTransferFunction = useCallback(() => {
     return useTransferFunction ? transferFunction : DEFAULT_TRANSFER_FUNCTION;
-  }
+  }, [useTransferFunction, transferFunction])
 
   const [state, setState] = useState({
     colorMap: getColorMap(),
@@ -51,7 +51,7 @@ function VolumeViewer({
       ...state,
       colorMap: getColorMap(),
     }));
-  }, [colorMap]);
+  }, [colorMap, getColorMap]);
 
   // Update model on prop change
   useEffect(() => {
@@ -59,7 +59,7 @@ function VolumeViewer({
       ...state,
       model: getModel(),
     }));
-  }, [model]);
+  }, [model, getModel]);
 
   // Update transferFunction on prop change
   useEffect(() => {
@@ -67,7 +67,7 @@ function VolumeViewer({
       ...state,
       transferFunction: getTransferFunction(),
     }));
-  }, [transferFunction, useTransferFunction]);
+  }, [transferFunction, useTransferFunction, getTransferFunction]);
 
   return (
     <Wrapper className={className} style={style}>

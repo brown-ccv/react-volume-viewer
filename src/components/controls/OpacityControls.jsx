@@ -105,13 +105,13 @@ function OpacityControls({
     context.beginPath();
     context.strokeStyle = "rgba(128, 128, 128, 0.8)";
     context.lineWidth = 2;
-    canvasPoints.map((point) => {
+    canvasPoints.forEach((point) => {
       context.lineTo(point.x, point.y);
     });
     context.stroke();
 
     // Draw points
-    canvasPoints.map((point) => {
+    canvasPoints.forEach((point) => {
       context.beginPath();
       context.fillStyle =
         pointHovering === point
@@ -130,7 +130,7 @@ function OpacityControls({
         };
       }),
     }));
-  }, [canvasPoints, pointHovering, pointDragging]);
+  }, [canvasPoints, pointHovering, pointDragging, setState]);
 
   /** EVENT LISTENER FUNCTIONS **/
 
