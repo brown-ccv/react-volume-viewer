@@ -24,43 +24,43 @@ function VolumeViewer({
   useDefaultColorMaps,
   useTransferFunction,
 }) {
+  // Control colorMap in state and update on prop change
   function getColorMap() {
     return colorMapProp;
   }
+  const [colorMap, setColorMap] = useState(getColorMap());
+  useEffect(() => {
+    setColorMap(getColorMap());
+  }, [colorMapProp]);
+
+  // Control model in state and update on prop change
   function getModel() {
     return { ...DEFAULT_MODEL, ...modelProp };
   }
+  const [model, setModel] = useState(getModel());
+  useEffect(() => {
+    setModel(getModel());
+  }, [modelProp]);
+
+  // Control transferFunction in state and update on prop change
   function getTransferFunction() {
     return useTransferFunction
       ? transferFunctionProp
       : DEFAULT_TRANSFER_FUNCTION;
   }
-
-  const [model, setModel] = useState(getModel());
-  const [colorMap, setColorMap] = useState(getColorMap());
   const [transferFunction, setTransferFunction] = useState(
     getTransferFunction()
   );
+  useEffect(() => {
+    setTransferFunction(getTransferFunction());
+  }, [transferFunctionProp, useTransferFunction]);
+
+  // Control sliders in state, sliders isn't exposed as a prop
   const [sliders, setSliders] = useState({
     x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
     y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
     z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
   });
-
-  // Update colorMap on prop change
-  useEffect(() => {
-    setColorMap(getColorMap());
-  }, [colorMapProp]);
-
-  // Update model on prop change
-  useEffect(() => {
-    setModel(getModel());
-  }, [modelProp]);
-
-  // Update transferFunction on prop change
-  useEffect(() => {
-    setTransferFunction(getTransferFunction());
-  }, [transferFunctionProp, useTransferFunction]);
 
   return (
     <Wrapper className={className} style={style}>
