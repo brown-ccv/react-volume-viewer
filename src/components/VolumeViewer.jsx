@@ -28,7 +28,6 @@ function VolumeViewer({
     return colorMap;
   }
   function getModel() {
-    // return { ...DEFAULT_MODEL, ...model };
     return { ...DEFAULT_MODEL, ...modelProp };
   }
   function getTransferFunction() {
@@ -37,7 +36,6 @@ function VolumeViewer({
 
   const [state, setState] = useState({
     colorMap: getColorMap(),
-    // model: getModel(),
     sliders: {
       x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
       y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
@@ -58,10 +56,6 @@ function VolumeViewer({
 
   // Update model on prop change
   useEffect(() => {
-    // setState((state) => ({
-    //   ...state,
-    //   model: getModel(),
-    // }));
     setModel(getModel());
   }, [modelProp]);
 
