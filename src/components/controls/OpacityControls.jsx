@@ -9,10 +9,6 @@ import {
   HOVER_RADIUS,
 } from "../../constants/constants.js";
 
-/** CONSTANTS **/
-
-let initCanvasPoints = []; // Starting canvas points, used for reset
-
 /** Data Ranges and Transformations **/
 
 const transferFunctionRange = {
@@ -45,13 +41,7 @@ function getRelativeMousePos(e) {
   return mouse;
 }
 
-function OpacityControls({
-  range,
-  transferFunction,
-  setTransferFunction,
-  resetColorMap,
-  resetSliders,
-}) {
+function OpacityControls({ range, initTransferFunction, setTransferFunction }) {
   const canvasRef = useRef(null);
   const [cursorType, setCursorType] = useState("pointer"); // Cursor type (styled-components)
   const [canvasPoints, setCanvasPoints] = useState([]); // Points in canvas space
@@ -74,14 +64,14 @@ function OpacityControls({
       .range(canvasRange.y);
 
     // Initialize canvasPoints
-    const points = transferFunction.map((p) => {
-      return {
-        x: scaleTransferFunctionToCanvasX(p.x),
-        y: scaleTransferFunctionToCanvasY(p.y),
-      };
-    });
-    setCanvasPoints(points);
-    initCanvasPoints = points;
+    setCanvasPoints(
+      initTransferFunction.map((p) => {
+        return {
+          x: scaleTransferFunctionToCanvasX(p.x),
+          y: scaleTransferFunctionToCanvasY(p.y),
+        };
+      })
+    );
   }, []);
 
   /** DRAW FUNCTION **/
@@ -208,19 +198,6 @@ function OpacityControls({
     setCursorType("inherit");
   }
 
-  // Reset sliders and set colorMap and model to props
-  function reset() {
-    setCanvasPoints(initCanvasPoints);
-    // setColorMap(initColorMap);
-    // setSliders({
-    //   x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-    //   y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-    //   z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-    // });
-    resetColorMap();
-    resetSliders();
-  }
-
   return (
     <Wrapper>
       <Title>Transfer Function</Title>
@@ -254,7 +231,6 @@ function OpacityControls({
         Double-click to add a point to the transfer function. Right-click to
         remove a point. Drag points to change the function.
       </HelpText>
-      <Button onClick={reset}>Reset</Button>
     </Wrapper>
   );
 }
@@ -297,7 +273,5 @@ const RightLabel = styled(LabelText)`
 const HelpText = styled.p`
   margin: 5px 0;
 `;
-
-const Button = styled.button``;
 
 export default OpacityControls;

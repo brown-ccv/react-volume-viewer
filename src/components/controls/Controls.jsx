@@ -9,8 +9,9 @@ import { SLIDER_RANGE } from "../../constants/constants.js";
 
 function Controls({
   colorMaps,
-  initColorMap,
   useTransferFunction,
+  initColorMap,
+  initTransferFunction,
   model,
   colorMap,
   setColorMap,
@@ -18,6 +19,7 @@ function Controls({
   setTransferFunction,
   sliders,
   setSliders,
+  remount,
 }) {
   return (
     <Wrapper>
@@ -30,18 +32,11 @@ function Controls({
       {useTransferFunction && (
         <OpacityControls
           range={model.range}
-          transferFunction={transferFunction}
-          resetColorMap={() => setColorMap(initColorMap)}
-          resetSliders={() =>
-            setSliders({
-              x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-              y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-              z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-            })
-          }
+          initTransferFunction={initTransferFunction}
           setTransferFunction={setTransferFunction}
         />
       )}
+      <Button onClick={remount}> Reset </Button>
 
       <ClipControls sliders={sliders} setSliders={setSliders} />
     </Wrapper>
@@ -62,5 +57,7 @@ const Wrapper = styled.div`
   background-color: white;
   border-radius: 5%;
 `;
+
+const Button = styled.button``;
 
 export default Controls;

@@ -24,9 +24,14 @@ function VolumeViewer({
   useDefaultColorMaps,
   useTransferFunction,
 }) {
+  // Changing a components key will remount the entire thing
+  // Because the model's position is handled internally by aframe we
+  // need to remount it to reset its position
+  const [remountKey, setRemountKey] = useState(Math.random());
+
   // Control colorMap in state and update on prop change
   function getColorMap() {
-    return colorMapProp;
+    return colorMapProp ?? DEFAULT_COLOR_MAP;
   }
   const [colorMap, setColorMap] = useState(getColorMap());
   useEffect(() => {
@@ -63,7 +68,7 @@ function VolumeViewer({
   });
 
   return (
-    <Wrapper className={className} style={style}>
+    <Wrapper key={remountKey} className={className} style={style}>
       <AframeScene
         model={model}
         colorMap={colorMap}
@@ -79,8 +84,9 @@ function VolumeViewer({
               ? { ...colorMaps, ...DEFAULT_COLOR_MAPS }
               : colorMaps
           }
-          initColorMap={colorMapProp ?? DEFAULT_COLOR_MAP}
           useTransferFunction={useTransferFunction}
+          initColorMap={getColorMap()}
+          initTransferFunction={getTransferFunction()}
           model={model}
           colorMap={colorMap}
           setColorMap={setColorMap}
@@ -88,6 +94,16 @@ function VolumeViewer({
           setTransferFunction={setTransferFunction}
           sliders={sliders}
           setSliders={setSliders}
+          remount={() => {
+            setColorMap(getColorMap());
+            setSliders({
+              x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+              y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+              z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+            });
+            setTransferFunction(getTransferFunction());
+            setRemountKey(Math.random());
+          }}
         />
       )}
     </Wrapper>
