@@ -16,7 +16,7 @@ import AframeScene from "./AframeScene.jsx";
 function VolumeViewer({
   className,
   style,
-  colorMap,
+  colorMap: colorMapProp,
   colorMaps,
   controlsVisible,
   model: modelProp,
@@ -25,7 +25,7 @@ function VolumeViewer({
   useTransferFunction,
 }) {
   function getColorMap() {
-    return colorMap;
+    return colorMapProp;
   }
   function getModel() {
     return { ...DEFAULT_MODEL, ...modelProp };
@@ -36,11 +36,8 @@ function VolumeViewer({
       : DEFAULT_TRANSFER_FUNCTION;
   }
 
-  const [state, setState] = useState({
-    colorMap: getColorMap(),
-  });
-
   const [model, setModel] = useState(getModel());
+  const [colorMap, setColorMap] = useState(getColorMap());
   const [transferFunction, setTransferFunction] = useState(
     getTransferFunction()
   );
@@ -52,11 +49,8 @@ function VolumeViewer({
 
   // Update colorMap on prop change
   useEffect(() => {
-    setState((state) => ({
-      ...state,
-      colorMap: getColorMap(),
-    }));
-  }, [colorMap]);
+    setColorMap(getColorMap());
+  }, [colorMapProp]);
 
   // Update model on prop change
   useEffect(() => {
@@ -71,8 +65,8 @@ function VolumeViewer({
   return (
     <Wrapper className={className} style={style}>
       <AframeScene
-        state={state}
         model={model}
+        colorMap={colorMap}
         transferFunction={transferFunction}
         useTransferFunction={useTransferFunction}
         sliders={sliders}
@@ -80,20 +74,20 @@ function VolumeViewer({
 
       {controlsVisible && (
         <Controls
-          state={state}
-          setState={setState}
-          model={model}
-          transferFunction={transferFunction}
-          setTransferFunction={setTransferFunction}
-          sliders={sliders}
-          setSliders={setSliders}
           colorMaps={
             useDefaultColorMaps
               ? { ...colorMaps, ...DEFAULT_COLOR_MAPS }
               : colorMaps
           }
-          initColorMap={colorMap ?? DEFAULT_COLOR_MAP}
+          initColorMap={colorMapProp ?? DEFAULT_COLOR_MAP}
           useTransferFunction={useTransferFunction}
+          model={model}
+          colorMap={colorMap}
+          setColorMap={setColorMap}
+          transferFunction={transferFunction}
+          setTransferFunction={setTransferFunction}
+          sliders={sliders}
+          setSliders={setSliders}
         />
       )}
     </Wrapper>
