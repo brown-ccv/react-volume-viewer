@@ -26,7 +26,7 @@ function AframeScene(props) {
     });
     return str;
   }
-
+  
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* ARCBALL CAMERA */}

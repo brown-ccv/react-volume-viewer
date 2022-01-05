@@ -105,13 +105,13 @@ function OpacityControls({
     context.beginPath();
     context.strokeStyle = "rgba(128, 128, 128, 0.8)";
     context.lineWidth = 2;
-    canvasPoints.map((point) => {
+    canvasPoints.forEach((point) => {
       context.lineTo(point.x, point.y);
     });
     context.stroke();
 
     // Draw points
-    canvasPoints.map((point) => {
+    canvasPoints.forEach((point) => {
       context.beginPath();
       context.fillStyle =
         pointHovering === point
@@ -130,7 +130,7 @@ function OpacityControls({
         };
       }),
     }));
-  }, [canvasPoints, pointHovering, pointDragging]);
+  }, [canvasPoints, pointHovering, pointDragging, setState]);
 
   /** EVENT LISTENER FUNCTIONS **/
 
@@ -243,18 +243,18 @@ function OpacityControls({
       />
 
       <Labels>
-        <LabelText>
+        <LeftLabel>
           {model.range.min.toFixed(DECIMALS)} {model.range.unit}
-        </LabelText>
+        </LeftLabel>
 
-        <LabelText>
+        <CenterLabel>
           {((model.range.min + model.range.max) / 2).toFixed(DECIMALS)}{" "}
           {model.range.unit}
-        </LabelText>
+        </CenterLabel>
 
-        <LabelText>
+        <RightLabel>
           {model.range.max.toFixed(DECIMALS)} {model.range.unit}
-        </LabelText>
+        </RightLabel>
       </Labels>
 
       <HelpText>
@@ -286,6 +286,19 @@ const LabelText = styled.p`
   font-weight: bold;
   margin: 0;
   font-size: 11px;
+  width: 33%;
+`;
+
+const LeftLabel = styled(LabelText)`
+  text-align: left;
+`;
+
+const CenterLabel = styled(LabelText)`
+  text-align: center;
+`;
+
+const RightLabel = styled(LabelText)`
+  text-align: right;
 `;
 
 const HelpText = styled.p`

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
@@ -26,23 +26,22 @@ function VolumeViewer({
 }) {
   // colorMap is first property of colorMaps if no colorMap
   // or DEFAULT_COLOR_MAP if no colorMap or colorMaps
-  function getColorMap() {
+  const getColorMap = useCallback(() => {
     if (colorMap) return colorMap;
 
     if (colorMaps.length > 1) return colorMaps[0];
     else return DEFAULT_COLOR_MAP;
-  }
+  }, [colorMap, colorMaps]);
 
-  // Add a midpoint to the model's range
-  function getModel() {
+  const getModel = useCallback(() => {
     return { ...DEFAULT_MODEL, ...model };
-  }
+  }, [model]);
 
   // Use DEFAULT if !useTransferFunction
   // Note that transferFunction defaults to DEFAULT_TRANSFER_FUNCTION if not passed in
-  function getTransferFunction() {
+  const getTransferFunction = useCallback(() => {
     return useTransferFunction ? transferFunction : DEFAULT_TRANSFER_FUNCTION;
-  }
+  }, [useTransferFunction, transferFunction])
 
   // Conditionally add DEFAULT_COLOR_MAPS and make sure colorMap is in colorMaps
   function getColorMaps() {
@@ -73,15 +72,7 @@ function VolumeViewer({
       ...state,
       colorMap: getColorMap(),
     }));
-  }, [colorMap, colorMaps]);
-
-  // Update colorMaps on prop change
-  useEffect(() => {
-    setState((state) => ({
-      ...state,
-      colorMaps: getColorMaps(),
-    }));
-  }, [colorMap, colorMaps, useDefaultColorMaps]);
+}, [colorMap, colorMaps, useDefaultColorMaps, getColorMap]);
 
   // Update model on prop change
   useEffect(() => {
@@ -89,7 +80,7 @@ function VolumeViewer({
       ...state,
       model: getModel(),
     }));
-  }, [model]);
+  }, [model, getModel]);
 
   // Update transferFunction on prop change
   useEffect(() => {
@@ -97,7 +88,7 @@ function VolumeViewer({
       ...state,
       transferFunction: getTransferFunction(),
     }));
-  }, [transferFunction, useTransferFunction]);
+  }, [transferFunction, useTransferFunction, getTransferFunction]);
 
   return (
     <Wrapper className={className} style={style}>
