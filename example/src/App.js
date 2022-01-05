@@ -65,8 +65,8 @@ function App() {
         </div>
 
         <StyledVolumeViewer
-          colorMap={colorMap}
-          colorMaps={colorMaps}
+          // colorMap={colorMap}
+          // colorMaps={colorMaps}
           controlsVisible={controlsVisible}
           model={{
             range: {

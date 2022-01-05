@@ -9,7 +9,7 @@ function Controls({
   colorMaps,
   useTransferFunction,
   initTransferFunction,
-  model,
+  range,
   colorMap,
   setColorMap,
   setTransferFunction,
@@ -27,7 +27,7 @@ function Controls({
 
       {useTransferFunction && (
         <OpacityControls
-          range={model.range}
+          range={range}
           initTransferFunction={initTransferFunction}
           setTransferFunction={setTransferFunction}
         />

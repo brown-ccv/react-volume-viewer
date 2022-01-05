@@ -2,16 +2,15 @@ import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
+import Controls from "./controls/Controls.jsx";
+import AframeScene from "./AframeScene.jsx";
 import {
   DEFAULT_COLOR_MAP,
   DEFAULT_COLOR_MAPS,
   DEFAULT_MODEL,
   DEFAULT_TRANSFER_FUNCTION,
-  SLIDER_RANGE,
+  INIT_SLIDERS,
 } from "../constants/constants";
-
-import Controls from "./controls/Controls.jsx";
-import AframeScene from "./AframeScene.jsx";
 
 function VolumeViewer({
   className,
@@ -38,32 +37,6 @@ function VolumeViewer({
     setColorMap(getColorMap());
   }, [colorMapProp, getColorMap]);
 
-  // Control colorMaps in state and update on prop change
-  // TODo: No state, just callback?
-  const getColorMaps = useCallback(() => {
-    const colorMap = getColorMap();
-    const colorMaps = useDefaultColorMaps
-      ? colorMapsProp.concat(DEFAULT_COLOR_MAPS)
-      : colorMapsProp;
-    if (colorMaps.indexOf(colorMap) < 0) colorMaps.unshift(colorMap);
-
-    return colorMaps;
-  }, [useDefaultColorMaps, colorMapsProp, getColorMap]);
-  // const [colorMaps, setColorMaps] = useState(getColorMaps());
-  // useEffect(() => {
-  //   setColorMaps(getColorMaps());
-  // }, [colorMapProp, colorMapsProp, useDefaultColorMaps, getColorMaps]);
-
-  // Control model in state and update on prop change
-  // TODO: No state? Just callback?
-  const getModel = useCallback(() => {
-    return { ...DEFAULT_MODEL, ...modelProp };
-  }, [modelProp]);
-  // const [model, setModel] = useState(getModel());
-  // useEffect(() => {
-  //   setModel(getModel());
-  // }, [modelProp, getModel]);
-
   // Control transferFunction in state and update on prop change
   const getTransferFunction = useCallback(() => {
     return useTransferFunction
@@ -78,16 +51,27 @@ function VolumeViewer({
   }, [transferFunctionProp, useTransferFunction, getTransferFunction]);
 
   // Control sliders in state, sliders isn't exposed as a prop
-  const [sliders, setSliders] = useState({
-    x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-    y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-    z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-  });
+  const [sliders, setSliders] = useState(INIT_SLIDERS);
+
+  // Get new colorMaps on prop change
+  const getColorMaps = useCallback(() => {
+    const colorMap = getColorMap();
+    const colorMaps = useDefaultColorMaps
+      ? colorMapsProp.concat(DEFAULT_COLOR_MAPS)
+      : colorMapsProp;
+    if (colorMaps.indexOf(colorMap) < 0) colorMaps.unshift(colorMap);
+
+    return colorMaps;
+  }, [useDefaultColorMaps, colorMapsProp, getColorMap]);
+
+  // Get new model on prop change
+  const getModel = useCallback(() => {
+    return { ...DEFAULT_MODEL, ...modelProp };
+  }, [modelProp]);
 
   return (
     <Wrapper key={remountKey} className={className} style={style}>
       <AframeScene
-        // model={model}
         model={getModel()}
         colorMap={colorMap}
         transferFunction={transferFunction}
@@ -100,21 +84,17 @@ function VolumeViewer({
           useTransferFunction={useTransferFunction}
           initColorMap={getColorMap()}
           initTransferFunction={getTransferFunction()}
-          model={getModel()}
-          colorMaps={getColorMaps()}
           colorMap={colorMap}
           setColorMap={setColorMap}
           transferFunction={transferFunction}
           setTransferFunction={setTransferFunction}
           sliders={sliders}
           setSliders={setSliders}
+          range={getModel().range}
+          colorMaps={getColorMaps()}
           reset={() => {
             setColorMap(getColorMap());
-            setSliders({
-              x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-              y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-              z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-            });
+            setSliders(INIT_SLIDERS);
             setTransferFunction(getTransferFunction());
             setRemountKey(Math.random());
           }}

@@ -27,9 +27,14 @@ const DEFAULT_TRANSFER_FUNCTION = [
   { x: 1, y: 1 },
 ];
 
+const SLIDER_RANGE = { min: 0, max: 1 };
+const INIT_SLIDERS = {
+  x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+  y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+  z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+};
 /** Controls */
 
-const SLIDER_RANGE = { min: 0, max: 1 };
 const DECIMALS = 2;
 const CANVAS_PADDING = 10;
 const HOVER_RADIUS = 15;
@@ -40,6 +45,7 @@ export {
   DEFAULT_MODEL,
   DEFAULT_TRANSFER_FUNCTION,
   SLIDER_RANGE,
+  INIT_SLIDERS,
   DECIMALS,
   CANVAS_PADDING,
   HOVER_RADIUS,
