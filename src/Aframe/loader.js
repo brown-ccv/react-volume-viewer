@@ -384,7 +384,7 @@ AFRAME.registerComponent("loader", {
         data: null,
       };
 
-      // Re-inject local image with comma
+      // Re-inject local image with semi-colon
       if (this.currentColorMap.startsWith("data:image/png")) {
         this.currentColorMap =
           this.currentColorMap.substring(0, 14) +

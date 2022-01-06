@@ -10,27 +10,28 @@ import "../Aframe/cursor-listener";
 import "../Aframe/loader";
 import "../Aframe/render-2d-clipplane";
 
+// aframe data is passed as a string
+function toAframeString(obj) {
+  let str = "";
+  Object.entries(obj).forEach(([key, val]) => {
+    let propStr = `${key}: ${val};`;
+
+    // Image imports begin with data:image/png;64
+    // Remove ; to parse into aframe correctly
+    // The ; is re-injected in loader.js
+    if (key === "colorMap") propStr = propStr.replace(";", "") + ";";
+
+    str += propStr;
+  });
+  return str;
+}
+
 function AframeScene(props) {
   const {
     state: { colorMap, model, sliders, transferFunction },
     useTransferFunction,
   } = props;
 
-  // aframe data is passed as a string
-  function toAframeString(obj) {
-    let str = "";
-    Object.entries(obj).forEach(([key, val]) => {
-      let propStr = `${key}: ${val};`;
-
-      // Image imports begin with data:image/png;64
-      // Remove ; to parse into aframe correctly
-      // The ; is re-injected in loader.js
-      if (key === "colorMap") propStr = propStr.replace(";", "") + ";";
-
-      str += propStr;
-    });
-    return str;
-  }
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}

@@ -24,7 +24,9 @@ function VolumeViewer({
   useDefaultColorMaps,
   useTransferFunction,
 }) {
-  const getColorMap = useCallback(() => {return colorMap}, [colorMap]);
+  const getColorMap = useCallback(() => {
+    return colorMap;
+  }, [colorMap]);
 
   const getModel = useCallback(() => {
     return { ...DEFAULT_MODEL, ...model };
@@ -32,7 +34,7 @@ function VolumeViewer({
 
   const getTransferFunction = useCallback(() => {
     return useTransferFunction ? transferFunction : DEFAULT_TRANSFER_FUNCTION;
-  }, [useTransferFunction, transferFunction])
+  }, [useTransferFunction, transferFunction]);
 
   const [state, setState] = useState({
     colorMap: getColorMap(),
