@@ -93,6 +93,8 @@ function VolumeViewer({
 const Wrapper = styled.div`
   position: relative;
   isolation: isolate;
+  width: 100%;
+  height: 100%;
 `;
 
 VolumeViewer.propTypes = {
