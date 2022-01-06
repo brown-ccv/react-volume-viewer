@@ -74,13 +74,13 @@ function AframeScene(props) {
         loader={toAframeString({
           alphaXDataArray: transferFunction.map((p) => p["x"]),
           alphaYDataArray: transferFunction.map((p) => p["y"]),
-          colorMap: colorMap,
+          colorMap,
           path: model.path,
           slices: model.slices,
           x_spacing: model.spacing.x,
           y_spacing: model.spacing.y,
           z_spacing: model.spacing.z,
-          useTransferFunction: useTransferFunction,
+          useTransferFunction
         })}
         position={model.position}
         rotation={model.rotation}
