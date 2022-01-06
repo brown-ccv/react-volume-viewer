@@ -90,7 +90,7 @@ function App() {
 
       <Main>
         {Buttons}
-        <Wrapper>{VV}</Wrapper>
+        {VV}
         <hr />
       </Main>
 
@@ -101,14 +101,8 @@ function App() {
   );
 }
 
-const Wrapper = styled.div`
-  height: 250px;
-  width: 250px;
-  margin: auto;
-`;
-
 const StyledVolumeViewer = styled(VolumeViewer)`
-  /* height: 75vh; */
+  height: 75vh;
 `;
 
 const Main = styled.main`
