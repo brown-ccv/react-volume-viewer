@@ -27,7 +27,7 @@ const DEFAULT_SLIDERS = {
   x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
   y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
   z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-}
+};
 
 const DECIMALS = 2;
 const CANVAS_PADDING = 10;

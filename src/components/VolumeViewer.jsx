@@ -17,6 +17,11 @@ import AframeScene from "./AframeScene.jsx";
 const getColorMap = (colorMapProp) => {
   return colorMapProp ?? DEFAULT_COLOR_MAP;
 };
+const getColorMaps = (useDefaultColorMaps, colorMaps) => {
+  return useDefaultColorMaps
+    ? { ...colorMaps, ...DEFAULT_COLOR_MAPS }
+    : colorMaps;
+};
 const getTransferFunction = (useTransferFunction, transferFunctionProp) => {
   return useTransferFunction ? transferFunctionProp : DEFAULT_TRANSFER_FUNCTION;
 };
@@ -37,6 +42,7 @@ function VolumeViewer({
 }) {
   // Get initial values based on prop input. These will update on prop change
   const initColorMap = getColorMap(colorMapProp);
+  const initColorMaps = getColorMaps(useDefaultColorMaps, colorMaps);
   const initTransferFunction = getTransferFunction(
     useTransferFunction,
     transferFunctionProp
@@ -75,11 +81,7 @@ function VolumeViewer({
 
       {controlsVisible && (
         <Controls
-          colorMaps={
-            useDefaultColorMaps
-              ? { ...colorMaps, ...DEFAULT_COLOR_MAPS }
-              : colorMaps
-          }
+          colorMaps={initColorMaps}
           useTransferFunction={useTransferFunction}
           initColorMap={initColorMap}
           initTransferFunction={initTransferFunction}
