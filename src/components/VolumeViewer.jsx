@@ -15,21 +15,19 @@ import AframeScene from "./AframeScene.jsx";
 
 // Functions for handling prop input
 const getColorMap = (colorMapProp, colorMapsProp) => {
-  if(colorMapProp) return colorMapProp
-  else if(colorMapsProp) return colorMapsProp[1]
-  else return DEFAULT_COLOR_MAP
+  if (colorMapProp) return colorMapProp;
+  else if (colorMapsProp.length) return colorMapsProp[0];
+  else return DEFAULT_COLOR_MAP;
 };
-const getColorMaps = (useDefaultColorMaps, colorMaps) => {
-  return {
-    ...colorMaps,
-    ...(useDefaultColorMaps && DEFAULT_COLOR_MAPS),
-  };
+const getColorMaps = (colorMap, useDefaultColorMaps, colorMapsProp) => {
+  const colorMaps = [...colorMapsProp]; // JS arrays pass by reference, need fresh copy
+  if (useDefaultColorMaps) colorMaps.push(...DEFAULT_COLOR_MAPS);
+  if (!colorMaps.includes(colorMap)) colorMaps.unshift(colorMap);
+  return colorMaps;
 };
 const getTransferFunction = (useTransferFunction, transferFunctionProp) => {
-  return useTransferFunction ? transferFunctionProp : DEFAULT_TRANSFER_FUNCTION;
-};
-const getModel = (modelProp) => {
-  return { ...DEFAULT_MODEL, ...modelProp };
+  if (useTransferFunction) return transferFunctionProp;
+  else return DEFAULT_TRANSFER_FUNCTION;
 };
 
 function VolumeViewer({
@@ -45,12 +43,16 @@ function VolumeViewer({
 }) {
   // Get initial values based on prop input. These will update on prop change
   const initColorMap = getColorMap(colorMapProp, colorMapsProp);
-  const colorMaps = getColorMaps(useDefaultColorMaps, colorMapsProp);
+  const colorMaps = getColorMaps(
+    initColorMap,
+    useDefaultColorMaps,
+    colorMapsProp
+  );
   const initTransferFunction = getTransferFunction(
     useTransferFunction,
     transferFunctionProp
   );
-  const model = getModel(modelProp);
+  const model = { ...DEFAULT_MODEL, ...modelProp };
 
   // Changing a components key will remount the entire thing
   // Because the model's position is handled internally by aframe we need to remount it to reset its position
@@ -111,7 +113,7 @@ const Wrapper = styled.div`
 `;
 
 VolumeViewer.propTypes = {
-  /**    
+  /**
    * The current color map applied by the transferFunction
    * It will default to the first object in colorMaps if no colorMap is provided
    * It will default to grayscale if neither colorMap nor colorMaps is provided.
@@ -119,7 +121,7 @@ VolumeViewer.propTypes = {
    *  name: Common name of the color map - used internally
    *  path: Path to the color map src
    */
-   colorMap: PropTypes.exact({
+  colorMap: PropTypes.exact({
     name: PropTypes.string,
     path: PropTypes.string,
   }),
@@ -129,7 +131,7 @@ VolumeViewer.propTypes = {
    *  name: Common name of the color map - used internally
    *  path: Path to the color map src
    */
-   colorMaps: PropTypes.arrayOf(
+  colorMaps: PropTypes.arrayOf(
     PropTypes.exact({
       name: PropTypes.string,
       path: PropTypes.string,
@@ -188,7 +190,7 @@ VolumeViewer.propTypes = {
 };
 
 VolumeViewer.defaultProps = {
-  // colorMap: [],
+  colorMaps: [],
   controlsVisible: true,
   transferFunction: DEFAULT_TRANSFER_FUNCTION,
   useDefaultColorMaps: true,
