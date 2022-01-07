@@ -38,15 +38,6 @@ function VolumeViewer({
     setColorMap(getColorMap());
   }, [colorMapProp, getColorMap]);
 
-  // Control model in state and update on prop change
-  const getModel = useCallback(() => {
-    return { ...DEFAULT_MODEL, ...modelProp };
-  }, [modelProp]);
-  const [model, setModel] = useState(getModel());
-  useEffect(() => {
-    setModel(getModel());
-  }, [modelProp, getModel]);
-
   // Control transferFunction in state and update on prop change
   const getTransferFunction = useCallback(() => {
     return useTransferFunction
@@ -59,6 +50,12 @@ function VolumeViewer({
   useEffect(() => {
     setTransferFunction(getTransferFunction());
   }, [transferFunctionProp, useTransferFunction, getTransferFunction]);
+
+  // Update model on prop change
+  const getModel = useCallback(() => {
+    return { ...DEFAULT_MODEL, ...modelProp };
+  }, [modelProp]);
+  const model = getModel()
 
   // Control sliders in state, sliders isn't exposed as a prop
   const [sliders, setSliders] = useState({
@@ -88,6 +85,7 @@ function VolumeViewer({
           initColorMap={getColorMap()}
           initTransferFunction={getTransferFunction()}
           model={model}
+
           colorMap={colorMap}
           setColorMap={setColorMap}
           transferFunction={transferFunction}
