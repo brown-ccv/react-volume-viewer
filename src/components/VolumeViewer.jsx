@@ -15,10 +15,8 @@ import AframeScene from "./AframeScene.jsx";
 
 // Functions for handling prop input
 const getColorMap = (colorMapProp, colorMapsProp) => {
-  console.log("getColorMap", colorMapProp, colorMapsProp)
-  // return colorMapProp ?? DEFAULT_COLOR_MAP;
   if(colorMapProp) return colorMapProp
-  else if(colorMapsProp) return colorMapsProp[0]
+  else if(colorMapsProp) return colorMapsProp[1]
   else return DEFAULT_COLOR_MAP
 };
 const getColorMaps = (useDefaultColorMaps, colorMaps) => {
