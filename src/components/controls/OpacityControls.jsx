@@ -31,19 +31,22 @@ const scaleTransferFunctionToCanvasY = scaleLinear();
 
 // Returns the mouse's  position relative to canvas
 function getRelativeMousePos(e) {
-  const mouse = {
+  const position = {
     x: e.clientX - e.target.getBoundingClientRect().x,
     y: e.clientY - e.target.getBoundingClientRect().y,
   };
 
-  // Conform min/max position to padding
-  if (mouse.x < canvasRange.x[0]) mouse.x = canvasRange.x[0];
-  else if (mouse.x > canvasRange.x[1]) mouse.x = canvasRange.x[1];
+  // Clamp to the canvas padding
+  position.x = Math.min(
+    Math.max(position.x, canvasRange.x[0]),
+    canvasRange.x[1]
+  );
+  position.y = Math.max(
+    Math.min(position.y, canvasRange.y[0]),
+    canvasRange.y[1]
+  );
 
-  if (mouse.y > canvasRange.y[0]) mouse.y = canvasRange.y[0];
-  else if (mouse.y < canvasRange.y[1]) mouse.y = canvasRange.y[1];
-
-  return mouse;
+  return position;
 }
 
 function OpacityControls({
@@ -102,13 +105,13 @@ function OpacityControls({
     context.beginPath();
     context.strokeStyle = "rgba(128, 128, 128, 0.8)";
     context.lineWidth = 2;
-    canvasPoints.map((point) => {
+    canvasPoints.forEach((point) => {
       context.lineTo(point.x, point.y);
     });
     context.stroke();
 
     // Draw points
-    canvasPoints.map((point) => {
+    canvasPoints.forEach((point) => {
       context.beginPath();
       context.fillStyle =
         pointHovering === point
@@ -127,16 +130,18 @@ function OpacityControls({
         };
       }),
     }));
-  }, [canvasPoints, pointHovering, pointDragging]);
+  }, [canvasPoints, pointHovering, pointDragging, setState]);
 
   /** EVENT LISTENER FUNCTIONS **/
 
   // Check to see if cursor is above a point - change cursor if so
   function checkHovering(e) {
-    const mouse = getRelativeMousePos(e);
+    const relativeMouse = getRelativeMousePos(e);
+    console.log(relativeMouse, canvasPoints[1]);
     const point = canvasPoints.find((point) => {
       const distance = Math.sqrt(
-        Math.pow(mouse.x - point.x, 2) + Math.pow(mouse.y - point.y, 2)
+        Math.pow(relativeMouse.x - point.x, 2) +
+          Math.pow(relativeMouse.y - point.y, 2)
       );
       return distance < HOVER_RADIUS;
     });
@@ -157,21 +162,21 @@ function OpacityControls({
   // Drag a point
   function dragPoint(e) {
     e.preventDefault();
-    const mousePos = getRelativeMousePos(e);
+    const newPoint = getRelativeMousePos(e);
 
     // First and last point stay at the start/end of the x axis
     const idx = canvasPoints.findIndex((p) => p === pointDragging);
-    if (idx === 0) mousePos.x = canvasRange.x[0];
-    else if (idx === canvasPoints.length - 1) mousePos.x = canvasRange.x[1];
+    if (idx === 0) newPoint.x = canvasRange.x[0];
+    else if (idx === canvasPoints.length - 1) newPoint.x = canvasRange.x[1];
 
     // Update point to mouse position
     setCanvasPoints(
-      [...canvasPoints.filter((p) => p !== pointDragging), mousePos].sort(
+      [...canvasPoints.filter((p) => p !== pointDragging), newPoint].sort(
         (a, b) => a.x - b.x
       )
     );
-    setPointDragging(mousePos);
-    setPointHovering(mousePos);
+    setPointDragging(newPoint);
+    setPointHovering(newPoint);
   }
 
   // Add point to canvas

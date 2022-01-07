@@ -1,14 +1,11 @@
-/* globals  THREE */
 THREE.ShaderLib["ccvLibVolumeRenderShader"] = {
   uniforms: {
-    //"u_mvp": { value: new THREE.Matrix4() },
     slice: { value: 1.0 },
     dim: { value: 1.0 },
     clipPlane: { value: new THREE.Matrix4() },
     clipping: { value: false },
     threshold: { value: 1 },
     multiplier: { value: 1 },
-    //"camPos": { value: new THREE.Vector3( 1, 1, 1 ) },
     step_size: { value: new THREE.Vector3(1, 1, 1) },
     channel: { value: 1 },
     u_lut: { value: null },
@@ -25,9 +22,6 @@ THREE.ShaderLib["ccvLibVolumeRenderShader"] = {
   },
 
   vertexShader: [
-    //'#version 330 core',
-    //'uniform mat4 MVP;',   //combined modelview projection matrix
-
     "mat4 scale(mat4 m, vec3 v){",
     "mat4 Result;",
     "Result[0] = m[0]  * v[0];",
@@ -37,7 +31,7 @@ THREE.ShaderLib["ccvLibVolumeRenderShader"] = {
     "return Result;",
     "}",
 
-    "mat4 inverse(mat4 m){",
+    "mat4 getInverse(mat4 m){",
 
     "float Coef00 = m[2][2] * m[3][3] - m[3][2] * m[2][3];",
     "float Coef02 = m[1][2] * m[3][3] - m[3][2] * m[1][3];",
@@ -103,30 +97,17 @@ THREE.ShaderLib["ccvLibVolumeRenderShader"] = {
 
     "varying  vec3 vUV;", //3D texture coordinates for texture lookup in the fragment shader
     "varying  vec3 camPos;",
-    //'out mat4 nClipPlane;',
     "uniform float zScale;",
-    //'uniform mat4 clipPlane;',
     "uniform mat4 controllerPoseMatrix;",
     "uniform bool grabMesh;",
-    "void main()",
-    "{",
-    //get the clipspace position
-    //'gl_Position = MVP*vec4(vVertex, 1);'
-    //'gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );',
-    //get the 3D texture coordinates by adding (0.5,0.5,0.5) to the object space
-    //vertex position. Since the unit cube is at origin (min: (-0.5,-0.5,-0.5) and max: (0.5,0.5,0.5))
-    //adding (0.5,0.5,0.5) to the unit cube object space position gives us values from (0,0,0) to
-    //(1,1,1)
+    "void main(){",
 
     "mat4 MV_tmp = scale(modelViewMatrix,vec3(1,1,zScale));",
     "mat4 MVP = projectionMatrix * MV_tmp;",
     "gl_Position = MVP * vec4( position, 1.0 );",
     "vUV = position + vec3(0.5);",
-    //'camPos = (inverse(viewMatrix*modelMatrix ) *vec4(0,0,0,1)).xyz; ',
-    "camPos = (inverse(MV_tmp) *vec4(0,0,0,1)).xyz; ",
+    "camPos = (getInverse(MV_tmp) *vec4(0,0,0,1)).xyz; ",
     "camPos = camPos+ vec3(0.5);",
-    //'nClipPlane = clipPlane * viewMatrix;',
-    //'nClipPlane = translate(nClipPlane, vec3(0.5));',
     "}",
   ].join("\n"),
 
