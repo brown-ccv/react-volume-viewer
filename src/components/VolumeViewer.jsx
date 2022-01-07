@@ -7,7 +7,7 @@ import {
   DEFAULT_COLOR_MAPS,
   DEFAULT_MODEL,
   DEFAULT_TRANSFER_FUNCTION,
-  SLIDER_RANGE,
+  DEFAULT_SLIDERS,
 } from "../constants/constants";
 
 import Controls from "./controls/Controls.jsx";
@@ -61,11 +61,7 @@ function VolumeViewer({
   }, [initTransferFunction]);
 
   // Control sliders in state, sliders isn't exposed as a prop
-  const [sliders, setSliders] = useState({
-    x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-    y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-    z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-  });
+  const [sliders, setSliders] = useState(DEFAULT_SLIDERS);
 
   return (
     <Wrapper key={remountKey} className={className} style={style}>
@@ -96,11 +92,7 @@ function VolumeViewer({
           setSliders={setSliders}
           reset={() => {
             setColorMap(initColorMap);
-            setSliders({
-              x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-              y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-              z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-            });
+            setSliders(DEFAULT_SLIDERS);
             setTransferFunction(initTransferFunction);
             setRemountKey(Math.random());
           }}
