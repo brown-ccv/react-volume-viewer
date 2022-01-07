@@ -14,10 +14,10 @@ import "../Aframe/render-2d-clipplane";
 
 function AframeScene({
   model,
+  useTransferFunction,
   colorMap,
   transferFunction,
   sliders,
-  useTransferFunction,
 }) {
   return (
     <StyledScene id="volumeViewerScene" background="color: black" embedded>

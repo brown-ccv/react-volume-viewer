@@ -7,11 +7,13 @@ import ClipControls from "./ClipControls.jsx";
 
 function Controls({
   colorMaps,
-  useTransferFunction,
-  initTransferFunction,
   model,
+  useTransferFunction,
+  initColorMap,
+  initTransferFunction,
   colorMap,
   setColorMap,
+  transferFunction,
   setTransferFunction,
   sliders,
   setSliders,

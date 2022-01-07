@@ -34,7 +34,7 @@ function VolumeViewer({
   className,
   style,
   colorMap: colorMapProp,
-  colorMaps,
+  colorMaps: colorMapsProp,
   controlsVisible,
   model: modelProp,
   transferFunction: transferFunctionProp,
@@ -43,7 +43,7 @@ function VolumeViewer({
 }) {
   // Get initial values based on prop input. These will update on prop change
   const initColorMap = getColorMap(colorMapProp);
-  const initColorMaps = getColorMaps(useDefaultColorMaps, colorMaps);
+  const colorMaps = getColorMaps(useDefaultColorMaps, colorMapsProp);
   const initTransferFunction = getTransferFunction(
     useTransferFunction,
     transferFunctionProp
@@ -54,44 +54,40 @@ function VolumeViewer({
   // Because the model's position is handled internally by aframe we need to remount it to reset its position
   const [remountKey, setRemountKey] = useState(Math.random());
 
-  // Control colorMap in state and update on prop change
+  // Control colorMap, transferFunction, and sliders in state; override on prop change
   const [colorMap, setColorMap] = useState(initColorMap);
   useEffect(() => {
     setColorMap(initColorMap);
   }, [initColorMap]);
 
-  // Control transferFunction in state and update on prop change
   const [transferFunction, setTransferFunction] =
     useState(initTransferFunction);
   useEffect(() => {
     setTransferFunction(initTransferFunction);
   }, [initTransferFunction]);
 
-  // Control sliders in state, sliders isn't exposed as a prop
   const [sliders, setSliders] = useState(DEFAULT_SLIDERS);
 
   return (
     <Wrapper key={remountKey} className={className} style={style}>
       <AframeScene
         model={model}
+        useTransferFunction={useTransferFunction}
         colorMap={colorMap}
         transferFunction={transferFunction}
-        useTransferFunction={useTransferFunction}
         sliders={sliders}
       />
 
       {controlsVisible && (
         <Controls
-          colorMaps={initColorMaps}
-          useTransferFunction={useTransferFunction}
-          initColorMap={initColorMap}
-          initTransferFunction={initTransferFunction}
+          colorMaps={colorMaps}
           model={model}
+          useTransferFunction={useTransferFunction}
+          initTransferFunction={initTransferFunction}
           colorMap={colorMap}
-          setColorMap={setColorMap}
-          transferFunction={transferFunction}
-          setTransferFunction={setTransferFunction}
           sliders={sliders}
+          setColorMap={setColorMap}
+          setTransferFunction={setTransferFunction}
           setSliders={setSliders}
           reset={() => {
             setColorMap(initColorMap);
