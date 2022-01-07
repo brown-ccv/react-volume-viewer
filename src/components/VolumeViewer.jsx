@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
@@ -13,8 +13,15 @@ import {
 import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
 
+// Functions for handling prop input
 const getColorMap = (colorMapProp) => {
   return colorMapProp ?? DEFAULT_COLOR_MAP;
+};
+const getTransferFunction = (useTransferFunction, transferFunctionProp) => {
+  return useTransferFunction ? transferFunctionProp : DEFAULT_TRANSFER_FUNCTION;
+};
+const getModel = (modelProp) => {
+  return { ...DEFAULT_MODEL, ...modelProp };
 };
 
 function VolumeViewer({
@@ -28,34 +35,30 @@ function VolumeViewer({
   useDefaultColorMaps,
   useTransferFunction,
 }) {
+  // Get initial values based on prop input. These will update on prop change
+  const initColorMap = getColorMap(colorMapProp);
+  const initTransferFunction = getTransferFunction(
+    useTransferFunction,
+    transferFunctionProp
+  );
+  const model = getModel(modelProp);
+
   // Changing a components key will remount the entire thing
   // Because the model's position is handled internally by aframe we need to remount it to reset its position
   const [remountKey, setRemountKey] = useState(Math.random());
 
   // Control colorMap in state and update on prop change
-  const [colorMap, setColorMap] = useState(getColorMap(colorMapProp));
+  const [colorMap, setColorMap] = useState(initColorMap);
   useEffect(() => {
-    setColorMap(getColorMap(colorMapProp));
-  }, [colorMapProp]);
+    setColorMap(initColorMap);
+  }, [initColorMap]);
 
   // Control transferFunction in state and update on prop change
-  const getTransferFunction = useCallback(() => {
-    return useTransferFunction
-      ? transferFunctionProp
-      : DEFAULT_TRANSFER_FUNCTION;
-  }, [useTransferFunction, transferFunctionProp]);
-  const [transferFunction, setTransferFunction] = useState(
-    getTransferFunction()
-  );
+  const [transferFunction, setTransferFunction] =
+    useState(initTransferFunction);
   useEffect(() => {
-    setTransferFunction(getTransferFunction());
-  }, [transferFunctionProp, useTransferFunction, getTransferFunction]);
-
-  // Update model on prop change
-  const getModel = useCallback(() => {
-    return { ...DEFAULT_MODEL, ...modelProp };
-  }, [modelProp]);
-  const model = getModel();
+    setTransferFunction(initTransferFunction);
+  }, [initTransferFunction]);
 
   // Control sliders in state, sliders isn't exposed as a prop
   const [sliders, setSliders] = useState({
@@ -82,8 +85,8 @@ function VolumeViewer({
               : colorMaps
           }
           useTransferFunction={useTransferFunction}
-          initColorMap={getColorMap(colorMapProp)}
-          initTransferFunction={getTransferFunction()}
+          initColorMap={initColorMap}
+          initTransferFunction={initTransferFunction}
           model={model}
           colorMap={colorMap}
           setColorMap={setColorMap}
@@ -92,13 +95,13 @@ function VolumeViewer({
           sliders={sliders}
           setSliders={setSliders}
           reset={() => {
-            setColorMap(getColorMap(colorMapProp));
+            setColorMap(initColorMap);
             setSliders({
               x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
               y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
               z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
             });
-            setTransferFunction(getTransferFunction());
+            setTransferFunction(initTransferFunction);
             setRemountKey(Math.random());
           }}
         />
