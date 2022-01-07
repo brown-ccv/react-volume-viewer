@@ -39,19 +39,16 @@ AFRAME.registerComponent("loader", {
   schema: {
     rayCollided: { type: "boolean", default: false },
     modelLoaded: { type: "boolean", default: false },
-    useTransferFunction: { type: "boolean", default: false },
-    colorMap: {
-      type: "string",
-      default: "./assets/images/colormaps/haline.png",
-    },
+    meshPosition: { type: "vec3", default: { x: 0, y: 0, z: 0 } },
     alphaXDataArray: { type: "array" },
     alphaYDataArray: { type: "array" },
-    meshPosition: { type: "vec3", default: { x: 0, y: 0, z: 0 } },
+    colorMap: { type: "string", default: "" },
     path: { type: "string", default: "" },
     slices: { type: "number", default: 55 },
     x_spacing: { type: "number", default: 2.0 },
     y_spacing: { type: "number", default: 2.0 },
     z_spacing: { type: "number", default: 1.0 },
+    useTransferFunction: { type: "boolean", default: false },
   },
 
   init: function () {
@@ -265,10 +262,7 @@ AFRAME.registerComponent("loader", {
     const { x_spacing, y_spacing, z_spacing, slices, path } = this.data;
     if (currentVolume !== undefined) {
       //clear mesh
-      currentVolume.geometry.dispose();
-      currentVolume.material.dispose();
       this.el.removeObject3D("mesh");
-      this.el.sceneEl.object3D.dispose();
       currentVolume = undefined;
     }
 
@@ -314,11 +308,9 @@ AFRAME.registerComponent("loader", {
           uniforms["dim"].value = dim;
 
           if (!useTransferFunction) {
-            console.log("NOT USING LUT");
             uniforms["channel"].value = 6;
             uniforms["useLut"].value = false;
           } else {
-            console.log("USING LUT");
             uniforms["useLut"].value = false;
           }
           uniforms["step_size"].value = new THREE.Vector3(
@@ -392,12 +384,19 @@ AFRAME.registerComponent("loader", {
         data: null,
       };
 
+      // Re-inject local image with semi-colon
+      if (this.currentColorMap.startsWith("data:image/png")) {
+        this.currentColorMap =
+          this.currentColorMap.substring(0, 14) +
+          ";" +
+          this.currentColorMap.substring(14);
+      }
+
       newColorMap.img.src = this.currentColorMap;
       this.colorTransferMap.set(this.currentColorMap, newColorMap);
       const mappedColorMap = newColorMap;
 
       const updateTransferTexture = this.updateTransferTexture;
-
       newColorMap.img.onload = function (data) {
         colorCanvas.height = imgHeight;
         colorCanvas.width = imgWidth;
