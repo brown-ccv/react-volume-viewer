@@ -13,6 +13,10 @@ import {
 import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
 
+const getColorMap = (colorMapProp) => {
+  return colorMapProp ?? DEFAULT_COLOR_MAP;
+};
+
 function VolumeViewer({
   className,
   style,
@@ -25,18 +29,14 @@ function VolumeViewer({
   useTransferFunction,
 }) {
   // Changing a components key will remount the entire thing
-  // Because the model's position is handled internally by aframe we
-  // need to remount it to reset its position
+  // Because the model's position is handled internally by aframe we need to remount it to reset its position
   const [remountKey, setRemountKey] = useState(Math.random());
 
   // Control colorMap in state and update on prop change
-  const getColorMap = useCallback(() => {
-    return colorMapProp ?? DEFAULT_COLOR_MAP;
-  }, [colorMapProp]);
-  const [colorMap, setColorMap] = useState(getColorMap());
+  const [colorMap, setColorMap] = useState(getColorMap(colorMapProp));
   useEffect(() => {
-    setColorMap(getColorMap());
-  }, [colorMapProp, getColorMap]);
+    setColorMap(getColorMap(colorMapProp));
+  }, [colorMapProp]);
 
   // Control transferFunction in state and update on prop change
   const getTransferFunction = useCallback(() => {
@@ -55,7 +55,7 @@ function VolumeViewer({
   const getModel = useCallback(() => {
     return { ...DEFAULT_MODEL, ...modelProp };
   }, [modelProp]);
-  const model = getModel()
+  const model = getModel();
 
   // Control sliders in state, sliders isn't exposed as a prop
   const [sliders, setSliders] = useState({
@@ -82,10 +82,9 @@ function VolumeViewer({
               : colorMaps
           }
           useTransferFunction={useTransferFunction}
-          initColorMap={getColorMap()}
+          initColorMap={getColorMap(colorMapProp)}
           initTransferFunction={getTransferFunction()}
           model={model}
-
           colorMap={colorMap}
           setColorMap={setColorMap}
           transferFunction={transferFunction}
@@ -93,7 +92,7 @@ function VolumeViewer({
           sliders={sliders}
           setSliders={setSliders}
           reset={() => {
-            setColorMap(getColorMap());
+            setColorMap(getColorMap(colorMapProp));
             setSliders({
               x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
               y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
