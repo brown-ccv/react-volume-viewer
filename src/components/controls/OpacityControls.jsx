@@ -4,15 +4,10 @@ import { scaleLinear } from "d3-scale";
 
 import Title from "./SectionTitle.jsx";
 import {
-  SLIDER_RANGE,
   DECIMALS,
   CANVAS_PADDING,
   HOVER_RADIUS,
 } from "../../constants/constants.js";
-
-/** CONSTANTS **/
-
-let initCanvasPoints = []; // Starting canvas points, used for reset
 
 /** Data Ranges and Transformations **/
 
@@ -49,11 +44,7 @@ function getRelativeMousePos(e) {
   return position;
 }
 
-function OpacityControls({
-  state: { transferFunction, model },
-  setState,
-  initColorMap,
-}) {
+function OpacityControls({ range, initTransferFunction, setTransferFunction }) {
   const canvasRef = useRef(null);
   const [cursorType, setCursorType] = useState("pointer"); // Cursor type (styled-components)
   const [canvasPoints, setCanvasPoints] = useState([]); // Points in canvas space
@@ -76,15 +67,15 @@ function OpacityControls({
       .range(canvasRange.y);
 
     // Initialize canvasPoints
-    const points = transferFunction.map((p) => {
-      return {
-        x: scaleTransferFunctionToCanvasX(p.x),
-        y: scaleTransferFunctionToCanvasY(p.y),
-      };
-    });
-    setCanvasPoints(points);
-    initCanvasPoints = points;
-  }, []);
+    setCanvasPoints(
+      initTransferFunction.map((p) => {
+        return {
+          x: scaleTransferFunctionToCanvasX(p.x),
+          y: scaleTransferFunctionToCanvasY(p.y),
+        };
+      })
+    );
+  }, [initTransferFunction]);
 
   /** DRAW FUNCTION **/
 
@@ -121,16 +112,15 @@ function OpacityControls({
       context.fill();
     });
 
-    setState((state) => ({
-      ...state,
-      transferFunction: canvasPoints.map((p) => {
+    setTransferFunction(
+      canvasPoints.map((p) => {
         return {
           x: scaleTransferFunctionToCanvasX.invert(p.x),
           y: scaleTransferFunctionToCanvasY.invert(p.y),
         };
-      }),
-    }));
-  }, [canvasPoints, pointHovering, pointDragging, setState]);
+      })
+    );
+  }, [canvasPoints, pointHovering, pointDragging, setTransferFunction]);
 
   /** EVENT LISTENER FUNCTIONS **/
 
@@ -213,20 +203,6 @@ function OpacityControls({
     setCursorType("inherit");
   }
 
-  // Reset sliders and set colorMap and model to props
-  function reset() {
-    setCanvasPoints(initCanvasPoints);
-    setState((state) => ({
-      ...state,
-      colorMap: initColorMap,
-      sliders: {
-        x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-        y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-        z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-      },
-    }));
-  }
-
   return (
     <Wrapper>
       <Title>Transfer Function</Title>
@@ -244,16 +220,15 @@ function OpacityControls({
 
       <Labels>
         <LeftLabel>
-          {model.range.min.toFixed(DECIMALS)} {model.range.unit}
+          {range.min.toFixed(DECIMALS)} {range.unit}
         </LeftLabel>
 
         <CenterLabel>
-          {((model.range.min + model.range.max) / 2).toFixed(DECIMALS)}{" "}
-          {model.range.unit}
+          {((range.min + range.max) / 2).toFixed(DECIMALS)} {range.unit}
         </CenterLabel>
 
         <RightLabel>
-          {model.range.max.toFixed(DECIMALS)} {model.range.unit}
+          {range.max.toFixed(DECIMALS)} {range.unit}
         </RightLabel>
       </Labels>
 
@@ -261,7 +236,6 @@ function OpacityControls({
         Double-click to add a point to the transfer function. Right-click to
         remove a point. Drag points to change the function.
       </HelpText>
-      <Button onClick={reset}>Reset</Button>
     </Wrapper>
   );
 }
@@ -304,7 +278,5 @@ const RightLabel = styled(LabelText)`
 const HelpText = styled.p`
   margin: 5px 0;
 `;
-
-const Button = styled.button``;
 
 export default OpacityControls;

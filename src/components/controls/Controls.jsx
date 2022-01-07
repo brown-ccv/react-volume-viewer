@@ -6,29 +6,37 @@ import OpacityControls from "./OpacityControls.jsx";
 import ClipControls from "./ClipControls.jsx";
 
 function Controls({
-  state,
-  setState,
   colorMaps,
-  initColorMap,
+  model,
   useTransferFunction,
+  initColorMap,
+  initTransferFunction,
+  colorMap,
+  setColorMap,
+  transferFunction,
+  setTransferFunction,
+  sliders,
+  setSliders,
+  reset,
 }) {
   return (
     <Wrapper>
       <ColorMapControls
-        state={state}
-        setState={setState}
         colorMaps={colorMaps}
+        colorMap={colorMap}
+        setColorMap={setColorMap}
       />
 
       {useTransferFunction && (
         <OpacityControls
-          state={state}
-          setState={setState}
-          initColorMap={initColorMap}
+          range={model.range}
+          initTransferFunction={initTransferFunction}
+          setTransferFunction={setTransferFunction}
         />
       )}
+      <Button onClick={reset}> Reset </Button>
 
-      <ClipControls state={state} setState={setState} />
+      <ClipControls sliders={sliders} setSliders={setSliders} />
     </Wrapper>
   );
 }
@@ -47,5 +55,7 @@ const Wrapper = styled.div`
   background-color: white;
   border-radius: 5%;
 `;
+
+const Button = styled.button``;
 
 export default Controls;
