@@ -11,7 +11,7 @@ import "../Aframe/loader";
 import "../Aframe/render-2d-clipplane";
 
 // aframe data is passed as a string
-function toAframeString(obj) {
+const toAframeString = (obj) => {
   let str = "";
   Object.entries(obj).forEach(([key, val]) => {
     let propStr = `${key}: ${val};`;
