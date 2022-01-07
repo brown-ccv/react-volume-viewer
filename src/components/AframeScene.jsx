@@ -24,14 +24,15 @@ const toAframeString = (obj) => {
     str += propStr;
   });
   return str;
-}
+};
 
-function AframeScene(props) {
-  const {
-    state: { colorMap, model, sliders, transferFunction },
-    useTransferFunction,
-  } = props;
-
+function AframeScene({
+  model,
+  useTransferFunction,
+  colorMap,
+  transferFunction,
+  sliders,
+}) {
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
@@ -80,7 +81,7 @@ function AframeScene(props) {
           x_spacing: model.spacing.x,
           y_spacing: model.spacing.y,
           z_spacing: model.spacing.z,
-          useTransferFunction
+          useTransferFunction,
         })}
         position={model.position}
         rotation={model.rotation}
