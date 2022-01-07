@@ -261,28 +261,29 @@ AFRAME.registerComponent("model", {
     if (this.colorTransferMap.has(this.data.colorMap)) {
       const width = 256;
       const colorTransfer = this.colorTransferMap.get(this.data.colorMap).data;
-
-      const imageTransferData = new Uint8Array(4 * width);
-      for (let i = 0; i < width; i++) {
-        imageTransferData[i * 4 + 0] = colorTransfer[i * 3 + 0];
-        imageTransferData[i * 4 + 1] = colorTransfer[i * 3 + 1];
-        imageTransferData[i * 4 + 2] = colorTransfer[i * 3 + 2];
-        imageTransferData[i * 4 + 3] = this.newAlphaData[i];
-      }
-
-      const transferTexture = new THREE.DataTexture(
-        imageTransferData,
-        width,
-        1,
-        THREE.RGBAFormat
-      );
-      transferTexture.needsUpdate = true;
-
-      if (this.getMesh()) {
-        let material = this.getMesh().material;
-        material.uniforms.u_lut.value = transferTexture;
-        material.uniforms.useLut.value = true;
-        material.needsUpdate = true;
+      if(colorTransfer) {
+        const imageTransferData = new Uint8Array(4 * width);
+        for (let i = 0; i < width; i++) {
+          imageTransferData[i * 4 + 0] = colorTransfer[i * 3 + 0];
+          imageTransferData[i * 4 + 1] = colorTransfer[i * 3 + 1];
+          imageTransferData[i * 4 + 2] = colorTransfer[i * 3 + 2];
+          imageTransferData[i * 4 + 3] = this.newAlphaData[i];
+        }
+  
+        const transferTexture = new THREE.DataTexture(
+          imageTransferData,
+          width,
+          1,
+          THREE.RGBAFormat
+        );
+        transferTexture.needsUpdate = true;
+  
+        if (this.getMesh()) {
+          let material = this.getMesh().material;
+          material.uniforms.u_lut.value = transferTexture;
+          material.uniforms.useLut.value = true;
+          material.needsUpdate = true;
+        }
       }
     }
   },
