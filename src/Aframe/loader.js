@@ -200,7 +200,6 @@ AFRAME.registerComponent("loader", {
       const colorTransfer = this.colorTransferMap.get(
         this.currentColorMap
       ).data;
-      console.log("updateTT", colorTransfer);
       if (colorTransfer) {
         const imageTransferData = new Uint8Array(4 * 256);
         for (let i = 0; i < 256; i++) {
