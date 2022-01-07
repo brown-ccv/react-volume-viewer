@@ -20,8 +20,8 @@ const getColorMap = (colorMapProp) => {
 const getColorMaps = (useDefaultColorMaps, colorMaps) => {
   return {
     ...colorMaps,
-    ...(useDefaultColorMaps && DEFAULT_COLOR_MAPS)
-  }
+    ...(useDefaultColorMaps && DEFAULT_COLOR_MAPS),
+  };
 };
 const getTransferFunction = (useTransferFunction, transferFunctionProp) => {
   return useTransferFunction ? transferFunctionProp : DEFAULT_TRANSFER_FUNCTION;

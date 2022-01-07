@@ -24,7 +24,7 @@ const toAframeString = (obj) => {
     str += propStr;
   });
   return str;
-}
+};
 
 function AframeScene({
   model,
@@ -81,7 +81,7 @@ function AframeScene({
           x_spacing: model.spacing.x,
           y_spacing: model.spacing.y,
           z_spacing: model.spacing.z,
-          useTransferFunction
+          useTransferFunction,
         })}
         position={model.position}
         rotation={model.rotation}
