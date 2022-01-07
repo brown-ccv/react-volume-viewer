@@ -14,8 +14,12 @@ import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
 
 // Functions for handling prop input
-const getColorMap = (colorMapProp) => {
-  return colorMapProp ?? DEFAULT_COLOR_MAP;
+const getColorMap = (colorMapProp, colorMapsProp) => {
+  console.log("getColorMap", colorMapProp, colorMapsProp)
+  // return colorMapProp ?? DEFAULT_COLOR_MAP;
+  if(colorMapProp) return colorMapProp
+  else if(colorMapsProp) return colorMapsProp[0]
+  else return DEFAULT_COLOR_MAP
 };
 const getColorMaps = (useDefaultColorMaps, colorMaps) => {
   return {
@@ -42,7 +46,7 @@ function VolumeViewer({
   useTransferFunction,
 }) {
   // Get initial values based on prop input. These will update on prop change
-  const initColorMap = getColorMap(colorMapProp);
+  const initColorMap = getColorMap(colorMapProp, colorMapsProp);
   const colorMaps = getColorMaps(useDefaultColorMaps, colorMapsProp);
   const initTransferFunction = getTransferFunction(
     useTransferFunction,
@@ -109,17 +113,30 @@ const Wrapper = styled.div`
 `;
 
 VolumeViewer.propTypes = {
-  /** The current color map (path to the image). It will default to grayscale if no colorMap is provided. */
-  colorMap: PropTypes.string,
+  /**    
+   * The current color map applied by the transferFunction
+   * It will default to the first object in colorMaps if no colorMap is provided
+   * It will default to grayscale if neither colorMap nor colorMaps is provided.
+   *
+   *  name: Common name of the color map - used internally
+   *  path: Path to the color map src
+   */
+   colorMap: PropTypes.exact({
+    name: PropTypes.string,
+    path: PropTypes.string,
+  }),
 
   /**
-   * Dictionary of color maps available in the controls.
-   *  key: Name of the color map
-   *  value: Path to the color map
+   * Array of color maps available in the controls.
+   *  name: Common name of the color map - used internally
+   *  path: Path to the color map src
    */
-  colorMaps: PropTypes.shape({
-    Example: PropTypes.string,
-  }),
+   colorMaps: PropTypes.arrayOf(
+    PropTypes.exact({
+      name: PropTypes.string,
+      path: PropTypes.string,
+    })
+  ),
 
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
@@ -165,7 +182,6 @@ VolumeViewer.propTypes = {
    * Whether or not to use the libraries default color maps
    * Default Color Maps: grayscale, natural, rgb
    *
-   * If defaultColorMaps is false and no colorMap is present the model will use grayscale
    */
   useDefaultColorMaps: PropTypes.bool,
 
@@ -174,7 +190,7 @@ VolumeViewer.propTypes = {
 };
 
 VolumeViewer.defaultProps = {
-  colorMap: DEFAULT_COLOR_MAP,
+  // colorMap: [],
   controlsVisible: true,
   transferFunction: DEFAULT_TRANSFER_FUNCTION,
   useDefaultColorMaps: true,
