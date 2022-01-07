@@ -200,27 +200,30 @@ AFRAME.registerComponent("loader", {
       const colorTransfer = this.colorTransferMap.get(
         this.currentColorMap
       ).data;
-      const imageTransferData = new Uint8Array(4 * 256);
-      for (let i = 0; i < 256; i++) {
-        imageTransferData[i * 4 + 0] = colorTransfer[i * 3 + 0];
-        imageTransferData[i * 4 + 1] = colorTransfer[i * 3 + 1];
-        imageTransferData[i * 4 + 2] = colorTransfer[i * 3 + 2];
-        imageTransferData[i * 4 + 3] = this.newAlphaData[i];
-      }
+      console.log("updateTT", colorTransfer);
+      if (colorTransfer) {
+        const imageTransferData = new Uint8Array(4 * 256);
+        for (let i = 0; i < 256; i++) {
+          imageTransferData[i * 4 + 0] = colorTransfer[i * 3 + 0];
+          imageTransferData[i * 4 + 1] = colorTransfer[i * 3 + 1];
+          imageTransferData[i * 4 + 2] = colorTransfer[i * 3 + 2];
+          imageTransferData[i * 4 + 3] = this.newAlphaData[i];
+        }
 
-      const transferTexture = new THREE.DataTexture(
-        imageTransferData,
-        256,
-        1,
-        THREE.RGBAFormat
-      );
-      transferTexture.needsUpdate = true;
+        const transferTexture = new THREE.DataTexture(
+          imageTransferData,
+          256,
+          1,
+          THREE.RGBAFormat
+        );
+        transferTexture.needsUpdate = true;
 
-      if (this.el.getObject3D("mesh") !== undefined) {
-        let material = this.el.getObject3D("mesh").material;
-        material.uniforms.u_lut.value = transferTexture;
-        material.uniforms.useLut.value = true;
-        material.needsUpdate = true;
+        if (this.el.getObject3D("mesh") !== undefined) {
+          let material = this.el.getObject3D("mesh").material;
+          material.uniforms.u_lut.value = transferTexture;
+          material.uniforms.useLut.value = true;
+          material.needsUpdate = true;
+        }
       }
     }
   },
