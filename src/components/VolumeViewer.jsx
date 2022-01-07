@@ -191,7 +191,7 @@ VolumeViewer.propTypes = {
 
 VolumeViewer.defaultProps = {
   colorMaps: [],
-  controlsVisible: true,
+  controlsVisible: false,
   transferFunction: DEFAULT_TRANSFER_FUNCTION,
   useDefaultColorMaps: true,
   useTransferFunction: true,
