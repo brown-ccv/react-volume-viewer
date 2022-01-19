@@ -11,6 +11,9 @@ const initColorMaps = {
   Thermal: thermal,
 };
 
+let channels = ["Green","Red"];
+let currentChannel = 0;
+
 function App() {
   const [colorMap, setColorMap] = useState(haline);
   const [controlsVisible, setControlsVisible] = useState(false);
@@ -23,42 +26,14 @@ function App() {
   const Buttons = (
     <>
       {" "}
-      <button onClick={() => setControlsVisible(!controlsVisible)}>
-        Controls Visible
-      </button>
-      <button onClick={() => setUseTransferFunction(!useTransferFunction)}>
-        Use Transfer Function
-      </button>
-      <button onClick={() => setUseDefaultColorMaps(!useDefaultColorMaps)}>
-        Use Default Color Maps
-      </button>
+      
       <button
-        onClick={() =>
-          setColorMaps(colorMaps === initColorMaps ? [] : initColorMaps)
-        }
+        onClick={() => {setColorMap(colorMap === haline ? thermal : haline)
+          currentChannel = (currentChannel +1 ) % 2}}
       >
-        Pass in Color Maps
+        Change Channel {channels[currentChannel]}
       </button>
-      <button
-        onClick={() => setColorMap(colorMap === haline ? thermal : haline)}
-      >
-        Color Map
-      </button>
-      <button
-        onClick={() => {
-          setModelPath(modelPath === salt ? temp : salt);
-        }}
-      >
-        Model
-      </button>
-      <button
-        onClick={() => {
-          setColorMap(colorMap === haline ? thermal : haline);
-          setModelPath(modelPath === salt ? temp : salt);
-        }}
-      >
-        ColorMap and Model
-      </button>
+      
     </>
   );
 
@@ -73,19 +48,23 @@ function App() {
           max: 33.71,
           unit: "°C",
         },
-        path: modelPath,
+        path: "/assets/models/spheroids-result-gamma-2-3.png",
         scale: "1 -1 1",
-        rotation: "-55 0 0",
+        rotation: "0 0 0",
+        slices: 65,
+        spacing: { x: 1.0, y: 1.0, z: 1.0 },
+        
       }}
       useTransferFunction={useTransferFunction}
       useDefaultColorMaps={useDefaultColorMaps}
+      useTransferFunction={false}
     />
   );
 
   return (
     <>
       <header>
-        <h1>Hello, World</h1>
+        <h1>Microscopy Viewer</h1>
       </header>
 
       <Main>
@@ -95,7 +74,7 @@ function App() {
       </Main>
 
       <footer>
-        <h1>Goodbye, World!</h1>
+        
       </footer>
     </>
   );

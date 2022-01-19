@@ -1,4 +1,4 @@
-import React from "react";
+  import React from "react";
 
 import "aframe";
 import "aframe-event-set-component";

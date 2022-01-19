@@ -281,7 +281,8 @@ THREE.ShaderLib["ccvLibVolumeRenderShader"] = {
     "}",
 
     "}",
-
+    "smple.rgb = smple.rgb*18.5;",
+    //"smple.a = smple.a*0.9;",
     //'smple.a = max(smple.r, max(smple.g,smple.b)) ; ',
     //'smple.a = 0.1*smple.a;',
     "if(useLut)",

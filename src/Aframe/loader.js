@@ -67,7 +67,8 @@ AFRAME.registerComponent("loader", {
     this.updateOpacityData = this.updateOpacityData.bind(this);
     this.colorMapNeedsUpdate = false;
     this.currentColorMap = this.data.colorMap;
-
+    this.currentChannel = false;
+    this.counter = 0;
     this.el.addEventListener("raycaster-intersected", this.onCollide);
     this.el.addEventListener(
       "raycaster-intersected-cleared",
@@ -217,9 +218,29 @@ AFRAME.registerComponent("loader", {
       transferTexture.needsUpdate = true;
 
       if (this.el.getObject3D("mesh") !== undefined) {
+        console.log("HERE 111")
         let material = this.el.getObject3D("mesh").material;
+        console.log("material.uniforms.channel.value")
+        console.log(material.uniforms.channel.value)
+        if(this.counter % 2 == 0)
+        {
+          if(this.currentChannel == true)
+          {
+            console.log("RED CHANNEL");
+            material.uniforms.channel.value = 1;
+          }
+          else
+          {
+            console.log("GREEN CHANNEL");
+            material.uniforms.channel.value = 2;
+          } 
+          this.currentChannel = !this.currentChannel;
+        }
+        this.counter++;                   
+        
+        console.log(material.uniforms.channel)
         material.uniforms.u_lut.value = transferTexture;
-        material.uniforms.useLut.value = true;
+        material.uniforms.useLut.value = false;
         material.needsUpdate = true;
       }
     }
@@ -306,7 +327,7 @@ AFRAME.registerComponent("loader", {
           uniforms["multiplier"].value = 1;
           uniforms["slice"].value = slices;
           uniforms["dim"].value = dim;
-
+          console.log("HERE 222")
           if (!useTransferFunction) {
             uniforms["channel"].value = 6;
             uniforms["useLut"].value = false;
@@ -410,9 +431,11 @@ AFRAME.registerComponent("loader", {
           colorTransfer[i * 3 + 2] = colorData[i * 4 + 2];
         }
         mappedColorMap.data = colorTransfer;
+        console.log("POR ACA 333");
         updateTransferTexture();
       };
     } else {
+      console.log("POR ACA 444");
       this.updateTransferTexture();
     }
   },
@@ -423,6 +446,8 @@ AFRAME.registerComponent("loader", {
     }
 
     // this part updates the opacity control points
+    if()
+    
     if (
       (this.data.alphaXDataArray !== undefined &&
         oldData.alphaXDataArray !== this.data.alphaXDataArray) ||
@@ -433,6 +458,7 @@ AFRAME.registerComponent("loader", {
         this.data.alphaXDataArray,
         this.data.alphaYDataArray
       );
+      console.log("POR ACA");
       this.updateTransferTexture();
     }
 
