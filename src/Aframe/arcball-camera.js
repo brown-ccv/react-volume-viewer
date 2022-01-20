@@ -92,7 +92,6 @@ AFRAME.registerComponent("arcball-camera", {
     }
     this.controls.enabled = true;
     el.getObject3D("camera").position.set(0, 0, 2);
-    let mesh = this.meshObjectHandler.el.getAttribute("loader").meshPosition;
 
     if (el.hasAttribute("look-controls")) {
       el.setAttribute("look-controls", "enabled", false);
