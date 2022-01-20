@@ -133,7 +133,7 @@ import styled from 'styled-components'
 import { VolumeViewer } from 'react-volume-viewer'
 
 const haline = { name: "Haline", path: "./path/to/colormaps/haline.png" };
-const haline = { name: "Thermal", path: "./path/to/colormaps/thermal.png" };
+const thermal = { name: "Thermal", path: "./path/to/colormaps/thermal.png" };
 import model from "./path/to/model.png";
 
 function App() {
