@@ -5,7 +5,7 @@ import "aframe";
 import "../Aframe/arcball-camera";
 import "../Aframe/buttons-check";
 import "../Aframe/cursor-listener";
-import "../Aframe/loader";
+import "../Aframe/model";
 import "../Aframe/render-2d-clipplane";
 import "../Aframe/entity-collider-check";
 import "../Aframe/collider-check";
@@ -39,8 +39,13 @@ function AframeScene({
       <a-entity
         id="rhand"
         raycaster="objects: .clickableMesh"
-        buttons-check
-        collider-check
+        buttons-check={toAframeString({
+          clipPlane: false,
+          grabObject: false,
+        })}
+        collider-check={toAframeString({
+          intersecting: false,
+        })}
       />
 
       <a-entity
@@ -94,7 +99,7 @@ function AframeScene({
         id="camera"
         camera="active: true"
         look-controls
-        arcball-camera="initialPosition:0 0 1"
+        arcball-camera="initialPosition: 0 0 1;"
       />
     </a-scene>
   );

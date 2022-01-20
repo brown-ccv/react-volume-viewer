@@ -1,9 +1,9 @@
 /* globals AFRAME THREE */
 import "./Shader.js";
 
-let bind = AFRAME.utils.bind;
+const bind = AFRAME.utils.bind;
 
-AFRAME.registerComponent("loader", {
+AFRAME.registerComponent("model", {
   schema: {
     rayCollided: { type: "boolean", default: false },
     modelLoaded: { type: "boolean", default: false },
