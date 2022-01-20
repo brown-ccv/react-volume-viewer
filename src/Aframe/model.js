@@ -23,35 +23,39 @@ AFRAME.registerComponent("model", {
     this.objectPose = new THREE.Matrix4();
     this.controllerPose = new THREE.Matrix4();
     this.tempMatrix = new THREE.Matrix4();
-    this.onCollide = this.onCollide.bind(this);
-    this.grabbed = false;
-    this.onSelectStart = this.onSelectStart.bind(this);
-    this.onClearCollide = this.onClearCollide.bind(this);
-    this.loadModel = this.loadModel.bind(this);
-    this.updateTransferTexture = this.updateTransferTexture.bind(this);
-    this.updateColorMapping = this.updateColorMapping.bind(this);
-    this.debugScene = this.debugScene.bind(this);
-
-    this.updateOpacityData = this.updateOpacityData.bind(this);
+    this.colorTransferMap = new Map();
+    this.group = new THREE.Group();
+    this.vrPosition = new THREE.Vector3(0, 0, 0);
+    this.vrRotation = new THREE.Vector3(0, 0, 0);
+    this.grabbed = false;   
     this.colorMapNeedsUpdate = false;
+    this.sceneHandler = this.el.sceneEl;
+    this.canvas = this.el.sceneEl.canvas;
+
     this.currentColorMap = this.data.colorMap;
 
+    // Add event listeners and bind functions
+    this.onCollide = this.onCollide.bind(this);
+    this.onSelectStart = this.onSelectStart.bind(this);
+    this.onClearCollide = this.onClearCollide.bind(this);
+    this.updateTransferTexture = this.updateTransferTexture.bind(this);
+    this.updateColorMapping = this.updateColorMapping.bind(this);
+    this.loadModel = this.loadModel.bind(this);
+    this.debugScene = this.debugScene.bind(this);
+    this.updateOpacityData = this.updateOpacityData.bind(this);
+    this.onEnterVR = bind(this.onEnterVR, this);
+    this.onExitVR = bind(this.onExitVR, this);
+    this.el.sceneEl.addEventListener("enter-vr", this.onEnterVR);
+    this.el.sceneEl.addEventListener("exit-vr", this.onExitVR);
     this.el.addEventListener("raycaster-intersected", this.onCollide);
     this.el.addEventListener(
       "raycaster-intersected-cleared",
       this.onClearCollide
     );
 
-    this.colorTransferMap = new Map();
-
-    this.group = new THREE.Group();
-
-    this.isVrModeOn = false;
-
-    this.sceneHandler = this.el.sceneEl;
-    this.group = new THREE.Group();
-
     this.controllerHandler = document.getElementById("rhand").object3D;
+    this.controllerHandler.matrixAutoUpdate = false;
+
     this.controllerHandler.el.addEventListener(
       "selectstart",
       this.onSelectStart
@@ -64,22 +68,12 @@ AFRAME.registerComponent("model", {
 
     this.clipPlaneHandler = document.getElementById("clipplane2D").object3D;
 
-    this.controllerHandler.matrixAutoUpdate = false;
-    this.grabState =
-      this.controllerHandler.el.getAttribute("buttons-check").grabObject;
+    
     let clipplane2D = document.getElementById("clipplane2D");
     if (clipplane2D !== undefined) {
       this.clipplane2DHandler = clipplane2D.object3D;
     }
 
-    // save mesh vr position and rotation on swich between desktop and vr
-    this.vrPosition = new THREE.Vector3(0, 0, 0);
-    this.vrRotation = new THREE.Vector3(0, 0, 0);
-    this.debugVRPos = false;
-    // bind onenterVR and onexitVR
-    this.bindMethods();
-    this.el.sceneEl.addEventListener("enter-vr", this.onEnterVR);
-    this.el.sceneEl.addEventListener("exit-vr", this.onExitVR);
 
     this.opacityControlPoints = [0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
 
@@ -153,10 +147,7 @@ AFRAME.registerComponent("model", {
       }
     }
 
-    this.canvas = this.el.sceneEl.canvas;
-
-    this.printedLog = false;
-
+    // Activate camera
     let cameraEl = document.querySelector("#camera");
     cameraEl.setAttribute("camera", "active", true);
   },
@@ -195,11 +186,6 @@ AFRAME.registerComponent("model", {
     }
   },
 
-  bindMethods: function () {
-    this.onEnterVR = bind(this.onEnterVR, this);
-    this.onExitVR = bind(this.onExitVR, this);
-  },
-
   onEnterVR: function () {},
 
   onExitVR: function () {
@@ -211,7 +197,6 @@ AFRAME.registerComponent("model", {
       this.vrRotation = this.el.getObject3D("mesh").rotation;
       this.el.getObject3D("mesh").position.copy(new THREE.Vector3());
       this.el.getObject3D("mesh").rotation.set(0, 0, 0);
-      this.debugVRPos = true;
     }
   },
 
@@ -409,14 +394,14 @@ AFRAME.registerComponent("model", {
       const scaledColorInit = arrayX[i] * 255;
       const scaledColorEnd = arrayX[i + 1] * 255;
 
-      const scaledAplhaInit = arrayY[i] * 255;
+      const scaledAlphaInit = arrayY[i] * 255;
       const scaledAlphaEnd = arrayY[i + 1] * 255;
 
       const deltaX = scaledColorEnd - scaledColorInit;
 
       for (let j = 1 / deltaX; j < 1; j += 1 / deltaX) {
         // linear interpolation
-        this.newAlphaData.push(scaledAplhaInit * (1 - j) + scaledAlphaEnd * j);
+        this.newAlphaData.push(scaledAlphaInit * (1 - j) + scaledAlphaEnd * j);
       }
     }
   },
@@ -426,11 +411,6 @@ AFRAME.registerComponent("model", {
   },
 
   tick: function (time, timeDelta) {
-    // Do something on every scene tick or frame.
-    if (this.debugVRPos) {
-      this.debugVRPos = false;
-    }
-
     const isVrModeActive = this.sceneHandler.is("vr-mode");
     if (this.data.modelLoaded) {
       if (this.clipPlaneListenerHandler !== undefined && !isVrModeActive) {
