@@ -9,6 +9,8 @@ import "../Aframe/buttons-check";
 import "../Aframe/cursor-listener";
 import "../Aframe/loader";
 import "../Aframe/render-2d-clipplane";
+import "../Aframe/entity-collider-check"
+import "../Aframe/collider-check"
 
 // aframe data is passed as a string
 const toAframeString = (obj) => {
@@ -75,7 +77,7 @@ function AframeScene({
       <a-entity
         id="volumeCube"
         class="clickableMesh"
-        loader={toAframeString({
+        model={toAframeString({
           alphaXDataArray: transferFunction.map((p) => p["x"]),
           alphaYDataArray: transferFunction.map((p) => p["y"]),
           colorMap: colorMap.path,
