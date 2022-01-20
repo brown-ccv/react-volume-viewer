@@ -10,6 +10,10 @@ AFRAME.registerComponent("buttons-check", {
     this.el.addEventListener("gripup", this.onGripUp);
     this.el.addEventListener("triggerdown", this.onTriggerDown);
     this.el.addEventListener("triggerup", this.onTriggerUp);
+    this.onGripDown = this.onGripDown.bind(this);
+    this.onGripUp = this.onGripDown.bind(this);
+    this.onTriggerDown = this.onTriggerDown.bind(this);
+    this.onTriggerUp = this.onTriggerUp.bind(this);
   },
 
   remove: function() {
