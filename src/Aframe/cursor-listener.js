@@ -16,9 +16,6 @@ AFRAME.registerComponent("cursor-listener", {
     });
 
     this.el.addEventListener("mousemove ", function (evt) {
-      if (this.dragging === true) {
-        console.log("dragging  at: ", evt.detail.intersection.point);
-      }
     });
     this.el.addEventListener("mouseup ", function (evt) {
       this.dragging = false;
@@ -30,13 +27,9 @@ AFRAME.registerComponent("cursor-listener", {
   },
 
   onMouseMove: function (evt) {
-    if (this.dragging === true) {
-      console.log("dragging at: ", evt.detail.intersection.point);
-    }
   },
 
   onMouseUp: function (evt) {
     this.dragging = false;
-    console.log("mouseup  at: ", evt.detail.intersection.point);
   },
 });

@@ -204,25 +204,14 @@ AFRAME.registerComponent("loader", {
 
   onExitVR: function () {
     if (this.el.getObject3D("mesh") !== undefined) {
-      console.log("loader onExitVR 1: ");
-      console.log(this.el.getObject3D("mesh").position);
 
       this.data.meshPosition.x = this.el.getObject3D("mesh").position.x;
       this.data.meshPosition.y = this.el.getObject3D("mesh").position.y;
       this.data.meshPosition.z = this.el.getObject3D("mesh").position.z;
 
-      console.log("loader onExitVR this.data.meshPosition 1 : ");
-      console.log(this.data.meshPosition);
-
       this.vrRotation = this.el.getObject3D("mesh").rotation;
       this.el.getObject3D("mesh").position.copy(new THREE.Vector3());
-      console.log("loader onExitVR this.data.meshPosition 2 : ");
-      console.log(this.data.meshPosition);
-
       this.el.getObject3D("mesh").rotation.set(0, 0, 0);
-
-      console.log("loader onExitVR 2: ");
-      console.log(this.el.getObject3D("mesh").position);
       this.debugVRPos = true;
     }
   },
@@ -320,7 +309,7 @@ AFRAME.registerComponent("loader", {
         },
         function () {},
         function () {
-          console.log("Could not load the data, Data not found");
+          throw new Error("Could not load the data at", path);
         }
       );
     }
@@ -334,7 +323,6 @@ AFRAME.registerComponent("loader", {
     this.data.rayCollided = false;
   },
   onSelectStart: function (event) {
-    console.log("onSelectStart");
   },
 
   remove: function () {

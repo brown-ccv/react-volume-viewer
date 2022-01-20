@@ -16,12 +16,10 @@ AFRAME.registerComponent("buttons-check", {
 
     this.el.addEventListener("triggerdown", (evt) => {
       this.data.grabObject = true;
-      console.log(this.data.grabObject);
     });
 
     this.el.addEventListener("triggerup", (evt) => {
       this.data.grabObject = false;
-      console.log(this.data.grabObject);
     });
   },
 });

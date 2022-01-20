@@ -82,7 +82,6 @@ AFRAME.registerComponent("arcball-camera", {
   },
 
   onExitVR: function () {
-    console.log("exit VR");
     let el = this.el;
     this.debugPosition = false;
     if (
@@ -93,11 +92,7 @@ AFRAME.registerComponent("arcball-camera", {
     }
     this.controls.enabled = true;
     el.getObject3D("camera").position.set(0, 0, 2);
-    console.log(
-      "this.meshObjectHandler.el.getAttribute('loader').meshPosition"
-    );
     let mesh = this.meshObjectHandler.el.getAttribute("loader").meshPosition;
-    console.log(mesh);
 
     if (el.hasAttribute("look-controls")) {
       el.setAttribute("look-controls", "enabled", false);
