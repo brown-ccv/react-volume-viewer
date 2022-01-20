@@ -29,7 +29,7 @@ VolumeViewer.propTypes = {
    * It will default to the first object in colorMaps if no colorMap is provided
    * It will default to grayscale if neither colorMap nor colorMaps is provided.
    *
-   *  name: Common name of the color map - used internally
+   *  name: Common name of the color map
    *  path: Path to the color map src
    */
   colorMap: PropTypes.exact({
@@ -39,7 +39,7 @@ VolumeViewer.propTypes = {
 
   /**
    * Array of color maps available in the controls.
-   *  name: Common name of the color map - used internally
+   *  name: Common name of the color map
    *  path: Path to the color map src
    */
   colorMaps: PropTypes.arrayOf(
