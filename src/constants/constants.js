@@ -4,9 +4,14 @@ import rgb from "../images/rgb.png";
 
 /** Default Props */
 
-const DEFAULT_COLOR_MAPS = { grayscale, natural, rgb };
+const grayscaleColorMap = { name: "Grayscale", path: grayscale };
+const DEFAULT_COLOR_MAPS = [
+  grayscaleColorMap,
+  { name: "Natural", path: natural },
+  { name: "RGB", path: rgb },
+];
 
-const DEFAULT_COLOR_MAP = grayscale;
+const DEFAULT_COLOR_MAP = grayscaleColorMap;
 
 const DEFAULT_MODEL = {
   position: "0 0 0",

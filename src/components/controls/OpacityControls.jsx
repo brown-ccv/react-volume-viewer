@@ -127,7 +127,6 @@ function OpacityControls({ range, initTransferFunction, setTransferFunction }) {
   // Check to see if cursor is above a point - change cursor if so
   function checkHovering(e) {
     const relativeMouse = getRelativeMousePos(e);
-    console.log(relativeMouse, canvasPoints[1]);
     const point = canvasPoints.find((point) => {
       const distance = Math.sqrt(
         Math.pow(relativeMouse.x - point.x, 2) +
