@@ -1,32 +1,31 @@
 /* globals AFRAME  */
 
-// Component to change to a sequential color on click.
 AFRAME.registerComponent("cursor-listener", {
   init: function () {
-    this.lastIndex = -1;
-    this.COLORS = ["red", "green", "blue"];
     this.dragging = false;
-    this.cameraHandler = document.getElementById("camera").object3D;
+
+    this.el.addEventListener("mousedown", this.onMousedown);
+    this.el.addEventListener("mousemove ", this.onMouseMove);
+    this.el.addEventListener("mouseup ", this.onMouseUp);
     this.onMousedown = this.onMousedown.bind(this);
-    this.onMouseUp = this.onMouseUp.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
-
-    this.el.addEventListener("mousedown", function (evt) {
-      this.dragging = true;
-    });
-
-    this.el.addEventListener("mousemove ", function (evt) {
-    });
-    this.el.addEventListener("mouseup ", function (evt) {
-      this.dragging = false;
-    });
+    this.onMouseUp = this.onMouseUp.bind(this);
   },
 
-  onMousedown: function (evt) {
+  remove: function () {
+    this.el.removeEventListener("mousedown", this.onMouseDown);
+    this.el.removeEventListener("mousemove ", this.onMouseMove);
+    this.el.removeEventListener("mouseup ", this.onMouseUp);
+  },
+
+  onMouseDown: function (evt) {
     this.dragging = true;
   },
 
   onMouseMove: function (evt) {
+    if (this.dragging) {
+      // Do something?
+    }
   },
 
   onMouseUp: function (evt) {

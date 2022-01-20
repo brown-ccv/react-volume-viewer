@@ -1,5 +1,3 @@
-// jshint ignore: start
-
 import React from "react";
 
 import "aframe";
@@ -9,8 +7,8 @@ import "../Aframe/buttons-check";
 import "../Aframe/cursor-listener";
 import "../Aframe/loader";
 import "../Aframe/render-2d-clipplane";
-import "../Aframe/entity-collider-check"
-import "../Aframe/collider-check"
+import "../Aframe/entity-collider-check";
+import "../Aframe/collider-check";
 
 // aframe data is passed as a string
 const toAframeString = (obj) => {
@@ -41,13 +39,8 @@ function AframeScene({
       <a-entity
         id="rhand"
         raycaster="objects: .clickableMesh"
-        buttons-check={toAframeString({
-          clipPlane: false,
-          grabObject: false,
-        })}
-        collider-check={toAframeString({
-          intersecting: false,
-        })}
+        buttons-check
+        collider-check
       />
 
       <a-entity

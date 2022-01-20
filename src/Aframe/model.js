@@ -204,7 +204,6 @@ AFRAME.registerComponent("loader", {
 
   onExitVR: function () {
     if (this.el.getObject3D("mesh") !== undefined) {
-
       this.data.meshPosition.x = this.el.getObject3D("mesh").position.x;
       this.data.meshPosition.y = this.el.getObject3D("mesh").position.y;
       this.data.meshPosition.z = this.el.getObject3D("mesh").position.z;
@@ -322,8 +321,7 @@ AFRAME.registerComponent("loader", {
   onClearCollide: function (event) {
     this.data.rayCollided = false;
   },
-  onSelectStart: function (event) {
-  },
+  onSelectStart: function (event) {},
 
   remove: function () {
     // Do something the component or its entity is detached.

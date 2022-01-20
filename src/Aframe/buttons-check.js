@@ -1,4 +1,5 @@
 /* globals AFRAME  */
+
 AFRAME.registerComponent("buttons-check", {
   schema: {
     clipPlane: { type: "boolean", default: false },
@@ -16,24 +17,23 @@ AFRAME.registerComponent("buttons-check", {
     this.onTriggerUp = this.onTriggerUp.bind(this);
   },
 
-  remove: function() {
+  remove: function () {
     this.el.removeEventListener("gripdown", this.onGripDown);
     this.el.removeEventListener("gripup", this.onGripUp);
     this.el.removeEventListener("triggerdown", this.onTriggerDown);
     this.el.removeEventListener("triggerup", this.onTriggerUp);
   },
 
-  onGripDown: function(e) {
+  onGripDown: function (e) {
     this.data.clipPlane = true;
   },
-  onGripUp: function(e) {
+  onGripUp: function (e) {
     this.data.clipPlane = false;
   },
-
-  onTriggerDown: function(e) {
+  onTriggerDown: function (e) {
     this.data.grabObject = true;
   },
-  onTriggerUp: function(e) {
+  onTriggerUp: function (e) {
     this.data.grabObject = false;
   },
 });
