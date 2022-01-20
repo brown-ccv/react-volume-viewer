@@ -29,7 +29,6 @@
     "@reach/listbox": "^0.16.2",
     "aframe": "^1.2.0",
     "aframe-event-set-component": "^5.0.0",
-    "aframe-orbit-controls": "^1.3.0",
     "d3-scale": "^4.0.2",
     "rc-slider": "^9.7.4"
   },

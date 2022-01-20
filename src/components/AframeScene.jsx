@@ -1,8 +1,8 @@
+// jshint ignore: start
+
 import React from "react";
 
 import "aframe";
-import "aframe-event-set-component";
-import "aframe-orbit-controls";
 
 import "../Aframe/arcball-camera";
 import "../Aframe/buttons-check";
