@@ -285,9 +285,6 @@ THREE.ShaderLib["ccvLibVolumeRenderShader"] = {
     "}",
     // artifitially increasing pixel intensity
     "smple.rgb = smple.rgb*intensity;",
-    //"smple.a = smple.a*0.9;",
-    //'smple.a = max(smple.r, max(smple.g,smple.b)) ; ',
-    //'smple.a = 0.1*smple.a;',
     "if(useLut)",
     "{",
     //we lookup the density value in the transfer function and return the
