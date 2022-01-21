@@ -66,7 +66,10 @@ function AframeScene({
         visible="false"
         height="1"
         width="1"
-        material="color: red ; side:double; transparent:true;opacity:0.3"
+        material="color: red; side: double; transparent: true; opacity: 0.2"
+        position={model.position}
+        rotation={model.rotation}
+        scale={model.scale}
         cursor-listener
       />
 
@@ -77,7 +80,7 @@ function AframeScene({
         loader={toAframeString({
           alphaXDataArray: transferFunction.map((p) => p["x"]),
           alphaYDataArray: transferFunction.map((p) => p["y"]),
-          colorMap,
+          colorMap: colorMap.path,
           path: model.path,
           slices: model.slices,
           x_spacing: model.spacing.x,
