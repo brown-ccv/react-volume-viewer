@@ -169,7 +169,6 @@ VolumeViewer.propTypes = {
     channel: PropTypes.number,
     /** Increase/decrease voxels intensity */
     intensity: PropTypes.number,
-
   }),
 
   /**
