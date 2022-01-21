@@ -217,7 +217,7 @@ AFRAME.registerComponent("loader", {
           1,
           THREE.RGBAFormat
         );
-        transferTexture.needsUpdate = true;  
+        transferTexture.needsUpdate = true;
 
         if (this.el.getObject3D("mesh") !== undefined) {
           let material = this.el.getObject3D("mesh").material;
@@ -227,8 +227,8 @@ AFRAME.registerComponent("loader", {
           material.uniforms.useLut.value = this.data.useTransferFunction;
           material.needsUpdate = true;
         }
+      }
     }
-  }
   },
 
   updateDataChannel: function () {
