@@ -32,8 +32,6 @@ function AframeScene({
   colorMap,
   transferFunction,
   sliders,
-  channel,
-  intensity,
 }) {
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
@@ -87,8 +85,8 @@ function AframeScene({
           y_spacing: model.spacing.y,
           z_spacing: model.spacing.z,
           useTransferFunction,
-          channel,
-          intensity,
+          channel: model.channel,
+          intensity: model.intensity,
         })}
         position={model.position}
         rotation={model.rotation}

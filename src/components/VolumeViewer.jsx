@@ -40,8 +40,6 @@ function VolumeViewer({
   transferFunction: transferFunctionProp,
   useDefaultColorMaps,
   useTransferFunction,
-  channel,
-  intensity,
 }) {
   // Get initial values based on prop input. These will update on prop change
   const initColorMap = getColorMap(colorMapProp, colorMapsProp);
@@ -82,8 +80,6 @@ function VolumeViewer({
         colorMap={colorMap}
         transferFunction={transferFunction}
         sliders={sliders}
-        channel={channel}
-        intensity={intensity}
       />
 
       {controlsVisible && (
@@ -169,6 +165,11 @@ VolumeViewer.propTypes = {
       y: PropTypes.number,
       z: PropTypes.number,
     }),
+    /** Channel to load data from (R:1, G:2, B:3)*/
+    channel: PropTypes.number,
+    /** Increase/decrease voxels intensity */
+    intensity: PropTypes.number,
+
   }),
 
   /**
