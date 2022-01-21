@@ -1,4 +1,4 @@
-  import React from "react";
+import React from "react";
 
 import "aframe";
 import "aframe-event-set-component";
@@ -32,6 +32,8 @@ function AframeScene({
   colorMap,
   transferFunction,
   sliders,
+  channel,
+  intensity,
 }) {
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
@@ -82,6 +84,8 @@ function AframeScene({
           y_spacing: model.spacing.y,
           z_spacing: model.spacing.z,
           useTransferFunction,
+          channel,
+          intensity,
         })}
         position={model.position}
         rotation={model.rotation}
