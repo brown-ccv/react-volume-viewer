@@ -27,7 +27,7 @@ AFRAME.registerComponent("model", {
     this.group = new THREE.Group();
     this.vrPosition = new THREE.Vector3(0, 0, 0);
     this.vrRotation = new THREE.Vector3(0, 0, 0);
-    this.grabbed = false;   
+    this.grabbed = false;
     this.colorMapNeedsUpdate = false;
     this.sceneHandler = this.el.sceneEl;
     this.canvas = this.el.sceneEl.canvas;
@@ -68,12 +68,10 @@ AFRAME.registerComponent("model", {
 
     this.clipPlaneHandler = document.getElementById("clipplane2D").object3D;
 
-    
     let clipplane2D = document.getElementById("clipplane2D");
     if (clipplane2D !== undefined) {
       this.clipplane2DHandler = clipplane2D.object3D;
     }
-
 
     this.opacityControlPoints = [0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
 

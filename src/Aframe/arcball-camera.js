@@ -7,7 +7,7 @@ AFRAME.registerComponent("arcball-camera", {
   dependencies: ["camera"],
 
   schema: {
-    initialPosition: {type: "vec3"},
+    initialPosition: { type: "vec3" },
   },
 
   init: function () {
@@ -54,7 +54,7 @@ AFRAME.registerComponent("arcball-camera", {
     ) {
       return;
     }
-    
+
     this.controls.enabled = false;
     if (el.hasAttribute("look-controls")) {
       el.setAttribute("look-controls", "enabled", true);
