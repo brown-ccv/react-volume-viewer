@@ -355,7 +355,6 @@ AFRAME.registerComponent("model", {
 
     if (path !== "") {
       const el = this.el;
-      const data = this.data;
       const canvasWidth = this.canvas.width;
       const canvasHeight = this.canvas.height;
 
@@ -382,43 +381,27 @@ AFRAME.registerComponent("model", {
           texture.unpackAlignment = 1;
           texture.needsUpdate = true;
 
-          // Material
+          // Create material
           const shader = THREE.ShaderLib["ModelShader"];
           const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-          uniforms["u_data"].value = texture;
-          uniforms["u_lut"].value = null;
-          uniforms["clipPlane"].value = new THREE.Matrix4();
-          uniforms["clipping"].value = false;
-          uniforms["threshold"].value = 1;
-          uniforms["multiplier"].value = 1;
-          uniforms["slice"].value = slices;
-          uniforms["dim"].value = dim;
-
-          if (useTransferFunction) {
-            uniforms["channel"].value = 1;
-            uniforms["useLut"].value = true;
-          } else {
-            uniforms["channel"].value = 6;
-            uniforms["useLut"].value = false;
-          }
-          uniforms["step_size"].value = new THREE.Vector3(
-            1 / 100,
-            1 / 100,
-            1 / 100
-          );
-
-          uniforms["viewPort"].value = new THREE.Vector2(
+          uniforms.dim.value = dim;
+          uniforms.intensity.value = intensity;
+          uniforms.slice.value = slices;
+          uniforms.step_size.value = new THREE.Vector3(0.01, 0.01, 0.01);
+          uniforms.u_data.value = texture;
+          uniforms.viewPort.value = new THREE.Vector2(
             canvasWidth,
             canvasHeight
           );
-          uniforms["P_inv"].value = new THREE.Matrix4();
-          uniforms["depth"].value = null;
-          uniforms["zScale"].value = zScale;
-          uniforms["controllerPoseMatrix"].value = new THREE.Matrix4();
-          uniforms["grabMesh"].value = false;
-          uniforms["box_min"].value = new THREE.Vector3(0, 0, 0);
-          uniforms["box_max"].value = new THREE.Vector3(1, 1, 1);
-          uniforms["intensity"].value = intensity;
+          uniforms.zScale.value = zScale;
+
+          if (useTransferFunction) {
+            uniforms.channel.value = 1;
+            uniforms.useLut.value = true;
+          } else {
+            uniforms.channel.value = 6;
+            uniforms.useLut.value = false;
+          }
 
           const material = new THREE.ShaderMaterial({
             uniforms: uniforms,
