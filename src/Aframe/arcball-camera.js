@@ -27,7 +27,7 @@ AFRAME.registerComponent("arcball-camera", {
     );
     this.controls.rotateSpeed = 1.0;
     this.controls.zoomSpeed = 1.2;
-    this.controls.panSpeed = 0.2;
+    this.controls.panSpeed = 0.8;
 
     // Set the pointer to grab/grabbing when over the vr canvas
     const aCanvas = document.querySelector(".a-canvas");

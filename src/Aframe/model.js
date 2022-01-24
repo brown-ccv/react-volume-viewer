@@ -5,17 +5,26 @@ const bind = AFRAME.utils.bind;
 
 AFRAME.registerComponent("model", {
   schema: {
+    // TODO: Move these to init
     rayCollided: { type: "boolean", default: false },
     modelLoaded: { type: "boolean", default: false },
     meshPosition: { type: "vec3", default: { x: 0, y: 0, z: 0 } },
+
+    // TODO: Custom parser for object of arrays
     alphaXDataArray: { type: "array" },
     alphaYDataArray: { type: "array" },
     colorMap: { type: "string", default: "" },
     path: { type: "string", default: "" },
     slices: { type: "number", default: 55 },
-    x_spacing: { type: "number", default: 2.0 },
-    y_spacing: { type: "number", default: 2.0 },
-    z_spacing: { type: "number", default: 1.0 },
+    // x_spacing: { type: "number", default: 2.0 },
+    // y_spacing: { type: "number", default: 2.0 },
+    // z_spacing: { type: "number", default: 1.0 },
+    // spacing: { type: "vec3", default: { x: 1, y: 1, z: 1 } },
+    spacing: {
+      parse: JSON.parse,
+      // stringify: JSON.stringify,
+      default: { x: 1, y: 1, z: 1 },
+    },
     useTransferFunction: { type: "boolean", default: false },
     channel: { type: "number", default: 1 },
     intensity: { type: "number", default: 1.0 },
@@ -51,13 +60,6 @@ AFRAME.registerComponent("model", {
       this.clipplane2DHandler = clipplane2D.object3D;
 
     // Add event listeners and bind functions
-    this.el.sceneEl.addEventListener("enter-vr", this.onEnterVR);
-    this.el.sceneEl.addEventListener("exit-vr", this.onExitVR);
-    this.el.addEventListener("raycaster-intersected", this.onCollide);
-    this.el.addEventListener(
-      "raycaster-intersected-cleared",
-      this.onClearCollide
-    );
     this.onEnterVR = bind(this.onEnterVR, this);
     this.onExitVR = bind(this.onExitVR, this);
     this.onCollide = this.onCollide.bind(this);
@@ -68,6 +70,13 @@ AFRAME.registerComponent("model", {
     this.updateDataChannel = this.updateDataChannel.bind(this);
     this.updateColorMapping = this.updateColorMapping.bind(this);
     this.updateOpacityData = this.updateOpacityData.bind(this);
+    this.el.sceneEl.addEventListener("enter-vr", this.onEnterVR);
+    this.el.sceneEl.addEventListener("exit-vr", this.onExitVR);
+    this.el.addEventListener("raycaster-intersected", this.onCollide);
+    this.el.addEventListener(
+      "raycaster-intersected-cleared",
+      this.onClearCollide
+    );
 
     // NOT SURE WHAT THIS DOES
     // this.opacityControlPoints = [0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
@@ -146,10 +155,6 @@ AFRAME.registerComponent("model", {
   },
 
   update: function (oldData) {
-    if (oldData === undefined) {
-      return;
-    }
-
     if (this.data.useTransferFunction) {
       // this part updates the opacity control points
       //comparing javascript arrays
@@ -369,7 +374,7 @@ AFRAME.registerComponent("model", {
 
   loadModel: function () {
     let currentVolume = this.getMesh();
-    const { x_spacing, y_spacing, z_spacing, slices, path } = this.data;
+    const { spacing, slices, path } = this.data;
     if (currentVolume !== undefined) {
       //clear mesh
       this.el.removeObject3D("mesh");
@@ -393,12 +398,18 @@ AFRAME.registerComponent("model", {
         path,
         function (texture) {
           const dim = Math.ceil(Math.sqrt(slices));
-          const spacing = [x_spacing, y_spacing, z_spacing];
+          // const spacing = [x_spacing, y_spacing, z_spacing];
 
+          // const volumeScale = [
+          //   1.0 / ((texture.image.width / dim) * spacing[0]),
+          //   1.0 / ((texture.image.height / dim) * spacing[1]),
+          //   1.0 / (slices * spacing[2]),
+          // ];
+          // console.log(spacing);
           const volumeScale = [
-            1.0 / ((texture.image.width / dim) * spacing[0]),
-            1.0 / ((texture.image.height / dim) * spacing[1]),
-            1.0 / (slices * spacing[2]),
+            1.0 / ((texture.image.width / dim) * spacing.x),
+            1.0 / ((texture.image.height / dim) * spacing.y),
+            1.0 / (slices * spacing.z),
           ];
 
           const zScale = volumeScale[0] / volumeScale[2];
@@ -455,17 +466,13 @@ AFRAME.registerComponent("model", {
 
           // Mesh
           const geometry = new THREE.BoxGeometry(1, 1, 1);
-
           el.setObject3D("mesh", new THREE.Mesh(geometry, material));
           data.modelLoaded = true;
           material.needsUpdate = true;
 
-          //this steps needs the model to be uploaded first
-          if (useTransferFunction) {
-            updateColorMapping();
-          } else {
-            updateDataChannel();
-          }
+          // this steps needs the model to be uploaded first
+          if (useTransferFunction) updateColorMapping();
+          else updateDataChannel();
         },
         function () {},
         function () {
@@ -556,7 +563,7 @@ AFRAME.registerComponent("model", {
 
     //inverse of the clipMatrix
     const currentSpaceClipMatrix_inverse = new THREE.Matrix4();
-    currentSpaceClipMatrix_inverse.getInverse(currentSpaceClipMatrix);
+    currentSpaceClipMatrix_inverse.copy(currentSpaceClipMatrix).invert();
 
     //outputmatrix - controller_inverse * volume * scale * translation
     const clipMatrix = new THREE.Matrix4();
