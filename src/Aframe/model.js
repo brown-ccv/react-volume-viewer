@@ -25,29 +25,32 @@ AFRAME.registerComponent("model", {
     this.objectPose = new THREE.Matrix4();
     this.controllerPose = new THREE.Matrix4();
     this.tempMatrix = new THREE.Matrix4();
-    this.colorTransferMap = new Map();
-    this.group = new THREE.Group();
     this.vrPosition = new THREE.Vector3(0, 0, 0);
     this.vrRotation = new THREE.Vector3(0, 0, 0);
+    this.group = new THREE.Group();
+    this.colorTransferMap = new Map();
+    this.newAlphaData = [];
     this.grabbed = false;
     this.colorMapNeedsUpdate = false;
     this.sceneHandler = this.el.sceneEl;
     this.canvas = this.el.sceneEl.canvas;
 
+    // TODO: Leave as this.data.colorMap
     this.currentColorMap = this.data.colorMap;
 
+    // Get other elements
+    this.controllerHandler = document.getElementById("rhand").object3D;
+    this.controllerHandler.matrixAutoUpdate = false;
+    this.clipPlaneListenerHandler = document.getElementById(
+      "clipplane2DListener"
+    ).object3D;
+    this.clip2DPlaneRendered = false;
+    let clipplane2D = document.getElementById("clipplane2D");
+    this.clipPlaneHandler = clipplane2D.object3D;
+    if (clipplane2D !== undefined)
+      this.clipplane2DHandler = clipplane2D.object3D;
+
     // Add event listeners and bind functions
-    this.onCollide = this.onCollide.bind(this);
-    this.onSelectStart = this.onSelectStart.bind(this);
-    this.onClearCollide = this.onClearCollide.bind(this);
-    this.updateTransferTexture = this.updateTransferTexture.bind(this);
-    this.updateDataChannel = this.updateDataChannel.bind(this);
-    this.updateColorMapping = this.updateColorMapping.bind(this);
-    this.loadModel = this.loadModel.bind(this);
-    this.debugScene = this.debugScene.bind(this);
-    this.updateOpacityData = this.updateOpacityData.bind(this);
-    this.onEnterVR = bind(this.onEnterVR, this);
-    this.onExitVR = bind(this.onExitVR, this);
     this.el.sceneEl.addEventListener("enter-vr", this.onEnterVR);
     this.el.sceneEl.addEventListener("exit-vr", this.onExitVR);
     this.el.addEventListener("raycaster-intersected", this.onCollide);
@@ -55,105 +58,272 @@ AFRAME.registerComponent("model", {
       "raycaster-intersected-cleared",
       this.onClearCollide
     );
+    this.onEnterVR = bind(this.onEnterVR, this);
+    this.onExitVR = bind(this.onExitVR, this);
+    this.onCollide = this.onCollide.bind(this);
+    this.onClearCollide = this.onClearCollide.bind(this);
+    this.getMesh = this.getMesh.bind(this);
+    this.loadModel = this.loadModel.bind(this);
+    this.updateTransferTexture = this.updateTransferTexture.bind(this);
+    this.updateDataChannel = this.updateDataChannel.bind(this);
+    this.updateColorMapping = this.updateColorMapping.bind(this);
+    this.updateOpacityData = this.updateOpacityData.bind(this);
 
-    this.controllerHandler = document.getElementById("rhand").object3D;
-    this.controllerHandler.matrixAutoUpdate = false;
+    // NOT SURE WHAT THIS DOES
+    // this.opacityControlPoints = [0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+    // let jet_values = [
+    //   [0, 0, 0.5],
+    //   [0, 0, 1],
+    //   [0, 0.5, 1],
+    //   [0, 1, 1],
+    //   [0.5, 1, 0.5],
+    //   [1, 1, 0],
+    //   [1, 0.5, 0],
+    //   [1, 0, 0],
+    //   [0.5, 0, 0],
+    // ];
+    // const pData = [];
+    // this.alphaData = [];
 
-    this.controllerHandler.el.addEventListener(
-      "selectstart",
-      this.onSelectStart
-    );
+    // const indices = [];
+    // const zeroArray = [0, 0, 0, 0];
 
-    this.clipPlaneListenerHandler = document.getElementById(
-      "clipplane2DListener"
-    ).object3D;
-    this.clip2DPlaneRendered = false;
+    // //setting up control points
+    // for (let i = 0; i < 9; i++) {
+    //   const index = i * 28;
+    //   while (pData.length < index) {
+    //     pData.push(zeroArray);
+    //   }
 
-    this.clipPlaneHandler = document.getElementById("clipplane2D").object3D;
+    //   pData.push([
+    //     jet_values[i][0] * 255,
+    //     jet_values[i][1] * 255,
+    //     jet_values[i][2] * 255,
+    //     this.opacityControlPoints[i] * 255,
+    //   ]);
+    //   indices.push(index);
+    // }
 
-    let clipplane2D = document.getElementById("clipplane2D");
-    if (clipplane2D !== undefined) {
-      this.clipplane2DHandler = clipplane2D.object3D;
-    }
+    // //interpolation between opacity control points
+    // for (let j = 0; j < 9 - 1; j++) {
+    //   const dDataA = pData[indices[j + 1]][3] - pData[indices[j]][3];
+    //   const dIndex = indices[j + 1] - indices[j];
+    //   const dDataIncA = dDataA / dIndex;
+    //   for (let idx = indices[j] + 1; idx < indices[j + 1]; idx++) {
+    //     let alpha = pData[idx - 1][3] + dDataIncA;
+    //     this.alphaData[idx] = alpha;
+    //   }
+    // }
 
-    this.opacityControlPoints = [0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+    // // interpolation between colors control points
+    // for (let j = 0; j < 9 - 1; j++) {
+    //   const dDataR = pData[indices[j + 1]][0] - pData[indices[j]][0];
+    //   const dDataG = pData[indices[j + 1]][1] - pData[indices[j]][1];
+    //   const dDataB = pData[indices[j + 1]][2] - pData[indices[j]][2];
+    //   const dDataA = pData[indices[j + 1]][3] - pData[indices[j]][3];
+    //   const dIndex = indices[j + 1] - indices[j];
 
-    let jet_values = [
-      [0, 0, 0.5],
-      [0, 0, 1],
-      [0, 0.5, 1],
-      [0, 1, 1],
-      [0.5, 1, 0.5],
-      [1, 1, 0],
-      [1, 0.5, 0],
-      [1, 0, 0],
-      [0.5, 0, 0],
-    ];
+    //   const dDataIncR = dDataR / dIndex;
+    //   const dDataIncG = dDataG / dIndex;
+    //   const dDataIncB = dDataB / dIndex;
+    //   const dDataIncA = dDataA / dIndex;
 
-    const pData = [];
-    this.alphaData = [];
-    this.newAlphaData = [];
-    const indices = [];
-    const zeroArray = [0, 0, 0, 0];
-
-    //setting up control points
-    for (let i = 0; i < 9; i++) {
-      const index = i * 28;
-      while (pData.length < index) {
-        pData.push(zeroArray);
-      }
-
-      pData.push([
-        jet_values[i][0] * 255,
-        jet_values[i][1] * 255,
-        jet_values[i][2] * 255,
-        this.opacityControlPoints[i] * 255,
-      ]);
-      indices.push(index);
-    }
-
-    //interpolation between opacity control points
-    for (let j = 0; j < 9 - 1; j++) {
-      const dDataA = pData[indices[j + 1]][3] - pData[indices[j]][3];
-      const dIndex = indices[j + 1] - indices[j];
-      const dDataIncA = dDataA / dIndex;
-      for (let idx = indices[j] + 1; idx < indices[j + 1]; idx++) {
-        let alpha = pData[idx - 1][3] + dDataIncA;
-        this.alphaData[idx] = alpha;
-      }
-    }
-
-    // interpolation between colors control points
-    for (let j = 0; j < 9 - 1; j++) {
-      const dDataR = pData[indices[j + 1]][0] - pData[indices[j]][0];
-      const dDataG = pData[indices[j + 1]][1] - pData[indices[j]][1];
-      const dDataB = pData[indices[j + 1]][2] - pData[indices[j]][2];
-      const dDataA = pData[indices[j + 1]][3] - pData[indices[j]][3];
-      const dIndex = indices[j + 1] - indices[j];
-
-      const dDataIncR = dDataR / dIndex;
-      const dDataIncG = dDataG / dIndex;
-      const dDataIncB = dDataB / dIndex;
-      const dDataIncA = dDataA / dIndex;
-
-      for (let idx = indices[j] + 1; idx < indices[j + 1]; idx++) {
-        const alpha = pData[idx - 1][3] + dDataIncA;
-        this.alphaData[idx] = alpha;
-        pData[idx] = [
-          pData[idx - 1][0] + dDataIncR,
-          pData[idx - 1][1] + dDataIncG,
-          pData[idx - 1][2] + dDataIncB,
-          alpha,
-        ];
-      }
-    }
+    //   for (let idx = indices[j] + 1; idx < indices[j + 1]; idx++) {
+    //     const alpha = pData[idx - 1][3] + dDataIncA;
+    //     this.alphaData[idx] = alpha;
+    //     pData[idx] = [
+    //       pData[idx - 1][0] + dDataIncR,
+    //       pData[idx - 1][1] + dDataIncG,
+    //       pData[idx - 1][2] + dDataIncB,
+    //       alpha,
+    //     ];
+    //   }
+    // }
 
     // Activate camera
     let cameraEl = document.querySelector("#camera");
     cameraEl.setAttribute("camera", "active", true);
   },
 
-  debugScene: function (evt) {},
+  update: function (oldData) {
+    if (oldData === undefined) {
+      return;
+    }
+
+    if (this.data.useTransferFunction) {
+      // this part updates the opacity control points
+      //comparing javascript arrays
+      if (
+        (this.data.alphaXDataArray !== undefined &&
+          JSON.stringify(oldData.alphaXDataArray) !==
+            JSON.stringify(this.data.alphaXDataArray)) ||
+        (this.data.alphaYDataArray !== undefined &&
+          JSON.stringify(oldData.alphaYDataArray) !==
+            JSON.stringify(this.data.alphaYDataArray))
+      ) {
+        this.updateOpacityData(
+          this.data.alphaXDataArray,
+          this.data.alphaYDataArray
+        );
+        this.updateTransferTexture();
+      } else if (oldData.colorMap !== this.data.colorMap) {
+        this.currentColorMap = this.data.colorMap;
+        this.updateColorMapping();
+      }
+    } else {
+      // Data using channels
+      if (
+        this.data.channel !== undefined &&
+        oldData.channel !== this.data.channel
+      ) {
+        this.updateDataChannel();
+      }
+    }
+
+    if (oldData.path !== this.data.path) {
+      this.loadModel();
+    }
+  },
+
+  tick: function (time, timeDelta) {
+    const isVrModeActive = this.sceneHandler.is("vr-mode");
+    if (this.data.modelLoaded) {
+      if (this.clipPlaneListenerHandler !== undefined && !isVrModeActive) {
+        if (
+          this.clipPlaneListenerHandler.el.getAttribute("render-2d-clipplane")
+            .activateClipPlane &&
+          !this.clip2DPlaneRendered
+        ) {
+          this.clip2DPlaneRendered = true;
+        } else if (
+          !this.clipPlaneListenerHandler.el.getAttribute("render-2d-clipplane")
+            .activateClipPlane &&
+          this.clip2DPlaneRendered
+        ) {
+          this.clip2DPlaneRendered = false;
+
+          if (this.getMesh() !== undefined) {
+            const material = this.getMesh().material;
+            material.uniforms.box_min.value = new THREE.Vector3(0, 0, 0);
+            material.uniforms.box_max.value = new THREE.Vector3(1, 1, 1);
+          }
+        }
+
+        if (this.clip2DPlaneRendered) {
+          if (this.getMesh() !== undefined) {
+            const material = this.getMesh().material;
+
+            if (material !== undefined) {
+              const sliceX = this.clipPlaneListenerHandler.el.getAttribute(
+                "render-2d-clipplane"
+              ).clipX;
+              const sliceY = this.clipPlaneListenerHandler.el.getAttribute(
+                "render-2d-clipplane"
+              ).clipY;
+              const sliceZ = this.clipPlaneListenerHandler.el.getAttribute(
+                "render-2d-clipplane"
+              ).clipZ;
+
+              material.uniforms.box_min.value = new THREE.Vector3(
+                sliceX.x,
+                sliceY.x,
+                sliceZ.x
+              );
+              material.uniforms.box_max.value = new THREE.Vector3(
+                sliceX.y,
+                sliceY.y,
+                sliceZ.y
+              );
+            }
+          }
+        }
+      } else if (this.controllerHandler !== undefined && isVrModeActive) {
+        if (
+          !this.controllerHandler.el.getAttribute("buttons-check").grabObject &&
+          this.grabbed
+        ) {
+          this.el
+            .getObject3D("mesh")
+            .matrix.premultiply(this.controllerHandler.matrixWorld);
+          this.el
+            .getObject3D("mesh")
+            .matrix.decompose(
+              this.getMesh().position,
+              this.getMesh().quaternion,
+              this.getMesh().scale
+            );
+          this.el.object3D.add(this.getMesh());
+
+          this.grabbed = false;
+        }
+
+        // grab mesh
+        if (
+          this.controllerHandler.el.getAttribute("buttons-check").grabObject &&
+          this.data.rayCollided &&
+          !this.grabbed
+        ) {
+          const inverseControllerPos = new THREE.Matrix4();
+          inverseControllerPos.getInverse(this.controllerHandler.matrixWorld);
+          this.getMesh().matrix.premultiply(inverseControllerPos);
+          this.el
+            .getObject3D("mesh")
+            .matrix.decompose(
+              this.getMesh().position,
+              this.getMesh().quaternion,
+              this.getMesh().scale
+            );
+          this.controllerHandler.add(this.getMesh());
+
+          this.grabbed = true;
+        }
+
+        this.updateMeshClipMatrix(this.controllerHandler.matrixWorld);
+      }
+    }
+
+    if (this.getMesh() !== undefined) {
+      this.data.meshPosition = this.getMesh().position;
+    }
+  },
+
+  remove: function () {
+    this.el.sceneEl.removeEventListener("enter-vr", this.onEnterVR);
+    this.el.sceneEl.removeEventListener("exit-vr", this.onExitVR);
+    this.el.removeEventListener("raycaster-intersected", this.onCollide);
+    this.el.removeEventListener(
+      "raycaster-intersected-cleared",
+      this.onClearCollide
+    );
+  },
+
+  /** EVENT LISTENER FUNCTIONS */
+
+  onExitVR: function () {
+    if (this.getMesh() !== undefined) {
+      this.data.meshPosition.x = this.getMesh().position.x;
+      this.data.meshPosition.y = this.getMesh().position.y;
+      this.data.meshPosition.z = this.getMesh().position.z;
+
+      this.vrRotation = this.getMesh().rotation;
+      this.getMesh().position.copy(new THREE.Vector3());
+      this.getMesh().rotation.set(0, 0, 0);
+    }
+  },
+
+  onCollide: function (event) {
+    this.data.rayCollided = true;
+  },
+
+  onClearCollide: function (event) {
+    this.data.rayCollided = false;
+  },
+
+  /** HELPER FUNCTIONS */
+
+  getMesh: function () {
+    return this.el.getObject3D("mesh");
+  },
 
   updateTransferTexture: function () {
     if (this.colorTransferMap.has(this.currentColorMap)) {
@@ -176,8 +346,8 @@ AFRAME.registerComponent("model", {
         );
         transferTexture.needsUpdate = true;
 
-        if (this.el.getObject3D("mesh") !== undefined) {
-          let material = this.el.getObject3D("mesh").material;
+        if (this.getMesh() !== undefined) {
+          let material = this.getMesh().material;
           // Shader script uses channel 6 for color mapping
           material.uniforms.channel.value = 6;
           material.uniforms.u_lut.value = transferTexture;
@@ -189,35 +359,16 @@ AFRAME.registerComponent("model", {
   },
 
   updateDataChannel: function () {
-    if (this.el.getObject3D("mesh") !== undefined) {
-      let material = this.el.getObject3D("mesh").material;
+    if (this.getMesh() !== undefined) {
+      let material = this.getMesh().material;
       material.uniforms.channel.value = this.data.channel;
       material.uniforms.useLut.value = this.data.useTransferFunction;
       material.needsUpdate = true;
     }
   },
 
-  bindMethods: function () {
-    this.onEnterVR = bind(this.onEnterVR, this);
-    this.onExitVR = bind(this.onExitVR, this);
-  },
-
-  onEnterVR: function () {},
-
-  onExitVR: function () {
-    if (this.el.getObject3D("mesh") !== undefined) {
-      this.data.meshPosition.x = this.el.getObject3D("mesh").position.x;
-      this.data.meshPosition.y = this.el.getObject3D("mesh").position.y;
-      this.data.meshPosition.z = this.el.getObject3D("mesh").position.z;
-
-      this.vrRotation = this.el.getObject3D("mesh").rotation;
-      this.el.getObject3D("mesh").position.copy(new THREE.Vector3());
-      this.el.getObject3D("mesh").rotation.set(0, 0, 0);
-    }
-  },
-
   loadModel: function () {
-    let currentVolume = this.el.getObject3D("mesh");
+    let currentVolume = this.getMesh();
     const { x_spacing, y_spacing, z_spacing, slices, path } = this.data;
     if (currentVolume !== undefined) {
       //clear mesh
@@ -324,19 +475,6 @@ AFRAME.registerComponent("model", {
     }
   },
 
-  onCollide: function (event) {
-    this.data.rayCollided = true;
-  },
-
-  onClearCollide: function (event) {
-    this.data.rayCollided = false;
-  },
-  onSelectStart: function (event) {},
-
-  remove: function () {
-    // Do something the component or its entity is detached.
-  },
-
   updateColorMapping: function () {
     if (!this.colorTransferMap.has(this.currentColorMap)) {
       const colorCanvas = document.createElement("canvas");
@@ -384,46 +522,6 @@ AFRAME.registerComponent("model", {
     }
   },
 
-  update: function (oldData) {
-    if (oldData === undefined) {
-      return;
-    }
-
-    if (this.data.useTransferFunction) {
-      // this part updates the opacity control points
-      //comparing javascript arrays
-      if (
-        (this.data.alphaXDataArray !== undefined &&
-          JSON.stringify(oldData.alphaXDataArray) !==
-            JSON.stringify(this.data.alphaXDataArray)) ||
-        (this.data.alphaYDataArray !== undefined &&
-          JSON.stringify(oldData.alphaYDataArray) !==
-            JSON.stringify(this.data.alphaYDataArray))
-      ) {
-        this.updateOpacityData(
-          this.data.alphaXDataArray,
-          this.data.alphaYDataArray
-        );
-        this.updateTransferTexture();
-      } else if (oldData.colorMap !== this.data.colorMap) {
-        this.currentColorMap = this.data.colorMap;
-        this.updateColorMapping();
-      }
-    } else {
-      // Data using channels
-      if (
-        this.data.channel !== undefined &&
-        oldData.channel !== this.data.channel
-      ) {
-        this.updateDataChannel();
-      }
-    }
-
-    if (oldData.path !== this.data.path) {
-      this.loadModel();
-    }
-  },
-
   updateOpacityData: function (arrayX, arrayY) {
     this.newAlphaData = [];
 
@@ -443,116 +541,10 @@ AFRAME.registerComponent("model", {
     }
   },
 
-  getMesh: function () {
-    return this.el.getObject3D("mesh");
-  },
-
-  tick: function (time, timeDelta) {
-    const isVrModeActive = this.sceneHandler.is("vr-mode");
-    if (this.data.modelLoaded) {
-      if (this.clipPlaneListenerHandler !== undefined && !isVrModeActive) {
-        if (
-          this.clipPlaneListenerHandler.el.getAttribute("render-2d-clipplane")
-            .activateClipPlane &&
-          !this.clip2DPlaneRendered
-        ) {
-          this.clip2DPlaneRendered = true;
-        } else if (
-          !this.clipPlaneListenerHandler.el.getAttribute("render-2d-clipplane")
-            .activateClipPlane &&
-          this.clip2DPlaneRendered
-        ) {
-          this.clip2DPlaneRendered = false;
-
-          if (this.el.getObject3D("mesh") !== undefined) {
-            const material = this.el.getObject3D("mesh").material;
-            material.uniforms.box_min.value = new THREE.Vector3(0, 0, 0);
-            material.uniforms.box_max.value = new THREE.Vector3(1, 1, 1);
-          }
-        }
-
-        if (this.clip2DPlaneRendered) {
-          if (this.el.getObject3D("mesh") !== undefined) {
-            const material = this.el.getObject3D("mesh").material;
-
-            if (material !== undefined) {
-              const sliceX = this.clipPlaneListenerHandler.el.getAttribute(
-                "render-2d-clipplane"
-              ).clipX;
-              const sliceY = this.clipPlaneListenerHandler.el.getAttribute(
-                "render-2d-clipplane"
-              ).clipY;
-              const sliceZ = this.clipPlaneListenerHandler.el.getAttribute(
-                "render-2d-clipplane"
-              ).clipZ;
-
-              material.uniforms.box_min.value = new THREE.Vector3(
-                sliceX.x,
-                sliceY.x,
-                sliceZ.x
-              );
-              material.uniforms.box_max.value = new THREE.Vector3(
-                sliceX.y,
-                sliceY.y,
-                sliceZ.y
-              );
-            }
-          }
-        }
-      } else if (this.controllerHandler !== undefined && isVrModeActive) {
-        if (
-          !this.controllerHandler.el.getAttribute("buttons-check").grabObject &&
-          this.grabbed
-        ) {
-          this.el
-            .getObject3D("mesh")
-            .matrix.premultiply(this.controllerHandler.matrixWorld);
-          this.el
-            .getObject3D("mesh")
-            .matrix.decompose(
-              this.el.getObject3D("mesh").position,
-              this.el.getObject3D("mesh").quaternion,
-              this.el.getObject3D("mesh").scale
-            );
-          this.el.object3D.add(this.el.getObject3D("mesh"));
-
-          this.grabbed = false;
-        }
-
-        // grab mesh
-        if (
-          this.controllerHandler.el.getAttribute("buttons-check").grabObject &&
-          this.data.rayCollided &&
-          !this.grabbed
-        ) {
-          const inverseControllerPos = new THREE.Matrix4();
-          inverseControllerPos.getInverse(this.controllerHandler.matrixWorld);
-          this.el.getObject3D("mesh").matrix.premultiply(inverseControllerPos);
-          this.el
-            .getObject3D("mesh")
-            .matrix.decompose(
-              this.el.getObject3D("mesh").position,
-              this.el.getObject3D("mesh").quaternion,
-              this.el.getObject3D("mesh").scale
-            );
-          this.controllerHandler.add(this.el.getObject3D("mesh"));
-
-          this.grabbed = true;
-        }
-
-        this.updateMeshClipMatrix(this.controllerHandler.matrixWorld);
-      }
-    }
-
-    if (this.el.getObject3D("mesh") !== undefined) {
-      this.data.meshPosition = this.el.getObject3D("mesh").position;
-    }
-  },
-
   updateMeshClipMatrix: function (currentSpaceClipMatrix) {
-    const volumeMatrix = this.el.getObject3D("mesh").matrixWorld;
+    const volumeMatrix = this.getMesh().matrixWorld;
     //material for setting the clipPlane and clipping value
-    const material = this.el.getObject3D("mesh").material;
+    const material = this.getMesh().material;
 
     //scalematrix for zscaling
     const scaleMatrix = new THREE.Matrix4();

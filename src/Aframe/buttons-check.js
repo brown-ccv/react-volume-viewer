@@ -1,6 +1,5 @@
 /* globals AFRAME  */
 
-
 // TODO: Change vars to triggerDown and gripDown
 AFRAME.registerComponent("buttons-check", {
   schema: {
