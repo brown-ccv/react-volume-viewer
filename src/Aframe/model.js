@@ -5,42 +5,30 @@ const bind = AFRAME.utils.bind;
 
 AFRAME.registerComponent("model", {
   schema: {
-    // TODO: Move these to init
-    rayCollided: { type: "boolean", default: false },
-    modelLoaded: { type: "boolean", default: false },
-    meshPosition: { type: "vec3", default: { x: 0, y: 0, z: 0 } },
-
-    // TODO: Custom parser for object of arrays
-    alphaXDataArray: { type: "array" },
-    alphaYDataArray: { type: "array" },
     colorMap: { type: "string", default: "" },
-    path: { type: "string", default: "" },
-    slices: { type: "number", default: 55 },
-    // x_spacing: { type: "number", default: 2.0 },
-    // y_spacing: { type: "number", default: 2.0 },
-    // z_spacing: { type: "number", default: 1.0 },
-    // spacing: { type: "vec3", default: { x: 1, y: 1, z: 1 } },
-    spacing: {
+    transferFunction: {
       parse: JSON.parse,
-      // stringify: JSON.stringify,
-      default: { x: 1, y: 1, z: 1 },
+      default: [
+        { x: 0, y: 0 },
+        { x: 1, y: 1 },
+      ],
     },
     useTransferFunction: { type: "boolean", default: false },
     channel: { type: "number", default: 1 },
     intensity: { type: "number", default: 1.0 },
+    path: { type: "string", default: "" },
+    slices: { type: "number", default: 55 },
+    spacing: {
+      parse: JSON.parse,
+      default: { x: 1, y: 1, z: 1 },
+    },
   },
 
   init: function () {
-    this.objectPose = new THREE.Matrix4();
-    this.controllerPose = new THREE.Matrix4();
-    this.tempMatrix = new THREE.Matrix4();
-    this.vrPosition = new THREE.Vector3(0, 0, 0);
-    this.vrRotation = new THREE.Vector3(0, 0, 0);
-    this.group = new THREE.Group();
     this.colorTransferMap = new Map();
     this.newAlphaData = [];
+    this.rayCollided = false;
     this.grabbed = false;
-    this.colorMapNeedsUpdate = false;
     this.sceneHandler = this.el.sceneEl;
     this.canvas = this.el.sceneEl.canvas;
 
@@ -155,140 +143,129 @@ AFRAME.registerComponent("model", {
   },
 
   update: function (oldData) {
-    if (this.data.useTransferFunction) {
-      // this part updates the opacity control points
-      //comparing javascript arrays
-      if (
-        (this.data.alphaXDataArray !== undefined &&
-          JSON.stringify(oldData.alphaXDataArray) !==
-            JSON.stringify(this.data.alphaXDataArray)) ||
-        (this.data.alphaYDataArray !== undefined &&
-          JSON.stringify(oldData.alphaYDataArray) !==
-            JSON.stringify(this.data.alphaYDataArray))
-      ) {
-        this.updateOpacityData(
-          this.data.alphaXDataArray,
-          this.data.alphaYDataArray
-        );
-        this.updateTransferTexture();
-      } else if (oldData.colorMap !== this.data.colorMap) {
-        this.currentColorMap = this.data.colorMap;
-        this.updateColorMapping();
-      }
-    } else {
-      // Data using channels
-      if (
-        this.data.channel !== undefined &&
-        oldData.channel !== this.data.channel
-      ) {
-        this.updateDataChannel();
-      }
-    }
-
+    // Update model
     if (oldData.path !== this.data.path) {
       this.loadModel();
+    }
+
+    // Update color map
+    if (oldData.colorMap !== this.data.colorMap) {
+      this.currentColorMap = this.data.colorMap;
+      this.updateColorMapping();
+    }
+
+    // Update transfer function
+    if (
+      this.data.useTransferFunction &&
+      "transferFunction" in this.data &&
+      oldData.transferFunction !== this.data.transferFunction
+    ) {
+      this.updateOpacityData(this.data.transferFunction);
+      this.updateTransferTexture();
+    }
+
+    // Update channels
+    if (
+      !this.data.useTransferFunction &&
+      this.data.channel !== undefined &&
+      oldData.channel !== this.data.channel
+    ) {
+      this.updateDataChannel();
     }
   },
 
   tick: function (time, timeDelta) {
     const isVrModeActive = this.sceneHandler.is("vr-mode");
-    if (this.data.modelLoaded) {
-      if (this.clipPlaneListenerHandler !== undefined && !isVrModeActive) {
-        if (
-          this.clipPlaneListenerHandler.el.getAttribute("render-2d-clipplane")
-            .activateClipPlane &&
-          !this.clip2DPlaneRendered
-        ) {
-          this.clip2DPlaneRendered = true;
-        } else if (
-          !this.clipPlaneListenerHandler.el.getAttribute("render-2d-clipplane")
-            .activateClipPlane &&
-          this.clip2DPlaneRendered
-        ) {
-          this.clip2DPlaneRendered = false;
+    if (this.clipPlaneListenerHandler !== undefined && !isVrModeActive) {
+      if (
+        this.clipPlaneListenerHandler.el.getAttribute("render-2d-clipplane")
+          .activateClipPlane &&
+        !this.clip2DPlaneRendered
+      ) {
+        this.clip2DPlaneRendered = true;
+      } else if (
+        !this.clipPlaneListenerHandler.el.getAttribute("render-2d-clipplane")
+          .activateClipPlane &&
+        this.clip2DPlaneRendered
+      ) {
+        this.clip2DPlaneRendered = false;
 
-          if (this.getMesh() !== undefined) {
-            const material = this.getMesh().material;
-            material.uniforms.box_min.value = new THREE.Vector3(0, 0, 0);
-            material.uniforms.box_max.value = new THREE.Vector3(1, 1, 1);
-          }
+        if (this.getMesh() !== undefined) {
+          const material = this.getMesh().material;
+          material.uniforms.box_min.value = new THREE.Vector3(0, 0, 0);
+          material.uniforms.box_max.value = new THREE.Vector3(1, 1, 1);
         }
-
-        if (this.clip2DPlaneRendered) {
-          if (this.getMesh() !== undefined) {
-            const material = this.getMesh().material;
-
-            if (material !== undefined) {
-              const sliceX = this.clipPlaneListenerHandler.el.getAttribute(
-                "render-2d-clipplane"
-              ).clipX;
-              const sliceY = this.clipPlaneListenerHandler.el.getAttribute(
-                "render-2d-clipplane"
-              ).clipY;
-              const sliceZ = this.clipPlaneListenerHandler.el.getAttribute(
-                "render-2d-clipplane"
-              ).clipZ;
-
-              material.uniforms.box_min.value = new THREE.Vector3(
-                sliceX.x,
-                sliceY.x,
-                sliceZ.x
-              );
-              material.uniforms.box_max.value = new THREE.Vector3(
-                sliceX.y,
-                sliceY.y,
-                sliceZ.y
-              );
-            }
-          }
-        }
-      } else if (this.controllerHandler !== undefined && isVrModeActive) {
-        if (
-          !this.controllerHandler.el.getAttribute("buttons-check").grabObject &&
-          this.grabbed
-        ) {
-          this.el
-            .getObject3D("mesh")
-            .matrix.premultiply(this.controllerHandler.matrixWorld);
-          this.el
-            .getObject3D("mesh")
-            .matrix.decompose(
-              this.getMesh().position,
-              this.getMesh().quaternion,
-              this.getMesh().scale
-            );
-          this.el.object3D.add(this.getMesh());
-
-          this.grabbed = false;
-        }
-
-        // grab mesh
-        if (
-          this.controllerHandler.el.getAttribute("buttons-check").grabObject &&
-          this.data.rayCollided &&
-          !this.grabbed
-        ) {
-          const inverseControllerPos = new THREE.Matrix4();
-          inverseControllerPos.getInverse(this.controllerHandler.matrixWorld);
-          this.getMesh().matrix.premultiply(inverseControllerPos);
-          this.el
-            .getObject3D("mesh")
-            .matrix.decompose(
-              this.getMesh().position,
-              this.getMesh().quaternion,
-              this.getMesh().scale
-            );
-          this.controllerHandler.add(this.getMesh());
-
-          this.grabbed = true;
-        }
-
-        this.updateMeshClipMatrix(this.controllerHandler.matrixWorld);
       }
-    }
 
-    if (this.getMesh() !== undefined) {
-      this.data.meshPosition = this.getMesh().position;
+      if (this.clip2DPlaneRendered) {
+        if (this.getMesh() !== undefined) {
+          const material = this.getMesh().material;
+
+          if (material !== undefined) {
+            const sliceX = this.clipPlaneListenerHandler.el.getAttribute(
+              "render-2d-clipplane"
+            ).clipX;
+            const sliceY = this.clipPlaneListenerHandler.el.getAttribute(
+              "render-2d-clipplane"
+            ).clipY;
+            const sliceZ = this.clipPlaneListenerHandler.el.getAttribute(
+              "render-2d-clipplane"
+            ).clipZ;
+
+            material.uniforms.box_min.value = new THREE.Vector3(
+              sliceX.x,
+              sliceY.x,
+              sliceZ.x
+            );
+            material.uniforms.box_max.value = new THREE.Vector3(
+              sliceX.y,
+              sliceY.y,
+              sliceZ.y
+            );
+          }
+        }
+      }
+    } else if (this.controllerHandler !== undefined && isVrModeActive) {
+      if (
+        !this.controllerHandler.el.getAttribute("buttons-check").grabObject &&
+        this.grabbed
+      ) {
+        this.el
+          .getObject3D("mesh")
+          .matrix.premultiply(this.controllerHandler.matrixWorld);
+        this.el
+          .getObject3D("mesh")
+          .matrix.decompose(
+            this.getMesh().position,
+            this.getMesh().quaternion,
+            this.getMesh().scale
+          );
+        this.el.object3D.add(this.getMesh());
+
+        this.grabbed = false;
+      }
+
+      // grab mesh
+      if (
+        this.controllerHandler.el.getAttribute("buttons-check").grabObject &&
+        this.rayCollided &&
+        !this.grabbed
+      ) {
+        const inverseControllerPos = new THREE.Matrix4();
+        inverseControllerPos.getInverse(this.controllerHandler.matrixWorld);
+        this.getMesh().matrix.premultiply(inverseControllerPos);
+        this.el
+          .getObject3D("mesh")
+          .matrix.decompose(
+            this.getMesh().position,
+            this.getMesh().quaternion,
+            this.getMesh().scale
+          );
+        this.controllerHandler.add(this.getMesh());
+        this.grabbed = true;
+      }
+
+      this.updateMeshClipMatrix(this.controllerHandler.matrixWorld);
     }
   },
 
@@ -306,22 +283,17 @@ AFRAME.registerComponent("model", {
 
   onExitVR: function () {
     if (this.getMesh() !== undefined) {
-      this.data.meshPosition.x = this.getMesh().position.x;
-      this.data.meshPosition.y = this.getMesh().position.y;
-      this.data.meshPosition.z = this.getMesh().position.z;
-
-      this.vrRotation = this.getMesh().rotation;
       this.getMesh().position.copy(new THREE.Vector3());
       this.getMesh().rotation.set(0, 0, 0);
     }
   },
 
   onCollide: function (event) {
-    this.data.rayCollided = true;
+    this.rayCollided = true;
   },
 
   onClearCollide: function (event) {
-    this.data.rayCollided = false;
+    this.rayCollided = false;
   },
 
   /** HELPER FUNCTIONS */
@@ -398,14 +370,6 @@ AFRAME.registerComponent("model", {
         path,
         function (texture) {
           const dim = Math.ceil(Math.sqrt(slices));
-          // const spacing = [x_spacing, y_spacing, z_spacing];
-
-          // const volumeScale = [
-          //   1.0 / ((texture.image.width / dim) * spacing[0]),
-          //   1.0 / ((texture.image.height / dim) * spacing[1]),
-          //   1.0 / (slices * spacing[2]),
-          // ];
-          // console.log(spacing);
           const volumeScale = [
             1.0 / ((texture.image.width / dim) * spacing.x),
             1.0 / ((texture.image.height / dim) * spacing.y),
@@ -419,7 +383,7 @@ AFRAME.registerComponent("model", {
           texture.needsUpdate = true;
 
           // Material
-          const shader = THREE.ShaderLib["ccvLibVolumeRenderShader"];
+          const shader = THREE.ShaderLib["ModelShader"];
           const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
           uniforms["u_data"].value = texture;
           uniforms["u_lut"].value = null;
@@ -430,12 +394,12 @@ AFRAME.registerComponent("model", {
           uniforms["slice"].value = slices;
           uniforms["dim"].value = dim;
 
-          if (!useTransferFunction) {
-            uniforms["channel"].value = 6;
-            uniforms["useLut"].value = false;
-          } else {
+          if (useTransferFunction) {
             uniforms["channel"].value = 1;
             uniforms["useLut"].value = true;
+          } else {
+            uniforms["channel"].value = 6;
+            uniforms["useLut"].value = false;
           }
           uniforms["step_size"].value = new THREE.Vector3(
             1 / 100,
@@ -467,10 +431,9 @@ AFRAME.registerComponent("model", {
           // Mesh
           const geometry = new THREE.BoxGeometry(1, 1, 1);
           el.setObject3D("mesh", new THREE.Mesh(geometry, material));
-          data.modelLoaded = true;
           material.needsUpdate = true;
 
-          // this steps needs the model to be uploaded first
+          // Update colorMapping/data channel once model is loaded
           if (useTransferFunction) updateColorMapping();
           else updateDataChannel();
         },
@@ -529,21 +492,18 @@ AFRAME.registerComponent("model", {
     }
   },
 
-  updateOpacityData: function (arrayX, arrayY) {
+  updateOpacityData: function (transferFunction) {
     this.newAlphaData = [];
+    for (let i = 0; i < transferFunction.length - 1; i++) {
+      const start = transferFunction[i];
+      const end = transferFunction[i + 1];
+      const deltaX = end.x * 255 - start.x * 255;
 
-    for (let i = 0; i <= arrayX.length - 2; i++) {
-      const scaledColorInit = arrayX[i] * 255;
-      const scaledColorEnd = arrayX[i + 1] * 255;
-
-      const scaledAlphaInit = arrayY[i] * 255;
-      const scaledAlphaEnd = arrayY[i + 1] * 255;
-
-      const deltaX = scaledColorEnd - scaledColorInit;
-
+      // Linear interpolation between points
+      const alphaStart = start.y * 255;
+      const alphaEnd = end.y * 255;
       for (let j = 1 / deltaX; j < 1; j += 1 / deltaX) {
-        // linear interpolation
-        this.newAlphaData.push(scaledAlphaInit * (1 - j) + scaledAlphaEnd * j);
+        this.newAlphaData.push(alphaStart * (1 - j) + alphaEnd * j);
       }
     }
   },

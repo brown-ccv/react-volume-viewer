@@ -76,19 +76,14 @@ function AframeScene({
         id="volumeCube"
         class="clickableMesh"
         model={toAframeString({
-          alphaXDataArray: transferFunction.map((p) => p["x"]),
-          alphaYDataArray: transferFunction.map((p) => p["y"]),
           colorMap: colorMap.path,
-          path: model.path,
-          slices: model.slices,
-          // x_spacing: model.spacing.x,
-          // y_spacing: model.spacing.y,
-          // z_spacing: model.spacing.z,
-          // spacing: model.spacing,
-          spacing: JSON.stringify(model.spacing),
+          transferFunction: JSON.stringify(transferFunction),
           useTransferFunction,
           channel: model.channel,
           intensity: model.intensity,
+          path: model.path,
+          slices: model.slices,
+          spacing: JSON.stringify(model.spacing),
         })}
         position={model.position}
         rotation={model.rotation}

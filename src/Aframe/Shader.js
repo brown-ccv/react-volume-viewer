@@ -1,6 +1,6 @@
 /* globals THREE */
 
-THREE.ShaderLib["ccvLibVolumeRenderShader"] = {
+THREE.ShaderLib["ModelShader"] = {
   uniforms: {
     slice: { value: 1.0 },
     dim: { value: 1.0 },
