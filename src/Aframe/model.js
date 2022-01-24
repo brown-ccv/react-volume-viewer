@@ -364,24 +364,24 @@ AFRAME.registerComponent("model", {
       const updateColorMapping = this.updateColorMapping;
       const updateDataChannel = this.updateDataChannel;
 
-      //load as 2D texture
+      // Load model
       new THREE.TextureLoader().load(
         path,
         function (texture) {
+          // Create 3D material from texture
+          texture.minFilter = texture.magFilter = THREE.LinearFilter;
+          texture.unpackAlignment = 1;
+          texture.needsUpdate = true;
+
           const dim = Math.ceil(Math.sqrt(slices));
           const volumeScale = [
             1.0 / ((texture.image.width / dim) * spacing.x),
             1.0 / ((texture.image.height / dim) * spacing.y),
             1.0 / (slices * spacing.z),
-          ];
-
+          ]
           const zScale = volumeScale[0] / volumeScale[2];
 
-          texture.minFilter = texture.magFilter = THREE.LinearFilter;
-          texture.unpackAlignment = 1;
-          texture.needsUpdate = true;
-
-          // Create material
+          // Set material properties
           const shader = THREE.ShaderLib["ModelShader"];
           const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
           uniforms.dim.value = dim;
@@ -394,7 +394,6 @@ AFRAME.registerComponent("model", {
             canvasHeight
           );
           uniforms.zScale.value = zScale;
-
           if (useTransferFunction) {
             uniforms.channel.value = 1;
             uniforms.useLut.value = true;
@@ -411,7 +410,7 @@ AFRAME.registerComponent("model", {
             side: THREE.BackSide, // The volume shader uses the backface as its "reference point"
           });
 
-          // Mesh
+          // Model is a 1x1x1 box with the file's material
           const geometry = new THREE.BoxGeometry(1, 1, 1);
           el.setObject3D("mesh", new THREE.Mesh(geometry, material));
           material.needsUpdate = true;
