@@ -20,6 +20,8 @@ const DEFAULT_MODEL = {
   scale: "1 1 1",
   slices: 55,
   spacing: { x: 2, y: 2, z: 1 },
+  channel: 1,
+  intensity: 1.0,
 };
 
 const DEFAULT_TRANSFER_FUNCTION = [
