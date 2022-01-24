@@ -165,6 +165,10 @@ VolumeViewer.propTypes = {
       y: PropTypes.number,
       z: PropTypes.number,
     }),
+    /** Channel to load data from (R:1, G:2, B:3)*/
+    channel: PropTypes.number,
+    /** Increase/decrease voxels intensity */
+    intensity: PropTypes.number,
   }),
 
   /**

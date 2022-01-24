@@ -19,6 +19,7 @@ THREE.ShaderLib["ccvLibVolumeRenderShader"] = {
     grabMesh: { value: false },
     box_min: { value: new THREE.Vector3(0, 0, 0) },
     box_max: { value: new THREE.Vector3(1, 1, 1) },
+    intensity: { value: 1.0 },
   },
 
   vertexShader: [
@@ -182,6 +183,7 @@ THREE.ShaderLib["ccvLibVolumeRenderShader"] = {
     "uniform mat4 P_inv;",
     "uniform vec3 box_min;",
     "uniform vec3 box_max;",
+    "uniform float intensity;",
     "vec4 vFragColor;",
     "varying vec3 camPos;",
     //'in mat4 nClipPlane; ',
@@ -272,20 +274,23 @@ THREE.ShaderLib["ccvLibVolumeRenderShader"] = {
     "smple = sampleAs3DTexture(u_data, dataPos); ",
     "}else{ ",
     "smple = sampleAs3DTexture(u_data, dataPos);",
+    // as we dont have an alpha from the datasets,
+    //we initialized it as the max between the 3 channels
     "smple.a = max(smple.r, max(smple.g,smple.b)) ; ",
     "if(smple.a < 0.25)",
-    //'if(smple.a < 0.000001)',
     "{",
     "smple.a = 0.1*smple.a;",
-    //'discard;',
     "}",
 
     "}",
-
-    //'smple.a = max(smple.r, max(smple.g,smple.b)) ; ',
-    //'smple.a = 0.1*smple.a;',
+    // artifitially increasing pixel intensity
+    "smple.rgb = smple.rgb*intensity;",
     "if(useLut)",
+    "{",
+    //we lookup the density value in the transfer function and return the
+    //appropriate color value
     "smple = texture2D(u_lut, vec2(clamp(smple.a,0.0,1.0),0.5));",
+    "}",
 
     //assume alpha is the highest channel and gamma correction
     //"sample.a = pow(sample.a , multiplier); \n"  ///needs changing

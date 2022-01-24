@@ -85,6 +85,8 @@ function AframeScene({
           y_spacing: model.spacing.y,
           z_spacing: model.spacing.z,
           useTransferFunction,
+          channel: model.channel,
+          intensity: model.intensity,
         })}
         position={model.position}
         rotation={model.rotation}
