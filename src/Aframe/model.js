@@ -378,7 +378,7 @@ AFRAME.registerComponent("model", {
             1.0 / ((texture.image.width / dim) * spacing.x),
             1.0 / ((texture.image.height / dim) * spacing.y),
             1.0 / (slices * spacing.z),
-          ]
+          ];
           const zScale = volumeScale[0] / volumeScale[2];
 
           // Set material properties
