@@ -77,6 +77,7 @@ function AframeScene({
         class="clickableMesh"
         model={toAframeString({
           colorMap: colorMap.path,
+          sliders: JSON.stringify(sliders),
           transferFunction: JSON.stringify(transferFunction),
           useTransferFunction,
           channel: model.channel,

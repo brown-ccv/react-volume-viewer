@@ -4,39 +4,33 @@ import {
   DEFAULT_TRANSFER_FUNCTION,
   DEFAULT_MODEL,
   DEFAULT_COLOR_MAP,
+  DEFAULT_SLIDERS,
 } from "../constants/constants";
 
 const bind = AFRAME.utils.bind;
 
+// TODO: Pass in full colorMap not just the path
 AFRAME.registerComponent("model", {
   schema: {
-    colorMap: { type: "string", default: DEFAULT_COLOR_MAP },
-    transferFunction: {
-      parse: JSON.parse,
-      default: DEFAULT_TRANSFER_FUNCTION,
-    },
+    colorMap: { type: "string", default: DEFAULT_COLOR_MAP.path },
+    sliders: { parse: JSON.parse, default: DEFAULT_SLIDERS },
+    transferFunction: { parse: JSON.parse, default: DEFAULT_TRANSFER_FUNCTION },
     useTransferFunction: { type: "boolean", default: false },
     channel: { type: "number", default: DEFAULT_MODEL.channel },
     intensity: { type: "number", default: DEFAULT_MODEL.intensity },
     path: { type: "string" },
     slices: { type: "number", default: DEFAULT_MODEL.slices },
-    spacing: {
-      parse: JSON.parse,
-      default: DEFAULT_MODEL.spacing,
-    },
+    spacing: { parse: JSON.parse, default: DEFAULT_MODEL.spacing },
   },
 
   init: function () {
     this.colorTransferMap = new Map();
-    this.newAlphaData = [];
-    this.rayCollided = false;
-    this.grabbed = false;
     this.sceneHandler = this.el.sceneEl;
     this.canvas = this.el.sceneEl.canvas;
+    this.alphaData = [];
+    this.rayCollided = false;
+    this.grabbed = false;
     this.clip2DPlaneRendered = false;
-
-    // TODO: Leave as this.data.colorMap
-    this.currentColorMap = this.data.colorMap;
 
     // Get other entities
     this.controllerHandler = document.getElementById("rhand").object3D;
@@ -57,10 +51,11 @@ AFRAME.registerComponent("model", {
     this.onClearCollide = this.onClearCollide.bind(this);
     this.getMesh = this.getMesh.bind(this);
     this.loadModel = this.loadModel.bind(this);
+    this.updateChannel = this.updateChannel.bind(this);
+    this.updateColorMap = this.updateColorMap.bind(this);
     this.updateTransferTexture = this.updateTransferTexture.bind(this);
-    this.updateDataChannel = this.updateDataChannel.bind(this);
-    this.updateColorMapping = this.updateColorMapping.bind(this);
     this.updateOpacityData = this.updateOpacityData.bind(this);
+    this.updateMeshClipMatrix = this.updateMeshClipMatrix.bind(this);
 
     // Add event listeners
     this.el.sceneEl.addEventListener("enter-vr", this.onEnterVR);
@@ -74,202 +69,87 @@ AFRAME.registerComponent("model", {
     // Activate camera
     const cameraEl = document.querySelector("#camera");
     cameraEl.setAttribute("camera", "active", true);
-
-    // NOT SURE WHAT THIS DOES
-    // this.opacityControlPoints = [0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
-    // let jet_values = [
-    //   [0, 0, 0.5],
-    //   [0, 0, 1],
-    //   [0, 0.5, 1],
-    //   [0, 1, 1],
-    //   [0.5, 1, 0.5],
-    //   [1, 1, 0],
-    //   [1, 0.5, 0],
-    //   [1, 0, 0],
-    //   [0.5, 0, 0],
-    // ];
-    // const pData = [];
-    // this.alphaData = [];
-
-    // const indices = [];
-    // const zeroArray = [0, 0, 0, 0];
-
-    // //setting up control points
-    // for (let i = 0; i < 9; i++) {
-    //   const index = i * 28;
-    //   while (pData.length < index) {
-    //     pData.push(zeroArray);
-    //   }
-
-    //   pData.push([
-    //     jet_values[i][0] * 255,
-    //     jet_values[i][1] * 255,
-    //     jet_values[i][2] * 255,
-    //     this.opacityControlPoints[i] * 255,
-    //   ]);
-    //   indices.push(index);
-    // }
-
-    // //interpolation between opacity control points
-    // for (let j = 0; j < 9 - 1; j++) {
-    //   const dDataA = pData[indices[j + 1]][3] - pData[indices[j]][3];
-    //   const dIndex = indices[j + 1] - indices[j];
-    //   const dDataIncA = dDataA / dIndex;
-    //   for (let idx = indices[j] + 1; idx < indices[j + 1]; idx++) {
-    //     let alpha = pData[idx - 1][3] + dDataIncA;
-    //     this.alphaData[idx] = alpha;
-    //   }
-    // }
-
-    // // interpolation between colors control points
-    // for (let j = 0; j < 9 - 1; j++) {
-    //   const dDataR = pData[indices[j + 1]][0] - pData[indices[j]][0];
-    //   const dDataG = pData[indices[j + 1]][1] - pData[indices[j]][1];
-    //   const dDataB = pData[indices[j + 1]][2] - pData[indices[j]][2];
-    //   const dDataA = pData[indices[j + 1]][3] - pData[indices[j]][3];
-    //   const dIndex = indices[j + 1] - indices[j];
-
-    //   const dDataIncR = dDataR / dIndex;
-    //   const dDataIncG = dDataG / dIndex;
-    //   const dDataIncB = dDataB / dIndex;
-    //   const dDataIncA = dDataA / dIndex;
-
-    //   for (let idx = indices[j] + 1; idx < indices[j + 1]; idx++) {
-    //     const alpha = pData[idx - 1][3] + dDataIncA;
-    //     this.alphaData[idx] = alpha;
-    //     pData[idx] = [
-    //       pData[idx - 1][0] + dDataIncR,
-    //       pData[idx - 1][1] + dDataIncG,
-    //       pData[idx - 1][2] + dDataIncB,
-    //       alpha,
-    //     ];
-    //   }
-    // }
   },
 
   update: function (oldData) {
     // Update model
-    if (oldData.path !== this.data.path) {
-      this.loadModel();
-    }
+    if (oldData.path !== this.data.path) this.loadModel();
 
     // Update color map
-    if (oldData.colorMap !== this.data.colorMap) {
-      this.currentColorMap = this.data.colorMap;
-      this.updateColorMapping();
-    }
+    if (oldData.colorMap !== this.data.colorMap) this.updateColorMap();
 
-    // Update transfer function
-    if (
-      this.data.useTransferFunction &&
-      "transferFunction" in this.data &&
-      oldData.transferFunction !== this.data.transferFunction
-    ) {
-      this.updateOpacityData(this.data.transferFunction);
-      this.updateTransferTexture();
-    }
-
-    // Update channels
-    if (
-      !this.data.useTransferFunction &&
-      this.data.channel !== undefined &&
-      oldData.channel !== this.data.channel
-    ) {
-      this.updateDataChannel();
+    if (this.data.useTransferFunction) {
+      // Update transfer function
+      if (oldData.transferFunction !== this.data.transferFunction)
+        this.updateOpacityData();
+    } else {
+      // Update channel
+      if (oldData.channel !== this.data.channel) this.updateChannel();
     }
   },
 
   tick: function (time, timeDelta) {
     const isVrModeActive = this.sceneHandler.is("vr-mode");
-    if (this.clipPlaneListenerHandler !== undefined && !isVrModeActive) {
-      if (
-        this.clipPlaneListenerHandler.el.getAttribute("render-2d-clipplane")
-          .activateClipPlane &&
-        !this.clip2DPlaneRendered
-      ) {
+    const mesh = this.getMesh();
+
+    if (this.clipPlaneListenerHandler && !isVrModeActive) {
+      const activateClipPlane = this.clipPlaneListenerHandler.el.getAttribute(
+        "render-2d-clipplane"
+      ).activateClipPlane;
+
+      if (activateClipPlane && !this.clip2DPlaneRendered) {
         this.clip2DPlaneRendered = true;
-      } else if (
-        !this.clipPlaneListenerHandler.el.getAttribute("render-2d-clipplane")
-          .activateClipPlane &&
-        this.clip2DPlaneRendered
-      ) {
+      } else if (!activateClipPlane && this.clip2DPlaneRendered) {
         this.clip2DPlaneRendered = false;
 
-        if (this.getMesh() !== undefined) {
-          const material = this.getMesh().material;
+        if (mesh) {
+          const material = mesh.material;
           material.uniforms.box_min.value = new THREE.Vector3(0, 0, 0);
           material.uniforms.box_max.value = new THREE.Vector3(1, 1, 1);
         }
       }
 
       if (this.clip2DPlaneRendered) {
-        if (this.getMesh() !== undefined) {
-          const material = this.getMesh().material;
+        if (mesh) {
+          const material = mesh.material;
 
-          if (material !== undefined) {
-            const sliceX = this.clipPlaneListenerHandler.el.getAttribute(
-              "render-2d-clipplane"
-            ).clipX;
-            const sliceY = this.clipPlaneListenerHandler.el.getAttribute(
-              "render-2d-clipplane"
-            ).clipY;
-            const sliceZ = this.clipPlaneListenerHandler.el.getAttribute(
-              "render-2d-clipplane"
-            ).clipZ;
-
+          // TODO: Run on sliders Update, not tick (?)
+          if (material) {
+            const sliders = this.data.sliders;
             material.uniforms.box_min.value = new THREE.Vector3(
-              sliceX.x,
-              sliceY.x,
-              sliceZ.x
+              sliders.x[0],
+              sliders.y[0],
+              sliders.z[0]
             );
             material.uniforms.box_max.value = new THREE.Vector3(
-              sliceX.y,
-              sliceY.y,
-              sliceZ.y
+              sliders.x[1],
+              sliders.y[1],
+              sliders.z[1]
             );
           }
         }
       }
-    } else if (this.controllerHandler !== undefined && isVrModeActive) {
-      if (
-        !this.controllerHandler.el.getAttribute("buttons-check").grabObject &&
-        this.grabbed
-      ) {
-        this.el
-          .getObject3D("mesh")
-          .matrix.premultiply(this.controllerHandler.matrixWorld);
-        this.el
-          .getObject3D("mesh")
-          .matrix.decompose(
-            this.getMesh().position,
-            this.getMesh().quaternion,
-            this.getMesh().scale
-          );
-        this.el.object3D.add(this.getMesh());
-
+    } else if (this.controllerHandler && isVrModeActive) {
+      const grabObject =
+        this.controllerHandler.el.getAttribute("buttons-check").grabObject;
+      if (this.grabbed && !grabObject) {
+        mesh.matrix.premultiply(this.controllerHandler.matrixWorld);
+        mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+        this.el.object3D.add(mesh);
         this.grabbed = false;
       }
 
       // grab mesh
-      if (
-        this.controllerHandler.el.getAttribute("buttons-check").grabObject &&
-        this.rayCollided &&
-        !this.grabbed
-      ) {
+      if (!this.grabbed && grabObject && this.rayCollided) {
         const inverseControllerPos = new THREE.Matrix4();
         inverseControllerPos.getInverse(this.controllerHandler.matrixWorld);
-        this.getMesh().matrix.premultiply(inverseControllerPos);
-        this.el
-          .getObject3D("mesh")
-          .matrix.decompose(
-            this.getMesh().position,
-            this.getMesh().quaternion,
-            this.getMesh().scale
-          );
-        this.controllerHandler.add(this.getMesh());
+        mesh.matrix.premultiply(inverseControllerPos);
+        mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+        this.controllerHandler.add(mesh);
         this.grabbed = true;
       }
 
+      // TODO: Bind with this and remove function parameter
       this.updateMeshClipMatrix(this.controllerHandler.matrixWorld);
     }
   },
@@ -286,10 +166,13 @@ AFRAME.registerComponent("model", {
 
   /** EVENT LISTENER FUNCTIONS */
 
+  onEnterVR: function () {},
+
   onExitVR: function () {
-    if (this.getMesh() !== undefined) {
-      this.getMesh().position.copy(new THREE.Vector3());
-      this.getMesh().rotation.set(0, 0, 0);
+    const mesh = this.getMesh();
+    if (mesh) {
+      mesh.position.copy(new THREE.Vector3());
+      mesh.rotation.set(0, 0, 0);
     }
   },
 
@@ -308,17 +191,15 @@ AFRAME.registerComponent("model", {
   },
 
   updateTransferTexture: function () {
-    if (this.colorTransferMap.has(this.currentColorMap)) {
-      const colorTransfer = this.colorTransferMap.get(
-        this.currentColorMap
-      ).data;
+    if (this.colorTransferMap.has(this.data.colorMap)) {
+      const colorTransfer = this.colorTransferMap.get(this.data.colorMap).data;
       if (colorTransfer) {
         const imageTransferData = new Uint8Array(4 * 256);
         for (let i = 0; i < 256; i++) {
           imageTransferData[i * 4 + 0] = colorTransfer[i * 3 + 0];
           imageTransferData[i * 4 + 1] = colorTransfer[i * 3 + 1];
           imageTransferData[i * 4 + 2] = colorTransfer[i * 3 + 2];
-          imageTransferData[i * 4 + 3] = this.newAlphaData[i];
+          imageTransferData[i * 4 + 3] = this.alphaData[i];
         }
         const transferTexture = new THREE.DataTexture(
           imageTransferData,
@@ -340,7 +221,7 @@ AFRAME.registerComponent("model", {
     }
   },
 
-  updateDataChannel: function () {
+  updateChannel: function () {
     if (this.getMesh() !== undefined) {
       let material = this.getMesh().material;
       material.uniforms.channel.value = this.data.channel;
@@ -366,8 +247,8 @@ AFRAME.registerComponent("model", {
       const useTransferFunction = this.data.useTransferFunction;
       const intensity = this.data.intensity;
 
-      const updateColorMapping = this.updateColorMapping;
-      const updateDataChannel = this.updateDataChannel;
+      const updateColorMap = this.updateColorMap;
+      const updateChannel = this.updateChannel;
 
       // Load model
       new THREE.TextureLoader().load(
@@ -421,8 +302,8 @@ AFRAME.registerComponent("model", {
           material.needsUpdate = true;
 
           // Update colorMapping/data channel once model is loaded
-          if (useTransferFunction) updateColorMapping();
-          else updateDataChannel();
+          if (useTransferFunction) updateColorMap();
+          else updateChannel();
         },
         function () {},
         function () {
@@ -432,8 +313,9 @@ AFRAME.registerComponent("model", {
     }
   },
 
-  updateColorMapping: function () {
-    if (!this.colorTransferMap.has(this.currentColorMap)) {
+  updateColorMap: function () {
+    let colorMap = this.data.colorMap;
+    if (!this.colorTransferMap.has(colorMap)) {
       const colorCanvas = document.createElement("canvas");
 
       const imgWidth = 255;
@@ -446,15 +328,12 @@ AFRAME.registerComponent("model", {
       };
 
       // Re-inject local image with semi-colon
-      if (this.currentColorMap.startsWith("data:image/png")) {
-        this.currentColorMap =
-          this.currentColorMap.substring(0, 14) +
-          ";" +
-          this.currentColorMap.substring(14);
+      if (colorMap.startsWith("data:image/png")) {
+        colorMap = colorMap.substring(0, 14) + ";" + colorMap.substring(14);
       }
 
-      newColorMap.img.src = this.currentColorMap;
-      this.colorTransferMap.set(this.currentColorMap, newColorMap);
+      newColorMap.img.src = colorMap;
+      this.colorTransferMap.set(colorMap, newColorMap);
       const mappedColorMap = newColorMap;
 
       const updateTransferTexture = this.updateTransferTexture;
@@ -479,8 +358,9 @@ AFRAME.registerComponent("model", {
     }
   },
 
-  updateOpacityData: function (transferFunction) {
-    this.newAlphaData = [];
+  updateOpacityData: function () {
+    this.alphaData = [];
+    const transferFunction = this.data.transferFunction;
     for (let i = 0; i < transferFunction.length - 1; i++) {
       const start = transferFunction[i];
       const end = transferFunction[i + 1];
@@ -490,9 +370,10 @@ AFRAME.registerComponent("model", {
       const alphaStart = start.y * 255;
       const alphaEnd = end.y * 255;
       for (let j = 1 / deltaX; j < 1; j += 1 / deltaX) {
-        this.newAlphaData.push(alphaStart * (1 - j) + alphaEnd * j);
+        this.alphaData.push(alphaStart * (1 - j) + alphaEnd * j);
       }
     }
+    this.updateTransferTexture();
   },
 
   updateMeshClipMatrix: function (currentSpaceClipMatrix) {
