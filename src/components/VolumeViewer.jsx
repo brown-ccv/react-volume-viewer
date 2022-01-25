@@ -143,6 +143,10 @@ VolumeViewer.propTypes = {
 
   /** The model to be displayed and it's related information */
   model: PropTypes.shape({
+    /** Channel to load data from (R:1, G:2, B:3)*/
+    channel: PropTypes.number,
+    /** Increase/decrease voxels intensity */
+    intensity: PropTypes.number,
     /** Path to the model REQUIRED */
     path: PropTypes.string.isRequired,
     /** Position of the model in the scene */
@@ -165,10 +169,6 @@ VolumeViewer.propTypes = {
       y: PropTypes.number,
       z: PropTypes.number,
     }),
-    /** Channel to load data from (R:1, G:2, B:3)*/
-    channel: PropTypes.number,
-    /** Increase/decrease voxels intensity */
-    intensity: PropTypes.number,
   }),
 
   /**

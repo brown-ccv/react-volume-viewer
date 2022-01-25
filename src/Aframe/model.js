@@ -1,26 +1,28 @@
 /* globals AFRAME THREE */
 import "./Shader.js";
+import {
+  DEFAULT_TRANSFER_FUNCTION,
+  DEFAULT_MODEL,
+  DEFAULT_COLOR_MAP,
+} from "../constants/constants";
 
 const bind = AFRAME.utils.bind;
 
 AFRAME.registerComponent("model", {
   schema: {
-    colorMap: { type: "string", default: "" },
+    colorMap: { type: "string", default: DEFAULT_COLOR_MAP },
     transferFunction: {
       parse: JSON.parse,
-      default: [
-        { x: 0, y: 0 },
-        { x: 1, y: 1 },
-      ],
+      default: DEFAULT_TRANSFER_FUNCTION,
     },
     useTransferFunction: { type: "boolean", default: false },
-    channel: { type: "number", default: 1 },
-    intensity: { type: "number", default: 1.0 },
-    path: { type: "string", default: "" },
-    slices: { type: "number", default: 55 },
+    channel: { type: "number", default: DEFAULT_MODEL.channel },
+    intensity: { type: "number", default: DEFAULT_MODEL.intensity },
+    path: { type: "string" },
+    slices: { type: "number", default: DEFAULT_MODEL.slices },
     spacing: {
       parse: JSON.parse,
-      default: { x: 1, y: 1, z: 1 },
+      default: DEFAULT_MODEL.spacing,
     },
   },
 
@@ -31,23 +33,24 @@ AFRAME.registerComponent("model", {
     this.grabbed = false;
     this.sceneHandler = this.el.sceneEl;
     this.canvas = this.el.sceneEl.canvas;
+    this.clip2DPlaneRendered = false;
 
     // TODO: Leave as this.data.colorMap
     this.currentColorMap = this.data.colorMap;
 
-    // Get other elements
+    // Get other entities
     this.controllerHandler = document.getElementById("rhand").object3D;
     this.controllerHandler.matrixAutoUpdate = false;
     this.clipPlaneListenerHandler = document.getElementById(
       "clipplane2DListener"
     ).object3D;
-    this.clip2DPlaneRendered = false;
-    let clipplane2D = document.getElementById("clipplane2D");
-    this.clipPlaneHandler = clipplane2D.object3D;
-    if (clipplane2D !== undefined)
-      this.clipplane2DHandler = clipplane2D.object3D;
 
-    // Add event listeners and bind functions
+    // const clipplane2D = document.getElementById("clipplane2D");
+    // this.clipPlaneHandler = clipplane2D.object3D;
+    // if (clipplane2D !== undefined)
+    //   this.clipplane2DHandler = clipplane2D.object3D;
+
+    // Bind functions
     this.onEnterVR = bind(this.onEnterVR, this);
     this.onExitVR = bind(this.onExitVR, this);
     this.onCollide = this.onCollide.bind(this);
@@ -58,6 +61,8 @@ AFRAME.registerComponent("model", {
     this.updateDataChannel = this.updateDataChannel.bind(this);
     this.updateColorMapping = this.updateColorMapping.bind(this);
     this.updateOpacityData = this.updateOpacityData.bind(this);
+
+    // Add event listeners
     this.el.sceneEl.addEventListener("enter-vr", this.onEnterVR);
     this.el.sceneEl.addEventListener("exit-vr", this.onExitVR);
     this.el.addEventListener("raycaster-intersected", this.onCollide);
@@ -65,6 +70,10 @@ AFRAME.registerComponent("model", {
       "raycaster-intersected-cleared",
       this.onClearCollide
     );
+
+    // Activate camera
+    const cameraEl = document.querySelector("#camera");
+    cameraEl.setAttribute("camera", "active", true);
 
     // NOT SURE WHAT THIS DOES
     // this.opacityControlPoints = [0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
@@ -136,10 +145,6 @@ AFRAME.registerComponent("model", {
     //     ];
     //   }
     // }
-
-    // Activate camera
-    let cameraEl = document.querySelector("#camera");
-    cameraEl.setAttribute("camera", "active", true);
   },
 
   update: function (oldData) {

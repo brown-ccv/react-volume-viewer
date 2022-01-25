@@ -14,14 +14,14 @@ const DEFAULT_COLOR_MAPS = [
 const DEFAULT_COLOR_MAP = grayscaleColorMap;
 
 const DEFAULT_MODEL = {
+  channel: 1,
+  intensity: 1.0,
   position: "0 0 0",
   range: { min: 0, max: 1, unit: "" },
   rotation: "0 0 0",
   scale: "1 1 1",
   slices: 55,
   spacing: { x: 2, y: 2, z: 1 },
-  channel: 1,
-  intensity: 1.0,
 };
 
 const DEFAULT_TRANSFER_FUNCTION = [
