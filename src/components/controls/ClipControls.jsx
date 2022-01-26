@@ -20,7 +20,7 @@ function ClipControls({ sliders, setSliders }) {
       <Title>Clip</Title>
       {["x", "y", "z"].map((axis) => (
         <SliderGroup key={axis}>
-          <h4> {axis.toUpperCase()} Axis</h4>
+          <Axis> {axis.toUpperCase()} Axis</Axis>
           <Range
             min={SLIDER_RANGE.min}
             max={SLIDER_RANGE.max}
@@ -41,5 +41,9 @@ const Wrapper = styled.div`
 `;
 
 const SliderGroup = styled.div``;
+
+const Axis = styled.div`
+  margin: 8px 0;
+`
 
 export default ClipControls;
