@@ -24,7 +24,7 @@ function ColorMapControls({ colorMaps, colorMap, setColorMap }) {
           }
         >
           <ListboxButton>
-            <OutlinedImage
+            <OutlinedImg
               src={colorMap.path}
               alt="The current color map"
               height="20px"
@@ -35,20 +35,21 @@ function ColorMapControls({ colorMaps, colorMap, setColorMap }) {
           <ListboxPopover>
             <ListboxList>
               {colorMaps.map((color) => (
-                <ListboxOption key={color.name} value={color.name}>
-                  <img
+                <StyledListboxOption key={color.name} value={color.name}>
+                  <OptionText>{color.name}</OptionText>
+                  <OptionImg
                     src={color.path}
                     alt={color.name}
-                    height="15px"
-                    width="100%"
+                    width="0"
+                    height="auto"
                   />
-                </ListboxOption>
+                </StyledListboxOption>
               ))}
             </ListboxList>
           </ListboxPopover>
         </StyledListboxInput>
       ) : (
-        <OutlinedImage
+        <OutlinedImg
           src={colorMap.path}
           alt="The current color map"
           height="20px"
@@ -59,7 +60,7 @@ function ColorMapControls({ colorMaps, colorMap, setColorMap }) {
   );
 }
 
-const OutlinedImage = styled.img`
+const OutlinedImg = styled.img`
   outline: solid 1px;
 `;
 
@@ -76,6 +77,18 @@ const StyledListboxInput = styled(ListboxInput)`
       margin: auto;
     }
   }
+`;
+
+const StyledListboxOption = styled(ListboxOption)`
+  display: flex;
+  gap: 8px;
+`;
+const OptionText = styled.div`
+  flex: 1;
+  align-self: center;
+`;
+const OptionImg = styled(OutlinedImg)`
+  flex: 3;
 `;
 
 export default ColorMapControls;
