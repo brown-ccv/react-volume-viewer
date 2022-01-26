@@ -10,6 +10,10 @@ import {
 
 const bind = AFRAME.utils.bind;
 
+// TODO: loadModel asynchronously (trying to apply texture before it's created)
+// TODO: bind this to THREE.loadTexture
+// TODO: Handle slider changes in update not tick
+
 AFRAME.registerComponent("model", {
   dependencies: ["render-2d-clipplane", "buttons-check"],
   schema: {
@@ -183,86 +187,72 @@ AFRAME.registerComponent("model", {
   },
 
   loadModel: function () {
-    let currentVolume = this.getMesh();
-    const { spacing, slices, path } = this.data;
-    if (currentVolume !== undefined) {
-      //clear mesh
-      this.el.removeObject3D("mesh");
-      currentVolume = undefined;
-    }
+    const { spacing, slices, path, useTransferFunction, intensity } = this.data;
 
-    if (path !== "") {
-      const el = this.el;
-      const canvasWidth = this.canvas.width;
-      const canvasHeight = this.canvas.height;
+    // Clear mesh
+    const mesh = this.getMesh();
+    if (mesh) this.el.removeObject3D("mesh");
 
-      const useTransferFunction = this.data.useTransferFunction;
-      const intensity = this.data.intensity;
+    new THREE.TextureLoader().load(
+      path,
+      (texture) => {
+        // Create 3D material from texture
+        texture.minFilter = texture.magFilter = THREE.LinearFilter;
+        texture.unpackAlignment = 1;
+        texture.needsUpdate = true;
 
-      const loadColorMap = this.loadColorMap;
-      const updateChannel = this.updateChannel;
+        const dim = Math.ceil(Math.sqrt(slices));
+        const volumeScale = [
+          1.0 / ((texture.image.width / dim) * spacing.x),
+          1.0 / ((texture.image.height / dim) * spacing.y),
+          1.0 / (slices * spacing.z),
+        ];
+        const zScale = volumeScale[0] / volumeScale[2];
 
-      // Load model
-      new THREE.TextureLoader().load(
-        path,
-        function (texture) {
-          // Create 3D material from texture
-          texture.minFilter = texture.magFilter = THREE.LinearFilter;
-          texture.unpackAlignment = 1;
-          texture.needsUpdate = true;
-
-          const dim = Math.ceil(Math.sqrt(slices));
-          const volumeScale = [
-            1.0 / ((texture.image.width / dim) * spacing.x),
-            1.0 / ((texture.image.height / dim) * spacing.y),
-            1.0 / (slices * spacing.z),
-          ];
-          const zScale = volumeScale[0] / volumeScale[2];
-
-          // Set material properties
-          const shader = THREE.ShaderLib["ModelShader"];
-          const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-          uniforms.dim.value = dim;
-          uniforms.intensity.value = intensity;
-          uniforms.slice.value = slices;
-          uniforms.step_size.value = new THREE.Vector3(0.01, 0.01, 0.01);
-          uniforms.u_data.value = texture;
-          uniforms.viewPort.value = new THREE.Vector2(
-            canvasWidth,
-            canvasHeight
-          );
-          uniforms.zScale.value = zScale;
-          if (useTransferFunction) {
-            uniforms.channel.value = 1;
-            uniforms.useLut.value = true;
-          } else {
-            uniforms.channel.value = 6;
-            uniforms.useLut.value = false;
-          }
-
-          const material = new THREE.ShaderMaterial({
-            uniforms: uniforms,
-            transparent: true,
-            vertexShader: shader.vertexShader,
-            fragmentShader: shader.fragmentShader,
-            side: THREE.BackSide, // The volume shader uses the "backface" as its reference point
-          });
-
-          // Model is a 1x1x1 box with the file's material
-          const geometry = new THREE.BoxGeometry(1, 1, 1);
-          el.setObject3D("mesh", new THREE.Mesh(geometry, material));
-          material.needsUpdate = true;
-
-          // Update colorMapping/data channel once model is loaded
-          if (useTransferFunction) loadColorMap();
-          else updateChannel();
-        },
-        function () {},
-        function () {
-          throw new Error("Could not load the data at", path);
+        // Set material properties
+        const shader = THREE.ShaderLib["ModelShader"];
+        const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+        uniforms.dim.value = dim;
+        uniforms.intensity.value = intensity;
+        uniforms.slice.value = slices;
+        uniforms.step_size.value = new THREE.Vector3(0.01, 0.01, 0.01);
+        uniforms.u_data.value = texture;
+        uniforms.viewPort.value = new THREE.Vector2(
+          this.canvas.width,
+          this.canvas.height
+        );
+        uniforms.zScale.value = zScale;
+        if (useTransferFunction) {
+          uniforms.channel.value = 1;
+          uniforms.useLut.value = true;
+        } else {
+          uniforms.channel.value = 6;
+          uniforms.useLut.value = false;
         }
-      );
-    }
+
+        const material = new THREE.ShaderMaterial({
+          uniforms: uniforms,
+          transparent: true,
+          vertexShader: shader.vertexShader,
+          fragmentShader: shader.fragmentShader,
+          side: THREE.BackSide, // The volume shader uses the "backface" as its reference point
+        });
+
+        // Model is a 1x1x1 box with the file's material
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        this.el.setObject3D("mesh", new THREE.Mesh(geometry, material));
+        material.needsUpdate = true;
+
+        // Update colorMapping/data channel once model is loaded
+        if (useTransferFunction) this.loadColorMap();
+        else this.updateChannel();
+        // }.bind(this),
+      },
+      () => {},
+      () => {
+        throw new Error("Could not load the data at", path);
+      }
+    );
   },
 
   loadColorMap: function () {
@@ -316,8 +306,6 @@ AFRAME.registerComponent("model", {
     transferTexture.needsUpdate = true;
 
     // TODO: updateTransferFunction and such are running before loadModel is compete
-    // Probably more of these statements elsewhere
-
     // Apply transfer texture
     if (this.getMesh()) {
       const material = this.getMesh().material;
