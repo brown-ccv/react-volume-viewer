@@ -10,13 +10,11 @@ import {
 } from "@reach/listbox";
 import "@reach/listbox/styles.css";
 
-import Title from "./SectionTitle.jsx";
+import Section from "./Section.jsx";
 
 function ColorMapControls({ colorMaps, colorMap, setColorMap }) {
   return (
-    <Wrapper>
-      <Title>Color Map</Title>
-
+    <Wrapper title="Color Map">
       {colorMaps.length > 1 ? (
         <StyledListboxInput
           aria-labelledby="ColorMap dropdown"
@@ -61,8 +59,7 @@ function ColorMapControls({ colorMaps, colorMap, setColorMap }) {
   );
 }
 
-const Wrapper = styled.div`
-  margin: 16px 0;
+const Wrapper = styled(Section)`
   margin-top: 0;
 `;
 
