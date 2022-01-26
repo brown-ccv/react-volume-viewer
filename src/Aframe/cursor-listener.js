@@ -4,12 +4,12 @@ AFRAME.registerComponent("cursor-listener", {
   init: function () {
     this.dragging = false;
 
-    this.el.addEventListener("mousedown", this.onMouseDown);
-    this.el.addEventListener("mousemove ", this.onMouseMove);
-    this.el.addEventListener("mouseup ", this.onMouseUp);
     this.onMouseDown = this.onMouseDown.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
     this.onMouseUp = this.onMouseUp.bind(this);
+    this.el.addEventListener("mousedown", this.onMouseDown);
+    this.el.addEventListener("mousemove ", this.onMouseMove);
+    this.el.addEventListener("mouseup ", this.onMouseUp);
   },
 
   remove: function () {

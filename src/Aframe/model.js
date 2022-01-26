@@ -1,4 +1,5 @@
 /* globals AFRAME THREE */
+
 import "./Shader.js";
 import {
   DEFAULT_TRANSFER_FUNCTION,
@@ -10,6 +11,7 @@ import {
 const bind = AFRAME.utils.bind;
 
 // TODO: Pass in full colorMap not just the path
+// TODO: Add dependency array
 AFRAME.registerComponent("model", {
   schema: {
     colorMap: { type: "string", default: DEFAULT_COLOR_MAP.path },
@@ -38,11 +40,6 @@ AFRAME.registerComponent("model", {
     this.clipPlaneListenerHandler = document.getElementById(
       "clipplane2DListener"
     ).object3D;
-
-    // const clipplane2D = document.getElementById("clipplane2D");
-    // this.clipPlaneHandler = clipplane2D.object3D;
-    // if (clipplane2D !== undefined)
-    //   this.clipplane2DHandler = clipplane2D.object3D;
 
     // Bind functions
     this.onEnterVR = bind(this.onEnterVR, this);

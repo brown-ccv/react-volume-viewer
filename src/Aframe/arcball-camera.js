@@ -39,11 +39,11 @@ AFRAME.registerComponent("arcball-camera", {
       aCanvas.style.cursor = "grab";
     });
 
-    // Add event listeners and bind functions
-    el.sceneEl.addEventListener("enter-vr", this.onEnterVR);
-    el.sceneEl.addEventListener("exit-vr", this.onExitVR);
+    // Bind functions and add event listeners
     this.onEnterVR = bind(this.onEnterVR, this);
     this.onExitVR = bind(this.onExitVR, this);
+    el.sceneEl.addEventListener("enter-vr", this.onEnterVR);
+    el.sceneEl.addEventListener("exit-vr", this.onExitVR);
   },
 
   onEnterVR: function () {

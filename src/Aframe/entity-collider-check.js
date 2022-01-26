@@ -6,8 +6,8 @@ AFRAME.registerComponent("entity-collider-check", {
   },
 
   init: function () {
-    this.el.addEventListener("raycaster-intersected", this.onCollide);
     this.onCollide = this.onCollide.bind(this);
+    this.el.addEventListener("raycaster-intersected", this.onCollide);
   },
 
   remove: function () {
