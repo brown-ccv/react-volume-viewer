@@ -36,7 +36,7 @@ function ClipControls({ sliders, setSliders }) {
 }
 
 const Wrapper = styled.div`
-  margin: 25px 0;
+  margin: 16px 0;
   margin-bottom: 0;
 `;
 

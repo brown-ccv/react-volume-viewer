@@ -240,7 +240,7 @@ function OpacityControls({ range, initTransferFunction, setTransferFunction }) {
 }
 
 const Wrapper = styled.div`
-  margin: 25px 0;
+  margin: 16px 0;
 `;
 
 const OutlinedCanvas = styled.canvas`
