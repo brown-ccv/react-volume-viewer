@@ -271,6 +271,7 @@ const RightLabel = styled(LabelText)`
 
 const HelpText = styled.p`
   margin: 5px 0;
+  font-size: 0.75rem;
 `;
 
 export default OpacityControls;

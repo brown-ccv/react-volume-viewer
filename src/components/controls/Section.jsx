@@ -11,7 +11,8 @@ function Section({ title, children }) {
 }
 
 const Wrapper = styled.div`
-  margin: 16px 0;
+  margin-top: 16px;
+  margin-bottom: 16px;
 `;
 
 const Title = styled.h2`

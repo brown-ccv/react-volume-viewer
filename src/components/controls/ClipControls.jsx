@@ -16,7 +16,7 @@ function ClipControls({ sliders, setSliders }) {
   }
 
   return (
-    <Wrapper title="Clip">
+    <Section title="Clip">
       {["x", "y", "z"].map((axis) => (
         <SliderGroup key={axis}>
           <Axis> {axis.toUpperCase()} Axis</Axis>
@@ -30,17 +30,13 @@ function ClipControls({ sliders, setSliders }) {
           />
         </SliderGroup>
       ))}
-    </Wrapper>
+    </Section>
   );
 }
 
-const Wrapper = styled(Section)`
-  margin-bottom: 0;
-`;
-
 const SliderGroup = styled.div``;
 
-const Axis = styled.div`
+const Axis = styled.h4`
   margin: 8px 0;
 `;
 

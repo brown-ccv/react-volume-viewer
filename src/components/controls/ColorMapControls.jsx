@@ -14,7 +14,7 @@ import Section from "./Section.jsx";
 
 function ColorMapControls({ colorMaps, colorMap, setColorMap }) {
   return (
-    <Wrapper title="Color Map">
+    <Section title="Color Map">
       {colorMaps.length > 1 ? (
         <StyledListboxInput
           aria-labelledby="ColorMap dropdown"
@@ -55,13 +55,9 @@ function ColorMapControls({ colorMaps, colorMap, setColorMap }) {
           width="100%"
         />
       )}
-    </Wrapper>
+    </Section>
   );
 }
-
-const Wrapper = styled(Section)`
-  margin-top: 0;
-`;
 
 const OutlinedImage = styled.img`
   outline: solid 1px;
