@@ -7,6 +7,7 @@ function SectionTitle({ children }) {
 
 const Title = styled.h2`
   margin-top: 0;
+  margin-bottom: 8px;
 `;
 
 export default SectionTitle;

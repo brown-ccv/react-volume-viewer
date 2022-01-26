@@ -9,11 +9,9 @@ function Controls({
   colorMaps,
   model,
   useTransferFunction,
-  initColorMap,
   initTransferFunction,
   colorMap,
   setColorMap,
-  transferFunction,
   setTransferFunction,
   sliders,
   setSliders,
@@ -42,15 +40,16 @@ function Controls({
 }
 
 const Wrapper = styled.div`
+  background-color: white;
   position: absolute;
-  overflow: auto;
+  box-sizing: border-box;
+  padding: 16px;
+  width: 320px;
   left: 8px;
   top: 8px;
-  width: 300px;
   height: fit-content;
-  max-height: calc(100% - 48px); // Leaves 8px to the edge of the AframeScene
-  padding: 16px;
-  background-color: white;
+  max-height: calc(100% - 16px); // Leaves 8px to the bottom of the AframeScene
+  overflow: auto;
 `;
 
 const Button = styled.button``;
