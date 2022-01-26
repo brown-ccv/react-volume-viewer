@@ -14,7 +14,8 @@ const bind = AFRAME.utils.bind;
 AFRAME.registerComponent("model", {
   dependencies: ["render-2d-clipplane", "buttons-check"],
   schema: {
-    colorMap: { type: "string", default: DEFAULT_COLOR_MAP.path },
+    // colorMap: { type: "string", default: DEFAULT_COLOR_MAP.path },
+    colorMap: { parse: JSON.parse, default: DEFAULT_COLOR_MAP },
     sliders: { parse: JSON.parse, default: DEFAULT_SLIDERS },
     transferFunction: { parse: JSON.parse, default: DEFAULT_TRANSFER_FUNCTION },
     useTransferFunction: { type: "boolean", default: false },
@@ -26,13 +27,12 @@ AFRAME.registerComponent("model", {
   },
 
   init: function () {
-    this.colorTransferMap = new Map();
+    this.colorMaps = new Map();
     this.sceneHandler = this.el.sceneEl;
     this.canvas = this.el.sceneEl.canvas;
     this.alphaData = [];
     this.rayCollided = false;
     this.grabbed = false;
-    this.clip2DPlaneRendered = false;
 
     // Get other entities
     this.controllerHandler = document.getElementById("rhand").object3D;
@@ -49,7 +49,7 @@ AFRAME.registerComponent("model", {
     this.getMesh = this.getMesh.bind(this);
     this.loadModel = this.loadModel.bind(this);
     this.updateChannel = this.updateChannel.bind(this);
-    this.updateColorMap = this.updateColorMap.bind(this);
+    this.loadColorMap = this.loadColorMap.bind(this);
     this.updateTransferTexture = this.updateTransferTexture.bind(this);
     this.updateOpacityData = this.updateOpacityData.bind(this);
     this.updateMeshClipMatrix = this.updateMeshClipMatrix.bind(this);
@@ -73,7 +73,16 @@ AFRAME.registerComponent("model", {
     if (oldData.path !== this.data.path) this.loadModel();
 
     // Update color map
-    if (oldData.colorMap !== this.data.colorMap) this.updateColorMap();
+    if (oldData.colorMap !== this.data.colorMap) {
+      // Re-inject local image with semi-colon
+      if (this.data.colorMap.path.startsWith("data:image/png")) {
+        this.data.colorMap.path =
+          this.data.colorMap.path.substring(0, 14) +
+          ";" +
+          this.data.colorMap.path.substring(14);
+      }
+      this.loadColorMap();
+    }
 
     if (this.data.useTransferFunction) {
       // Update transfer function
@@ -89,45 +98,35 @@ AFRAME.registerComponent("model", {
     const isVrModeActive = this.sceneHandler.is("vr-mode");
     const mesh = this.getMesh();
 
-    if (this.clipPlaneListenerHandler && !isVrModeActive) {
+    if (!isVrModeActive && this.clipPlaneListenerHandler) {
+      // Not in VR, controlled by clipPlanelistenerHandler
       const activateClipPlane = this.clipPlaneListenerHandler.el.getAttribute(
         "render-2d-clipplane"
       ).activateClipPlane;
 
-      if (activateClipPlane && !this.clip2DPlaneRendered) {
-        this.clip2DPlaneRendered = true;
-      } else if (!activateClipPlane && this.clip2DPlaneRendered) {
-        this.clip2DPlaneRendered = false;
-
-        if (mesh) {
-          // Reset sliders to full box?
-          const material = mesh.material;
+      // TODO: Run on sliders Update, not tick
+      if (mesh) {
+        const material = mesh.material;
+        if (activateClipPlane) {
+          const sliders = this.data.sliders;
+          material.uniforms.box_min.value = new THREE.Vector3(
+            sliders.x[0],
+            sliders.y[0],
+            sliders.z[0]
+          );
+          material.uniforms.box_max.value = new THREE.Vector3(
+            sliders.x[1],
+            sliders.y[1],
+            sliders.z[1]
+          );
+        } else {
+          // Ignore sliders
           material.uniforms.box_min.value = new THREE.Vector3(0, 0, 0);
           material.uniforms.box_max.value = new THREE.Vector3(1, 1, 1);
         }
       }
-
-      if (this.clip2DPlaneRendered) {
-        if (mesh) {
-          const material = mesh.material;
-
-          // TODO: Run on sliders Update, not tick (?)
-          if (material) {
-            const sliders = this.data.sliders;
-            material.uniforms.box_min.value = new THREE.Vector3(
-              sliders.x[0],
-              sliders.y[0],
-              sliders.z[0]
-            );
-            material.uniforms.box_max.value = new THREE.Vector3(
-              sliders.x[1],
-              sliders.y[1],
-              sliders.z[1]
-            );
-          }
-        }
-      }
     } else if (this.controllerHandler && isVrModeActive) {
+      // In VR, position controlled by controllerHandler
       const grabObject =
         this.controllerHandler.el.getAttribute("buttons-check").grabObject;
 
@@ -147,9 +146,7 @@ AFRAME.registerComponent("model", {
         this.controllerHandler.add(mesh);
         this.grabbed = true;
       }
-
-      // TODO: Bind with this and remove function parameter
-      this.updateMeshClipMatrix(this.controllerHandler.matrixWorld);
+      this.updateMeshClipMatrix();
     }
   },
 
@@ -206,7 +203,7 @@ AFRAME.registerComponent("model", {
       const useTransferFunction = this.data.useTransferFunction;
       const intensity = this.data.intensity;
 
-      const updateColorMap = this.updateColorMap;
+      const loadColorMap = this.loadColorMap;
       const updateChannel = this.updateChannel;
 
       // Load model
@@ -261,7 +258,7 @@ AFRAME.registerComponent("model", {
           material.needsUpdate = true;
 
           // Update colorMapping/data channel once model is loaded
-          if (useTransferFunction) updateColorMap();
+          if (useTransferFunction) loadColorMap();
           else updateChannel();
         },
         function () {},
@@ -272,9 +269,59 @@ AFRAME.registerComponent("model", {
     }
   },
 
+  loadColorMap: function () {
+    const colorMap = this.data.colorMap;
+
+    // TODO: add data to this.data.colorMap instead of all this map stuff
+
+    if (!this.colorMaps.has(colorMap.name)) {
+      const imgWidth = 255;
+      const imgHeight = 15;
+
+      const newColorMap = {
+        img: document.createElement("img"),
+        width: imgWidth,
+        height: imgHeight,
+        data: null,
+      };
+      newColorMap.img.src = colorMap.path;
+      this.colorMaps.set(this.data.colorMap.name, newColorMap);
+      const mappedColorMap = newColorMap;
+
+      // Create canvas
+      // Draw image to canvas
+      // Read canvas RGB data
+
+      // Draw colorMap on an html canvas
+      const canvas = document.createElement("canvas");
+      canvas.height = imgHeight;
+      canvas.width = imgWidth;
+      const ctx = canvas.getContext("2d");
+
+      const updateTransferTexture = this.updateTransferTexture;
+      newColorMap.img.onload = function (data) {
+        ctx.drawImage(newColorMap.img, 0, 0);
+        const colorData = ctx.getImageData(0, 0, imgWidth, 1).data;
+        const colorTransfer = new Uint8Array(3 * 256);
+
+        // Extract RGB values from colorMap (ignore alpha)
+        for (let i = 0; i < 256; i++) {
+          colorTransfer[i * 3 + 0] = colorData[i * 4 + 0];
+          colorTransfer[i * 3 + 1] = colorData[i * 4 + 1];
+          colorTransfer[i * 3 + 2] = colorData[i * 4 + 2];
+        }
+        mappedColorMap.data = colorTransfer;
+
+        updateTransferTexture();
+      };
+    } else {
+      this.updateTransferTexture();
+    }
+  },
+
   updateTransferTexture: function () {
-    if (this.colorTransferMap.has(this.data.colorMap)) {
-      const colorTransfer = this.colorTransferMap.get(this.data.colorMap).data;
+    if (this.colorMaps.has(this.data.colorMap.name)) {
+      const colorTransfer = this.colorMaps.get(this.data.colorMap.name).data;
       if (colorTransfer) {
         const imageTransferData = new Uint8Array(4 * 256);
         for (let i = 0; i < 256; i++) {
@@ -309,51 +356,6 @@ AFRAME.registerComponent("model", {
       material.uniforms.channel.value = this.data.channel;
       material.uniforms.useLut.value = this.data.useTransferFunction;
       material.needsUpdate = true;
-    }
-  },
-
-  updateColorMap: function () {
-    let colorMap = this.data.colorMap;
-    if (!this.colorTransferMap.has(colorMap)) {
-      const colorCanvas = document.createElement("canvas");
-
-      const imgWidth = 255;
-      const imgHeight = 15;
-      const newColorMap = {
-        img: document.createElement("img"),
-        width: imgWidth,
-        height: imgHeight,
-        data: null,
-      };
-
-      // Re-inject local image with semi-colon
-      if (colorMap.startsWith("data:image/png")) {
-        colorMap = colorMap.substring(0, 14) + ";" + colorMap.substring(14);
-      }
-
-      newColorMap.img.src = colorMap;
-      this.colorTransferMap.set(colorMap, newColorMap);
-      const mappedColorMap = newColorMap;
-
-      const updateTransferTexture = this.updateTransferTexture;
-      newColorMap.img.onload = function (data) {
-        colorCanvas.height = imgHeight;
-        colorCanvas.width = imgWidth;
-        const colorContext = colorCanvas.getContext("2d");
-        colorContext.drawImage(newColorMap.img, 0, 0);
-        const colorData = colorContext.getImageData(0, 0, imgWidth, 1).data;
-        const colorTransfer = new Uint8Array(3 * 256);
-        for (let i = 0; i < 256; i++) {
-          colorTransfer[i * 3] = colorData[i * 4];
-          colorTransfer[i * 3 + 1] = colorData[i * 4 + 1];
-          colorTransfer[i * 3 + 2] = colorData[i * 4 + 2];
-        }
-        mappedColorMap.data = colorTransfer;
-
-        updateTransferTexture();
-      };
-    } else {
-      this.updateTransferTexture();
     }
   },
 

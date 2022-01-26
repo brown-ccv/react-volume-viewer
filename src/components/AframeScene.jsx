@@ -77,7 +77,8 @@ function AframeScene({
         id="volumeCube"
         class="clickableMesh"
         model={toAframeString({
-          colorMap: colorMap.path,
+          // colorMap: colorMap.path,
+          colorMap: JSON.stringify(colorMap),
           sliders: JSON.stringify(sliders),
           transferFunction: JSON.stringify(transferFunction),
           useTransferFunction,
