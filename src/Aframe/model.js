@@ -11,8 +11,8 @@ import {
 const bind = AFRAME.utils.bind;
 
 // TODO: Pass in full colorMap not just the path
-// TODO: Add dependency array
 AFRAME.registerComponent("model", {
+  dependencies: ["render-2d-clipplane", "buttons-check"],
   schema: {
     colorMap: { type: "string", default: DEFAULT_COLOR_MAP.path },
     sliders: { parse: JSON.parse, default: DEFAULT_SLIDERS },
@@ -100,6 +100,7 @@ AFRAME.registerComponent("model", {
         this.clip2DPlaneRendered = false;
 
         if (mesh) {
+          // Reset sliders to full box?
           const material = mesh.material;
           material.uniforms.box_min.value = new THREE.Vector3(0, 0, 0);
           material.uniforms.box_max.value = new THREE.Vector3(1, 1, 1);
@@ -129,6 +130,7 @@ AFRAME.registerComponent("model", {
     } else if (this.controllerHandler && isVrModeActive) {
       const grabObject =
         this.controllerHandler.el.getAttribute("buttons-check").grabObject;
+
       if (this.grabbed && !grabObject) {
         mesh.matrix.premultiply(this.controllerHandler.matrixWorld);
         mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
@@ -373,7 +375,7 @@ AFRAME.registerComponent("model", {
     this.updateTransferTexture();
   },
 
-  updateMeshClipMatrix: function (currentSpaceClipMatrix) {
+  updateMeshClipMatrix: function () {
     const volumeMatrix = this.getMesh().matrixWorld;
     //material for setting the clipPlane and clipping value
     const material = this.getMesh().material;
@@ -387,12 +389,13 @@ AFRAME.registerComponent("model", {
     translationMatrix.makeTranslation(-0.5, -0.5, -0.5);
 
     //inverse of the clipMatrix
-    const currentSpaceClipMatrix_inverse = new THREE.Matrix4();
-    currentSpaceClipMatrix_inverse.copy(currentSpaceClipMatrix).invert();
+    const controllerMatrix = this.controllerHandler.matrixWorld;
+    const controllerMatrix_inverse = new THREE.Matrix4();
+    controllerMatrix_inverse.copy(controllerMatrix).invert();
 
     //outputmatrix - controller_inverse * volume * scale * translation
     const clipMatrix = new THREE.Matrix4();
-    clipMatrix.multiplyMatrices(currentSpaceClipMatrix_inverse, volumeMatrix);
+    clipMatrix.multiplyMatrices(controllerMatrix_inverse, volumeMatrix);
     clipMatrix.multiplyMatrices(clipMatrix, scaleMatrix);
     clipMatrix.multiplyMatrices(clipMatrix, translationMatrix);
 

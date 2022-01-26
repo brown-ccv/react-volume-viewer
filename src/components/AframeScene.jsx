@@ -58,6 +58,7 @@ function AframeScene({
         })}
       />
 
+      {/* CLICKABLE PLANE FOR MOUSE INTERACTIONS */}
       <a-plane
         class="clickable"
         id="clipplane2D"
