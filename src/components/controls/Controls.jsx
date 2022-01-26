@@ -44,16 +44,13 @@ function Controls({
 const Wrapper = styled.div`
   position: absolute;
   overflow: auto;
-  left: 25px;
-  top: 25px;
-  bottom: 25px;
-  margin: auto 0;
+  left: 8px;
+  top: 8px;
   width: 300px;
   height: fit-content;
-  max-height: calc(100% - 50px); // Leaves 25px to the edge of the AframeScene
-  padding: 15px;
+  max-height: calc(100% - 48px); // Leaves 8px to the edge of the AframeScene
+  padding: 16px;
   background-color: white;
-  border-radius: 5%;
 `;
 
 const Button = styled.button``;
