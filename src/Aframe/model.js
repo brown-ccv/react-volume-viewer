@@ -26,9 +26,9 @@ AFRAME.registerComponent("model", {
   },
 
   init: function () {
-    this.colorMaps = new Map();
     this.sceneHandler = this.el.sceneEl;
     this.canvas = this.el.sceneEl.canvas;
+    this.colorMapData = [];
     this.alphaData = [];
     this.rayCollided = false;
     this.grabbed = false;
@@ -65,6 +65,10 @@ AFRAME.registerComponent("model", {
     // Activate camera
     const cameraEl = document.querySelector("#camera");
     cameraEl.setAttribute("camera", "active", true);
+
+    // Load data and colorMap
+    this.loadModel();
+    this.loadColorMap();
   },
 
   update: function (oldData) {
@@ -73,13 +77,6 @@ AFRAME.registerComponent("model", {
 
     // Update color map
     if (oldData.colorMap !== this.data.colorMap) {
-      // Re-inject local image with semi-colon
-      if (this.data.colorMap.path.startsWith("data:image/png")) {
-        this.data.colorMap.path =
-          this.data.colorMap.path.substring(0, 14) +
-          ";" +
-          this.data.colorMap.path.substring(14);
-      }
       this.loadColorMap();
     }
 
@@ -271,91 +268,73 @@ AFRAME.registerComponent("model", {
   loadColorMap: function () {
     const colorMap = this.data.colorMap;
 
-    // TODO: add data to this.data.colorMap instead of all this map stuff
-
-    if (!this.colorMaps.has(colorMap.name)) {
-      const imgWidth = 255;
-      const imgHeight = 15;
-
-      const newColorMap = {
-        img: document.createElement("img"),
-        width: imgWidth,
-        height: imgHeight,
-        data: null,
-      };
-      newColorMap.img.src = colorMap.path;
-      this.colorMaps.set(this.data.colorMap.name, newColorMap);
-      const mappedColorMap = newColorMap;
-
-      // Create canvas
-      // Draw image to canvas
-      // Read canvas RGB data
-
-      // Draw colorMap on an html canvas
-      const canvas = document.createElement("canvas");
-      canvas.height = imgHeight;
-      canvas.width = imgWidth;
-      const ctx = canvas.getContext("2d");
-
-      const updateTransferTexture = this.updateTransferTexture;
-      newColorMap.img.onload = function (data) {
-        ctx.drawImage(newColorMap.img, 0, 0);
-        const colorData = ctx.getImageData(0, 0, imgWidth, 1).data;
-        const colorTransfer = new Uint8Array(3 * 256);
-
-        // Extract RGB values from colorMap (ignore alpha)
-        for (let i = 0; i < 256; i++) {
-          colorTransfer[i * 3 + 0] = colorData[i * 4 + 0];
-          colorTransfer[i * 3 + 1] = colorData[i * 4 + 1];
-          colorTransfer[i * 3 + 2] = colorData[i * 4 + 2];
-        }
-        mappedColorMap.data = colorTransfer;
-
-        updateTransferTexture();
-      };
-    } else {
-      this.updateTransferTexture();
+    // Re-inject local image with semi-colon
+    if (colorMap.path.startsWith("data:image/png")) {
+      colorMap.path =
+        colorMap.path.substring(0, 14) + ";" + colorMap.path.substring(14);
     }
+
+    // Create and image and canvas
+    const img = document.createElement("img");
+    img.src = colorMap.path;
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    // Draw img on the canvas and grab RGB data
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0);
+      const colorData = ctx.getImageData(0, 0, img.width, 1).data;
+      const colorTransfer = new Uint8Array(3 * 256);
+
+      // Extract RGB values from colorMap (ignore alpha)
+      for (let i = 0; i < 256; i++) {
+        colorTransfer[i * 3 + 0] = colorData[i * 4 + 0];
+        colorTransfer[i * 3 + 1] = colorData[i * 4 + 1];
+        colorTransfer[i * 3 + 2] = colorData[i * 4 + 2];
+      }
+      this.colorMapData = colorTransfer;
+
+      this.updateTransferTexture();
+    };
   },
 
   updateTransferTexture: function () {
-    if (this.colorMaps.has(this.data.colorMap.name)) {
-      const colorTransfer = this.colorMaps.get(this.data.colorMap.name).data;
-      if (colorTransfer) {
-        const imageTransferData = new Uint8Array(4 * 256);
-        for (let i = 0; i < 256; i++) {
-          imageTransferData[i * 4 + 0] = colorTransfer[i * 3 + 0];
-          imageTransferData[i * 4 + 1] = colorTransfer[i * 3 + 1];
-          imageTransferData[i * 4 + 2] = colorTransfer[i * 3 + 2];
-          imageTransferData[i * 4 + 3] = this.alphaData[i];
-        }
-        const transferTexture = new THREE.DataTexture(
-          imageTransferData,
-          256,
-          1,
-          THREE.RGBAFormat
-        );
-        transferTexture.needsUpdate = true;
-
-        if (this.getMesh() !== undefined) {
-          let material = this.getMesh().material;
-          // Shader script uses channel 6 for color mapping
-          material.uniforms.channel.value = 6;
-          material.uniforms.u_lut.value = transferTexture;
-          material.uniforms.useLut.value = this.data.useTransferFunction;
-          material.needsUpdate = true;
-        }
-      }
+    const colorMapData = this.colorMapData;
+    const imageTransferData = new Uint8Array(4 * 256);
+    for (let i = 0; i < 256; i++) {
+      imageTransferData[i * 4 + 0] = colorMapData[i * 3 + 0];
+      imageTransferData[i * 4 + 1] = colorMapData[i * 3 + 1];
+      imageTransferData[i * 4 + 2] = colorMapData[i * 3 + 2];
+      imageTransferData[i * 4 + 3] = this.alphaData[i];
     }
-  },
+    const transferTexture = new THREE.DataTexture(
+      imageTransferData,
+      256,
+      1,
+      THREE.RGBAFormat
+    );
+    transferTexture.needsUpdate = true;
 
-  updateChannel: function () {
-    if (this.getMesh() !== undefined) {
-      let material = this.getMesh().material;
+    // TODO: updateTransferFunction and such are running before loadModel is compete
+    // Probably more of these statements elsewhere
+
+    // Apply transfer texture
+    if (this.getMesh()) {
+      const material = this.getMesh().material;
+      material.uniforms.u_lut.value = transferTexture;
       material.uniforms.channel.value = this.data.channel;
       material.uniforms.useLut.value = this.data.useTransferFunction;
       material.needsUpdate = true;
-    }
+    } else console.log("MODEL NOT LOADED YET");
+  },
+
+  updateChannel: function () {
+    if (this.getMesh()) {
+      const material = this.getMesh().material;
+      material.uniforms.channel.value = this.data.channel;
+      material.uniforms.useLut.value = this.data.useTransferFunction;
+      material.needsUpdate = true;
+    } else console.log("MODEL NOT LOADED YET");
   },
 
   updateOpacityData: function () {
