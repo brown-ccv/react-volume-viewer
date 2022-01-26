@@ -189,46 +189,6 @@ AFRAME.registerComponent("model", {
     return this.el.getObject3D("mesh");
   },
 
-  updateTransferTexture: function () {
-    if (this.colorTransferMap.has(this.data.colorMap)) {
-      const colorTransfer = this.colorTransferMap.get(this.data.colorMap).data;
-      if (colorTransfer) {
-        const imageTransferData = new Uint8Array(4 * 256);
-        for (let i = 0; i < 256; i++) {
-          imageTransferData[i * 4 + 0] = colorTransfer[i * 3 + 0];
-          imageTransferData[i * 4 + 1] = colorTransfer[i * 3 + 1];
-          imageTransferData[i * 4 + 2] = colorTransfer[i * 3 + 2];
-          imageTransferData[i * 4 + 3] = this.alphaData[i];
-        }
-        const transferTexture = new THREE.DataTexture(
-          imageTransferData,
-          256,
-          1,
-          THREE.RGBAFormat
-        );
-        transferTexture.needsUpdate = true;
-
-        if (this.getMesh() !== undefined) {
-          let material = this.getMesh().material;
-          // Shader script uses channel 6 for color mapping
-          material.uniforms.channel.value = 6;
-          material.uniforms.u_lut.value = transferTexture;
-          material.uniforms.useLut.value = this.data.useTransferFunction;
-          material.needsUpdate = true;
-        }
-      }
-    }
-  },
-
-  updateChannel: function () {
-    if (this.getMesh() !== undefined) {
-      let material = this.getMesh().material;
-      material.uniforms.channel.value = this.data.channel;
-      material.uniforms.useLut.value = this.data.useTransferFunction;
-      material.needsUpdate = true;
-    }
-  },
-
   loadModel: function () {
     let currentVolume = this.getMesh();
     const { spacing, slices, path } = this.data;
@@ -292,7 +252,7 @@ AFRAME.registerComponent("model", {
             transparent: true,
             vertexShader: shader.vertexShader,
             fragmentShader: shader.fragmentShader,
-            side: THREE.BackSide, // The volume shader uses the backface as its "reference point"
+            side: THREE.BackSide, // The volume shader uses the "backface" as its reference point
           });
 
           // Model is a 1x1x1 box with the file's material
@@ -309,6 +269,46 @@ AFRAME.registerComponent("model", {
           throw new Error("Could not load the data at", path);
         }
       );
+    }
+  },
+
+  updateTransferTexture: function () {
+    if (this.colorTransferMap.has(this.data.colorMap)) {
+      const colorTransfer = this.colorTransferMap.get(this.data.colorMap).data;
+      if (colorTransfer) {
+        const imageTransferData = new Uint8Array(4 * 256);
+        for (let i = 0; i < 256; i++) {
+          imageTransferData[i * 4 + 0] = colorTransfer[i * 3 + 0];
+          imageTransferData[i * 4 + 1] = colorTransfer[i * 3 + 1];
+          imageTransferData[i * 4 + 2] = colorTransfer[i * 3 + 2];
+          imageTransferData[i * 4 + 3] = this.alphaData[i];
+        }
+        const transferTexture = new THREE.DataTexture(
+          imageTransferData,
+          256,
+          1,
+          THREE.RGBAFormat
+        );
+        transferTexture.needsUpdate = true;
+
+        if (this.getMesh() !== undefined) {
+          let material = this.getMesh().material;
+          // Shader script uses channel 6 for color mapping
+          material.uniforms.channel.value = 6;
+          material.uniforms.u_lut.value = transferTexture;
+          material.uniforms.useLut.value = this.data.useTransferFunction;
+          material.needsUpdate = true;
+        }
+      }
+    }
+  },
+
+  updateChannel: function () {
+    if (this.getMesh() !== undefined) {
+      let material = this.getMesh().material;
+      material.uniforms.channel.value = this.data.channel;
+      material.uniforms.useLut.value = this.data.useTransferFunction;
+      material.needsUpdate = true;
     }
   },
 
