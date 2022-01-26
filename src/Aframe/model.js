@@ -10,7 +10,6 @@ import {
 
 const bind = AFRAME.utils.bind;
 
-// TODO: Pass in full colorMap not just the path
 AFRAME.registerComponent("model", {
   dependencies: ["render-2d-clipplane", "buttons-check"],
   schema: {
@@ -379,7 +378,6 @@ AFRAME.registerComponent("model", {
 
   updateMeshClipMatrix: function () {
     const volumeMatrix = this.getMesh().matrixWorld;
-    //material for setting the clipPlane and clipping value
     const material = this.getMesh().material;
 
     //scalematrix for zscaling
