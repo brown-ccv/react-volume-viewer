@@ -231,7 +231,7 @@ AFRAME.registerComponent("model", {
   loadColorMap: function () {
     const colorMap = this.data.colorMap;
 
-    // Re-inject local image with semi-colon
+    // Re-inject local image path with semi-colon
     if (colorMap.path.startsWith("data:image/png")) {
       colorMap.path =
         colorMap.path.substring(0, 14) + ";" + colorMap.path.substring(14);
@@ -261,34 +261,6 @@ AFRAME.registerComponent("model", {
     };
   },
 
-  updateClipping: function () {
-    const mesh = this.getMesh();
-    const activateClipPlane = this.clipPlaneListenerHandler.el.getAttribute(
-      "render-2d-clipplane"
-    ).activateClipPlane;
-
-    if (mesh) {
-      const material = mesh.material;
-      if (activateClipPlane) {
-        const sliders = this.data.sliders;
-        material.uniforms.box_min.value = new THREE.Vector3(
-          sliders.x[0],
-          sliders.y[0],
-          sliders.z[0]
-        );
-        material.uniforms.box_max.value = new THREE.Vector3(
-          sliders.x[1],
-          sliders.y[1],
-          sliders.z[1]
-        );
-      } else {
-        // Ignore sliders
-        material.uniforms.box_min.value = new THREE.Vector3(0, 0, 0);
-        material.uniforms.box_max.value = new THREE.Vector3(1, 1, 1);
-      }
-    } else console.log("MODEL NOT LOADED YET");
-  },
-
   updateTransferTexture: function () {
     const colorMapData = this.colorMapData;
     const imageTransferData = new Uint8Array(4 * 256);
@@ -315,6 +287,34 @@ AFRAME.registerComponent("model", {
       material.uniforms.channel.value = this.data.channel;
       material.uniforms.useLut.value = this.data.useTransferFunction;
       material.needsUpdate = true;
+    } else console.log("MODEL NOT LOADED YET");
+  },
+
+  updateClipping: function () {
+    const mesh = this.getMesh();
+    const activateClipPlane = this.clipPlaneListenerHandler.el.getAttribute(
+      "render-2d-clipplane"
+    ).activateClipPlane;
+
+    if (mesh) {
+      const material = mesh.material;
+      if (activateClipPlane) {
+        const sliders = this.data.sliders;
+        material.uniforms.box_min.value = new THREE.Vector3(
+          sliders.x[0],
+          sliders.y[0],
+          sliders.z[0]
+        );
+        material.uniforms.box_max.value = new THREE.Vector3(
+          sliders.x[1],
+          sliders.y[1],
+          sliders.z[1]
+        );
+      } else {
+        // Ignore sliders
+        material.uniforms.box_min.value = new THREE.Vector3(0, 0, 0);
+        material.uniforms.box_max.value = new THREE.Vector3(1, 1, 1);
+      }
     } else console.log("MODEL NOT LOADED YET");
   },
 
@@ -350,15 +350,15 @@ AFRAME.registerComponent("model", {
     const volumeMatrix = this.getMesh().matrixWorld;
     const material = this.getMesh().material;
 
-    //scalematrix for zscaling
+    // Matrix for zscaling
     const scaleMatrix = new THREE.Matrix4();
     scaleMatrix.makeScale(1, 1, material.uniforms.zScale.value);
 
-    //translationmatrix to cube-coordinates ranging from 0 -1
+    // Translate to cube-coordinates ranging from 0 -1
     const translationMatrix = new THREE.Matrix4();
     translationMatrix.makeTranslation(-0.5, -0.5, -0.5);
 
-    //inverse of the clipMatrix
+    // Inverse of the clip matrix
     const controllerMatrix = this.controllerHandler.matrixWorld;
     const controllerMatrix_inverse = new THREE.Matrix4();
     controllerMatrix_inverse.copy(controllerMatrix).invert();
@@ -371,11 +371,11 @@ AFRAME.registerComponent("model", {
 
     //set uniforms of shader
     const isVrModeActive = this.sceneHandler.is("vr-mode");
-    const doClip =
+    const isClipped =
       isVrModeActive &&
       this.controllerHandler.el.getAttribute("buttons-check").clipPlane &&
       !this.grabbed;
     material.uniforms.clipPlane.value = clipMatrix;
-    material.uniforms.clipping.value = doClip;
+    material.uniforms.clipping.value = isClipped;
   },
 });
