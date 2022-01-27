@@ -12,7 +12,6 @@ const bind = AFRAME.utils.bind;
 
 // TODO: loadModel asynchronously (trying to apply texture before it's created)
 // TODO: bind this to THREE.loadTexture
-// TODO: Handle slider changes in update not tick
 
 AFRAME.registerComponent("model", {
   dependencies: ["render-2d-clipplane", "buttons-check"],
@@ -49,13 +48,13 @@ AFRAME.registerComponent("model", {
     this.onCollide = this.onCollide.bind(this);
     this.onClearCollide = this.onClearCollide.bind(this);
     this.getMesh = this.getMesh.bind(this);
-    // this.loadModel = this.loadModel.bind(this);
-    // this.updateChannel = this.updateChannel.bind(this);
-    // this.loadColorMap = this.loadColorMap.bind(this);
-    // this.updateClipping = this.updateClipping.bind(this);
-    // this.updateTransferTexture = this.updateTransferTexture.bind(this);
-    // this.updateOpacityData = this.updateOpacityData.bind(this);
-    // this.updateMeshClipMatrix = this.updateMeshClipMatrix.bind(this);
+    this.loadModel = this.loadModel.bind(this);
+    this.updateChannel = this.updateChannel.bind(this);
+    this.loadColorMap = this.loadColorMap.bind(this);
+    this.updateClipping = this.updateClipping.bind(this);
+    this.updateTransferTexture = this.updateTransferTexture.bind(this);
+    this.updateOpacityData = this.updateOpacityData.bind(this);
+    this.updateMeshClipMatrix = this.updateMeshClipMatrix.bind(this);
 
     // Add event listeners
     this.el.sceneEl.addEventListener("enter-vr", this.onEnterVR);
