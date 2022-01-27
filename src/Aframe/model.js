@@ -17,7 +17,6 @@ const bind = AFRAME.utils.bind;
 AFRAME.registerComponent("model", {
   dependencies: ["render-2d-clipplane", "buttons-check"],
   schema: {
-    // colorMap: { type: "string", default: DEFAULT_COLOR_MAP.path },
     colorMap: { parse: JSON.parse, default: DEFAULT_COLOR_MAP },
     sliders: { parse: JSON.parse, default: DEFAULT_SLIDERS },
     transferFunction: { parse: JSON.parse, default: DEFAULT_TRANSFER_FUNCTION },
@@ -50,12 +49,13 @@ AFRAME.registerComponent("model", {
     this.onCollide = this.onCollide.bind(this);
     this.onClearCollide = this.onClearCollide.bind(this);
     this.getMesh = this.getMesh.bind(this);
-    this.loadModel = this.loadModel.bind(this);
-    this.updateChannel = this.updateChannel.bind(this);
-    this.loadColorMap = this.loadColorMap.bind(this);
-    this.updateTransferTexture = this.updateTransferTexture.bind(this);
-    this.updateOpacityData = this.updateOpacityData.bind(this);
-    this.updateMeshClipMatrix = this.updateMeshClipMatrix.bind(this);
+    // this.loadModel = this.loadModel.bind(this);
+    // this.updateChannel = this.updateChannel.bind(this);
+    // this.loadColorMap = this.loadColorMap.bind(this);
+    // this.updateClipping = this.updateClipping.bind(this);
+    // this.updateTransferTexture = this.updateTransferTexture.bind(this);
+    // this.updateOpacityData = this.updateOpacityData.bind(this);
+    // this.updateMeshClipMatrix = this.updateMeshClipMatrix.bind(this);
 
     // Add event listeners
     this.el.sceneEl.addEventListener("enter-vr", this.onEnterVR);
@@ -80,9 +80,10 @@ AFRAME.registerComponent("model", {
     if (oldData.path !== this.data.path) this.loadModel();
 
     // Update color map
-    if (oldData.colorMap !== this.data.colorMap) {
-      this.loadColorMap();
-    }
+    if (oldData.colorMap !== this.data.colorMap) this.loadColorMap();
+
+    // Update clipping
+    if (oldData.sliders !== this.data.sliders) this.updateClipping();
 
     if (this.data.useTransferFunction) {
       // Update transfer function
@@ -98,34 +99,7 @@ AFRAME.registerComponent("model", {
     const isVrModeActive = this.sceneHandler.is("vr-mode");
     const mesh = this.getMesh();
 
-    if (!isVrModeActive && this.clipPlaneListenerHandler) {
-      // Not in VR, controlled by clipPlanelistenerHandler
-      const activateClipPlane = this.clipPlaneListenerHandler.el.getAttribute(
-        "render-2d-clipplane"
-      ).activateClipPlane;
-
-      // TODO: Run on sliders Update, not tick
-      if (mesh) {
-        const material = mesh.material;
-        if (activateClipPlane) {
-          const sliders = this.data.sliders;
-          material.uniforms.box_min.value = new THREE.Vector3(
-            sliders.x[0],
-            sliders.y[0],
-            sliders.z[0]
-          );
-          material.uniforms.box_max.value = new THREE.Vector3(
-            sliders.x[1],
-            sliders.y[1],
-            sliders.z[1]
-          );
-        } else {
-          // Ignore sliders
-          material.uniforms.box_min.value = new THREE.Vector3(0, 0, 0);
-          material.uniforms.box_max.value = new THREE.Vector3(1, 1, 1);
-        }
-      }
-    } else if (this.controllerHandler && isVrModeActive) {
+    if (this.controllerHandler && isVrModeActive) {
       // In VR, position controlled by controllerHandler
       const grabObject =
         this.controllerHandler.el.getAttribute("buttons-check").grabObject;
@@ -246,7 +220,7 @@ AFRAME.registerComponent("model", {
         // Update colorMapping/data channel once model is loaded
         if (useTransferFunction) this.loadColorMap();
         else this.updateChannel();
-        // }.bind(this),
+        this.updateClipping();
       },
       () => {},
       () => {
@@ -288,6 +262,34 @@ AFRAME.registerComponent("model", {
     };
   },
 
+  updateClipping: function () {
+    const mesh = this.getMesh();
+    const activateClipPlane = this.clipPlaneListenerHandler.el.getAttribute(
+      "render-2d-clipplane"
+    ).activateClipPlane;
+
+    if (mesh) {
+      const material = mesh.material;
+      if (activateClipPlane) {
+        const sliders = this.data.sliders;
+        material.uniforms.box_min.value = new THREE.Vector3(
+          sliders.x[0],
+          sliders.y[0],
+          sliders.z[0]
+        );
+        material.uniforms.box_max.value = new THREE.Vector3(
+          sliders.x[1],
+          sliders.y[1],
+          sliders.z[1]
+        );
+      } else {
+        // Ignore sliders
+        material.uniforms.box_min.value = new THREE.Vector3(0, 0, 0);
+        material.uniforms.box_max.value = new THREE.Vector3(1, 1, 1);
+      }
+    } else console.log("MODEL NOT LOADED YET");
+  },
+
   updateTransferTexture: function () {
     const colorMapData = this.colorMapData;
     const imageTransferData = new Uint8Array(4 * 256);
@@ -307,8 +309,9 @@ AFRAME.registerComponent("model", {
 
     // TODO: updateTransferFunction and such are running before loadModel is compete
     // Apply transfer texture
-    if (this.getMesh()) {
-      const material = this.getMesh().material;
+    const mesh = this.getMesh();
+    if (mesh) {
+      const material = mesh.material;
       material.uniforms.u_lut.value = transferTexture;
       material.uniforms.channel.value = this.data.channel;
       material.uniforms.useLut.value = this.data.useTransferFunction;
@@ -317,8 +320,9 @@ AFRAME.registerComponent("model", {
   },
 
   updateChannel: function () {
-    if (this.getMesh()) {
-      const material = this.getMesh().material;
+    const mesh = this.getMesh();
+    if (mesh) {
+      const material = mesh.material;
       material.uniforms.channel.value = this.data.channel;
       material.uniforms.useLut.value = this.data.useTransferFunction;
       material.needsUpdate = true;
