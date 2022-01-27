@@ -17,9 +17,6 @@ AFRAME.registerComponent("arcball-camera", {
     this.oldMatrix = new THREE.Matrix4();
     this.meshObjectHandler = document.getElementById("volumeCube").object3D;
 
-    // Move camera to initial position
-    el.getObject3D("camera").position.copy(this.data.initialPosition);
-
     // Create controls
     this.controls = new THREE.TrackballControls(
       el.getObject3D("camera"),
@@ -29,21 +26,14 @@ AFRAME.registerComponent("arcball-camera", {
     this.controls.zoomSpeed = 1.2;
     this.controls.panSpeed = 0.8;
 
-    // Set the pointer to grab/grabbing when over the vr canvas
-    const aCanvas = document.querySelector(".a-canvas");
-    aCanvas.style.cursor = "grab";
-    document.addEventListener("mousedown", () => {
-      aCanvas.style.cursor = "grabbing";
-    });
-    document.addEventListener("mouseup", () => {
-      aCanvas.style.cursor = "grab";
-    });
-
     // Bind functions and add event listeners
     this.onEnterVR = bind(this.onEnterVR, this);
     this.onExitVR = bind(this.onExitVR, this);
     el.sceneEl.addEventListener("enter-vr", this.onEnterVR);
     el.sceneEl.addEventListener("exit-vr", this.onExitVR);
+
+    // Move camera to initial position
+    el.getObject3D("camera").position.copy(this.data.initialPosition);
   },
 
   onEnterVR: function () {
