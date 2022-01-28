@@ -3,8 +3,8 @@ import styled from "styled-components";
 import { Range } from "rc-slider";
 import "rc-slider/assets/index.css";
 
+import Section from "./Section.jsx";
 import { SLIDER_RANGE } from "../../constants/constants.js";
-import Title from "./SectionTitle.jsx";
 
 // TODO: Slider range should be 0-1000 with a step of 1 (changes needed in AframeScene)
 function ClipControls({ sliders, setSliders }) {
@@ -16,11 +16,10 @@ function ClipControls({ sliders, setSliders }) {
   }
 
   return (
-    <Wrapper>
-      <Title>Clip</Title>
+    <Section title="Clip">
       {["x", "y", "z"].map((axis) => (
         <SliderGroup key={axis}>
-          <h4> {axis.toUpperCase()} Axis</h4>
+          <Axis> {axis.toUpperCase()} Axis</Axis>
           <Range
             min={SLIDER_RANGE.min}
             max={SLIDER_RANGE.max}
@@ -31,15 +30,14 @@ function ClipControls({ sliders, setSliders }) {
           />
         </SliderGroup>
       ))}
-    </Wrapper>
+    </Section>
   );
 }
 
-const Wrapper = styled.div`
-  margin: 25px 0;
-  margin-bottom: 0;
-`;
-
 const SliderGroup = styled.div``;
+
+const Axis = styled.h4`
+  margin: 8px 0;
+`;
 
 export default ClipControls;
