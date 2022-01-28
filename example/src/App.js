@@ -99,7 +99,7 @@ function App() {
 }
 
 const StyledVolumeViewer = styled(VolumeViewer)`
-  height: 75vh;
+  height: 76vh;
 `;
 
 const Main = styled.main`
