@@ -99,8 +99,8 @@ AFRAME.registerComponent("model", {
     const isVrModeActive = this.scene.is("vr-mode");
     const mesh = this.getMesh();
 
+    // Position is controlled by controllerObject in VR
     if (this.controllerObject && isVrModeActive) {
-      // In VR, position controlled by controllerObject
       const grabObject =
         this.controllerObject.el.getAttribute("buttons-check").grabObject;
 
@@ -163,10 +163,8 @@ AFRAME.registerComponent("model", {
   loadModel: function () {
     const { spacing, slices, path, useTransferFunction, intensity } = this.data;
 
-    // Clear mesh
-    const mesh = this.getMesh();
-    if (mesh) this.el.removeObject3D("mesh");
-
+    // Clear mesh and load new model
+    if (this.getMesh()) this.el.removeObject3D("mesh");
     new THREE.TextureLoader().load(
       path,
       (texture) => {
