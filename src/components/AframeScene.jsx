@@ -4,7 +4,6 @@ import "aframe";
 
 import "../Aframe/arcball-camera";
 import "../Aframe/buttons-check";
-import "../Aframe/cursor-listener";
 import "../Aframe/model";
 import "../Aframe/render-2d-clipplane";
 import "../Aframe/entity-collider-check";
@@ -69,7 +68,6 @@ function AframeScene({
         position={model.position}
         rotation={model.rotation}
         scale={model.scale}
-        cursor-listener
       />
 
       {/* MODEL */}
@@ -77,7 +75,6 @@ function AframeScene({
         id="volumeCube"
         class="clickableMesh"
         model={toAframeString({
-          // colorMap: colorMap.path,
           colorMap: JSON.stringify(colorMap),
           sliders: JSON.stringify(sliders),
           transferFunction: JSON.stringify(transferFunction),
