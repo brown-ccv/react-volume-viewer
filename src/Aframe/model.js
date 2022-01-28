@@ -282,7 +282,7 @@ AFRAME.registerComponent("model", {
       material.uniforms.channel.value = this.data.channel;
       material.uniforms.useLut.value = this.data.useTransferFunction;
       material.needsUpdate = true;
-    } else console.log("MODEL NOT LOADED YET");
+    }
   },
 
   updateClipping: function () {
@@ -310,7 +310,7 @@ AFRAME.registerComponent("model", {
         material.uniforms.box_min.value = new THREE.Vector3(0, 0, 0);
         material.uniforms.box_max.value = new THREE.Vector3(1, 1, 1);
       }
-    } else console.log("MODEL NOT LOADED YET");
+    }
   },
 
   updateChannel: function () {
@@ -320,7 +320,7 @@ AFRAME.registerComponent("model", {
       material.uniforms.channel.value = this.data.channel;
       material.uniforms.useLut.value = this.data.useTransferFunction;
       material.needsUpdate = true;
-    } else console.log("MODEL NOT LOADED YET");
+    }
   },
 
   updateOpacityData: function () {
