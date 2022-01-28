@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { scaleLinear } from "d3-scale";
 
-import Title from "./SectionTitle.jsx";
+import Section from "./Section.jsx";
 import {
   DECIMALS,
   CANVAS_PADDING,
@@ -203,8 +203,7 @@ function OpacityControls({ range, initTransferFunction, setTransferFunction }) {
   }
 
   return (
-    <Wrapper>
-      <Title>Transfer Function</Title>
+    <Section title="Transfer Function">
       <OutlinedCanvas
         id="opacityControls"
         ref={canvasRef}
@@ -235,13 +234,9 @@ function OpacityControls({ range, initTransferFunction, setTransferFunction }) {
         Double-click to add a point to the transfer function. Right-click to
         remove a point. Drag points to change the function.
       </HelpText>
-    </Wrapper>
+    </Section>
   );
 }
-
-const Wrapper = styled.div`
-  margin: 25px 0;
-`;
 
 const OutlinedCanvas = styled.canvas`
   width: 100%;
@@ -276,6 +271,7 @@ const RightLabel = styled(LabelText)`
 
 const HelpText = styled.p`
   margin: 5px 0;
+  font-size: 0.75rem;
 `;
 
 export default OpacityControls;

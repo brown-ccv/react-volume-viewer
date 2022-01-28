@@ -10,13 +10,11 @@ import {
 } from "@reach/listbox";
 import "@reach/listbox/styles.css";
 
-import Title from "./SectionTitle.jsx";
+import Section from "./Section.jsx";
 
 function ColorMapControls({ colorMaps, colorMap, setColorMap }) {
   return (
-    <Wrapper>
-      <Title>Color Map</Title>
-
+    <Section title="Color Map">
       {colorMaps.length > 1 ? (
         <StyledListboxInput
           aria-labelledby="ColorMap dropdown"
@@ -26,7 +24,7 @@ function ColorMapControls({ colorMaps, colorMap, setColorMap }) {
           }
         >
           <ListboxButton>
-            <OutlinedImage
+            <OutlinedImg
               src={colorMap.path}
               alt="The current color map"
               height="20px"
@@ -37,36 +35,32 @@ function ColorMapControls({ colorMaps, colorMap, setColorMap }) {
           <ListboxPopover>
             <ListboxList>
               {colorMaps.map((color) => (
-                <ListboxOption key={color.name} value={color.name}>
-                  <img
+                <StyledListboxOption key={color.name} value={color.name}>
+                  <OptionText>{color.name}</OptionText>
+                  <OptionImg
                     src={color.path}
                     alt={color.name}
-                    height="15px"
-                    width="100%"
+                    width="0"
+                    height="auto"
                   />
-                </ListboxOption>
+                </StyledListboxOption>
               ))}
             </ListboxList>
           </ListboxPopover>
         </StyledListboxInput>
       ) : (
-        <OutlinedImage
+        <OutlinedImg
           src={colorMap.path}
           alt="The current color map"
           height="20px"
           width="100%"
         />
       )}
-    </Wrapper>
+    </Section>
   );
 }
 
-const Wrapper = styled.div`
-  margin: 25px 0;
-  margin-top: 0;
-`;
-
-const OutlinedImage = styled.img`
+const OutlinedImg = styled.img`
   outline: solid 1px;
 `;
 
@@ -83,6 +77,18 @@ const StyledListboxInput = styled(ListboxInput)`
       margin: auto;
     }
   }
+`;
+
+const StyledListboxOption = styled(ListboxOption)`
+  display: flex;
+  gap: 8px;
+`;
+const OptionText = styled.div`
+  flex: 1;
+  align-self: center;
+`;
+const OptionImg = styled(OutlinedImg)`
+  flex: 3;
 `;
 
 export default ColorMapControls;
