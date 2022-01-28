@@ -19,8 +19,6 @@ AFRAME.registerComponent("render-2d-clipplane", {
     xBounds: { type: "array", default: [0, 1] },
     yBounds: { type: "array", default: [0, 1] },
     zBounds: { type: "array", default: [0, 1] },
-    currentAxisAngle: { type: "vec3" },
-    rotateAngle: { type: "vec3" },
     clipX: { type: "vec2" },
     clipY: { type: "vec2" },
     clipZ: { type: "vec2" },
@@ -35,7 +33,6 @@ AFRAME.registerComponent("render-2d-clipplane", {
     this.onKeyDown = this.onKeyDown.bind(this);
     this.onKeyUp = this.onKeyUp.bind(this);
     this.activate2DClipPlane = this.activate2DClipPlane.bind(this);
-
     window.addEventListener("keydown", this.onKeyDown);
     window.addEventListener("keyup", this.onKeyUp);
   },
@@ -43,16 +40,6 @@ AFRAME.registerComponent("render-2d-clipplane", {
   update: function () {},
 
   tick: function (time, timeDelta) {
-    // I dont know why I have to save the current angle axis using a temporal variable. Maybe Aframe updates
-    // data on a asynchronous call
-    this.tempVec.x = this.data.xCLipPlaneRotation;
-    this.tempVec.y = this.data.yCLipPlaneRotation;
-    this.tempVec.z = this.data.zCLipPlaneRotation;
-
-    this.data.currentAxisAngle.x = this.tempVec.x;
-    this.data.currentAxisAngle.y = this.tempVec.y;
-    this.data.currentAxisAngle.z = this.tempVec.z;
-
     this.data.clipX = { x: this.data.xBounds[0], y: this.data.xBounds[1] };
     this.data.clipY = { x: this.data.yBounds[0], y: this.data.yBounds[1] };
     this.data.clipZ = { x: this.data.zBounds[0], y: this.data.zBounds[1] };
@@ -71,7 +58,8 @@ AFRAME.registerComponent("render-2d-clipplane", {
   },
 
   remove: function () {
-    this.removeEventListeners();
+    window.removeEventListener("keydown", this.onKeydown);
+    window.removeEventListener("keyup", this.onKeyUp);
   },
 
   onKeyDown: function (event) {
@@ -87,10 +75,5 @@ AFRAME.registerComponent("render-2d-clipplane", {
 
   activate2DClipPlane: function (event) {
     this.data.isActive = false;
-  },
-
-  removeEventListeners: function () {
-    window.removeEventListener("keydown", this.onKeydown);
-    window.removeEventListener("keyup", this.onKeyUp);
   },
 });

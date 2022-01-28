@@ -1,14 +1,13 @@
 import React from "react";
 
 import "aframe";
-import "aframe-event-set-component";
-import "aframe-orbit-controls";
 
 import "../Aframe/arcball-camera";
 import "../Aframe/buttons-check";
-import "../Aframe/cursor-listener";
-import "../Aframe/loader";
+import "../Aframe/model";
 import "../Aframe/render-2d-clipplane";
+import "../Aframe/entity-collider-check";
+import "../Aframe/collider-check";
 
 // aframe data is passed as a string
 const toAframeString = (obj) => {
@@ -58,6 +57,7 @@ function AframeScene({
         })}
       />
 
+      {/* CLICKABLE PLANE FOR MOUSE INTERACTIONS */}
       <a-plane
         class="clickable"
         id="clipplane2D"
@@ -68,25 +68,22 @@ function AframeScene({
         position={model.position}
         rotation={model.rotation}
         scale={model.scale}
-        cursor-listener
       />
 
       {/* MODEL */}
       <a-entity
         id="volumeCube"
         class="clickableMesh"
-        loader={toAframeString({
-          alphaXDataArray: transferFunction.map((p) => p["x"]),
-          alphaYDataArray: transferFunction.map((p) => p["y"]),
-          colorMap: colorMap.path,
-          path: model.path,
-          slices: model.slices,
-          x_spacing: model.spacing.x,
-          y_spacing: model.spacing.y,
-          z_spacing: model.spacing.z,
+        model={toAframeString({
+          colorMap: JSON.stringify(colorMap),
+          sliders: JSON.stringify(sliders),
+          transferFunction: JSON.stringify(transferFunction),
           useTransferFunction,
           channel: model.channel,
           intensity: model.intensity,
+          path: model.path,
+          slices: model.slices,
+          spacing: JSON.stringify(model.spacing),
         })}
         position={model.position}
         rotation={model.rotation}
@@ -101,7 +98,7 @@ function AframeScene({
         id="camera"
         camera="active: true"
         look-controls
-        arcball-camera="initialPosition:0 0 1"
+        arcball-camera="initialPosition: 0 0 1;"
       />
     </a-scene>
   );
