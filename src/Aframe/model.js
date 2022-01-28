@@ -251,9 +251,10 @@ AFRAME.registerComponent("model", {
 
       // Extract RGB values from colorMap (ignore alpha)
       for (let i = 0; i < 256; i++) {
-        colorTransfer[i * 3 + 0] = colorData[i * 4 + 0];
-        colorTransfer[i * 3 + 1] = colorData[i * 4 + 1];
-        colorTransfer[i * 3 + 2] = colorData[i * 4 + 2];
+        for(let j = 0; j < 3; j++) colorTransfer[i * 3 + j] = colorData[i * 4 + j];
+        // colorTransfer[i * 3 + 0] = colorData[i * 4 + 0];
+        // colorTransfer[i * 3 + 1] = colorData[i * 4 + 1];
+        // colorTransfer[i * 3 + 2] = colorData[i * 4 + 2];
       }
       this.colorMapData = colorTransfer;
 
@@ -265,11 +266,10 @@ AFRAME.registerComponent("model", {
     const colorMapData = this.colorMapData;
     const imageTransferData = new Uint8Array(4 * 256);
     for (let i = 0; i < 256; i++) {
-      imageTransferData[i * 4 + 0] = colorMapData[i * 3 + 0];
-      imageTransferData[i * 4 + 1] = colorMapData[i * 3 + 1];
-      imageTransferData[i * 4 + 2] = colorMapData[i * 3 + 2];
+      for(let j = 0; j < 3; j++) imageTransferData[i * 4 + j] = colorMapData[i * 3 + j];
       imageTransferData[i * 4 + 3] = this.alphaData[i];
     }
+    
     const transferTexture = new THREE.DataTexture(
       imageTransferData,
       256,
