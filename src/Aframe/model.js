@@ -10,8 +10,10 @@ import {
 
 const bind = AFRAME.utils.bind;
 
-// TODO: loadModel asynchronously (trying to apply texture before it's created)
-// TODO: bind this to THREE.loadTexture
+// TODO: The function in THREE.TextureLoader().load (loadModel) needs to run asynchronously
+// Before loadColorMap, updateClipping, updateTransferTexture, etc.
+// TODO: colorMapData should {[name]: colorMapData}
+// Check if color map has already been loaded before - then there's no need to load the data again
 
 AFRAME.registerComponent("model", {
   dependencies: ["render-2d-clipplane", "buttons-check"],
@@ -28,16 +30,16 @@ AFRAME.registerComponent("model", {
   },
 
   init: function () {
-    this.sceneHandler = this.el.sceneEl;
-    this.canvas = this.el.sceneEl.canvas;
-    this.colorMapData = [];
+    this.scene = this.el.sceneEl;
+    this.canvas = this.scene.canvas;
     this.alphaData = [];
+    this.colorMapData = [];
     this.rayCollided = false;
     this.grabbed = false;
 
     // Get other entities
-    this.controllerHandler = document.getElementById("rhand").object3D;
-    this.controllerHandler.matrixAutoUpdate = false;
+    this.controllerObject = document.getElementById("rhand").object3D;
+    this.controllerObject.matrixAutoUpdate = false;
     this.clipPlaneListenerHandler = document.getElementById(
       "clipplane2DListener"
     ).object3D;
@@ -57,8 +59,8 @@ AFRAME.registerComponent("model", {
     this.updateMeshClipMatrix = this.updateMeshClipMatrix.bind(this);
 
     // Add event listeners
-    this.el.sceneEl.addEventListener("enter-vr", this.onEnterVR);
-    this.el.sceneEl.addEventListener("exit-vr", this.onExitVR);
+    this.scene.addEventListener("enter-vr", this.onEnterVR);
+    this.scene.addEventListener("exit-vr", this.onExitVR);
     this.el.addEventListener("raycaster-intersected", this.onCollide);
     this.el.addEventListener(
       "raycaster-intersected-cleared",
@@ -66,8 +68,7 @@ AFRAME.registerComponent("model", {
     );
 
     // Activate camera
-    const cameraEl = document.querySelector("#camera");
-    cameraEl.setAttribute("camera", "active", true);
+    document.getElementById("camera").setAttribute("camera", "active", true);
 
     // Load data and colorMap
     this.loadModel();
@@ -95,16 +96,16 @@ AFRAME.registerComponent("model", {
   },
 
   tick: function (time, timeDelta) {
-    const isVrModeActive = this.sceneHandler.is("vr-mode");
+    const isVrModeActive = this.scene.is("vr-mode");
     const mesh = this.getMesh();
 
-    if (this.controllerHandler && isVrModeActive) {
-      // In VR, position controlled by controllerHandler
+    if (this.controllerObject && isVrModeActive) {
+      // In VR, position controlled by controllerObject
       const grabObject =
-        this.controllerHandler.el.getAttribute("buttons-check").grabObject;
+        this.controllerObject.el.getAttribute("buttons-check").grabObject;
 
       if (this.grabbed && !grabObject) {
-        mesh.matrix.premultiply(this.controllerHandler.matrixWorld);
+        mesh.matrix.premultiply(this.controllerObject.matrixWorld);
         mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
         this.el.object3D.add(mesh);
         this.grabbed = false;
@@ -113,10 +114,10 @@ AFRAME.registerComponent("model", {
       // grab mesh
       if (!this.grabbed && grabObject && this.rayCollided) {
         const inverseControllerPos = new THREE.Matrix4();
-        inverseControllerPos.getInverse(this.controllerHandler.matrixWorld);
+        inverseControllerPos.getInverse(this.controllerObject.matrixWorld);
         mesh.matrix.premultiply(inverseControllerPos);
         mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
-        this.controllerHandler.add(mesh);
+        this.controllerObject.add(mesh);
         this.grabbed = true;
       }
       this.updateMeshClipMatrix();
@@ -124,8 +125,8 @@ AFRAME.registerComponent("model", {
   },
 
   remove: function () {
-    this.el.sceneEl.removeEventListener("enter-vr", this.onEnterVR);
-    this.el.sceneEl.removeEventListener("exit-vr", this.onExitVR);
+    this.scene.removeEventListener("enter-vr", this.onEnterVR);
+    this.scene.removeEventListener("exit-vr", this.onExitVR);
     this.el.removeEventListener("raycaster-intersected", this.onCollide);
     this.el.removeEventListener(
       "raycaster-intersected-cleared",
@@ -211,7 +212,7 @@ AFRAME.registerComponent("model", {
           side: THREE.BackSide, // The volume shader uses the "backface" as its reference point
         });
 
-        // Model is a 1x1x1 box with the file's material
+        // Model is a unit box with the file's material
         const geometry = new THREE.BoxGeometry(1, 1, 1);
         this.el.setObject3D("mesh", new THREE.Mesh(geometry, material));
         material.needsUpdate = true;
@@ -243,18 +244,14 @@ AFRAME.registerComponent("model", {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 
-    // Draw img on the canvas and grab RGB data
+    // Draw img on the canvas and read RGB data
     img.onload = () => {
       ctx.drawImage(img, 0, 0);
       const colorData = ctx.getImageData(0, 0, img.width, 1).data;
       const colorTransfer = new Uint8Array(3 * 256);
-
-      // Extract RGB values from colorMap (ignore alpha)
       for (let i = 0; i < 256; i++) {
-        for(let j = 0; j < 3; j++) colorTransfer[i * 3 + j] = colorData[i * 4 + j];
-        // colorTransfer[i * 3 + 0] = colorData[i * 4 + 0];
-        // colorTransfer[i * 3 + 1] = colorData[i * 4 + 1];
-        // colorTransfer[i * 3 + 2] = colorData[i * 4 + 2];
+        for (let j = 0; j < 3; j++)
+          colorTransfer[i * 3 + j] = colorData[i * 4 + j];
       }
       this.colorMapData = colorTransfer;
 
@@ -266,10 +263,11 @@ AFRAME.registerComponent("model", {
     const colorMapData = this.colorMapData;
     const imageTransferData = new Uint8Array(4 * 256);
     for (let i = 0; i < 256; i++) {
-      for(let j = 0; j < 3; j++) imageTransferData[i * 4 + j] = colorMapData[i * 3 + j];
+      for (let j = 0; j < 3; j++)
+        imageTransferData[i * 4 + j] = colorMapData[i * 3 + j];
       imageTransferData[i * 4 + 3] = this.alphaData[i];
     }
-    
+
     const transferTexture = new THREE.DataTexture(
       imageTransferData,
       256,
@@ -278,7 +276,6 @@ AFRAME.registerComponent("model", {
     );
     transferTexture.needsUpdate = true;
 
-    // TODO: updateTransferFunction and such are running before loadModel is compete
     // Apply transfer texture
     const mesh = this.getMesh();
     if (mesh) {
@@ -359,7 +356,7 @@ AFRAME.registerComponent("model", {
     translationMatrix.makeTranslation(-0.5, -0.5, -0.5);
 
     // Inverse of the clip matrix
-    const controllerMatrix = this.controllerHandler.matrixWorld;
+    const controllerMatrix = this.controllerObject.matrixWorld;
     const controllerMatrix_inverse = new THREE.Matrix4();
     controllerMatrix_inverse.copy(controllerMatrix).invert();
 
@@ -370,10 +367,10 @@ AFRAME.registerComponent("model", {
     clipMatrix.multiplyMatrices(clipMatrix, translationMatrix);
 
     //set uniforms of shader
-    const isVrModeActive = this.sceneHandler.is("vr-mode");
+    const isVrModeActive = this.scene.is("vr-mode");
     const isClipped =
       isVrModeActive &&
-      this.controllerHandler.el.getAttribute("buttons-check").clipPlane &&
+      this.controllerObject.el.getAttribute("buttons-check").clipPlane &&
       !this.grabbed;
     material.uniforms.clipPlane.value = clipMatrix;
     material.uniforms.clipping.value = isClipped;
