@@ -43,7 +43,7 @@ const Wrapper = styled.div`
   background-color: white;
   position: absolute;
   box-sizing: border-box;
-  padding: 0px 16px; // Section.jsx handles spacing on y axis
+  padding: 0px 16px; // Section component handles spacing on y axis
   width: 320px;
   left: 8px;
   top: 8px;
