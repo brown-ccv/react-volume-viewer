@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
@@ -12,13 +12,8 @@ import {
 import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
 
-// Functions for handling prop input
-const getColorMaps = (colorMap, useDefaultColorMaps, colorMapsProp) => {
-  const colorMaps = [...colorMapsProp]; // JS arrays pass by reference, need fresh copy
-  if (useDefaultColorMaps) colorMaps.push(...DEFAULT_COLOR_MAPS);
-  if (!colorMaps.includes(colorMap)) colorMaps.unshift(colorMap);
-  return colorMaps;
-};
+// TODO: Changing model from props will reset the transferFunction. 
+// Only want to reset <OpacityControls> when model.transferFunction specifically changes
 
 function VolumeViewer({
   className,
@@ -29,20 +24,36 @@ function VolumeViewer({
   useDefaultColorMaps,
 }) {
   // Get initial values based on prop input. These will update on prop change
-  const model = { ...DEFAULT_MODEL, ...modelProp };
-  const initColorMap = model.colorMap;
-  const colorMaps = getColorMaps(
-    initColorMap,
-    useDefaultColorMaps,
-    colorMapsProp
+  const initModel = useMemo(
+    () => ({
+      ...DEFAULT_MODEL,
+      ...modelProp,
+      transferFunction: modelProp.useTransferFunction
+        ? // Inject DEFAULT_TRANSFER_FUNCTION if transferFunction property is not given
+          modelProp.transferFunction ?? DEFAULT_TRANSFER_FUNCTION
+        : // Always use DEFAULT_TRANSFER_FUNCTIOn when !useTransferFunction
+          DEFAULT_TRANSFER_FUNCTION,
+    }),
+    [modelProp]
   );
-  const initTransferFunction = model.useTransferFunction
-    ? model.transferFunction
-    : DEFAULT_TRANSFER_FUNCTION;
+
+  const initColorMap = initModel.colorMap;
+  const colorMaps = useMemo(() => {
+    const colorMaps = [...colorMapsProp]; // JS arrays pass by reference, need fresh copy
+    if (useDefaultColorMaps) colorMaps.push(...DEFAULT_COLOR_MAPS);
+    if (!colorMaps.includes(initColorMap)) colorMaps.unshift(initColorMap);
+    return colorMaps;
+  }, [initColorMap, useDefaultColorMaps, colorMapsProp]);
 
   // Changing a components key will remount the entire thing
   // Because the model's position is handled internally by aframe we need to remount it to reset its position
   const [remountKey, setRemountKey] = useState(Math.random());
+
+  // Control the model in state; override on prop change
+  const [model, setModel] = useState(initModel);
+  useEffect(() => {
+    setModel(initModel);
+  }, [initModel]);
 
   // Control colorMap, transferFunction, and sliders in state; override on prop change
   const [colorMap, setColorMap] = useState(initColorMap);
@@ -50,37 +61,26 @@ function VolumeViewer({
     setColorMap(initColorMap);
   }, [initColorMap]);
 
-  const [transferFunction, setTransferFunction] =
-    useState(initTransferFunction);
-  useEffect(() => {
-    setTransferFunction(initTransferFunction);
-  }, [initTransferFunction]);
-
   const [sliders, setSliders] = useState(DEFAULT_SLIDERS);
 
   return (
     <Wrapper key={remountKey} className={className} style={style}>
-      <AframeScene
-        model={model}
-        colorMap={colorMap}
-        transferFunction={transferFunction}
-        sliders={sliders}
-      />
+      <AframeScene model={model} colorMap={colorMap} sliders={sliders} />
 
       {controlsVisible && (
         <Controls
           colorMaps={colorMaps}
           model={model}
-          initTransferFunction={initTransferFunction}
+          setModel={setModel}
+          initModel={initModel}
           colorMap={colorMap}
           sliders={sliders}
           setColorMap={setColorMap}
-          setTransferFunction={setTransferFunction}
           setSliders={setSliders}
           reset={() => {
+            setModel(initModel);
             setColorMap(initColorMap);
             setSliders(DEFAULT_SLIDERS);
-            setTransferFunction(initTransferFunction);
             setRemountKey(Math.random());
           }}
         />

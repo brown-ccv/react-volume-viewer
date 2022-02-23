@@ -25,13 +25,7 @@ const toAframeString = (obj) => {
   return str;
 };
 
-function AframeScene({
-  model,
-  // useTransferFunction,
-  colorMap,
-  transferFunction,
-  sliders,
-}) {
+function AframeScene({ model, colorMap, sliders }) {
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
@@ -82,7 +76,7 @@ function AframeScene({
           slices: model.slices,
           sliders: JSON.stringify(sliders),
           spacing: JSON.stringify(model.spacing),
-          transferFunction: JSON.stringify(transferFunction),
+          transferFunction: JSON.stringify(model.transferFunction),
           useTransferFunction: model.useTransferFunction,
         })}
         position={model.position}

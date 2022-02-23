@@ -8,10 +8,10 @@ import ClipControls from "./ClipControls.jsx";
 function Controls({
   colorMaps,
   model,
-  initTransferFunction,
+  initModel,
   colorMap,
   setColorMap,
-  setTransferFunction,
+  setModel,
   sliders,
   setSliders,
   reset,
@@ -27,8 +27,8 @@ function Controls({
       {model.useTransferFunction && (
         <OpacityControls
           range={model.range}
-          initTransferFunction={initTransferFunction}
-          setTransferFunction={setTransferFunction}
+          initModel={initModel}
+          setModel={setModel}
         />
       )}
       <Button onClick={reset}> Reset </Button>
