@@ -27,7 +27,7 @@ const toAframeString = (obj) => {
 
 function AframeScene({
   model,
-  useTransferFunction,
+  // useTransferFunction,
   colorMap,
   transferFunction,
   sliders,
@@ -75,15 +75,15 @@ function AframeScene({
         id="volumeCube"
         class="clickableMesh"
         model={toAframeString({
-          colorMap: JSON.stringify(colorMap),
-          sliders: JSON.stringify(sliders),
-          transferFunction: JSON.stringify(transferFunction),
-          useTransferFunction,
           channel: model.channel,
+          colorMap: JSON.stringify(colorMap),
           intensity: model.intensity,
           path: model.path,
           slices: model.slices,
+          sliders: JSON.stringify(sliders),
           spacing: JSON.stringify(model.spacing),
+          transferFunction: JSON.stringify(transferFunction),
+          useTransferFunction: model.useTransferFunction,
         })}
         position={model.position}
         rotation={model.rotation}

@@ -39,9 +39,10 @@ function VolumeViewer({
   model: modelProp,
   transferFunction: transferFunctionProp,
   useDefaultColorMaps,
-  useTransferFunction,
+  // useTransferFunction,
 }) {
   // Get initial values based on prop input. These will update on prop change
+  const model = { ...DEFAULT_MODEL, ...modelProp };
   const initColorMap = getColorMap(colorMapProp, colorMapsProp);
   const colorMaps = getColorMaps(
     initColorMap,
@@ -49,10 +50,9 @@ function VolumeViewer({
     colorMapsProp
   );
   const initTransferFunction = getTransferFunction(
-    useTransferFunction,
+    model.useTransferFunction,
     transferFunctionProp
   );
-  const model = { ...DEFAULT_MODEL, ...modelProp };
 
   // Changing a components key will remount the entire thing
   // Because the model's position is handled internally by aframe we need to remount it to reset its position
@@ -76,7 +76,7 @@ function VolumeViewer({
     <Wrapper key={remountKey} className={className} style={style}>
       <AframeScene
         model={model}
-        useTransferFunction={useTransferFunction}
+        // useTransferFunction={useTransferFunction}
         colorMap={colorMap}
         transferFunction={transferFunction}
         sliders={sliders}
@@ -86,7 +86,7 @@ function VolumeViewer({
         <Controls
           colorMaps={colorMaps}
           model={model}
-          useTransferFunction={useTransferFunction}
+          // useTransferFunction={useTransferFunction}
           initTransferFunction={initTransferFunction}
           colorMap={colorMap}
           sliders={sliders}
@@ -169,6 +169,9 @@ VolumeViewer.propTypes = {
       y: PropTypes.number,
       z: PropTypes.number,
     }),
+
+    /** Whether or not to apply a transfer function to the model */
+    useTransferFunction: PropTypes.bool,
   }),
 
   /**
@@ -188,9 +191,6 @@ VolumeViewer.propTypes = {
    *
    */
   useDefaultColorMaps: PropTypes.bool,
-
-  /** Whether or not to apply a transfer function to the model */
-  useTransferFunction: PropTypes.bool,
 };
 
 VolumeViewer.defaultProps = {
@@ -198,7 +198,7 @@ VolumeViewer.defaultProps = {
   controlsVisible: false,
   transferFunction: DEFAULT_TRANSFER_FUNCTION,
   useDefaultColorMaps: true,
-  useTransferFunction: true,
+  // useTransferFunction: true,
 };
 
 export default VolumeViewer;

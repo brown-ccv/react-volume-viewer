@@ -8,7 +8,6 @@ import ClipControls from "./ClipControls.jsx";
 function Controls({
   colorMaps,
   model,
-  useTransferFunction,
   initTransferFunction,
   colorMap,
   setColorMap,
@@ -25,7 +24,7 @@ function Controls({
         setColorMap={setColorMap}
       />
 
-      {useTransferFunction && (
+      {model.useTransferFunction && (
         <OpacityControls
           range={model.range}
           initTransferFunction={initTransferFunction}

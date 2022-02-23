@@ -73,8 +73,8 @@ function App() {
         path: modelPath,
         scale: "1 -1 1",
         rotation: "-55 0 0",
+        useTransferFunction: useTransferFunction,
       }}
-      useTransferFunction={useTransferFunction}
       useDefaultColorMaps={useDefaultColorMaps}
     />
   );
