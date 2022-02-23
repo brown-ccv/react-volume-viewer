@@ -16,7 +16,9 @@ Run `npm start` in one terminal and `cd example && npm start` in a second termin
 npm install react-volume-viewer
 ```
 
-## Props
+## VolumeViewer
+
+### Props
 
 The only required props are the model's path and it's minimum and maximum data points. The model's path should be imported into the project and passed in from there - see the [example](#example) project.
 
@@ -117,12 +119,20 @@ VolumeViewer.defaultProps = {
 
 ```
 
+## ColorMaps
+
+The `ColorMaps` export is an object containing some default color maps that may be useful for your project. There is a grayscale, "natural", and rgb color map:
+
+<img alt="grayscale" src="./src/images/grayscale.png" height="10"/>
+<img alt="natural" src="./src/images/natural.png" height="10"/>
+<img alt="rgb" src="./src/images/rgb.png" height="10"/>
+
 ## Example
 
 ```jsx
 import React from 'react'
 import styled from 'styled-components'
-import { VolumeViewer } from 'react-volume-viewer'
+import { VolumeViewer, ColorMaps } from "react-volume-viewer";
 
 const haline = { name: "Haline", path: "./path/to/colormaps/haline.png" };
 const thermal = { name: "Thermal", path: "./path/to/colormaps/thermal.png" };
@@ -133,7 +143,7 @@ function App() {
 
   return (
     <StyledVolumeViewer
-      colorMaps={[haline, thermal]}
+      colorMaps={[haline, thermal, ColorMaps.grayscale]}
       colorMap={haline}
       controlsVisible={controlsVisible}
       model={{
