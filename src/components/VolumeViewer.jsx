@@ -12,6 +12,9 @@ import {
 import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
 
+// TODO: Change colorMap to a string (the name)
+// Change colorMaps to a map here, worry about the prop change later on
+
 // TODO: Changing model from props will reset the transferFunction.
 // Only want to reset <OpacityControls> when model.transferFunction specifically changes?
 
@@ -39,7 +42,8 @@ function VolumeViewer({
   const colorMaps = useMemo(() => {
     const colorMaps = [...colorMapsProp]; // JS arrays pass by reference, need fresh copy
     if (useDefaultColorMaps) colorMaps.push(...DEFAULT_COLOR_MAPS);
-    if (!colorMaps.includes(initModel.colorMap)) colorMaps.unshift(initModel.colorMap);
+    if (!colorMaps.includes(initModel.colorMap))
+      colorMaps.unshift(initModel.colorMap);
     return colorMaps;
   }, [initModel.colorMap, useDefaultColorMaps, colorMapsProp]);
 

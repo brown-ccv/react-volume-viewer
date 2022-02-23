@@ -19,10 +19,10 @@ function ColorMapControls({ colorMaps, model, setModel }) {
         <StyledListboxInput
           aria-labelledby="ColorMap dropdown"
           value={model.colorMap.name}
-          onChange={(color) => 
-            setModel(model => ({
+          onChange={(color) =>
+            setModel((model) => ({
               ...model,
-              colorMap: colorMaps.find((colorMap) => colorMap.name === color)
+              colorMap: colorMaps.find((colorMap) => colorMap.name === color),
             }))
           }
         >
