@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { VolumeViewer } from "react-volume-viewer";
+import { VolumeViewer, ColorMaps } from "react-volume-viewer";
 
 const salt = "./assets/models/summer-high-salt.png";
 const temp = "./assets/models/summer-high-temp.png";
 const haline = { name: "Haline", path: "./assets/colormaps/haline.png" };
 const thermal = { name: "Thermal", path: "./assets/colormaps/thermal.png" };
-const initColorMaps = [haline, thermal];
+const initColorMaps = [haline, thermal, ColorMaps.grayscale, ColorMaps.natural, ColorMaps.rgb];
 
 function App() {
   const [colorMap, setColorMap] = useState(haline);
@@ -19,7 +19,6 @@ function App() {
 
   const Buttons = (
     <>
-      {" "}
       <button onClick={() => setControlsVisible(!controlsVisible)}>
         Controls Visible
       </button>
