@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 
 import {
-  DEFAULT_COLOR_MAP,
   DEFAULT_COLOR_MAPS,
   DEFAULT_MODEL,
   DEFAULT_TRANSFER_FUNCTION,
@@ -14,16 +13,6 @@ import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
 
 // Functions for handling prop input
-// const getColorMap = (colorMapProp, colorMapsProp) => {
-//   if (colorMapProp) return colorMapProp;
-//   else if (colorMapsProp.length) return colorMapsProp[0];
-//   else return DEFAULT_COLOR_MAP;
-// };
-const getColorMap = (colorMap, colorMapsProp) => {
-  if (colorMap) return colorMap;
-  else if (colorMapsProp.length) return colorMapsProp[0];
-  else return DEFAULT_COLOR_MAP;
-};
 const getColorMaps = (colorMap, useDefaultColorMaps, colorMapsProp) => {
   const colorMaps = [...colorMapsProp]; // JS arrays pass by reference, need fresh copy
   if (useDefaultColorMaps) colorMaps.push(...DEFAULT_COLOR_MAPS);
@@ -38,7 +27,6 @@ const getTransferFunction = (useTransferFunction, transferFunctionProp) => {
 function VolumeViewer({
   className,
   style,
-  // colorMap: colorMapProp,
   colorMaps: colorMapsProp,
   controlsVisible,
   model: modelProp,
@@ -47,8 +35,7 @@ function VolumeViewer({
 }) {
   // Get initial values based on prop input. These will update on prop change
   const model = { ...DEFAULT_MODEL, ...modelProp };
-  // const initColorMap = getColorMap(colorMapProp, colorMapsProp);
-  const initColorMap = getColorMap(model.colorMap, colorMapsProp);
+  const initColorMap = model.colorMap
   const colorMaps = getColorMaps(
     initColorMap,
     useDefaultColorMaps,
@@ -134,9 +121,7 @@ VolumeViewer.propTypes = {
   /** The model to be displayed and it's related information */
   model: PropTypes.shape({
     /**
-     * The current color map applied by the transferFunction REQUIRED
-     * It will default to the first object in colorMaps if no colorMap is provided
-     * It will default to grayscale if neither colorMap nor colorMaps is provided.
+     * The current color map applied by the transferFunction. REQUIRED
      *
      *  name: Common name of the color map
      *  path: Path to the color map src
@@ -144,7 +129,7 @@ VolumeViewer.propTypes = {
     colorMap: PropTypes.exact({
       name: PropTypes.string,
       path: PropTypes.string,
-    }),
+    }).isRequired,
 
     /** Channel to load data from (R:1, G:2, B:3)*/
     channel: PropTypes.number,

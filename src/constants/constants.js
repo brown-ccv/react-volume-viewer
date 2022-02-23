@@ -11,8 +11,6 @@ const DEFAULT_COLOR_MAPS = [
   { name: "RGB", path: rgb },
 ];
 
-const DEFAULT_COLOR_MAP = grayscaleColorMap;
-
 const DEFAULT_MODEL = {
   channel: 1,
   intensity: 1.0,
@@ -43,7 +41,6 @@ const HOVER_RADIUS = 15;
 
 export {
   DEFAULT_COLOR_MAPS,
-  DEFAULT_COLOR_MAP,
   DEFAULT_MODEL,
   DEFAULT_TRANSFER_FUNCTION,
   SLIDER_RANGE,

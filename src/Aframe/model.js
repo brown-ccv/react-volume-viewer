@@ -4,21 +4,15 @@ import "./Shader.js";
 import {
   DEFAULT_TRANSFER_FUNCTION,
   DEFAULT_MODEL,
-  DEFAULT_COLOR_MAP,
   DEFAULT_SLIDERS,
 } from "../constants/constants";
 
 const bind = AFRAME.utils.bind;
 
-// TODO: The function in THREE.TextureLoader().load (loadModel) needs to run asynchronously
-// Before loadColorMap, updateClipping, updateTransferTexture, etc.
-// TODO: colorMapData should {[name]: colorMapData}
-// Check if color map has already been loaded before - then there's no need to load the data again
-
 AFRAME.registerComponent("model", {
   dependencies: ["render-2d-clipplane", "buttons-check"],
   schema: {
-    colorMap: { parse: JSON.parse, default: DEFAULT_COLOR_MAP },
+    colorMap: { parse: JSON.parse },
     sliders: { parse: JSON.parse, default: DEFAULT_SLIDERS },
     transferFunction: { parse: JSON.parse, default: DEFAULT_TRANSFER_FUNCTION },
     useTransferFunction: { type: "boolean", default: false },
