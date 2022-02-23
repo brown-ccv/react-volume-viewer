@@ -10,6 +10,10 @@ const DEFAULT_COLOR_MAPS = [
   { name: "Natural", path: natural },
   { name: "RGB", path: rgb },
 ];
+const DEFAULT_TRANSFER_FUNCTION = [
+  { x: 0, y: 0 },
+  { x: 1, y: 1 },
+];
 
 const DEFAULT_MODEL = {
   channel: 1,
@@ -20,13 +24,9 @@ const DEFAULT_MODEL = {
   scale: "1 1 1",
   slices: 55,
   spacing: { x: 2, y: 2, z: 1 },
+  transferFunction: DEFAULT_TRANSFER_FUNCTION,
   useTransferFunction: true,
 };
-
-const DEFAULT_TRANSFER_FUNCTION = [
-  { x: 0, y: 0 },
-  { x: 1, y: 1 },
-];
 
 const SLIDER_RANGE = { min: 0, max: 1 };
 const DEFAULT_SLIDERS = {

@@ -64,7 +64,7 @@ function App() {
       colorMaps={colorMaps}
       controlsVisible={controlsVisible}
       model={{
-        // colorMap: colorMap,
+        colorMap: colorMap,
         range: {
           min: 0.05,
           max: 33.71,

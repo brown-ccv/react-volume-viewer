@@ -19,10 +19,6 @@ const getColorMaps = (colorMap, useDefaultColorMaps, colorMapsProp) => {
   if (!colorMaps.includes(colorMap)) colorMaps.unshift(colorMap);
   return colorMaps;
 };
-const getTransferFunction = (useTransferFunction, transferFunctionProp) => {
-  if (useTransferFunction) return transferFunctionProp;
-  else return DEFAULT_TRANSFER_FUNCTION;
-};
 
 function VolumeViewer({
   className,
@@ -30,21 +26,19 @@ function VolumeViewer({
   colorMaps: colorMapsProp,
   controlsVisible,
   model: modelProp,
-  transferFunction: transferFunctionProp,
   useDefaultColorMaps,
 }) {
   // Get initial values based on prop input. These will update on prop change
   const model = { ...DEFAULT_MODEL, ...modelProp };
-  const initColorMap = model.colorMap
+  const initColorMap = model.colorMap;
   const colorMaps = getColorMaps(
     initColorMap,
     useDefaultColorMaps,
     colorMapsProp
   );
-  const initTransferFunction = getTransferFunction(
-    model.useTransferFunction,
-    transferFunctionProp
-  );
+  const initTransferFunction = model.useTransferFunction
+    ? model.transferFunction
+    : DEFAULT_TRANSFER_FUNCTION;
 
   // Changing a components key will remount the entire thing
   // Because the model's position is handled internally by aframe we need to remount it to reset its position
@@ -166,20 +160,20 @@ VolumeViewer.propTypes = {
       z: PropTypes.number,
     }),
 
+    /**
+     * The transfer function applied to the color map
+     * Array of 2D points
+     */
+    transferFunction: PropTypes.arrayOf(
+      PropTypes.exact({
+        x: PropTypes.number,
+        y: PropTypes.number,
+      })
+    ),
+
     /** Whether or not to apply a transfer function to the model */
     useTransferFunction: PropTypes.bool,
   }),
-
-  /**
-   * The transfer function applied to the color map
-   * Array of 2D points
-   */
-  transferFunction: PropTypes.arrayOf(
-    PropTypes.exact({
-      x: PropTypes.number,
-      y: PropTypes.number,
-    })
-  ),
 
   /**
    * Whether or not to use the libraries default color maps
@@ -192,7 +186,6 @@ VolumeViewer.propTypes = {
 VolumeViewer.defaultProps = {
   colorMaps: [],
   controlsVisible: false,
-  transferFunction: DEFAULT_TRANSFER_FUNCTION,
   useDefaultColorMaps: true,
 };
 

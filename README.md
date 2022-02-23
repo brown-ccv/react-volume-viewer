@@ -41,53 +41,66 @@ VolumeViewer.propTypes = {
 
   /** The model to be displayed and it's related information */
   model: PropTypes.shape({
-      /**
-   * The current color map applied by the transferFunction REQUIRED
-   * It will default to the first object in colorMaps if no colorMap is provided
-   * It will default to grayscale if neither colorMap nor colorMaps is provided.
-   *
-   *  name: Common name of the color map
-   *  path: Path to the color map src
-   */
-  colorMap: PropTypes.exact({
-    name: PropTypes.string,
-    path: PropTypes.string,
-  }).isRequired,
+    /**
+     * The current color map applied by the transferFunction. REQUIRED
+     *
+     *  name: Common name of the color map
+     *  path: Path to the color map src
+     */
+    colorMap: PropTypes.exact({
+      name: PropTypes.string,
+      path: PropTypes.string,
+    }).isRequired,
+
+    /** Channel to load data from (R:1, G:2, B:3)*/
+    channel: PropTypes.number,
+
+    /** Increase/decrease voxels intensity */
+    intensity: PropTypes.number,
 
     /** Path to the model REQUIRED */
     path: PropTypes.string.isRequired,
+
     /** Position of the model in the scene */
     position: PropTypes.string,
+
     /** Minimum and maximum values of the model's dataset. Min and max values are required */
     range: PropTypes.shape({
       min: PropTypes.number.isRequired,
       max: PropTypes.number.isRequired,
       unit: PropTypes.string,
     }),
+
     /** Position of the model in the scene */
     rotation: PropTypes.string,
+
     /** Scale of the model in the scene */
     scale: PropTypes.string,
+
     /** Number of slices used to generate the model */
     slices: PropTypes.number,
+
     /** Spacing between the slices of the model */
     spacing: PropTypes.exact({
       x: PropTypes.number,
       y: PropTypes.number,
       z: PropTypes.number,
     }),
-  }),
 
-  /**
-   * The transfer function applied to the color map
-   * Array of 2D points
-   */
-  transferFunction: PropTypes.arrayOf(
-    PropTypes.exact({
-      x: PropTypes.number,
-      y: PropTypes.number,
-    })
-  ),
+    /**
+     * The transfer function applied to the color map
+     * Array of 2D points
+     */
+    transferFunction: PropTypes.arrayOf(
+      PropTypes.exact({
+        x: PropTypes.number,
+        y: PropTypes.number,
+      })
+    ),
+
+    /** Whether or not to apply a transfer function to the model */
+    useTransferFunction: PropTypes.bool,
+  }),
 
   /**
    * Whether or not to use the libraries default color maps
@@ -95,10 +108,7 @@ VolumeViewer.propTypes = {
    *
    */
   useDefaultColorMaps: PropTypes.bool,
-
-  /** Whether or not to apply a transfer function to the model */
-  useTransferFunction: PropTypes.bool,
-}
+};
 ```
 
 ### Default Props
@@ -117,9 +127,9 @@ VolumeViewer.defaultProps = {
     scale: "1 1 1",
     slices: 55,
     spacing: { x: 2, y: 2, z: 1 },
+    transferFunction: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
     useTransferFunction: true,
   }
-  transferFunction: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
   useDefaultColorMaps: true,
 };
 
