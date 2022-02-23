@@ -121,7 +121,7 @@ VolumeViewer.defaultProps = {
 
 ## ColorMaps
 
-The `ColorMaps` export is an object containing some default color maps that may be useful for your project. There is a grayscale, "natural", and rgb color map:
+The `ColorMaps` export is an object containing some default color maps that may be useful for your project. There is a grayscale, natural, and rgb color map:
 
 <img alt="grayscale" src="./src/images/grayscale.png" height="10"/>
 <img alt="natural" src="./src/images/natural.png" height="10"/>
