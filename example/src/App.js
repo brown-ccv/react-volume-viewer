@@ -1,17 +1,22 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { VolumeViewer } from "react-volume-viewer";
+import { VolumeViewer, ColorMaps } from "react-volume-viewer";
 
 const salt = "./assets/models/summer-high-salt.png";
 const temp = "./assets/models/summer-high-temp.png";
 const haline = { name: "Haline", path: "./assets/colormaps/haline.png" };
 const thermal = { name: "Thermal", path: "./assets/colormaps/thermal.png" };
-const initColorMaps = [haline, thermal];
+const initColorMaps = [
+  haline,
+  thermal,
+  ColorMaps.grayscale,
+  ColorMaps.natural,
+  ColorMaps.rgb,
+];
 
 function App() {
   const [colorMap, setColorMap] = useState(haline);
   const [controlsVisible, setControlsVisible] = useState(false);
-  const [useDefaultColorMaps, setUseDefaultColorMaps] = useState(true);
   const [colorMaps, setColorMaps] = useState(initColorMaps);
 
   const [useTransferFunction, setUseTransferFunction] = useState(true);
@@ -19,15 +24,11 @@ function App() {
 
   const Buttons = (
     <>
-      {" "}
       <button onClick={() => setControlsVisible(!controlsVisible)}>
         Controls Visible
       </button>
       <button onClick={() => setUseTransferFunction(!useTransferFunction)}>
         Use Transfer Function
-      </button>
-      <button onClick={() => setUseDefaultColorMaps(!useDefaultColorMaps)}>
-        Use Default Color Maps
       </button>
       <button
         onClick={() =>
@@ -75,7 +76,6 @@ function App() {
         rotation: "-55 0 0",
       }}
       useTransferFunction={useTransferFunction}
-      useDefaultColorMaps={useDefaultColorMaps}
     />
   );
 

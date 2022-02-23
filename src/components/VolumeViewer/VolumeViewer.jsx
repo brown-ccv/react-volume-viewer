@@ -4,14 +4,13 @@ import styled from "styled-components";
 
 import {
   DEFAULT_COLOR_MAP,
-  DEFAULT_COLOR_MAPS,
   DEFAULT_MODEL,
   DEFAULT_TRANSFER_FUNCTION,
   DEFAULT_SLIDERS,
-} from "../constants/constants";
+} from "../../constants";
 
-import Controls from "./controls/Controls.jsx";
-import AframeScene from "./AframeScene.jsx";
+import Controls from "../Controls";
+import AframeScene from "../AframeScene";
 
 // Functions for handling prop input
 const getColorMap = (colorMapProp, colorMapsProp) => {
@@ -19,9 +18,8 @@ const getColorMap = (colorMapProp, colorMapsProp) => {
   else if (colorMapsProp.length) return colorMapsProp[0];
   else return DEFAULT_COLOR_MAP;
 };
-const getColorMaps = (colorMap, useDefaultColorMaps, colorMapsProp) => {
+const getColorMaps = (colorMap, colorMapsProp) => {
   const colorMaps = [...colorMapsProp]; // JS arrays pass by reference, need fresh copy
-  if (useDefaultColorMaps) colorMaps.push(...DEFAULT_COLOR_MAPS);
   if (!colorMaps.includes(colorMap)) colorMaps.unshift(colorMap);
   return colorMaps;
 };
@@ -38,16 +36,11 @@ function VolumeViewer({
   controlsVisible,
   model: modelProp,
   transferFunction: transferFunctionProp,
-  useDefaultColorMaps,
   useTransferFunction,
 }) {
   // Get initial values based on prop input. These will update on prop change
   const initColorMap = getColorMap(colorMapProp, colorMapsProp);
-  const colorMaps = getColorMaps(
-    initColorMap,
-    useDefaultColorMaps,
-    colorMapsProp
-  );
+  const colorMaps = getColorMaps(initColorMap, colorMapsProp);
   const initTransferFunction = getTransferFunction(
     useTransferFunction,
     transferFunctionProp
@@ -182,13 +175,6 @@ VolumeViewer.propTypes = {
     })
   ),
 
-  /**
-   * Whether or not to use the libraries default color maps
-   * Default Color Maps: grayscale, natural, rgb
-   *
-   */
-  useDefaultColorMaps: PropTypes.bool,
-
   /** Whether or not to apply a transfer function to the model */
   useTransferFunction: PropTypes.bool,
 };
@@ -197,7 +183,6 @@ VolumeViewer.defaultProps = {
   colorMaps: [],
   controlsVisible: false,
   transferFunction: DEFAULT_TRANSFER_FUNCTION,
-  useDefaultColorMaps: true,
   useTransferFunction: true,
 };
 
