@@ -14,8 +14,13 @@ import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
 
 // Functions for handling prop input
-const getColorMap = (colorMapProp, colorMapsProp) => {
-  if (colorMapProp) return colorMapProp;
+// const getColorMap = (colorMapProp, colorMapsProp) => {
+//   if (colorMapProp) return colorMapProp;
+//   else if (colorMapsProp.length) return colorMapsProp[0];
+//   else return DEFAULT_COLOR_MAP;
+// };
+const getColorMap = (colorMap, colorMapsProp) => {
+  if (colorMap) return colorMap;
   else if (colorMapsProp.length) return colorMapsProp[0];
   else return DEFAULT_COLOR_MAP;
 };
@@ -33,17 +38,17 @@ const getTransferFunction = (useTransferFunction, transferFunctionProp) => {
 function VolumeViewer({
   className,
   style,
-  colorMap: colorMapProp,
+  // colorMap: colorMapProp,
   colorMaps: colorMapsProp,
   controlsVisible,
   model: modelProp,
   transferFunction: transferFunctionProp,
   useDefaultColorMaps,
-  // useTransferFunction,
 }) {
   // Get initial values based on prop input. These will update on prop change
   const model = { ...DEFAULT_MODEL, ...modelProp };
-  const initColorMap = getColorMap(colorMapProp, colorMapsProp);
+  // const initColorMap = getColorMap(colorMapProp, colorMapsProp);
+  const initColorMap = getColorMap(model.colorMap, colorMapsProp);
   const colorMaps = getColorMaps(
     initColorMap,
     useDefaultColorMaps,
@@ -76,7 +81,6 @@ function VolumeViewer({
     <Wrapper key={remountKey} className={className} style={style}>
       <AframeScene
         model={model}
-        // useTransferFunction={useTransferFunction}
         colorMap={colorMap}
         transferFunction={transferFunction}
         sliders={sliders}
@@ -86,7 +90,6 @@ function VolumeViewer({
         <Controls
           colorMaps={colorMaps}
           model={model}
-          // useTransferFunction={useTransferFunction}
           initTransferFunction={initTransferFunction}
           colorMap={colorMap}
           sliders={sliders}
@@ -114,19 +117,6 @@ const Wrapper = styled.div`
 
 VolumeViewer.propTypes = {
   /**
-   * The current color map applied by the transferFunction
-   * It will default to the first object in colorMaps if no colorMap is provided
-   * It will default to grayscale if neither colorMap nor colorMaps is provided.
-   *
-   *  name: Common name of the color map
-   *  path: Path to the color map src
-   */
-  colorMap: PropTypes.exact({
-    name: PropTypes.string,
-    path: PropTypes.string,
-  }),
-
-  /**
    * Array of color maps available in the controls.
    *  name: Common name of the color map
    *  path: Path to the color map src
@@ -143,26 +133,47 @@ VolumeViewer.propTypes = {
 
   /** The model to be displayed and it's related information */
   model: PropTypes.shape({
+    /**
+     * The current color map applied by the transferFunction REQUIRED
+     * It will default to the first object in colorMaps if no colorMap is provided
+     * It will default to grayscale if neither colorMap nor colorMaps is provided.
+     *
+     *  name: Common name of the color map
+     *  path: Path to the color map src
+     */
+    colorMap: PropTypes.exact({
+      name: PropTypes.string,
+      path: PropTypes.string,
+    }),
+
     /** Channel to load data from (R:1, G:2, B:3)*/
     channel: PropTypes.number,
+
     /** Increase/decrease voxels intensity */
     intensity: PropTypes.number,
+
     /** Path to the model REQUIRED */
     path: PropTypes.string.isRequired,
+
     /** Position of the model in the scene */
     position: PropTypes.string,
+
     /** Minimum and maximum values of the model's dataset. Min and max values are required */
     range: PropTypes.shape({
       min: PropTypes.number.isRequired,
       max: PropTypes.number.isRequired,
       unit: PropTypes.string,
     }),
+
     /** Position of the model in the scene */
     rotation: PropTypes.string,
+
     /** Scale of the model in the scene */
     scale: PropTypes.string,
+
     /** Number of slices used to generate the model */
     slices: PropTypes.number,
+
     /** Spacing between the slices of the model */
     spacing: PropTypes.exact({
       x: PropTypes.number,
@@ -198,7 +209,6 @@ VolumeViewer.defaultProps = {
   controlsVisible: false,
   transferFunction: DEFAULT_TRANSFER_FUNCTION,
   useDefaultColorMaps: true,
-  // useTransferFunction: true,
 };
 
 export default VolumeViewer;

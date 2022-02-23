@@ -25,19 +25,6 @@ CSS styling for the height must be provided and a custom width can be provided a
 ```jsx
 VolumeViewer.propTypes = {
   /**
-   * The current color map applied by the transferFunction
-   * It will default to the first object in colorMaps if no colorMap is provided
-   * It will default to grayscale if neither colorMap nor colorMaps is provided.
-   *
-   *  name: Common name of the color map
-   *  path: Path to the color map src
-   */
-  colorMap: PropTypes.exact({
-    name: PropTypes.string,
-    path: PropTypes.string,
-  }),
-
-  /**
    * Array of color maps available in the controls.
    *  name: Common name of the color map
    *  path: Path to the color map src
@@ -54,6 +41,19 @@ VolumeViewer.propTypes = {
 
   /** The model to be displayed and it's related information */
   model: PropTypes.shape({
+      /**
+   * The current color map applied by the transferFunction REQUIRED
+   * It will default to the first object in colorMaps if no colorMap is provided
+   * It will default to grayscale if neither colorMap nor colorMaps is provided.
+   *
+   *  name: Common name of the color map
+   *  path: Path to the color map src
+   */
+  colorMap: PropTypes.exact({
+    name: PropTypes.string,
+    path: PropTypes.string,
+  }).isRequired,
+
     /** Path to the model REQUIRED */
     path: PropTypes.string.isRequired,
     /** Position of the model in the scene */
@@ -107,20 +107,20 @@ The default values of `model`'s properties will be passed in for all properties 
 
 ```jsx
 VolumeViewer.defaultProps = {
-  colorMap: null,
   colorMaps: [],
   controlsVisible: false,
   model: {
+    colorMap: null,
     position: "0 0 0",
     range: { min: 0, max: 1, unit: "" },
     rotation: "0 0 0",
     scale: "1 1 1",
     slices: 55,
     spacing: { x: 2, y: 2, z: 1 },
+    useTransferFunction: true,
   }
   transferFunction: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
   useDefaultColorMaps: true,
-  useTransferFunction: true,
 };
 
 ```
@@ -142,9 +142,9 @@ function App() {
   return (
     <StyledVolumeViewer
       colorMaps={[haline, thermal]}
-      colorMap={haline}
       controlsVisible={controlsVisible}
       model={{
+        colorMap={haline},
         range: { min: 0.05, max: 33.71, unit: "°C" },
         path: model,
         scale: "1 -1 1",

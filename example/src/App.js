@@ -61,10 +61,10 @@ function App() {
 
   const VV = (
     <StyledVolumeViewer
-      colorMap={colorMap}
       colorMaps={colorMaps}
       controlsVisible={controlsVisible}
       model={{
+        colorMap: colorMap,
         range: {
           min: 0.05,
           max: 33.71,
