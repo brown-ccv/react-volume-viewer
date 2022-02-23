@@ -7,7 +7,7 @@ import {
   DECIMALS,
   CANVAS_PADDING,
   HOVER_RADIUS,
-} from "../../constants/constants.js";
+} from "../../constants";
 
 /** Data Ranges and Transformations **/
 

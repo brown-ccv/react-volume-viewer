@@ -4,7 +4,7 @@ import { Range } from "rc-slider";
 import "rc-slider/assets/index.css";
 
 import Section from "../Section";
-import { SLIDER_RANGE } from "../../constants/constants.js";
+import { SLIDER_RANGE } from "../../constants";
 
 // TODO: Slider range should be 0-1000 with a step of 1 (changes needed in AframeScene)
 function ClipControls({ sliders, setSliders }) {

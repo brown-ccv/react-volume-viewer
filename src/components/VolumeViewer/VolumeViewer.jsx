@@ -7,10 +7,10 @@ import {
   DEFAULT_MODEL,
   DEFAULT_TRANSFER_FUNCTION,
   DEFAULT_SLIDERS,
-} from "../../constants/constants";
+} from "../../constants";
 
-import Controls from "../Controls/Controls.jsx";
-import AframeScene from "../AframeScene/AframeScene.jsx";
+import Controls from "../Controls";
+import AframeScene from "../AframeScene";
 
 // Functions for handling prop input
 const getColorMap = (colorMapProp, colorMapsProp) => {
