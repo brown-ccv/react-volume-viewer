@@ -1,3 +1,3 @@
-import VolumeViewer from "./components/VolumeViewer.jsx";
+import VolumeViewer from "./components/VolumeViewer";
 
 export { VolumeViewer };

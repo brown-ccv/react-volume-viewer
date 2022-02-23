@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { scaleLinear } from "d3-scale";
 
-import Section from "./Section.jsx";
+import Section from "../Section";
 import {
   DECIMALS,
   CANVAS_PADDING,
