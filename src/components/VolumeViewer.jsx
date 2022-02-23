@@ -13,7 +13,7 @@ import Controls from "./controls/Controls.jsx";
 import AframeScene from "./AframeScene.jsx";
 
 // TODO: Changing model from props will reset the transferFunction. 
-// Only want to reset <OpacityControls> when model.transferFunction specifically changes
+// Only want to reset <OpacityControls> when model.transferFunction specifically changes?
 
 function VolumeViewer({
   className,
