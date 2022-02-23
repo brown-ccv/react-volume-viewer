@@ -3,11 +3,7 @@ import styled from "styled-components";
 import { scaleLinear } from "d3-scale";
 
 import Section from "../Section";
-import {
-  DECIMALS,
-  CANVAS_PADDING,
-  HOVER_RADIUS,
-} from "../../constants";
+import { DECIMALS, CANVAS_PADDING, HOVER_RADIUS } from "../../constants";
 
 /** Data Ranges and Transformations **/
 
