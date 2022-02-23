@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Range } from "rc-slider";
 import "rc-slider/assets/index.css";
 
-import Section from "../Section/Section.jsx";
+import Section from "../Section";
 import { SLIDER_RANGE } from "../../constants/constants.js";
 
 // TODO: Slider range should be 0-1000 with a step of 1 (changes needed in AframeScene)
