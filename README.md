@@ -89,13 +89,6 @@ VolumeViewer.propTypes = {
     })
   ),
 
-  /**
-   * Whether or not to use the libraries default color maps
-   * Default Color Maps: grayscale, natural, rgb
-   *
-   */
-  useDefaultColorMaps: PropTypes.bool,
-
   /** Whether or not to apply a transfer function to the model */
   useTransferFunction: PropTypes.bool,
 }
@@ -119,7 +112,6 @@ VolumeViewer.defaultProps = {
     spacing: { x: 2, y: 2, z: 1 },
   }
   transferFunction: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
-  useDefaultColorMaps: true,
   useTransferFunction: true,
 };
 
@@ -150,7 +142,6 @@ function App() {
         scale: "1 -1 1",
         rotation: "-55 0 0",
       }}
-      useDefaultColorMaps={false}
     />
   )
 }

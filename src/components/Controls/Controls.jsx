@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 
-import ColorMapControls from "../ColorMapControls"
-import OpacityControls from "../OpacityControls"
-import ClipControls from "../ClipControls"
+import ColorMapControls from "../ColorMapControls";
+import OpacityControls from "../OpacityControls";
+import ClipControls from "../ClipControls";
 
 function Controls({
   colorMaps,

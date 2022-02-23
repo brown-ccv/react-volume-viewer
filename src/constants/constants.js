@@ -5,11 +5,13 @@ import rgb from "../images/rgb.png";
 /** Default Props */
 
 const grayscaleColorMap = { name: "Grayscale", path: grayscale };
-const DEFAULT_COLOR_MAPS = [
-  grayscaleColorMap,
-  { name: "Natural", path: natural },
-  { name: "RGB", path: rgb },
-];
+const naturalColorMap = { name: "Natural", path: natural };
+const rgbColorMap = { name: "RGB", path: rgb };
+const ColorMaps = {
+  grayscale: grayscaleColorMap,
+  natural: naturalColorMap,
+  rgb: rgbColorMap,
+};
 
 const DEFAULT_COLOR_MAP = grayscaleColorMap;
 
@@ -41,7 +43,7 @@ const CANVAS_PADDING = 10;
 const HOVER_RADIUS = 15;
 
 export {
-  DEFAULT_COLOR_MAPS,
+  ColorMaps,
   DEFAULT_COLOR_MAP,
   DEFAULT_MODEL,
   DEFAULT_TRANSFER_FUNCTION,
