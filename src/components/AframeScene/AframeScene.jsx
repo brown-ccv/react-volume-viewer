@@ -2,12 +2,12 @@ import React from "react";
 
 import "aframe";
 
-import "../Aframe/arcball-camera";
-import "../Aframe/buttons-check";
-import "../Aframe/model";
-import "../Aframe/render-2d-clipplane";
-import "../Aframe/entity-collider-check";
-import "../Aframe/collider-check";
+import "../../Aframe/arcball-camera";
+import "../../Aframe/buttons-check";
+import "../../Aframe/model";
+import "../../Aframe/render-2d-clipplane";
+import "../../Aframe/entity-collider-check";
+import "../../Aframe/collider-check";
 
 // aframe data is passed as a string
 const toAframeString = (obj) => {

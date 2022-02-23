@@ -1,3 +1,4 @@
-import VolumeViewer from "./components/VolumeViewer.jsx";
+import VolumeViewer from "./components/VolumeViewer";
+import { ColorMaps } from "./constants";
 
-export { VolumeViewer };
+export { VolumeViewer, ColorMaps };

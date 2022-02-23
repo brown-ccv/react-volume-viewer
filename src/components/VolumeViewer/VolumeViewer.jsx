@@ -3,14 +3,13 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 
 import {
-  DEFAULT_COLOR_MAPS,
   DEFAULT_MODEL,
   DEFAULT_TRANSFER_FUNCTION,
   DEFAULT_SLIDERS,
-} from "../constants/constants";
+} from "../../constants";
 
-import Controls from "./controls/Controls.jsx";
-import AframeScene from "./AframeScene.jsx";
+import Controls from "../Controls";
+import AframeScene from "../AframeScene";
 
 // TODO: Change colorMap to a string (the name)
 // Change colorMaps to a map here, worry about the prop change later on
@@ -24,7 +23,6 @@ function VolumeViewer({
   colorMaps: colorMapsProp,
   controlsVisible,
   model: modelProp,
-  useDefaultColorMaps,
 }) {
   // Get initial values based on prop input. These will update on prop change.
   const initModel = useMemo(
@@ -41,11 +39,10 @@ function VolumeViewer({
   );
   const colorMaps = useMemo(() => {
     const colorMaps = [...colorMapsProp]; // JS arrays pass by reference, need fresh copy
-    if (useDefaultColorMaps) colorMaps.push(...DEFAULT_COLOR_MAPS);
     if (!colorMaps.includes(initModel.colorMap))
       colorMaps.unshift(initModel.colorMap);
     return colorMaps;
-  }, [initModel.colorMap, useDefaultColorMaps, colorMapsProp]);
+  }, [initModel.colorMap, colorMapsProp]);
 
   // Control the model in state; override on prop change
   const [model, setModel] = useState(initModel);
@@ -70,13 +67,10 @@ function VolumeViewer({
           model={model}
           setModel={setModel}
           initModel={initModel}
-          // colorMap={colorMap}
           sliders={sliders}
-          // setColorMap={setColorMap}
           setSliders={setSliders}
           reset={() => {
             setModel(initModel);
-            // setColorMap(initColorMap);
             setSliders(DEFAULT_SLIDERS);
             setRemountKey(Math.random());
           }}
@@ -171,19 +165,11 @@ VolumeViewer.propTypes = {
     /** Whether or not to apply a transfer function to the model */
     useTransferFunction: PropTypes.bool,
   }),
-
-  /**
-   * Whether or not to use the libraries default color maps
-   * Default Color Maps: grayscale, natural, rgb
-   *
-   */
-  useDefaultColorMaps: PropTypes.bool,
 };
 
 VolumeViewer.defaultProps = {
   colorMaps: [],
   controlsVisible: false,
-  useDefaultColorMaps: true,
 };
 
 export default VolumeViewer;

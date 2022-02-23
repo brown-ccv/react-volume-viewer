@@ -5,7 +5,7 @@ import {
   DEFAULT_TRANSFER_FUNCTION,
   DEFAULT_MODEL,
   DEFAULT_SLIDERS,
-} from "../constants/constants";
+} from "../constants";
 
 const bind = AFRAME.utils.bind;
 
