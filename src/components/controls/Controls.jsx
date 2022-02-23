@@ -9,8 +9,8 @@ function Controls({
   colorMaps,
   model,
   initModel,
-  colorMap,
-  setColorMap,
+  // colorMap,
+  // setColorMap,
   setModel,
   sliders,
   setSliders,
@@ -20,8 +20,8 @@ function Controls({
     <Wrapper>
       <ColorMapControls
         colorMaps={colorMaps}
-        colorMap={colorMap}
-        setColorMap={setColorMap}
+        model={model}
+        setModel={setModel}
       />
 
       {model.useTransferFunction && (

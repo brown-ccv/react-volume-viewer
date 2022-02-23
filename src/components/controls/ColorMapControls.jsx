@@ -12,20 +12,23 @@ import "@reach/listbox/styles.css";
 
 import Section from "./Section.jsx";
 
-function ColorMapControls({ colorMaps, colorMap, setColorMap }) {
+function ColorMapControls({ colorMaps, model, setModel }) {
   return (
     <Section title="Color Map">
       {colorMaps.length > 1 ? (
         <StyledListboxInput
           aria-labelledby="ColorMap dropdown"
-          value={colorMap.name}
-          onChange={(color) =>
-            setColorMap(colorMaps.find((colorMap) => colorMap.name === color))
+          value={model.colorMap.name}
+          onChange={(color) => 
+            setModel(model => ({
+              ...model,
+              colorMap: colorMaps.find((colorMap) => colorMap.name === color)
+            }))
           }
         >
           <ListboxButton>
             <OutlinedImg
-              src={colorMap.path}
+              src={model.colorMap.path}
               alt="The current color map"
               height="20px"
               width="95%"
@@ -50,7 +53,7 @@ function ColorMapControls({ colorMaps, colorMap, setColorMap }) {
         </StyledListboxInput>
       ) : (
         <OutlinedImg
-          src={colorMap.path}
+          src={model.colorMap.path}
           alt="The current color map"
           height="20px"
           width="100%"

@@ -23,7 +23,7 @@ function VolumeViewer({
   model: modelProp,
   useDefaultColorMaps,
 }) {
-  // Get initial values based on prop input. These will update on prop change
+  // Get initial values based on prop input. These will update on prop change.
   const initModel = useMemo(
     () => ({
       ...DEFAULT_MODEL,
@@ -36,18 +36,12 @@ function VolumeViewer({
     }),
     [modelProp]
   );
-
-  const initColorMap = initModel.colorMap;
   const colorMaps = useMemo(() => {
     const colorMaps = [...colorMapsProp]; // JS arrays pass by reference, need fresh copy
     if (useDefaultColorMaps) colorMaps.push(...DEFAULT_COLOR_MAPS);
-    if (!colorMaps.includes(initColorMap)) colorMaps.unshift(initColorMap);
+    if (!colorMaps.includes(initModel.colorMap)) colorMaps.unshift(initModel.colorMap);
     return colorMaps;
-  }, [initColorMap, useDefaultColorMaps, colorMapsProp]);
-
-  // Changing a components key will remount the entire thing
-  // Because the model's position is handled internally by aframe we need to remount it to reset its position
-  const [remountKey, setRemountKey] = useState(Math.random());
+  }, [initModel.colorMap, useDefaultColorMaps, colorMapsProp]);
 
   // Control the model in state; override on prop change
   const [model, setModel] = useState(initModel);
@@ -55,17 +49,16 @@ function VolumeViewer({
     setModel(initModel);
   }, [initModel]);
 
-  // Control colorMap, transferFunction, and sliders in state; override on prop change
-  const [colorMap, setColorMap] = useState(initColorMap);
-  useEffect(() => {
-    setColorMap(initColorMap);
-  }, [initColorMap]);
-
+  // Always begin with DEFAULT_SLIDERS value
   const [sliders, setSliders] = useState(DEFAULT_SLIDERS);
+
+  // Changing a components key will remount the entire thing
+  // Because the model's position is handled internally by aframe we need to remount it to reset its position
+  const [remountKey, setRemountKey] = useState(Math.random());
 
   return (
     <Wrapper key={remountKey} className={className} style={style}>
-      <AframeScene model={model} colorMap={colorMap} sliders={sliders} />
+      <AframeScene model={model} sliders={sliders} />
 
       {controlsVisible && (
         <Controls
@@ -73,13 +66,13 @@ function VolumeViewer({
           model={model}
           setModel={setModel}
           initModel={initModel}
-          colorMap={colorMap}
+          // colorMap={colorMap}
           sliders={sliders}
-          setColorMap={setColorMap}
+          // setColorMap={setColorMap}
           setSliders={setSliders}
           reset={() => {
             setModel(initModel);
-            setColorMap(initColorMap);
+            // setColorMap(initColorMap);
             setSliders(DEFAULT_SLIDERS);
             setRemountKey(Math.random());
           }}
