@@ -25,7 +25,7 @@ const toAframeString = (obj) => {
   return str;
 };
 
-function AframeScene({ model, sliders }) {
+function AframeScene({ colorMaps, model, sliders }) {
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
@@ -70,7 +70,10 @@ function AframeScene({ model, sliders }) {
         class="clickableMesh"
         model={toAframeString({
           channel: model.channel,
-          colorMap: JSON.stringify(model.colorMap),
+          // colorMap: JSON.stringify(model.colorMap), // TODO: colorMaps.find((colorMap) => colorMap.name === model.colorMap)
+          colorMap: JSON.stringify(
+            colorMaps.find((colorMap) => colorMap.name === model.colorMap)
+          ),
           intensity: model.intensity,
           path: model.path,
           slices: model.slices,

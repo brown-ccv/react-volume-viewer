@@ -11,16 +11,13 @@ import {
 import Controls from "../Controls";
 import AframeScene from "../AframeScene";
 
-// TODO: Change colorMap to a string (the name)
-// Change colorMaps to a map here, worry about the prop change later on
-
 // TODO: Changing model from props will reset the transferFunction.
 // Only want to reset <OpacityControls> when model.transferFunction specifically changes?
 
 function VolumeViewer({
   className,
   style,
-  colorMaps: colorMapsProp,
+  colorMaps,
   controlsVisible,
   model: modelProp,
 }) {
@@ -37,12 +34,6 @@ function VolumeViewer({
     }),
     [modelProp]
   );
-  const colorMaps = useMemo(() => {
-    const colorMaps = [...colorMapsProp]; // JS arrays pass by reference, need fresh copy
-    if (!colorMaps.includes(initModel.colorMap))
-      colorMaps.unshift(initModel.colorMap);
-    return colorMaps;
-  }, [initModel.colorMap, colorMapsProp]);
 
   // Control the model in state; override on prop change
   const [model, setModel] = useState(initModel);
@@ -59,14 +50,14 @@ function VolumeViewer({
 
   return (
     <Wrapper key={remountKey} className={className} style={style}>
-      <AframeScene model={model} sliders={sliders} />
+      <AframeScene colorMaps={colorMaps} model={model} sliders={sliders} />
 
       {controlsVisible && (
         <Controls
           colorMaps={colorMaps}
+          initModel={initModel}
           model={model}
           setModel={setModel}
-          initModel={initModel}
           sliders={sliders}
           setSliders={setSliders}
           reset={() => {
@@ -111,10 +102,15 @@ VolumeViewer.propTypes = {
      *  name: Common name of the color map
      *  path: Path to the color map src
      */
-    colorMap: PropTypes.exact({
-      name: PropTypes.string,
-      path: PropTypes.string,
-    }).isRequired,
+    // colorMap: PropTypes.exact({
+    //   name: PropTypes.string,
+    //   path: PropTypes.string,
+    // }).isRequired,
+    // TODO: Update README
+    /**
+     *  Common name of the color map applied by the transfer function
+     */
+    colorMap: PropTypes.string.isRequired,
 
     /** Channel to load data from (R:1, G:2, B:3)*/
     channel: PropTypes.number,

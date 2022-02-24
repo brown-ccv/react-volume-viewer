@@ -22,13 +22,16 @@ function ColorMapControls({ colorMaps, model, setModel }) {
           onChange={(color) =>
             setModel((model) => ({
               ...model,
-              colorMap: colorMaps.find((colorMap) => colorMap.name === color),
+              colorMap: color,
             }))
           }
         >
           <ListboxButton>
             <OutlinedImg
-              src={model.colorMap.path}
+              src={
+                colorMaps.find((colorMap) => colorMap.name === model.colorMap)
+                  .path
+              }
               alt="The current color map"
               height="20px"
               width="95%"
@@ -53,7 +56,9 @@ function ColorMapControls({ colorMaps, model, setModel }) {
         </StyledListboxInput>
       ) : (
         <OutlinedImg
-          src={model.colorMap.path}
+          src={
+            colorMaps.find((colorMap) => colorMap.name === model.colorMap).path
+          }
           alt="The current color map"
           height="20px"
           width="100%"

@@ -7,10 +7,8 @@ import ClipControls from "../ClipControls";
 
 function Controls({
   colorMaps,
-  model,
   initModel,
-  // colorMap,
-  // setColorMap,
+  model,
   setModel,
   sliders,
   setSliders,
