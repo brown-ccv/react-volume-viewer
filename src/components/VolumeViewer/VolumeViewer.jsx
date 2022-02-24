@@ -106,20 +106,7 @@ VolumeViewer.propTypes = {
 
   /** The model to be displayed and it's related information */
   model: PropTypes.shape({
-    /**
-     * The current color map applied by the transferFunction. REQUIRED
-     *
-     *  name: Common name of the color map
-     *  path: Path to the color map src
-     */
-    // colorMap: PropTypes.exact({
-    //   name: PropTypes.string,
-    //   path: PropTypes.string,
-    // }).isRequired,
-    // TODO: Update README
-    /**
-     *  Common name of the color map applied by the transfer function
-     */
+    /** Common name of the color map applied by the transfer function. REQUIRED */
     colorMap: PropTypes.string.isRequired,
 
     /** Channel to load data from (R:1, G:2, B:3)*/
