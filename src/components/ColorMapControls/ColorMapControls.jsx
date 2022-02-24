@@ -15,7 +15,7 @@ import Section from "../Section";
 function ColorMapControls({ colorMaps, model, setModel }) {
   return (
     <Section title="Color Map">
-      {colorMaps.length > 1 ? (
+      {Object.keys(colorMaps).length > 1 ? (
         <StyledListboxInput
           aria-labelledby="ColorMap dropdown"
           value={model.colorMap.name}
@@ -28,10 +28,7 @@ function ColorMapControls({ colorMaps, model, setModel }) {
         >
           <ListboxButton>
             <OutlinedImg
-              src={
-                colorMaps.find((colorMap) => colorMap.name === model.colorMap)
-                  .path
-              }
+              src={colorMaps[model.colorMap]}
               alt="The current color map"
               height="20px"
               width="95%"
@@ -40,15 +37,10 @@ function ColorMapControls({ colorMaps, model, setModel }) {
           </ListboxButton>
           <ListboxPopover>
             <ListboxList>
-              {colorMaps.map((color) => (
-                <StyledListboxOption key={color.name} value={color.name}>
-                  <OptionText>{color.name}</OptionText>
-                  <OptionImg
-                    src={color.path}
-                    alt={color.name}
-                    width="0"
-                    height="auto"
-                  />
+              {Object.entries(colorMaps).map(([name, path]) => (
+                <StyledListboxOption key={name} value={name}>
+                  <OptionText>{name}</OptionText>
+                  <OptionImg src={path} alt={name} width="0" height="auto" />
                 </StyledListboxOption>
               ))}
             </ListboxList>
@@ -56,9 +48,7 @@ function ColorMapControls({ colorMaps, model, setModel }) {
         </StyledListboxInput>
       ) : (
         <OutlinedImg
-          src={
-            colorMaps.find((colorMap) => colorMap.name === model.colorMap).path
-          }
+          src={colorMaps[model.colorMap]}
           alt="The current color map"
           height="20px"
           width="100%"

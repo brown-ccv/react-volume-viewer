@@ -23,7 +23,7 @@ function App() {
   const [modelPath, setModelPath] = useState(salt);
 
   const Buttons = (
-    <>
+    <div>
       <button onClick={() => setControlsVisible(!controlsVisible)}>
         Controls Visible
       </button>
@@ -59,7 +59,7 @@ function App() {
       >
         ColorMap and Model
       </button>
-    </>
+    </div>
   );
 
   const VV = (

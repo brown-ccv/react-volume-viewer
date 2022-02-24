@@ -70,10 +70,7 @@ function AframeScene({ colorMaps, model, sliders }) {
         class="clickableMesh"
         model={toAframeString({
           channel: model.channel,
-          // colorMap: JSON.stringify(model.colorMap), // TODO: colorMaps.find((colorMap) => colorMap.name === model.colorMap)
-          colorMap: JSON.stringify(
-            colorMaps.find((colorMap) => colorMap.name === model.colorMap)
-          ),
+          colorMap: JSON.stringify(colorMaps[model.colorMap]),
           intensity: model.intensity,
           path: model.path,
           slices: model.slices,

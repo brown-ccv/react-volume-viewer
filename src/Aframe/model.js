@@ -222,17 +222,13 @@ AFRAME.registerComponent("model", {
   },
 
   loadColorMap: function () {
-    const colorMap = this.data.colorMap;
-
-    // Re-inject local image path with semi-colon
-    if (colorMap.path.startsWith("data:image/png")) {
-      colorMap.path =
-        colorMap.path.substring(0, 14) + ";" + colorMap.path.substring(14);
-    }
+    let colorMap = this.data.colorMap;
+    if (this.data.colorMap.startsWith("data:image/png"))
+      colorMap = colorMap.substring(0, 14) + ";" + colorMap.substring(14);
 
     // Create and image and canvas
     const img = document.createElement("img");
-    img.src = colorMap.path;
+    img.src = colorMap;
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 

@@ -17,7 +17,7 @@ import AframeScene from "../AframeScene";
 function VolumeViewer({
   className,
   style,
-  colorMaps,
+  colorMaps: colorMapsProp,
   controlsVisible,
   model: modelProp,
 }) {
@@ -33,6 +33,16 @@ function VolumeViewer({
           DEFAULT_TRANSFER_FUNCTION,
     }),
     [modelProp]
+  );
+  const colorMaps = useMemo(
+    () =>
+      // Convert colorMaps to an object
+      colorMapsProp.reduce(
+        (obj, colorMap) =>
+          Object.assign(obj, { [colorMap.name]: colorMap.path }),
+        {}
+      ),
+    [colorMapsProp]
   );
 
   // Control the model in state; override on prop change
