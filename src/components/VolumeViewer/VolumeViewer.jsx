@@ -48,8 +48,12 @@ function VolumeViewer({
   // Control the model in state; override on prop change
   const [model, setModel] = useState(initModel);
   useEffect(() => {
+    if (!(initModel.colorMap in colorMaps))
+      throw new Error(
+        "Color Map '" + initModel.colorMap + "' not in colorMaps"
+      );
     setModel(initModel);
-  }, [initModel]);
+  }, [initModel, colorMaps]);
 
   // Always begin with DEFAULT_SLIDERS value
   const [sliders, setSliders] = useState(DEFAULT_SLIDERS);
