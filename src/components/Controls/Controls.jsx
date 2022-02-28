@@ -9,8 +9,8 @@ function Controls({
   colorMaps,
   initModel,
   model,
-  setModel,
   sliders,
+  setModel,
   setSliders,
   reset,
 }) {
@@ -24,8 +24,8 @@ function Controls({
 
       {model.useTransferFunction && (
         <OpacityControls
-          range={model.range}
           initModel={initModel}
+          range={model.range}
           setModel={setModel}
         />
       )}

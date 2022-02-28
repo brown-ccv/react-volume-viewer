@@ -107,14 +107,26 @@ VolumeViewer.defaultProps = {
   colorMaps: [],
   controlsVisible: false,
   model: {
-    colorMap: null,
+    colorMap: null, // REQUIRED
+    path: null, // REQUIRED
     position: "0 0 0",
-    range: { min: 0, max: 1, unit: "" },
+    range: { 
+      min: 0, 
+      max: 1, 
+      unit: "",
+    },
     rotation: "0 0 0",
     scale: "1 1 1",
     slices: 55,
-    spacing: { x: 2, y: 2, z: 1 },
-    transferFunction: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
+    spacing: { 
+      x: 2, 
+      y: 2, 
+      z: 1
+    },
+    transferFunction: [
+      { x: 0, y: 0 },
+      { x: 1, y: 1 }
+    ],
     useTransferFunction: true,
   }
 };

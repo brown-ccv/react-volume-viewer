@@ -67,8 +67,8 @@ function VolumeViewer({
           colorMaps={colorMaps}
           initModel={initModel}
           model={model}
-          setModel={setModel}
           sliders={sliders}
+          setModel={setModel}
           setSliders={setSliders}
           reset={() => {
             setModel(initModel);

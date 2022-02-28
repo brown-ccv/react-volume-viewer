@@ -40,7 +40,7 @@ function getRelativeMousePos(e) {
   return position;
 }
 
-function OpacityControls({ range, initModel, setModel }) {
+function OpacityControls({ initModel, range, setModel }) {
   const canvasRef = useRef(null);
   const [cursorType, setCursorType] = useState("pointer"); // Cursor type (styled-components)
   const [canvasPoints, setCanvasPoints] = useState([]); // Points in canvas space
