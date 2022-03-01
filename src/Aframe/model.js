@@ -223,6 +223,13 @@ AFRAME.registerComponent("model", {
 
   loadColorMap: function () {
     let colorMapSrc = this.data.colorMapSrc;
+
+    /* 
+      colorMapSrc is either a png encoded string or the path to a png
+
+      png encoded strings begin with data:image/png;64
+      Add ; that was removed to parse into aframe correctly
+    */
     if (colorMapSrc.startsWith("data:image/png"))
       colorMapSrc =
         colorMapSrc.substring(0, 14) + ";" + colorMapSrc.substring(14);

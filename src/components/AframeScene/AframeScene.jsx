@@ -13,13 +13,19 @@ import "../../Aframe/collider-check";
 const toAframeString = (obj) => {
   let str = "";
   Object.entries(obj).forEach(([key, val]) => {
+    /* 
+      colorMapSrc is either a png encoded string or the path to a png
+
+      png encoded strings begin with data:image/png;64
+      Remove ; to parse into aframe correctly
+      Note that the ; is re-injected in model.js
+      TODO: Do colorMaps need to be a png?
+    */
+    if (key === "colorMapSrc" && val.startsWith("data:image/png;")) {
+      val = val.replace(";", "");
+    }
+
     let propStr = `${key}: ${val};`;
-
-    // Image imports begin with data:image/png;64
-    // Remove ; to parse into aframe correctly
-    // The ; is re-injected in loader.js
-    if (key === "colorMapSrc") propStr = propStr.replace(";", "") + ";";
-
     str += propStr;
   });
   return str;
