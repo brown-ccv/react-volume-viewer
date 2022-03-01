@@ -107,8 +107,8 @@ VolumeViewer.defaultProps = {
   colorMaps: [],
   controlsVisible: false,
   model: {
-    colorMap: null, // REQUIRED
-    path: null, // REQUIRED
+    colorMap: null,   // REQUIRED
+    path: null,       // REQUIRED
     position: "0 0 0",
     range: { 
       min: 0, 

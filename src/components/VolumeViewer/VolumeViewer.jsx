@@ -36,7 +36,7 @@ function VolumeViewer({
   );
   const colorMaps = useMemo(
     () =>
-      // Convert colorMaps to an object
+      // Convert from an array of objects to key-value store
       colorMapsProp.reduce(
         (obj, colorMap) =>
           Object.assign(obj, { [colorMap.name]: colorMap.path }),
