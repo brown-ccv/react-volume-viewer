@@ -18,7 +18,7 @@ const toAframeString = (obj) => {
     // Image imports begin with data:image/png;64
     // Remove ; to parse into aframe correctly
     // The ; is re-injected in loader.js
-    if (key === "colorMap") propStr = propStr.replace(";", "") + ";";
+    if (key === "colorMapSrc") propStr = propStr.replace(";", "") + ";";
 
     str += propStr;
   });
