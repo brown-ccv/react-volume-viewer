@@ -158,10 +158,9 @@ function App() {
   return (
     <StyledVolumeViewer
       colorMaps={[haline, thermal, ColorMaps.grayscale]}
-      colorMap={haline.name}
       controlsVisible={controlsVisible}
       model={{
-        colorMap={haline},
+        colorMap={haline.name},
         range: { min: 0.05, max: 33.71, unit: "°C" },
         path: model,
         scale: "1 -1 1",
