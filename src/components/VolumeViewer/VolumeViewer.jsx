@@ -12,12 +12,12 @@ import Controls from "../Controls";
 import AframeScene from "../AframeScene";
 
 // TODO: Changing model from props will reset the transferFunction.
-// Only want to reset <OpacityControls> when model.transferFunction specifically changes?
+// Only want to reset <OpacityControls> when model.transferFunction specifically changes? Use React.memo
 
 function VolumeViewer({
   className,
   style,
-  colorMaps: colorMapsProp,
+  colorMaps,
   controlsVisible,
   model: modelProp,
 }) {
@@ -34,21 +34,11 @@ function VolumeViewer({
     }),
     [modelProp]
   );
-  const colorMaps = useMemo(
-    () =>
-      // Convert from an array of objects to key-value store
-      colorMapsProp.reduce(
-        (obj, colorMap) =>
-          Object.assign(obj, { [colorMap.name]: colorMap.path }),
-        {}
-      ),
-    [colorMapsProp]
-  );
 
   // Control the model in state; override on prop change
   const [model, setModel] = useState(initModel);
   useEffect(() => {
-    if (!(initModel.colorMap in colorMaps)) {
+    if (!colorMaps.includes(initModel.colorMap)) {
       throw new Error(
         "Color Map '" + initModel.colorMap + "' not in colorMaps"
       );
@@ -65,7 +55,7 @@ function VolumeViewer({
 
   return (
     <Wrapper key={remountKey} className={className} style={style}>
-      <AframeScene colorMaps={colorMaps} model={model} sliders={sliders} />
+      <AframeScene model={model} sliders={sliders} />
 
       {controlsVisible && (
         <Controls
@@ -93,26 +83,31 @@ const Wrapper = styled.div`
   height: 100%;
 `;
 
+/**
+ * Object containing the name and path to a color map image
+ *  name: Common name of the color map
+ *  path: Path to the color map source image
+ */
+const COLOR_MAP = PropTypes.exact({
+  name: PropTypes.string,
+  path: PropTypes.string,
+});
+
 VolumeViewer.propTypes = {
   /**
    * Array of color maps available in the controls.
    *  name: Common name of the color map
    *  path: Path to the color map src
    */
-  colorMaps: PropTypes.arrayOf(
-    PropTypes.exact({
-      name: PropTypes.string,
-      path: PropTypes.string,
-    })
-  ),
+  colorMaps: PropTypes.arrayOf(COLOR_MAP),
 
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
 
   /** The model to be displayed and it's related information */
   model: PropTypes.shape({
-    /** Common name of the color map applied by the transfer function. REQUIRED */
-    colorMap: PropTypes.string.isRequired,
+    /** The current color map applied to the model REQUIRED */
+    colorMap: COLOR_MAP.isRequired,
 
     /** Channel to load data from (R:1, G:2, B:3)*/
     channel: PropTypes.number,

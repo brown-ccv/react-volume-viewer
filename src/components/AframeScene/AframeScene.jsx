@@ -13,25 +13,24 @@ import "../../Aframe/collider-check";
 const toAframeString = (obj) => {
   let str = "";
   Object.entries(obj).forEach(([key, val]) => {
-    /* 
-      colorMapSrc is either a png encoded string or the path to a png
+    if (key === "colorMap") {
+      /* 
+        colorMap.path is either a png encoded string or the path to a png
 
-      png encoded strings begin with data:image/png;64
-      Remove ; to parse into aframe correctly
-      Note that the ; is re-injected in model.js
-      TODO: Do colorMaps need to be a png?
-    */
-    if (key === "colorMapSrc" && val.startsWith("data:image/png;")) {
-      val = val.replace(";", "");
+        png encoded strings begin with data:image/png;64
+        Remove ; to parse into aframe correctly
+        Note that the ; is re-injected in model.js
+        TODO: Do colorMaps need to be a png?
+      */
+      val = val.replace("data:image/png;", "data:image/png");
     }
 
-    let propStr = `${key}: ${val};`;
-    str += propStr;
+    str += `${key}: ${val};`;
   });
   return str;
 };
 
-function AframeScene({ colorMaps, model, sliders }) {
+function AframeScene({ model, sliders }) {
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
@@ -76,7 +75,7 @@ function AframeScene({ colorMaps, model, sliders }) {
         class="clickableMesh"
         model={toAframeString({
           channel: model.channel,
-          colorMapSrc: colorMaps[model.colorMap],
+          colorMap: JSON.stringify(model.colorMap),
           intensity: model.intensity,
           path: model.path,
           slices: model.slices,

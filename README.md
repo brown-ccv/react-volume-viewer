@@ -25,26 +25,31 @@ The only required props are the model's path and it's minimum and maximum data p
 CSS styling for the height must be provided and a custom width can be provided as well. The styling can be passed in through classes or inline styles.
 
 ```jsx
+/**
+ * Object containing the name and path to a color map image
+ *  name: Common name of the color map
+ *  path: Path to the color map source image
+ */
+const COLOR_MAP = PropTypes.exact({
+  name: PropTypes.string,
+  path: PropTypes.string,
+});
+
 VolumeViewer.propTypes = {
   /**
    * Array of color maps available in the controls.
    *  name: Common name of the color map
    *  path: Path to the color map src
    */
-  colorMaps: PropTypes.arrayOf(
-    PropTypes.exact({
-      name: PropTypes.string,
-      path: PropTypes.string,
-    })
-  ),
+  colorMaps: PropTypes.arrayOf(COLOR_MAP),
 
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
 
   /** The model to be displayed and it's related information */
   model: PropTypes.shape({
-    /** Common name of the color map applied by the transfer function. REQUIRED */
-    colorMap: PropTypes.string.isRequired,
+    /** The current color map applied to the model REQUIRED */
+    colorMap: COLOR_MAP.isRequired,
 
     /** Channel to load data from (R:1, G:2, B:3)*/
     channel: PropTypes.number,
@@ -111,8 +116,8 @@ VolumeViewer.defaultProps = {
     path: null,       // REQUIRED
     position: "0 0 0",
     range: { 
-      min: 0, 
-      max: 1, 
+      min: 0, // REQUIRED
+      max: 1, // REQUIRED
       unit: "",
     },
     rotation: "0 0 0",
@@ -148,8 +153,8 @@ import React from 'react'
 import styled from 'styled-components'
 import { VolumeViewer, ColorMaps } from "react-volume-viewer";
 
-const haline = { name: "Haline", path: "./path/to/colormaps/haline.png" };
-const thermal = { name: "Thermal", path: "./path/to/colormaps/thermal.png" };
+const haline = { name: "Haline", path: "path/to/colormaps/haline.png" };
+const thermal = { name: "Thermal", path: "path/to/colormaps/thermal.png" };
 import model from "./path/to/model.png";
 
 function App() {
@@ -160,7 +165,7 @@ function App() {
       colorMaps={[haline, thermal, ColorMaps.grayscale]}
       controlsVisible={controlsVisible}
       model={{
-        colorMap={haline.name},
+        colorMap={haline},
         range: { min: 0.05, max: 33.71, unit: "°C" },
         path: model,
         scale: "1 -1 1",

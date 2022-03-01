@@ -15,7 +15,7 @@ const initColorMaps = [
 ];
 
 function App() {
-  const [colorMap, setColorMap] = useState(haline.name);
+  const [colorMap, setColorMap] = useState(haline);
   const [controlsVisible, setControlsVisible] = useState(false);
   const [colorMaps, setColorMaps] = useState(initColorMaps);
 
@@ -38,9 +38,7 @@ function App() {
         Pass in Color Maps
       </button>
       <button
-        onClick={() =>
-          setColorMap(colorMap === haline.name ? thermal.name : haline.name)
-        }
+        onClick={() => setColorMap(colorMap === haline ? thermal : haline)}
       >
         Color Map
       </button>
@@ -53,7 +51,7 @@ function App() {
       </button>
       <button
         onClick={() => {
-          setColorMap(colorMap === haline.name ? thermal.name : haline.name);
+          setColorMap(colorMap === haline ? thermal : haline);
           setModelPath(modelPath === salt ? temp : salt);
         }}
       >

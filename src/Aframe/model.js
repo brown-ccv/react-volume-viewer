@@ -13,7 +13,7 @@ AFRAME.registerComponent("model", {
   dependencies: ["render-2d-clipplane", "buttons-check"],
   schema: {
     channel: { type: "number", default: DEFAULT_MODEL.channel },
-    colorMapSrc: { type: "string" },
+    colorMap: { parse: JSON.parse },
     intensity: { type: "number", default: DEFAULT_MODEL.intensity },
     path: { type: "string" },
     slices: { type: "number", default: DEFAULT_MODEL.slices },
@@ -74,7 +74,7 @@ AFRAME.registerComponent("model", {
     if (oldData.path !== this.data.path) this.loadModel();
 
     // Update color map
-    if (oldData.colorMapSrc !== this.data.colorMapSrc) this.loadColorMap();
+    if (oldData.colorMap !== this.data.colorMap) this.loadColorMap();
 
     // Update clipping
     if (oldData.sliders !== this.data.sliders) this.updateClipping();
@@ -222,21 +222,21 @@ AFRAME.registerComponent("model", {
   },
 
   loadColorMap: function () {
-    let colorMapSrc = this.data.colorMapSrc;
+    let colorMapPath = this.data.colorMap.path;
 
     /* 
-      colorMapSrc is either a png encoded string or the path to a png
+      colorMapPath is either a png encoded string or the path to a png
 
       png encoded strings begin with data:image/png;64
       Add ; that was removed to parse into aframe correctly
     */
-    if (colorMapSrc.startsWith("data:image/png"))
-      colorMapSrc =
-        colorMapSrc.substring(0, 14) + ";" + colorMapSrc.substring(14);
+    if (colorMapPath.startsWith("data:image/png"))
+      colorMapPath =
+        colorMapPath.substring(0, 14) + ";" + colorMapPath.substring(14);
 
     // Create and image and canvas
     const img = document.createElement("img");
-    img.src = colorMapSrc;
+    img.src = colorMapPath;
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 
