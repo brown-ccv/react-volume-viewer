@@ -13,25 +13,24 @@ import "../../Aframe/collider-check";
 const toAframeString = (obj) => {
   let str = "";
   Object.entries(obj).forEach(([key, val]) => {
-    let propStr = `${key}: ${val};`;
+    if (key === "colorMap") {
+      /* 
+        colorMap.path is either a png encoded string or the path to a png
 
-    // Image imports begin with data:image/png;64
-    // Remove ; to parse into aframe correctly
-    // The ; is re-injected in loader.js
-    if (key === "colorMap") propStr = propStr.replace(";", "") + ";";
+        png encoded strings begin with data:image/png;64
+        Remove ; to parse into aframe correctly
+        Note that the ; is re-injected in model.js
+        TODO: Do colorMaps need to be a png?
+      */
+      val = val.replace("data:image/png;", "data:image/png");
+    }
 
-    str += propStr;
+    str += `${key}: ${val};`;
   });
   return str;
 };
 
-function AframeScene({
-  model,
-  useTransferFunction,
-  colorMap,
-  transferFunction,
-  sliders,
-}) {
+function AframeScene({ model, sliders }) {
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
@@ -75,15 +74,15 @@ function AframeScene({
         id="volumeCube"
         class="clickableMesh"
         model={toAframeString({
-          colorMap: JSON.stringify(colorMap),
-          sliders: JSON.stringify(sliders),
-          transferFunction: JSON.stringify(transferFunction),
-          useTransferFunction,
           channel: model.channel,
+          colorMap: JSON.stringify(model.colorMap),
           intensity: model.intensity,
           path: model.path,
           slices: model.slices,
+          sliders: JSON.stringify(sliders),
           spacing: JSON.stringify(model.spacing),
+          transferFunction: JSON.stringify(model.transferFunction),
+          useTransferFunction: model.useTransferFunction,
         })}
         position={model.position}
         rotation={model.rotation}

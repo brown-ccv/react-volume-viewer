@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
 import {
-  DEFAULT_COLOR_MAP,
   DEFAULT_MODEL,
   DEFAULT_TRANSFER_FUNCTION,
   DEFAULT_SLIDERS,
@@ -12,84 +11,63 @@ import {
 import Controls from "../Controls";
 import AframeScene from "../AframeScene";
 
-// Functions for handling prop input
-const getColorMap = (colorMapProp, colorMapsProp) => {
-  if (colorMapProp) return colorMapProp;
-  else if (colorMapsProp.length) return colorMapsProp[0];
-  else return DEFAULT_COLOR_MAP;
-};
-const getColorMaps = (colorMap, colorMapsProp) => {
-  const colorMaps = [...colorMapsProp]; // JS arrays pass by reference, need fresh copy
-  if (!colorMaps.includes(colorMap)) colorMaps.unshift(colorMap);
-  return colorMaps;
-};
-const getTransferFunction = (useTransferFunction, transferFunctionProp) => {
-  if (useTransferFunction) return transferFunctionProp;
-  else return DEFAULT_TRANSFER_FUNCTION;
-};
+// TODO: Changing model from props will reset the transferFunction.
+// Only want to reset <OpacityControls> when model.transferFunction specifically changes? Use React.memo
 
 function VolumeViewer({
   className,
   style,
-  colorMap: colorMapProp,
-  colorMaps: colorMapsProp,
+  colorMaps,
   controlsVisible,
   model: modelProp,
-  transferFunction: transferFunctionProp,
-  useTransferFunction,
 }) {
-  // Get initial values based on prop input. These will update on prop change
-  const initColorMap = getColorMap(colorMapProp, colorMapsProp);
-  const colorMaps = getColorMaps(initColorMap, colorMapsProp);
-  const initTransferFunction = getTransferFunction(
-    useTransferFunction,
-    transferFunctionProp
+  // Get initial values based on prop input. These will update on prop change.
+  const initModel = useMemo(
+    () => ({
+      ...DEFAULT_MODEL,
+      ...modelProp,
+      transferFunction: modelProp.useTransferFunction
+        ? // Inject DEFAULT_TRANSFER_FUNCTION if transferFunction property is not given
+          modelProp.transferFunction ?? DEFAULT_TRANSFER_FUNCTION
+        : // Always use DEFAULT_TRANSFER_FUNCTIOn when !useTransferFunction
+          DEFAULT_TRANSFER_FUNCTION,
+    }),
+    [modelProp]
   );
-  const model = { ...DEFAULT_MODEL, ...modelProp };
+
+  // Control the model in state; override on prop change
+  const [model, setModel] = useState(initModel);
+  useEffect(() => {
+    if (!colorMaps.includes(initModel.colorMap)) {
+      throw new Error(
+        "Color Map '" + initModel.colorMap + "' not in colorMaps"
+      );
+    }
+    setModel(initModel);
+  }, [initModel, colorMaps]);
+
+  // Always begin with DEFAULT_SLIDERS value
+  const [sliders, setSliders] = useState(DEFAULT_SLIDERS);
 
   // Changing a components key will remount the entire thing
   // Because the model's position is handled internally by aframe we need to remount it to reset its position
   const [remountKey, setRemountKey] = useState(Math.random());
 
-  // Control colorMap, transferFunction, and sliders in state; override on prop change
-  const [colorMap, setColorMap] = useState(initColorMap);
-  useEffect(() => {
-    setColorMap(initColorMap);
-  }, [initColorMap]);
-
-  const [transferFunction, setTransferFunction] =
-    useState(initTransferFunction);
-  useEffect(() => {
-    setTransferFunction(initTransferFunction);
-  }, [initTransferFunction]);
-
-  const [sliders, setSliders] = useState(DEFAULT_SLIDERS);
-
   return (
     <Wrapper key={remountKey} className={className} style={style}>
-      <AframeScene
-        model={model}
-        useTransferFunction={useTransferFunction}
-        colorMap={colorMap}
-        transferFunction={transferFunction}
-        sliders={sliders}
-      />
+      <AframeScene model={model} sliders={sliders} />
 
       {controlsVisible && (
         <Controls
           colorMaps={colorMaps}
+          initModel={initModel}
           model={model}
-          useTransferFunction={useTransferFunction}
-          initTransferFunction={initTransferFunction}
-          colorMap={colorMap}
           sliders={sliders}
-          setColorMap={setColorMap}
-          setTransferFunction={setTransferFunction}
+          setModel={setModel}
           setSliders={setSliders}
           reset={() => {
-            setColorMap(initColorMap);
+            setModel(initModel);
             setSliders(DEFAULT_SLIDERS);
-            setTransferFunction(initTransferFunction);
             setRemountKey(Math.random());
           }}
         />
@@ -105,85 +83,90 @@ const Wrapper = styled.div`
   height: 100%;
 `;
 
-VolumeViewer.propTypes = {
-  /**
-   * The current color map applied by the transferFunction
-   * It will default to the first object in colorMaps if no colorMap is provided
-   * It will default to grayscale if neither colorMap nor colorMaps is provided.
-   *
-   *  name: Common name of the color map
-   *  path: Path to the color map src
-   */
-  colorMap: PropTypes.exact({
-    name: PropTypes.string,
-    path: PropTypes.string,
-  }),
+/**
+ * Object containing the name and path to a color map image
+ *  name: Common name of the color map
+ *  path: Path to the color map source image
+ */
+const COLOR_MAP = PropTypes.exact({
+  name: PropTypes.string,
+  path: PropTypes.string,
+});
 
+VolumeViewer.propTypes = {
   /**
    * Array of color maps available in the controls.
    *  name: Common name of the color map
    *  path: Path to the color map src
    */
-  colorMaps: PropTypes.arrayOf(
-    PropTypes.exact({
-      name: PropTypes.string,
-      path: PropTypes.string,
-    })
-  ),
+  colorMaps: PropTypes.arrayOf(COLOR_MAP),
 
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
 
   /** The model to be displayed and it's related information */
   model: PropTypes.shape({
+    /**
+     * The current color map applied to the model
+     * The colorMap must be present in the colorMaps array
+     * REQUIRED
+     */
+    colorMap: COLOR_MAP.isRequired,
+
     /** Channel to load data from (R:1, G:2, B:3)*/
     channel: PropTypes.number,
+
     /** Increase/decrease voxels intensity */
     intensity: PropTypes.number,
+
     /** Path to the model REQUIRED */
     path: PropTypes.string.isRequired,
+
     /** Position of the model in the scene */
     position: PropTypes.string,
+
     /** Minimum and maximum values of the model's dataset. Min and max values are required */
     range: PropTypes.shape({
       min: PropTypes.number.isRequired,
       max: PropTypes.number.isRequired,
       unit: PropTypes.string,
     }),
+
     /** Position of the model in the scene */
     rotation: PropTypes.string,
+
     /** Scale of the model in the scene */
     scale: PropTypes.string,
+
     /** Number of slices used to generate the model */
     slices: PropTypes.number,
+
     /** Spacing between the slices of the model */
     spacing: PropTypes.exact({
       x: PropTypes.number,
       y: PropTypes.number,
       z: PropTypes.number,
     }),
+
+    /**
+     * The transfer function applied to the color map
+     * Array of 2D points
+     */
+    transferFunction: PropTypes.arrayOf(
+      PropTypes.exact({
+        x: PropTypes.number,
+        y: PropTypes.number,
+      })
+    ),
+
+    /** Whether or not to apply a transfer function to the model */
+    useTransferFunction: PropTypes.bool,
   }),
-
-  /**
-   * The transfer function applied to the color map
-   * Array of 2D points
-   */
-  transferFunction: PropTypes.arrayOf(
-    PropTypes.exact({
-      x: PropTypes.number,
-      y: PropTypes.number,
-    })
-  ),
-
-  /** Whether or not to apply a transfer function to the model */
-  useTransferFunction: PropTypes.bool,
 };
 
 VolumeViewer.defaultProps = {
   colorMaps: [],
   controlsVisible: false,
-  transferFunction: DEFAULT_TRANSFER_FUNCTION,
-  useTransferFunction: true,
 };
 
 export default VolumeViewer;

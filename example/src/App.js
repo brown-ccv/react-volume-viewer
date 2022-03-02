@@ -23,7 +23,7 @@ function App() {
   const [modelPath, setModelPath] = useState(salt);
 
   const Buttons = (
-    <>
+    <div>
       <button onClick={() => setControlsVisible(!controlsVisible)}>
         Controls Visible
       </button>
@@ -32,10 +32,10 @@ function App() {
       </button>
       <button
         onClick={() =>
-          setColorMaps(colorMaps === initColorMaps ? [] : initColorMaps)
+          setColorMaps(colorMaps === initColorMaps ? [colorMap] : initColorMaps)
         }
       >
-        Pass in Color Maps
+        Single Color Map
       </button>
       <button
         onClick={() => setColorMap(colorMap === haline ? thermal : haline)}
@@ -57,15 +57,15 @@ function App() {
       >
         ColorMap and Model
       </button>
-    </>
+    </div>
   );
 
   const VV = (
     <StyledVolumeViewer
-      colorMap={colorMap}
       colorMaps={colorMaps}
       controlsVisible={controlsVisible}
       model={{
+        colorMap: colorMap,
         range: {
           min: 0.05,
           max: 33.71,
@@ -74,8 +74,8 @@ function App() {
         path: modelPath,
         scale: "1 -1 1",
         rotation: "-55 0 0",
+        useTransferFunction: useTransferFunction,
       }}
-      useTransferFunction={useTransferFunction}
     />
   );
 

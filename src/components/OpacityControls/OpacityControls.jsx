@@ -3,11 +3,7 @@ import styled from "styled-components";
 import { scaleLinear } from "d3-scale";
 
 import Section from "../Section";
-import {
-  DECIMALS,
-  CANVAS_PADDING,
-  HOVER_RADIUS,
-} from "../../constants";
+import { DECIMALS, CANVAS_PADDING, HOVER_RADIUS } from "../../constants";
 
 /** Data Ranges and Transformations **/
 
@@ -44,7 +40,7 @@ function getRelativeMousePos(e) {
   return position;
 }
 
-function OpacityControls({ range, initTransferFunction, setTransferFunction }) {
+function OpacityControls({ initModel, range, setModel }) {
   const canvasRef = useRef(null);
   const [cursorType, setCursorType] = useState("pointer"); // Cursor type (styled-components)
   const [canvasPoints, setCanvasPoints] = useState([]); // Points in canvas space
@@ -68,14 +64,14 @@ function OpacityControls({ range, initTransferFunction, setTransferFunction }) {
 
     // Initialize canvasPoints
     setCanvasPoints(
-      initTransferFunction.map((p) => {
+      initModel.transferFunction.map((p) => {
         return {
           x: scaleTransferFunctionToCanvasX(p.x),
           y: scaleTransferFunctionToCanvasY(p.y),
         };
       })
     );
-  }, [initTransferFunction]);
+  }, [initModel]);
 
   /** DRAW FUNCTION **/
 
@@ -112,15 +108,16 @@ function OpacityControls({ range, initTransferFunction, setTransferFunction }) {
       context.fill();
     });
 
-    setTransferFunction(
-      canvasPoints.map((p) => {
+    setModel((model) => ({
+      ...model,
+      transferFunction: canvasPoints.map((p) => {
         return {
           x: scaleTransferFunctionToCanvasX.invert(p.x),
           y: scaleTransferFunctionToCanvasY.invert(p.y),
         };
-      })
-    );
-  }, [canvasPoints, pointHovering, pointDragging, setTransferFunction]);
+      }),
+    }));
+  }, [canvasPoints, pointHovering, pointDragging, setModel]);
 
   /** EVENT LISTENER FUNCTIONS **/
 

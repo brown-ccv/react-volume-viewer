@@ -4,29 +4,23 @@ import "./Shader.js";
 import {
   DEFAULT_TRANSFER_FUNCTION,
   DEFAULT_MODEL,
-  DEFAULT_COLOR_MAP,
   DEFAULT_SLIDERS,
 } from "../constants";
 
 const bind = AFRAME.utils.bind;
 
-// TODO: The function in THREE.TextureLoader().load (loadModel) needs to run asynchronously
-// Before loadColorMap, updateClipping, updateTransferTexture, etc.
-// TODO: colorMapData should {[name]: colorMapData}
-// Check if color map has already been loaded before - then there's no need to load the data again
-
 AFRAME.registerComponent("model", {
   dependencies: ["render-2d-clipplane", "buttons-check"],
   schema: {
-    colorMap: { parse: JSON.parse, default: DEFAULT_COLOR_MAP },
-    sliders: { parse: JSON.parse, default: DEFAULT_SLIDERS },
-    transferFunction: { parse: JSON.parse, default: DEFAULT_TRANSFER_FUNCTION },
-    useTransferFunction: { type: "boolean", default: false },
     channel: { type: "number", default: DEFAULT_MODEL.channel },
+    colorMap: { parse: JSON.parse },
     intensity: { type: "number", default: DEFAULT_MODEL.intensity },
     path: { type: "string" },
     slices: { type: "number", default: DEFAULT_MODEL.slices },
+    sliders: { parse: JSON.parse, default: DEFAULT_SLIDERS },
     spacing: { parse: JSON.parse, default: DEFAULT_MODEL.spacing },
+    transferFunction: { parse: JSON.parse, default: DEFAULT_TRANSFER_FUNCTION },
+    useTransferFunction: { type: "boolean", default: false },
   },
 
   init: function () {
@@ -228,17 +222,21 @@ AFRAME.registerComponent("model", {
   },
 
   loadColorMap: function () {
-    const colorMap = this.data.colorMap;
+    let colorMapPath = this.data.colorMap.path;
 
-    // Re-inject local image path with semi-colon
-    if (colorMap.path.startsWith("data:image/png")) {
-      colorMap.path =
-        colorMap.path.substring(0, 14) + ";" + colorMap.path.substring(14);
-    }
+    /* 
+      colorMapPath is either a png encoded string or the path to a png
+
+      png encoded strings begin with data:image/png;64
+      Add ; that was removed to parse into aframe correctly
+    */
+    if (colorMapPath.startsWith("data:image/png"))
+      colorMapPath =
+        colorMapPath.substring(0, 14) + ";" + colorMapPath.substring(14);
 
     // Create and image and canvas
     const img = document.createElement("img");
-    img.src = colorMap.path;
+    img.src = colorMapPath;
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 

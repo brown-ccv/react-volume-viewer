@@ -13,7 +13,10 @@ const ColorMaps = {
   rgb: rgbColorMap,
 };
 
-const DEFAULT_COLOR_MAP = grayscaleColorMap;
+const DEFAULT_TRANSFER_FUNCTION = [
+  { x: 0, y: 0 },
+  { x: 1, y: 1 },
+];
 
 const DEFAULT_MODEL = {
   channel: 1,
@@ -24,12 +27,9 @@ const DEFAULT_MODEL = {
   scale: "1 1 1",
   slices: 55,
   spacing: { x: 2, y: 2, z: 1 },
+  transferFunction: DEFAULT_TRANSFER_FUNCTION,
+  useTransferFunction: true,
 };
-
-const DEFAULT_TRANSFER_FUNCTION = [
-  { x: 0, y: 0 },
-  { x: 1, y: 1 },
-];
 
 const SLIDER_RANGE = { min: 0, max: 1 };
 const DEFAULT_SLIDERS = {
@@ -44,7 +44,6 @@ const HOVER_RADIUS = 15;
 
 export {
   ColorMaps,
-  DEFAULT_COLOR_MAP,
   DEFAULT_MODEL,
   DEFAULT_TRANSFER_FUNCTION,
   SLIDER_RANGE,

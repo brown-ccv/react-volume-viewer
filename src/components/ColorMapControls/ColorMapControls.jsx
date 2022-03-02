@@ -12,20 +12,25 @@ import "@reach/listbox/styles.css";
 
 import Section from "../Section";
 
-function ColorMapControls({ colorMaps, colorMap, setColorMap }) {
+function ColorMapControls({ colorMaps, model, setModel }) {
   return (
     <Section title="Color Map">
       {colorMaps.length > 1 ? (
         <StyledListboxInput
           aria-labelledby="ColorMap dropdown"
-          value={colorMap.name}
-          onChange={(color) =>
-            setColorMap(colorMaps.find((colorMap) => colorMap.name === color))
+          value={model.colorMap.name}
+          onChange={(newColorMapName) =>
+            setModel((model) => ({
+              ...model,
+              colorMap: colorMaps.find(
+                (colorMap) => newColorMapName === colorMap.name
+              ),
+            }))
           }
         >
           <ListboxButton>
             <OutlinedImg
-              src={colorMap.path}
+              src={model.colorMap.path}
               alt="The current color map"
               height="20px"
               width="95%"
@@ -34,15 +39,10 @@ function ColorMapControls({ colorMaps, colorMap, setColorMap }) {
           </ListboxButton>
           <ListboxPopover>
             <ListboxList>
-              {colorMaps.map((color) => (
-                <StyledListboxOption key={color.name} value={color.name}>
-                  <OptionText>{color.name}</OptionText>
-                  <OptionImg
-                    src={color.path}
-                    alt={color.name}
-                    width="0"
-                    height="auto"
-                  />
+              {colorMaps.map(({ name, path }) => (
+                <StyledListboxOption key={name} value={name}>
+                  <OptionText>{name}</OptionText>
+                  <OptionImg src={path} alt={name} width="0" height="auto" />
                 </StyledListboxOption>
               ))}
             </ListboxList>
@@ -50,7 +50,7 @@ function ColorMapControls({ colorMaps, colorMap, setColorMap }) {
         </StyledListboxInput>
       ) : (
         <OutlinedImg
-          src={colorMap.path}
+          src={model.colorMap.path}
           alt="The current color map"
           height="20px"
           width="100%"

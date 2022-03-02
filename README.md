@@ -25,75 +25,83 @@ The only required props are the model's path and it's minimum and maximum data p
 CSS styling for the height must be provided and a custom width can be provided as well. The styling can be passed in through classes or inline styles.
 
 ```jsx
-VolumeViewer.propTypes = {
-  /**
-   * The current color map applied by the transferFunction
-   * It will default to the first object in colorMaps if no colorMap is provided
-   * It will default to grayscale if neither colorMap nor colorMaps is provided.
-   *
-   *  name: Common name of the color map
-   *  path: Path to the color map src
-   */
-  colorMap: PropTypes.exact({
-    name: PropTypes.string,
-    path: PropTypes.string,
-  }),
+/**
+ * Object containing the name and path to a color map image
+ *  name: Common name of the color map
+ *  path: Path to the color map source image
+ */
+const COLOR_MAP = PropTypes.exact({
+  name: PropTypes.string,
+  path: PropTypes.string,
+});
 
+VolumeViewer.propTypes = {
   /**
    * Array of color maps available in the controls.
    *  name: Common name of the color map
    *  path: Path to the color map src
    */
-  colorMaps: PropTypes.arrayOf(
-    PropTypes.exact({
-      name: PropTypes.string,
-      path: PropTypes.string,
-    })
-  ),
+  colorMaps: PropTypes.arrayOf(COLOR_MAP),
 
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
 
   /** The model to be displayed and it's related information */
   model: PropTypes.shape({
+    /** 
+     * The current color map applied to the model 
+     * The colorMap must be present in the colorMaps array
+     * REQUIRED
+    */
+    colorMap: COLOR_MAP.isRequired,
+
+    /** Channel to load data from (R:1, G:2, B:3)*/
+    channel: PropTypes.number,
+
+    /** Increase/decrease voxels intensity */
+    intensity: PropTypes.number,
+
     /** Path to the model REQUIRED */
     path: PropTypes.string.isRequired,
+
     /** Position of the model in the scene */
     position: PropTypes.string,
+
     /** Minimum and maximum values of the model's dataset. Min and max values are required */
     range: PropTypes.shape({
       min: PropTypes.number.isRequired,
       max: PropTypes.number.isRequired,
       unit: PropTypes.string,
     }),
+
     /** Position of the model in the scene */
     rotation: PropTypes.string,
+
     /** Scale of the model in the scene */
     scale: PropTypes.string,
+
     /** Number of slices used to generate the model */
     slices: PropTypes.number,
+
     /** Spacing between the slices of the model */
     spacing: PropTypes.exact({
       x: PropTypes.number,
       y: PropTypes.number,
       z: PropTypes.number,
     }),
+
+    /** The transfer function applied to the color map */
+    transferFunction: PropTypes.arrayOf(
+      PropTypes.exact({
+        x: PropTypes.number,
+        y: PropTypes.number,
+      })
+    ),
+
+    /** Whether or not to apply a transfer function to the model */
+    useTransferFunction: PropTypes.bool,
   }),
-
-  /**
-   * The transfer function applied to the color map
-   * Array of 2D points
-   */
-  transferFunction: PropTypes.arrayOf(
-    PropTypes.exact({
-      x: PropTypes.number,
-      y: PropTypes.number,
-    })
-  ),
-
-  /** Whether or not to apply a transfer function to the model */
-  useTransferFunction: PropTypes.bool,
-}
+};
 ```
 
 ### Default Props
@@ -102,19 +110,31 @@ The default values of `model`'s properties will be passed in for all properties 
 
 ```jsx
 VolumeViewer.defaultProps = {
-  colorMap: null,
   colorMaps: [],
   controlsVisible: false,
   model: {
+    colorMap: null,   // REQUIRED
+    path: null,       // REQUIRED
     position: "0 0 0",
-    range: { min: 0, max: 1, unit: "" },
+    range: { 
+      min: 0, // REQUIRED
+      max: 1, // REQUIRED
+      unit: "",
+    },
     rotation: "0 0 0",
     scale: "1 1 1",
     slices: 55,
-    spacing: { x: 2, y: 2, z: 1 },
+    spacing: { 
+      x: 2, 
+      y: 2, 
+      z: 1
+    },
+    transferFunction: [
+      { x: 0, y: 0 },
+      { x: 1, y: 1 }
+    ],
+    useTransferFunction: true,
   }
-  transferFunction: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
-  useTransferFunction: true,
 };
 
 ```
@@ -123,9 +143,9 @@ VolumeViewer.defaultProps = {
 
 The `ColorMaps` export is an object containing some default color maps that may be useful for your project. There is a grayscale, natural, and rgb color map:
 
-<img alt="grayscale" src="./src/images/grayscale.png" height="10"/>
-<img alt="natural" src="./src/images/natural.png" height="10"/>
-<img alt="rgb" src="./src/images/rgb.png" height="10"/>
+<img alt="grayscale" src="./src/images/grayscale.png" height="25"/>
+<img alt="natural" src="./src/images/natural.png" height="25"/>
+<img alt="rgb" src="./src/images/rgb.png" height="25"/>
 
 ## Example
 
@@ -134,8 +154,8 @@ import React from 'react'
 import styled from 'styled-components'
 import { VolumeViewer, ColorMaps } from "react-volume-viewer";
 
-const haline = { name: "Haline", path: "./path/to/colormaps/haline.png" };
-const thermal = { name: "Thermal", path: "./path/to/colormaps/thermal.png" };
+const haline = { name: "Haline", path: "path/to/colormaps/haline.png" };
+const thermal = { name: "Thermal", path: "path/to/colormaps/thermal.png" };
 import model from "./path/to/model.png";
 
 function App() {
@@ -144,9 +164,9 @@ function App() {
   return (
     <StyledVolumeViewer
       colorMaps={[haline, thermal, ColorMaps.grayscale]}
-      colorMap={haline}
       controlsVisible={controlsVisible}
       model={{
+        colorMap={haline},
         range: { min: 0.05, max: 33.71, unit: "°C" },
         path: model,
         scale: "1 -1 1",

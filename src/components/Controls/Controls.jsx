@@ -7,13 +7,10 @@ import ClipControls from "../ClipControls";
 
 function Controls({
   colorMaps,
+  initModel,
   model,
-  useTransferFunction,
-  initTransferFunction,
-  colorMap,
-  setColorMap,
-  setTransferFunction,
   sliders,
+  setModel,
   setSliders,
   reset,
 }) {
@@ -21,15 +18,15 @@ function Controls({
     <Wrapper>
       <ColorMapControls
         colorMaps={colorMaps}
-        colorMap={colorMap}
-        setColorMap={setColorMap}
+        model={model}
+        setModel={setModel}
       />
 
-      {useTransferFunction && (
+      {model.useTransferFunction && (
         <OpacityControls
+          initModel={initModel}
           range={model.range}
-          initTransferFunction={initTransferFunction}
-          setTransferFunction={setTransferFunction}
+          setModel={setModel}
         />
       )}
       <Button onClick={reset}> Reset </Button>
