@@ -15,7 +15,7 @@ import Section from "../Section";
 function ColorMapControls({ colorMaps, model, setModel }) {
   return (
     <Section title="Color Map">
-      {Object.keys(colorMaps).length > 1 ? (
+      {colorMaps.length > 1 ? (
         <StyledListboxInput
           aria-labelledby="ColorMap dropdown"
           value={model.colorMap.name}

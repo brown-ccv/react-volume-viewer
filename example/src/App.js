@@ -32,10 +32,10 @@ function App() {
       </button>
       <button
         onClick={() =>
-          setColorMaps(colorMaps === initColorMaps ? [] : initColorMaps)
+          setColorMaps(colorMaps === initColorMaps ? [colorMap] : initColorMaps)
         }
       >
-        Pass in Color Maps
+        Single Color Map
       </button>
       <button
         onClick={() => setColorMap(colorMap === haline ? thermal : haline)}
