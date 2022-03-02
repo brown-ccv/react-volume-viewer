@@ -1,5 +1,5 @@
 {
   "projects": {
-    "default": "react-volume-viewer"
+    "default": "volume-viewer"
   }
 }
