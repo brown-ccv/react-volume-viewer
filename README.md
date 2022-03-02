@@ -48,7 +48,11 @@ VolumeViewer.propTypes = {
 
   /** The model to be displayed and it's related information */
   model: PropTypes.shape({
-    /** The current color map applied to the model REQUIRED */
+    /** 
+     * The current color map applied to the model 
+     * The colorMap must be present in the colorMaps array
+     * REQUIRED
+    */
     colorMap: COLOR_MAP.isRequired,
 
     /** Channel to load data from (R:1, G:2, B:3)*/
@@ -86,10 +90,7 @@ VolumeViewer.propTypes = {
       z: PropTypes.number,
     }),
 
-    /**
-     * The transfer function applied to the color map
-     * Array of 2D points
-     */
+    /** The transfer function applied to the color map */
     transferFunction: PropTypes.arrayOf(
       PropTypes.exact({
         x: PropTypes.number,
