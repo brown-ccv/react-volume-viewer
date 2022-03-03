@@ -33,6 +33,11 @@ const toAframeString = (obj) => {
 function AframeScene({ models, sliders }) {
   // TODO: Aframe scene re-renders when interacting with controls but not changing anything
   console.log("SCENE", models);
+
+  // TEMP
+  models.forEach(model => {
+    
+  })
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
@@ -55,6 +60,7 @@ function AframeScene({ models, sliders }) {
           model.enabled && (
             <a-entity
               key={model.name}
+              id={model.name}
               position={model.position}
               rotation={model.rotation}
               scale={model.scale}
