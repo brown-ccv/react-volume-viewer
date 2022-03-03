@@ -112,34 +112,92 @@ VolumeViewer.propTypes = {
 The default values of `model`'s properties will be passed in for all properties not explicitly set by the `model` prop passed in.
 
 ```jsx
-VolumeViewer.defaultProps = {
-  colorMaps: [],
-  controlsVisible: false,
-  model: {
-    colorMap: null,   // REQUIRED
-    path: null,       // REQUIRED
-    position: "0 0 0",
-    range: { 
-      min: 0, // REQUIRED
-      max: 1, // REQUIRED
-      unit: "",
-    },
-    rotation: "0 0 0",
-    scale: "1 1 1",
-    slices: 55,
-    spacing: { 
-      x: 2, 
-      y: 2, 
-      z: 1
-    },
-    transferFunction: [
-      { x: 0, y: 0 },
-      { x: 1, y: 1 }
-    ],
-    useTransferFunction: true,
-  }
-};
+/**
+ * Object containing the name and path to a color map image
+ *  name: Common name of the color map
+ *  path: Path to the color map source image
+ */
+const COLOR_MAP = PropTypes.exact({
+  name: PropTypes.string,
+  path: PropTypes.string,
+});
 
+/** The model to be displayed and it's related information */
+const MODEL = PropTypes.shape({
+  /**
+   * The current color map applied to the model
+   * The colorMap must be present in the colorMaps array
+   * REQUIRED
+   */
+  colorMap: COLOR_MAP.isRequired,
+
+  /** Channel to load data from (R:1, G:2, B:3)*/
+  channel: PropTypes.number,
+
+  /** Short description of the model */
+  description: PropTypes.string,
+
+  /** Increase/decrease voxels intensity */
+  intensity: PropTypes.number,
+
+  /** Path to the model REQUIRED */
+  path: PropTypes.string.isRequired,
+
+  /** Position of the model in the scene */
+  position: PropTypes.string,
+
+  /** Minimum and maximum values of the model's dataset */
+  range: PropTypes.shape({
+    min: PropTypes.number,
+    max: PropTypes.number,
+    unit: PropTypes.string,
+  }),
+
+  /** Position of the model in the scene */
+  rotation: PropTypes.string,
+
+  /** Scale of the model in the scene */
+  scale: PropTypes.string,
+
+  /** Number of slices used to generate the model */
+  slices: PropTypes.number,
+
+  /** Spacing between the slices of the model */
+  spacing: PropTypes.exact({
+    x: PropTypes.number,
+    y: PropTypes.number,
+    z: PropTypes.number,
+  }),
+
+  /**
+   * The transfer function applied to the color map
+   * Array of 2D points
+   */
+  transferFunction: PropTypes.arrayOf(
+    PropTypes.exact({
+      x: PropTypes.number,
+      y: PropTypes.number,
+    })
+  ),
+
+  /** Whether or not to apply a transfer function to the model */
+  useTransferFunction: PropTypes.bool,
+});
+
+VolumeViewer.propTypes = {
+  /**
+   * Array of color maps available in the controls.
+   *  name: Common name of the color map
+   *  path: Path to the color map src
+   */
+  colorMaps: PropTypes.arrayOf(COLOR_MAP),
+
+  /** Whether or not the controls can be seen */
+  controlsVisible: PropTypes.bool,
+
+  /** Array of models loaded into aframe REQUIRED */
+  models: PropTypes.arrayOf(MODEL).isRequired,
+};
 ```
 
 ## ColorMaps
@@ -157,9 +215,11 @@ import React from 'react'
 import styled from 'styled-components'
 import { VolumeViewer, ColorMaps } from "react-volume-viewer";
 
+import model1 from "./path/to/model.png";
+import model2 from "./path/to/model.png";
+
 const haline = { name: "Haline", path: "path/to/colormaps/haline.png" };
 const thermal = { name: "Thermal", path: "path/to/colormaps/thermal.png" };
-import model from "./path/to/model.png";
 
 function App() {
   const [controlsVisible, setControlsVisible] = React.useState(true);
@@ -168,13 +228,33 @@ function App() {
     <StyledVolumeViewer
       colorMaps={[haline, thermal, ColorMaps.grayscale]}
       controlsVisible={controlsVisible}
-      model={{
-        colorMap={haline},
-        range: { min: 0.05, max: 33.71, unit: "°C" },
-        path: model,
-        scale: "1 -1 1",
-        rotation: "-55 0 0",
-      }}
+      models={[
+        {
+          name: "Salt",
+          colorMap: haline,
+          description: "Model visualizing salinity data",
+          range: {
+            min: 0.05,
+            max: 33.71,
+          },
+          path: model1,
+          scale: "1 -1 1",
+          rotation: "-55 0 0",
+        },
+        {
+          name: "Temperature",
+          colorMap: thermal,
+          description: "Model visualizing temperature data",
+          range: {
+            min: 0.05,
+            max: 42,
+            unit: "°C",
+          },
+          path: model2,
+          scale: "1 -1 1",
+          rotation: "-55 0 0",
+        },
+      ]}
     />
   )
 }

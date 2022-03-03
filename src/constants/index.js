@@ -20,6 +20,7 @@ const DEFAULT_TRANSFER_FUNCTION = [
 
 const DEFAULT_MODEL = {
   channel: 1,
+  description: "",
   intensity: 1.0,
   position: "0 0 0",
   range: { min: 0, max: 1, unit: "" },

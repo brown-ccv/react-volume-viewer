@@ -67,15 +67,11 @@ function VolumeViewer({
       {controlsVisible && (
         <Controls
           colorMaps={colorMaps}
-          // initModel={initModel}
-          // model={model}
           models={models}
           sliders={sliders}
-          // setModel={setModel}
           setModels={setModels}
           setSliders={setSliders}
           reset={() => {
-            // setModel(initModel);
             setModels(initModels);
             setSliders(DEFAULT_SLIDERS);
             setRemountKey(Math.random());
@@ -115,6 +111,9 @@ const MODEL = PropTypes.shape({
   /** Channel to load data from (R:1, G:2, B:3)*/
   channel: PropTypes.number,
 
+  /** Short description of the model */
+  description: PropTypes.string,
+
   /** Increase/decrease voxels intensity */
   intensity: PropTypes.number,
 
@@ -124,10 +123,10 @@ const MODEL = PropTypes.shape({
   /** Position of the model in the scene */
   position: PropTypes.string,
 
-  /** Minimum and maximum values of the model's dataset. Min and max values are required */
+  /** Minimum and maximum values of the model's dataset. */
   range: PropTypes.shape({
-    min: PropTypes.number.isRequired,
-    max: PropTypes.number.isRequired,
+    min: PropTypes.number,
+    max: PropTypes.number,
     unit: PropTypes.string,
   }),
 
