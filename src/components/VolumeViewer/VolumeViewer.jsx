@@ -22,6 +22,7 @@ function VolumeViewer({
 }) {
   // Merge passed in models with default properties
   const initModels = useMemo(() => {
+    console.log("SETTING INITIAL MODELS");
     const modelNames = new Set();
     return modelsProp.map((model) => {
       // The model's name must be unique

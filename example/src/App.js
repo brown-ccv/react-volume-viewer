@@ -33,12 +33,14 @@ function App() {
         max: 33.71,
       },
       path: modelPath,
+      // position: "0.1 0 0",
       scale: "1 -1 1",
       rotation: "-55 0 0",
     },
     {
       name: "Opposite",
       colorMap: colorMap === haline ? thermal : haline,
+      colorMaps: colorMaps,
       enabled: true,
       range: {
         min: 0.05,
@@ -46,6 +48,7 @@ function App() {
         unit: "°C",
       },
       path: modelPath === salt ? temp : salt,
+      // position: "-0.1 0 0",
       scale: "1 -1 1",
       rotation: "-55 0 0",
     },

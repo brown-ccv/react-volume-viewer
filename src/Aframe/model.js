@@ -15,6 +15,7 @@ AFRAME.registerComponent("model", {
     channel: { type: "number", default: DEFAULT_MODEL.channel },
     colorMap: { parse: JSON.parse },
     intensity: { type: "number", default: DEFAULT_MODEL.intensity },
+    name: { type: "string", default: "" },
     path: { type: "string" },
     slices: { type: "number", default: DEFAULT_MODEL.slices },
     sliders: { parse: JSON.parse, default: DEFAULT_SLIDERS },
@@ -31,11 +32,14 @@ AFRAME.registerComponent("model", {
     this.rayCollided = false;
     this.grabbed = false;
 
+    console.log(this.data.name);
+
     // Get other entities
     this.controllerObject = document.getElementById("rhand").object3D;
     this.controllerObject.matrixAutoUpdate = false;
     this.clipPlaneListenerHandler = document.getElementById(
-      "clipplane2DListener"
+      // "clipplane2DListener"
+      `clipplane2DListener-${this.data.name}`
     ).object3D;
 
     // Bind functions
