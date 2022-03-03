@@ -137,6 +137,9 @@ const MODEL = PropTypes.shape({
   /** Short description of the model */
   description: PropTypes.string,
 
+  /** Flag to display the model */
+  enabled: PropTypes.bool,
+
   /** Increase/decrease voxels intensity */
   intensity: PropTypes.number,
 
