@@ -22,32 +22,31 @@ function VolumeViewer({
   models: modelsProp,
 }) {
   // Merge passed in models with default properties
-  const initModels = useMemo(
-    () =>
-      modelsProp.map((model) => {
-        const transferFunction = model.useTransferFunction
-          ? // Inject DEFAULT_TRANSFER_FUNCTION if transferFunction property is not given
-            model.transferFunction ?? DEFAULT_TRANSFER_FUNCTION
-          : // Always use DEFAULT_TRANSFER_FUNCTIOn when !useTransferFunction
-            DEFAULT_TRANSFER_FUNCTION;
+  const initModels = useMemo(() => {
+    const modelNames = new Set();
+    return modelsProp.map((model) => {
+      // The model's colorMap must be in the colorMaps array
+      if (!colorMaps.includes(model.colorMap))
+        throw new Error("Color Map '" + model.colorMap + "' not in colorMaps");
 
-        // The model's colorMap must be in the colorMaps array
-        if (!colorMaps.includes(model.colorMap)) {
-          throw new Error(
-            "Color Map '" + model.colorMap + "' not in colorMaps"
-          );
-        }
+      // The model's name must be unique
+      if (modelNames.has(model.name))
+        throw new Error("Model name '" + model.name + "' is not unique");
+      else modelNames.add(model.name);
 
-        // TODO: model.name needs to be unique (?)
-        return {
-          ...DEFAULT_MODEL,
-          ...model,
-          transferFunction: transferFunction,
-          initTransferFunction: transferFunction,
-        };
-      }),
-    [modelsProp, colorMaps]
-  );
+      const transferFunction = model.useTransferFunction
+        ? // Inject DEFAULT_TRANSFER_FUNCTION if transferFunction property is not given
+          model.transferFunction ?? DEFAULT_TRANSFER_FUNCTION
+        : // Always use DEFAULT_TRANSFER_FUNCTIOn when !useTransferFunction
+          DEFAULT_TRANSFER_FUNCTION;
+      return {
+        ...DEFAULT_MODEL,
+        ...model,
+        transferFunction: transferFunction,
+        initTransferFunction: transferFunction,
+      };
+    });
+  }, [modelsProp, colorMaps]);
 
   // Control the models in state; override on prop change
   const [models, setModels] = useState(initModels);
