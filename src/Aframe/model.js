@@ -32,13 +32,10 @@ AFRAME.registerComponent("model", {
     this.rayCollided = false;
     this.grabbed = false;
 
-    console.log(this.data.name);
-
     // Get other entities
     this.controllerObject = document.getElementById("rhand").object3D;
     this.controllerObject.matrixAutoUpdate = false;
     this.clipPlaneListenerHandler = document.getElementById(
-      // "clipplane2DListener"
       `clipplane2DListener-${this.data.name}`
     ).object3D;
 
@@ -208,7 +205,7 @@ AFRAME.registerComponent("model", {
           side: THREE.BackSide, // The volume shader uses the "backface" as its reference point
         });
 
-        // Model is a unit box with the file's material
+        // Model is a unit cube with the file's material
         const geometry = new THREE.BoxGeometry(1, 1, 1);
         this.el.setObject3D("mesh", new THREE.Mesh(geometry, material));
         material.needsUpdate = true;

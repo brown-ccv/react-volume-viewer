@@ -6,7 +6,7 @@ const salt = "./assets/models/summer-high-salt.png";
 const temp = "./assets/models/summer-high-temp.png";
 const haline = { name: "Haline", path: "./assets/colormaps/haline.png" };
 const thermal = { name: "Thermal", path: "./assets/colormaps/thermal.png" };
-const initColorMaps = [
+const allColorMaps = [
   haline,
   thermal,
   ColorMaps.grayscale,
@@ -17,7 +17,7 @@ const initColorMaps = [
 function App() {
   const [colorMap, setColorMap] = useState(haline);
   const [controlsVisible, setControlsVisible] = useState(false);
-  const [colorMaps, setColorMaps] = useState(initColorMaps);
+  const [singleColorMap, setSingleColorMap] = useState(false);
 
   const [useTransferFunction, setUseTransferFunction] = useState(true);
   const [modelPath, setModelPath] = useState(salt);
@@ -26,21 +26,22 @@ function App() {
     {
       name: "Same",
       colorMap: colorMap,
-      colorMaps: colorMaps,
+      ...(!singleColorMap && { colorMaps: [haline, thermal] }),
       enabled: true,
       range: {
         min: 0.05,
         max: 33.71,
       },
       path: modelPath,
-      // position: "0.1 0 0",
+      position: "-0.5 0 0",
       scale: "1 -1 1",
       rotation: "-55 0 0",
+      useTransferFunction: useTransferFunction,
     },
     {
       name: "Opposite",
       colorMap: colorMap === haline ? thermal : haline,
-      colorMaps: colorMaps,
+      ...(!singleColorMap && { colorMaps: allColorMaps }),
       enabled: true,
       range: {
         min: 0.05,
@@ -48,9 +49,10 @@ function App() {
         unit: "°C",
       },
       path: modelPath === salt ? temp : salt,
-      // position: "-0.1 0 0",
+      position: "0.5 0 0",
       scale: "1 -1 1",
       rotation: "-55 0 0",
+      useTransferFunction: useTransferFunction,
     },
   ];
 
@@ -62,11 +64,7 @@ function App() {
       <button onClick={() => setUseTransferFunction(!useTransferFunction)}>
         Use Transfer Function
       </button>
-      <button
-        onClick={() =>
-          setColorMaps(colorMaps === initColorMaps ? [colorMap] : initColorMaps)
-        }
-      >
+      <button onClick={() => setSingleColorMap(singleColorMap ? false : true)}>
         Single Color Map
       </button>
       <button
@@ -93,34 +91,22 @@ function App() {
   );
 
   const VV = (
-    <StyledVolumeViewer
-      colorMaps={colorMaps}
-      controlsVisible={controlsVisible}
-      models={models}
-    />
+    <StyledVolumeViewer controlsVisible={controlsVisible} models={models} />
   );
 
   return (
     <>
-      <header>
-        <h1>Hello, World</h1>
-      </header>
-
       <Main>
         {Buttons}
         {VV}
         <hr />
       </Main>
-
-      <footer>
-        <h1>Goodbye, World!</h1>
-      </footer>
     </>
   );
 }
 
 const StyledVolumeViewer = styled(VolumeViewer)`
-  height: 76vh;
+  height: 85vh;
 `;
 
 const Main = styled.main`

@@ -63,7 +63,6 @@ function OpacityControls({ initTransferFunction, modelIdx, range, setModels }) {
       .range(canvasRange.y);
 
     // Initialize canvasPoints
-    console.log("INIT RENDER");
     setCanvasPoints(
       initTransferFunction.map((p) => {
         return {

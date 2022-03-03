@@ -31,8 +31,10 @@ const toAframeString = (obj) => {
 };
 
 function AframeScene({ models, sliders }) {
-  // TODO: Aframe scene re-renders when interacting with controls but not changing anything
-  console.log("SCENE", models);
+  /* 
+    TODO: The whole scene does not have to re-render
+    Only the specific model in models.map changes
+  */
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
@@ -51,8 +53,6 @@ function AframeScene({ models, sliders }) {
       <a-entity id="models">
         {models.map(
           (model) =>
-            // TODO: Use model.name to create IDs
-            // TODO: Pass IDs into aframe and use them internally
             model.enabled && (
               <a-entity
                 key={model.name}
@@ -74,7 +74,6 @@ function AframeScene({ models, sliders }) {
 
                 {/* CLICKABLE PLANE FOR MOUSE INTERACTIONS */}
                 <a-plane
-                  // id="clipplane2D"
                   id={`clipplane2D-${model.name}`}
                   class="clickable"
                   visible="false"
@@ -85,7 +84,6 @@ function AframeScene({ models, sliders }) {
 
                 {/* MODEL */}
                 <a-entity
-                  // id="volumeCube"
                   id={`model-${model.name}`}
                   class="clickableMesh"
                   model={toAframeString({

@@ -21,8 +21,8 @@ function VolumeViewer({
   models: modelsProp,
 }) {
   // Merge passed in models with default properties
+  // TODO: Need to do deep comparison on modelsProp
   const initModels = useMemo(() => {
-    console.log("SETTING INITIAL MODELS");
     const modelNames = new Set();
     return modelsProp.map((model) => {
       // The model's name must be unique
@@ -187,13 +187,6 @@ const MODEL = PropTypes.shape({
 });
 
 VolumeViewer.propTypes = {
-  /**
-   * Array of color maps available in the controls.
-   *  name: Common name of the color map
-   *  path: Path to the color map src
-   */
-  // colorMaps: PropTypes.arrayOf(COLOR_MAP),
-
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
 
@@ -202,7 +195,6 @@ VolumeViewer.propTypes = {
 };
 
 VolumeViewer.defaultProps = {
-  // colorMaps: [],
   controlsVisible: false,
 };
 
