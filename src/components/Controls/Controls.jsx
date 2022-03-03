@@ -48,6 +48,7 @@ function Controls({
                 setModels={setModels}
               />
             )}
+            <p>Enabled: {model.enabled.toString()}</p>
             <Button onClick={reset}> Reset </Button>
           </TabPanel>
         ))}

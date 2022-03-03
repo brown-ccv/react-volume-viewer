@@ -37,6 +37,8 @@ function VolumeViewer({
             "Color Map '" + model.colorMap + "' not in colorMaps"
           );
         }
+
+        // TODO: model.name needs to be unique (?)
         return {
           ...DEFAULT_MODEL,
           ...model,
@@ -53,7 +55,7 @@ function VolumeViewer({
     setModels(initModels);
   }, [initModels]);
 
-  // Always begin with DEFAULT_SLIDERS value
+  // Always initialize to DEFAULT_SLIDERS
   const [sliders, setSliders] = useState(DEFAULT_SLIDERS);
 
   // Changing a components key will remount the entire thing
@@ -113,6 +115,9 @@ const MODEL = PropTypes.shape({
 
   /** Short description of the model */
   description: PropTypes.string,
+
+  /** Flag to display the model */
+  enabled: PropTypes.bool,
 
   /** Increase/decrease voxels intensity */
   intensity: PropTypes.number,

@@ -244,6 +244,7 @@ function App() {
         {
           name: "Temperature",
           colorMap: thermal,
+          enabled: false,
           description: "Model visualizing temperature data",
           range: {
             min: 0.05,

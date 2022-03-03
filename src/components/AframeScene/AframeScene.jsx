@@ -31,8 +31,8 @@ const toAframeString = (obj) => {
 };
 
 function AframeScene({ models, sliders }) {
+  // TODO: Aframe scene re-renders when interacting with controls but not changing anything
   console.log("SCENE", models);
-  const model = models[0]; // TEMP
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
@@ -48,48 +48,61 @@ function AframeScene({ models, sliders }) {
         })}
       />
 
-      <a-entity
-        id="clipplane2DListener"
-        render-2d-clipplane={toAframeString({
-          activateClipPlane: true,
-          xBounds: sliders.x,
-          yBounds: sliders.y,
-          zBounds: sliders.z,
-        })}
-      />
+      {models.map(
+        (model) =>
+          // TODO: Use model.name to create IDs
+          // TODO: Pass IDs into aframe and use them internally
+          model.enabled && (
+            <a-entity
+              key={model.name}
+              position={model.position}
+              rotation={model.rotation}
+              scale={model.scale}
+            >
+              <a-entity
+                id="clipplane2DListener"
+                render-2d-clipplane={toAframeString({
+                  activateClipPlane: true,
+                  xBounds: sliders.x,
+                  yBounds: sliders.y,
+                  zBounds: sliders.z,
+                })}
+              />
 
-      {/* CLICKABLE PLANE FOR MOUSE INTERACTIONS */}
-      <a-plane
-        class="clickable"
-        id="clipplane2D"
-        visible="false"
-        height="1"
-        width="1"
-        material="color: red; side: double; transparent: true; opacity: 0.2"
-        position={model.position}
-        rotation={model.rotation}
-        scale={model.scale}
-      />
-
-      {/* MODEL */}
-      <a-entity
-        id="volumeCube"
-        class="clickableMesh"
-        model={toAframeString({
-          channel: model.channel,
-          colorMap: JSON.stringify(model.colorMap),
-          intensity: model.intensity,
-          path: model.path,
-          slices: model.slices,
-          sliders: JSON.stringify(sliders),
-          spacing: JSON.stringify(model.spacing),
-          transferFunction: JSON.stringify(model.transferFunction),
-          useTransferFunction: model.useTransferFunction,
-        })}
-        position={model.position}
-        rotation={model.rotation}
-        scale={model.scale}
-      />
+              {/* CLICKABLE PLANE FOR MOUSE INTERACTIONS */}
+              <a-plane
+                class="clickable"
+                id="clipplane2D"
+                visible="false"
+                height="1"
+                width="1"
+                material="color: red; side: double; transparent: true; opacity: 0.2"
+                // position={model.position}
+                // rotation={model.rotation}
+                // scale={model.scale}
+              />
+              {/* MODEL */}
+              <a-entity
+                id="volumeCube"
+                class="clickableMesh"
+                model={toAframeString({
+                  channel: model.channel,
+                  colorMap: JSON.stringify(model.colorMap),
+                  intensity: model.intensity,
+                  path: model.path,
+                  slices: model.slices,
+                  sliders: JSON.stringify(sliders),
+                  spacing: JSON.stringify(model.spacing),
+                  transferFunction: JSON.stringify(model.transferFunction),
+                  useTransferFunction: model.useTransferFunction,
+                })}
+                // position={model.position}
+                // rotation={model.rotation}
+                // scale={model.scale}
+              />
+            </a-entity>
+          )
+      )}
 
       {/* MOUSE */}
       <a-entity cursor="rayOrigin:mouse" raycaster="objects: .clickable" />

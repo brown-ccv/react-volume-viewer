@@ -26,6 +26,7 @@ function App() {
     {
       name: "Same",
       colorMap: colorMap,
+      enabled: true,
       range: {
         min: 0.05,
         max: 33.71,
@@ -38,6 +39,7 @@ function App() {
     {
       name: "Opposite",
       colorMap: colorMap === haline ? thermal : haline,
+      enabled: true,
       range: {
         min: 0.05,
         max: 33.71,
