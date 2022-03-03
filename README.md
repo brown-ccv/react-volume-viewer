@@ -35,19 +35,8 @@ const COLOR_MAP = PropTypes.exact({
   path: PropTypes.string,
 });
 
-VolumeViewer.propTypes = {
-  /**
-   * Array of color maps available in the controls.
-   *  name: Common name of the color map
-   *  path: Path to the color map src
-   */
-  colorMaps: PropTypes.arrayOf(COLOR_MAP),
-
-  /** Whether or not the controls can be seen */
-  controlsVisible: PropTypes.bool,
-
-  /** The model to be displayed and it's related information */
-  model: PropTypes.shape({
+/** The model to be displayed and it's related information */
+const MODEL = PropTypes.shape({
     /** 
      * The current color map applied to the model 
      * The colorMap must be present in the colorMaps array
@@ -101,6 +90,20 @@ VolumeViewer.propTypes = {
     /** Whether or not to apply a transfer function to the model */
     useTransferFunction: PropTypes.bool,
   }),
+
+VolumeViewer.propTypes = {
+  /**
+   * Array of color maps available in the controls.
+   *  name: Common name of the color map
+   *  path: Path to the color map src
+   */
+  colorMaps: PropTypes.arrayOf(COLOR_MAP),
+
+  /** Whether or not the controls can be seen */
+  controlsVisible: PropTypes.bool,
+
+  /** Array of models loaded into the website */
+  models: PropTypes.arrayOf(MODEL)
 };
 ```
 

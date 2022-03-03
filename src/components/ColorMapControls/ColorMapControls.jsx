@@ -12,7 +12,7 @@ import "@reach/listbox/styles.css";
 
 import Section from "../Section";
 
-function ColorMapControls({ colorMaps, model, setModel }) {
+function ColorMapControls({ colorMaps, model, modelIdx, setModels }) {
   return (
     <Section title="Color Map">
       {colorMaps.length > 1 ? (
@@ -20,12 +20,16 @@ function ColorMapControls({ colorMaps, model, setModel }) {
           aria-labelledby="ColorMap dropdown"
           value={model.colorMap.name}
           onChange={(newColorMapName) =>
-            setModel((model) => ({
-              ...model,
-              colorMap: colorMaps.find(
-                (colorMap) => newColorMapName === colorMap.name
-              ),
-            }))
+            setModels((models) => [
+              ...models.slice(0, modelIdx),
+              {
+                ...models[modelIdx],
+                colorMap: colorMaps.find(
+                  (colorMap) => newColorMapName === colorMap.name
+                ),
+              },
+              ...models.slice(modelIdx + 1),
+            ])
           }
         >
           <ListboxButton>

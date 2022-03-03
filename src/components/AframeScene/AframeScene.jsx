@@ -30,7 +30,9 @@ const toAframeString = (obj) => {
   return str;
 };
 
-function AframeScene({ model, sliders }) {
+function AframeScene({ models, sliders }) {
+  console.log("SCENE", models);
+  const model = models[0]; // TEMP
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}

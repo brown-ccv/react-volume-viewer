@@ -22,6 +22,33 @@ function App() {
   const [useTransferFunction, setUseTransferFunction] = useState(true);
   const [modelPath, setModelPath] = useState(salt);
 
+  const models = [
+    {
+      name: "Same",
+      colorMap: colorMap,
+      range: {
+        min: 0.05,
+        max: 33.71,
+        unit: "°C",
+      },
+      path: modelPath,
+      scale: "1 -1 1",
+      rotation: "-55 0 0",
+    },
+    {
+      name: "Opposite",
+      colorMap: colorMap === haline ? thermal : haline,
+      range: {
+        min: 0.05,
+        max: 33.71,
+        unit: "°C",
+      },
+      path: modelPath === salt ? temp : salt,
+      scale: "1 -1 1",
+      rotation: "-55 0 0",
+    },
+  ];
+
   const Buttons = (
     <div>
       <button onClick={() => setControlsVisible(!controlsVisible)}>
@@ -64,18 +91,7 @@ function App() {
     <StyledVolumeViewer
       colorMaps={colorMaps}
       controlsVisible={controlsVisible}
-      model={{
-        colorMap: colorMap,
-        range: {
-          min: 0.05,
-          max: 33.71,
-          unit: "°C",
-        },
-        path: modelPath,
-        scale: "1 -1 1",
-        rotation: "-55 0 0",
-        useTransferFunction: useTransferFunction,
-      }}
+      models={models}
     />
   );
 

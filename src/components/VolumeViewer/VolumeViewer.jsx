@@ -12,39 +12,46 @@ import Controls from "../Controls";
 import AframeScene from "../AframeScene";
 
 // TODO: Changing model from props will reset the transferFunction.
-// Only want to reset <OpacityControls> when model.transferFunction specifically changes? Use React.memo
+// Only want to reset <OpacityControls> when model.initTransferFunction changes? Use React.memo
 
 function VolumeViewer({
   className,
   style,
   colorMaps,
   controlsVisible,
-  model: modelProp,
+  models: modelsProp,
 }) {
-  // Get initial values based on prop input. These will update on prop change.
-  const initModel = useMemo(
-    () => ({
-      ...DEFAULT_MODEL,
-      ...modelProp,
-      transferFunction: modelProp.useTransferFunction
-        ? // Inject DEFAULT_TRANSFER_FUNCTION if transferFunction property is not given
-          modelProp.transferFunction ?? DEFAULT_TRANSFER_FUNCTION
-        : // Always use DEFAULT_TRANSFER_FUNCTIOn when !useTransferFunction
-          DEFAULT_TRANSFER_FUNCTION,
-    }),
-    [modelProp]
+  // Merge passed in models with default properties
+  const initModels = useMemo(
+    () =>
+      modelsProp.map((model) => {
+        const transferFunction = model.useTransferFunction
+          ? // Inject DEFAULT_TRANSFER_FUNCTION if transferFunction property is not given
+            model.transferFunction ?? DEFAULT_TRANSFER_FUNCTION
+          : // Always use DEFAULT_TRANSFER_FUNCTIOn when !useTransferFunction
+            DEFAULT_TRANSFER_FUNCTION;
+
+        // The model's colorMap must be in the colorMaps array
+        if (!colorMaps.includes(model.colorMap)) {
+          throw new Error(
+            "Color Map '" + model.colorMap + "' not in colorMaps"
+          );
+        }
+        return {
+          ...DEFAULT_MODEL,
+          ...model,
+          transferFunction: transferFunction,
+          initTransferFunction: transferFunction,
+        };
+      }),
+    [modelsProp, colorMaps]
   );
 
-  // Control the model in state; override on prop change
-  const [model, setModel] = useState(initModel);
+  // Control the models in state; override on prop change
+  const [models, setModels] = useState(initModels);
   useEffect(() => {
-    if (!colorMaps.includes(initModel.colorMap)) {
-      throw new Error(
-        "Color Map '" + initModel.colorMap + "' not in colorMaps"
-      );
-    }
-    setModel(initModel);
-  }, [initModel, colorMaps]);
+    setModels(initModels);
+  }, [initModels]);
 
   // Always begin with DEFAULT_SLIDERS value
   const [sliders, setSliders] = useState(DEFAULT_SLIDERS);
@@ -55,18 +62,21 @@ function VolumeViewer({
 
   return (
     <Wrapper key={remountKey} className={className} style={style}>
-      <AframeScene model={model} sliders={sliders} />
+      <AframeScene models={models} sliders={sliders} />
 
       {controlsVisible && (
         <Controls
           colorMaps={colorMaps}
-          initModel={initModel}
-          model={model}
+          // initModel={initModel}
+          // model={model}
+          models={models}
           sliders={sliders}
-          setModel={setModel}
+          // setModel={setModel}
+          setModels={setModels}
           setSliders={setSliders}
           reset={() => {
-            setModel(initModel);
+            // setModel(initModel);
+            setModels(initModels);
             setSliders(DEFAULT_SLIDERS);
             setRemountKey(Math.random());
           }}
@@ -93,6 +103,65 @@ const COLOR_MAP = PropTypes.exact({
   path: PropTypes.string,
 });
 
+/** The model to be displayed and it's related information */
+const MODEL = PropTypes.shape({
+  /**
+   * The current color map applied to the model
+   * The colorMap must be present in the colorMaps array
+   * REQUIRED
+   */
+  colorMap: COLOR_MAP.isRequired,
+
+  /** Channel to load data from (R:1, G:2, B:3)*/
+  channel: PropTypes.number,
+
+  /** Increase/decrease voxels intensity */
+  intensity: PropTypes.number,
+
+  /** Path to the model REQUIRED */
+  path: PropTypes.string.isRequired,
+
+  /** Position of the model in the scene */
+  position: PropTypes.string,
+
+  /** Minimum and maximum values of the model's dataset. Min and max values are required */
+  range: PropTypes.shape({
+    min: PropTypes.number.isRequired,
+    max: PropTypes.number.isRequired,
+    unit: PropTypes.string,
+  }),
+
+  /** Position of the model in the scene */
+  rotation: PropTypes.string,
+
+  /** Scale of the model in the scene */
+  scale: PropTypes.string,
+
+  /** Number of slices used to generate the model */
+  slices: PropTypes.number,
+
+  /** Spacing between the slices of the model */
+  spacing: PropTypes.exact({
+    x: PropTypes.number,
+    y: PropTypes.number,
+    z: PropTypes.number,
+  }),
+
+  /**
+   * The transfer function applied to the color map
+   * Array of 2D points
+   */
+  transferFunction: PropTypes.arrayOf(
+    PropTypes.exact({
+      x: PropTypes.number,
+      y: PropTypes.number,
+    })
+  ),
+
+  /** Whether or not to apply a transfer function to the model */
+  useTransferFunction: PropTypes.bool,
+});
+
 VolumeViewer.propTypes = {
   /**
    * Array of color maps available in the controls.
@@ -104,64 +173,8 @@ VolumeViewer.propTypes = {
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
 
-  /** The model to be displayed and it's related information */
-  model: PropTypes.shape({
-    /**
-     * The current color map applied to the model
-     * The colorMap must be present in the colorMaps array
-     * REQUIRED
-     */
-    colorMap: COLOR_MAP.isRequired,
-
-    /** Channel to load data from (R:1, G:2, B:3)*/
-    channel: PropTypes.number,
-
-    /** Increase/decrease voxels intensity */
-    intensity: PropTypes.number,
-
-    /** Path to the model REQUIRED */
-    path: PropTypes.string.isRequired,
-
-    /** Position of the model in the scene */
-    position: PropTypes.string,
-
-    /** Minimum and maximum values of the model's dataset. Min and max values are required */
-    range: PropTypes.shape({
-      min: PropTypes.number.isRequired,
-      max: PropTypes.number.isRequired,
-      unit: PropTypes.string,
-    }),
-
-    /** Position of the model in the scene */
-    rotation: PropTypes.string,
-
-    /** Scale of the model in the scene */
-    scale: PropTypes.string,
-
-    /** Number of slices used to generate the model */
-    slices: PropTypes.number,
-
-    /** Spacing between the slices of the model */
-    spacing: PropTypes.exact({
-      x: PropTypes.number,
-      y: PropTypes.number,
-      z: PropTypes.number,
-    }),
-
-    /**
-     * The transfer function applied to the color map
-     * Array of 2D points
-     */
-    transferFunction: PropTypes.arrayOf(
-      PropTypes.exact({
-        x: PropTypes.number,
-        y: PropTypes.number,
-      })
-    ),
-
-    /** Whether or not to apply a transfer function to the model */
-    useTransferFunction: PropTypes.bool,
-  }),
+  /** Array of models loaded into aframe REQUIRED */
+  models: PropTypes.arrayOf(MODEL).isRequired,
 };
 
 VolumeViewer.defaultProps = {

@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@reach/listbox": "^0.16.2",
+    "@reach/tabs": "^0.16.4",
     "aframe": "^1.2.0",
     "d3-scale": "^4.0.2",
     "rc-slider": "^9.7.4"
