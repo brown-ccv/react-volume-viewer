@@ -26,11 +26,11 @@ function App() {
     {
       name: "Same",
       colorMap: colorMap,
+      colorMaps: colorMaps,
       enabled: true,
       range: {
         min: 0.05,
         max: 33.71,
-        unit: "°C",
       },
       path: modelPath,
       scale: "1 -1 1",

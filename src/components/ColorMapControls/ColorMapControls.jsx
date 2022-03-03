@@ -12,10 +12,10 @@ import "@reach/listbox/styles.css";
 
 import Section from "../Section";
 
-function ColorMapControls({ colorMaps, model, modelIdx, setModels }) {
+function ColorMapControls({ model, modelIdx, setModels }) {
   return (
     <Section title="Color Map">
-      {colorMaps.length > 1 ? (
+      {"colorMaps" in model ? (
         <StyledListboxInput
           aria-labelledby="ColorMap dropdown"
           value={model.colorMap.name}
@@ -24,7 +24,7 @@ function ColorMapControls({ colorMaps, model, modelIdx, setModels }) {
               ...models.slice(0, modelIdx),
               {
                 ...models[modelIdx],
-                colorMap: colorMaps.find(
+                colorMap: model.colorMaps.find(
                   (colorMap) => newColorMapName === colorMap.name
                 ),
               },
@@ -43,7 +43,7 @@ function ColorMapControls({ colorMaps, model, modelIdx, setModels }) {
           </ListboxButton>
           <ListboxPopover>
             <ListboxList>
-              {colorMaps.map(({ name, path }) => (
+              {model.colorMaps.map(({ name, path }) => (
                 <StyledListboxOption key={name} value={name}>
                   <OptionText>{name}</OptionText>
                   <OptionImg src={path} alt={name} width="0" height="auto" />

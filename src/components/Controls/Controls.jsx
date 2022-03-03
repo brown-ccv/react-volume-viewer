@@ -7,14 +7,7 @@ import ColorMapControls from "../ColorMapControls";
 import OpacityControls from "../OpacityControls";
 import ClipControls from "../ClipControls";
 
-function Controls({
-  colorMaps,
-  models,
-  sliders,
-  setModels,
-  setSliders,
-  reset,
-}) {
+function Controls({ models, sliders, setModels, setSliders, reset }) {
   // Keep track of currently open model
   const [tabIndex, setTabIndex] = React.useState(0);
   const handleTabsChange = (index) => {
@@ -34,7 +27,6 @@ function Controls({
         {models.map((model) => (
           <TabPanel key={model.name}>
             <ColorMapControls
-              colorMaps={colorMaps}
               model={model}
               modelIdx={tabIndex}
               setModels={setModels}

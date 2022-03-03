@@ -17,7 +17,6 @@ import AframeScene from "../AframeScene";
 function VolumeViewer({
   className,
   style,
-  colorMaps,
   controlsVisible,
   models: modelsProp,
 }) {
@@ -25,15 +24,34 @@ function VolumeViewer({
   const initModels = useMemo(() => {
     const modelNames = new Set();
     return modelsProp.map((model) => {
-      // The model's colorMap must be in the colorMaps array
-      if (!colorMaps.includes(model.colorMap))
-        throw new Error("Color Map '" + model.colorMap + "' not in colorMaps");
-
       // The model's name must be unique
       if (modelNames.has(model.name))
         throw new Error("Model name '" + model.name + "' is not unique");
       else modelNames.add(model.name);
 
+      if ("colorMaps" in model) {
+        // The model's colorMap must be in the colorMaps array
+        if (!model.colorMaps.includes(model.colorMap))
+          throw new Error(
+            "Color Map '" + model.colorMap + "' not in colorMaps"
+          );
+
+        // The model's colorMaps' names must be unique
+        const colorMapNames = new Set();
+        model.colorMaps.forEach((colorMap) => {
+          if (colorMapNames.has(colorMap.name))
+            throw new Error(
+              "Color map name '" +
+                colorMap.name +
+                "' is not unique on model '" +
+                model.name +
+                "'"
+            );
+          else colorMapNames.add(colorMap.name);
+        });
+      }
+
+      // Determine transferFunction and build model
       const transferFunction = model.useTransferFunction
         ? // Inject DEFAULT_TRANSFER_FUNCTION if transferFunction property is not given
           model.transferFunction ?? DEFAULT_TRANSFER_FUNCTION
@@ -46,7 +64,7 @@ function VolumeViewer({
         initTransferFunction: transferFunction,
       };
     });
-  }, [modelsProp, colorMaps]);
+  }, [modelsProp]);
 
   // Control the models in state; override on prop change
   const [models, setModels] = useState(initModels);
@@ -67,7 +85,6 @@ function VolumeViewer({
 
       {controlsVisible && (
         <Controls
-          colorMaps={colorMaps}
           models={models}
           sliders={sliders}
           setModels={setModels}
@@ -108,6 +125,9 @@ const MODEL = PropTypes.shape({
    * REQUIRED
    */
   colorMap: COLOR_MAP.isRequired,
+
+  /** Array of color maps available in the controls. */
+  colorMaps: PropTypes.arrayOf(COLOR_MAP),
 
   /** Channel to load data from (R:1, G:2, B:3)*/
   channel: PropTypes.number,
@@ -171,7 +191,7 @@ VolumeViewer.propTypes = {
    *  name: Common name of the color map
    *  path: Path to the color map src
    */
-  colorMaps: PropTypes.arrayOf(COLOR_MAP),
+  // colorMaps: PropTypes.arrayOf(COLOR_MAP),
 
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
@@ -181,7 +201,7 @@ VolumeViewer.propTypes = {
 };
 
 VolumeViewer.defaultProps = {
-  colorMaps: [],
+  // colorMaps: [],
   controlsVisible: false,
 };
 
