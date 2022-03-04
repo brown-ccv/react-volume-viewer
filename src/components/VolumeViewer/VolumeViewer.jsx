@@ -11,8 +11,10 @@ import {
 import Controls from "../Controls";
 import AframeScene from "../AframeScene";
 
-// TODO: Changing model from props will reset the transferFunction.
-// Only want to reset <OpacityControls> when model.initTransferFunction changes? Use React.memo
+// TODO: Changing controlsVisible will reset models (initModels runs)
+// TODO: Changing any specific model property will reset all models' properties
+// Need to do a deep comparison between initModels and prevInitModels
+// and call setState (in useEffect) on models w/ difference between initModels and prevInitModels
 
 function VolumeViewer({
   className,
@@ -21,8 +23,8 @@ function VolumeViewer({
   models: modelsProp,
 }) {
   // Merge passed in models with default properties
-  // TODO: Need to do deep comparison on modelsProp
   const initModels = useMemo(() => {
+    console.log("INIT MODELS")
     const modelNames = new Set();
     return modelsProp.map((model) => {
       // The model's name must be unique
@@ -70,6 +72,14 @@ function VolumeViewer({
   // Control the models in state; override on prop change
   const [models, setModels] = useState(initModels);
   useEffect(() => {
+    console.log("USE EFFECT")
+    // Take in models and prevModels (using useRef and custom hook)
+    // Compare prevModels and initModels. The change might only be 1 property of 1 model in the array
+    // setModels() to  models, changing only the difference between prevModels and initModels
+
+    // useEffect will be called with models changes now - do nothing if initModels and prevModels are equivalent
+    // Might be better to compare the prop directly and make the initModels useMemo it's own callback function. That way you'd only have to call for the individual model
+    
     setModels(initModels);
   }, [initModels]);
 
