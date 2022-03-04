@@ -70,7 +70,8 @@ function VolumeViewer({
   }, [modelsProp]);
 
   // Control the models in state; override on prop change
-  const [models, setModels] = useState(initModels);
+  // const [models, setModels] = useState(initModels);
+  const [models, setModels] = useState([]);
   useEffect(() => {
     console.log("USE EFFECT")
     // Take in models and prevModels (using useRef and custom hook)
