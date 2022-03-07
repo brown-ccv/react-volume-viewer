@@ -1,3 +1,7 @@
+import { useEffect, useRef } from "react";
+
+import { DEFAULT_MODEL, DEFAULT_TRANSFER_FUNCTION } from "../constants";
+
 // Custom validation function for the model's prop
 function validateModels(models) {
   const modelNames = new Set();
@@ -31,9 +35,41 @@ function validateModels(models) {
 }
 
 // Build models from prop and default values
-function buildModels(models) {}
+function buildModels(models) {
+  return models.map((model) => {
+    // Determine transferFunction and build model
+    const transferFunction = model.useTransferFunction
+      ? // Inject DEFAULT_TRANSFER_FUNCTION if transferFunction property is not given
+        model.transferFunction ?? DEFAULT_TRANSFER_FUNCTION
+      : // Always use DEFAULT_TRANSFER_FUNCTIOn when !useTransferFunction
+        DEFAULT_TRANSFER_FUNCTION;
 
-// Custom comparison function 
-function useMemoCompareModelsProp(models) {}
+    // Merge model with DEFAULT_MODEL object
+    return {
+      ...DEFAULT_MODEL,
+      ...model,
+      transferFunction: transferFunction,
+      initTransferFunction: transferFunction,
+    };
+  });
+}
 
-export { validateModels, buildModels, useMemoCompareModelsProp };
+// Custom comparison hook for models
+function useModelsPropMemo(models) {
+  validateModels(models);
+
+  // Ref for storing previous models
+  const previousRef = useRef();
+  const prevModels = previousRef.current;
+
+  // TODO: Custom equality checker
+  const isEqual = prevModels === models;
+
+  console.log("MODELSPROP MEMO", isEqual);
+  useEffect(() => {
+    if (!isEqual) previousRef.current = models;
+  });
+  return isEqual ? prevModels : models;
+}
+
+export { validateModels, buildModels, useModelsPropMemo };

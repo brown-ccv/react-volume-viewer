@@ -1,21 +1,17 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
-import {
-  DEFAULT_MODEL,
-  DEFAULT_TRANSFER_FUNCTION,
-  DEFAULT_SLIDERS,
-} from "../../constants";
+import { DEFAULT_SLIDERS } from "../../constants";
 
 import Controls from "../Controls";
 import AframeScene from "../AframeScene";
-import { validateModels } from "../../utils";
+import { buildModels, useModelsPropMemo } from "../../utils";
 
-// TODO: Changing controlsVisible will reset models (initModels runs)
+// TODO: Changing controlsVisible will reset models (newModels runs)
 // TODO: Changing any specific model property will reset all models' properties
-// Need to do a deep comparison between initModels and prevInitModels
-// and call setState (in useEffect) on models w/ difference between initModels and prevInitModels
+// Need to do a deep comparison between newModels and prevnewModels
+// and call setState (in useEffect) on models w/ difference between newModels and prevnewModels
 
 function VolumeViewer({
   className,
@@ -23,109 +19,15 @@ function VolumeViewer({
   controlsVisible,
   models: modelsProp,
 }) {
-  // Merge passed in models with default properties
-  const initModels = useMemo(() => {
-    console.log("INIT MODELS");
-    // const modelNames = new Set();
-    validateModels(modelsProp);
-    return modelsProp.map((model) => {
-      // // The model's name must be unique
-      // if (modelNames.has(model.name))
-      //   throw new Error("Model name '" + model.name + "' is not unique");
-      // else modelNames.add(model.name);
-
-      // if ("colorMaps" in model) {
-      //   // The model's colorMap must be in the colorMaps array
-      //   if (!model.colorMaps.includes(model.colorMap))
-      //     throw new Error(
-      //       "Color Map '" + model.colorMap + "' not in colorMaps"
-      //     );
-
-      //   // The model's colorMaps' names must be unique
-      //   const colorMapNames = new Set();
-      //   model.colorMaps.forEach((colorMap) => {
-      //     if (colorMapNames.has(colorMap.name))
-      //       throw new Error(
-      //         "Color map name '" +
-      //           colorMap.name +
-      //           "' is not unique on model '" +
-      //           model.name +
-      //           "'"
-      //       );
-      //     else colorMapNames.add(colorMap.name);
-      //   });
-      // }
-
-      // Determine transferFunction and build model
-      const transferFunction = model.useTransferFunction
-        ? // Inject DEFAULT_TRANSFER_FUNCTION if transferFunction property is not given
-          model.transferFunction ?? DEFAULT_TRANSFER_FUNCTION
-        : // Always use DEFAULT_TRANSFER_FUNCTIOn when !useTransferFunction
-          DEFAULT_TRANSFER_FUNCTION;
-      return {
-        ...DEFAULT_MODEL,
-        ...model,
-        transferFunction: transferFunction,
-        initTransferFunction: transferFunction,
-      };
-    });
-  }, [modelsProp]);
+  // Check if modelsProp is different from previous render
+  const newModels = useModelsPropMemo(modelsProp);
 
   // Control the models in state; override on prop change
   const [models, setModels] = useState([]);
   useEffect(() => {
     console.log("USE EFFECT");
-    setModels(initModels);
-  }, [initModels]);
-
-  // const prevModelsProp = useRef();
-  // useEffect(() => {
-  //   // Take in models and prevModels (using useRef and custom hook)
-  //   // Compare prevModels and initModels. The change might only be 1 property of 1 model in the array
-  //   // setModels() to  models, changing only the difference between prevModels and initModels
-
-  //   // useEffect will be called with models changes now - do nothing if initModels and prevModels are equivalent
-  //   // Might be better to compare the prop directly and make the initModels useMemo it's own callback function. That way you'd only have to call for the individual model
-
-  //   // PROP VALIDATION
-  //   const modelNames = new Set();
-  //   modelsProp.forEach((model) => {
-  //     // The model's name must be unique
-  //     if (modelNames.has(model.name))
-  //       throw new Error("Model name '" + model.name + "' is not unique");
-  //     else modelNames.add(model.name);
-
-  //     if ("colorMaps" in model) {
-  //       // The model's colorMap must be in the colorMaps array
-  //       if (!model.colorMaps.includes(model.colorMap))
-  //         throw new Error(
-  //           "Color Map '" + model.colorMap + "' not in colorMaps"
-  //         );
-
-  //       // The model's colorMaps' names must be unique
-  //       const colorMapNames = new Set();
-  //       model.colorMaps.forEach((colorMap) => {
-  //         if (colorMapNames.has(colorMap.name))
-  //           throw new Error(
-  //             "Color map name '" +
-  //               colorMap.name +
-  //               "' is not unique on model '" +
-  //               model.name +
-  //               "'"
-  //           );
-  //         else colorMapNames.add(colorMap.name);
-  //       });
-  //     }
-  //   });
-
-  //   // UPDATE STATE
-  //   setModels((models) => {
-  //     return models.map((model, idx) => ({
-
-  //     }));
-  //   });
-  //   prevModelsProp.current = modelsProp;
-  // }, [modelsProp]);
+    setModels(buildModels(newModels));
+  }, [newModels]);
 
   // Always initialize to DEFAULT_SLIDERS
   const [sliders, setSliders] = useState(DEFAULT_SLIDERS);
@@ -145,8 +47,7 @@ function VolumeViewer({
           setModels={setModels}
           setSliders={setSliders}
           reset={() => {
-            // setModels(initModels);
-            setModels(modelsProp); // TODO: Need to
+            setModels(buildModels(modelsProp));
             setSliders(DEFAULT_SLIDERS);
             setRemountKey(Math.random());
           }}
