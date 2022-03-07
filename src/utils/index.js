@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { isEmpty, isEqual, differenceWith } from "lodash";
 
 import { DEFAULT_MODEL, DEFAULT_TRANSFER_FUNCTION } from "../constants";
 
@@ -54,7 +55,7 @@ function buildModels(models) {
   });
 }
 
-// Custom comparison hook for models
+// Custom useMemo hook for models
 function useModelsPropMemo(models) {
   validateModels(models);
 
@@ -62,14 +63,16 @@ function useModelsPropMemo(models) {
   const previousRef = useRef();
   const prevModels = previousRef.current;
 
-  // TODO: Custom equality checker
-  const isEqual = prevModels === models;
+  const modelsDiff = differenceWith(models, prevModels, isEqual);
+  const noChange = isEmpty(modelsDiff);
 
-  console.log("MODELSPROP MEMO", isEqual);
+  console.log("MODELS noChange", noChange);
+
+  // Update reference to previous value if not the same
   useEffect(() => {
-    if (!isEqual) previousRef.current = models;
+    if (!noChange) previousRef.current = models;
   });
-  return isEqual ? prevModels : models;
+  return noChange ? prevModels : models;
 }
 
 export { validateModels, buildModels, useModelsPropMemo };
