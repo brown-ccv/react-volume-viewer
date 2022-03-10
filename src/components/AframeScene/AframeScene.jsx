@@ -8,9 +8,13 @@ import "../../Aframe/render-2d-clipplane";
 import "../../Aframe/entity-collider-check";
 import "../../Aframe/collider-check";
 
-import { toAframeString } from "../../utils"
+import { toAframeString } from "../../utils";
 
 function AframeScene({ models, sliders }) {
+  // TODO: Only 1 model
+  // TODO: Pass models array into aframe
+  // TODO: Blend textures into 1 mesh in model.js
+
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
