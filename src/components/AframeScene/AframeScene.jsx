@@ -10,16 +10,15 @@ import "../../Aframe/collider-check";
 
 import { toAframeString } from "../../utils";
 
-function AframeScene({ models, sliders }) {
+function AframeScene({ models, position, rotation, scale, sliders }) {
   // TODO: Only 1 model
   // TODO: Pass models array into aframe
   // TODO: Blend textures into 1 mesh in model.js
-
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
       <a-entity
-        id="rhand"
+        id="hand"
         raycaster="objects: .clickableMesh"
         buttons-check={toAframeString({
           clipPlane: false,
@@ -30,7 +29,7 @@ function AframeScene({ models, sliders }) {
         })}
       />
 
-      <a-entity id="models">
+      {/* <a-entity id="models">
         {models.map(
           (model) =>
             model.enabled && (
@@ -40,8 +39,8 @@ function AframeScene({ models, sliders }) {
                 position={model.position}
                 rotation={model.rotation}
                 scale={model.scale}
-              >
-                <a-entity
+              > */}
+      {/* <a-entity
                   // id="clipplane2DListener"
                   id={`clipplane2DListener-${model.name}`}
                   render-2d-clipplane={toAframeString({
@@ -50,20 +49,20 @@ function AframeScene({ models, sliders }) {
                     yBounds: sliders.y,
                     zBounds: sliders.z,
                   })}
-                />
+                /> */}
 
-                {/* CLICKABLE PLANE FOR MOUSE INTERACTIONS */}
-                <a-plane
+      {/* CLICKABLE PLANE FOR MOUSE INTERACTIONS */}
+      {/* <a-plane
                   id={`clipplane2D-${model.name}`}
                   class="clickable"
                   visible="false"
                   height="1"
                   width="1"
                   material="color: red; side: double; transparent: true; opacity: 0.2"
-                />
+                /> */}
 
-                {/* MODEL */}
-                <a-entity
+      {/* MODEL */}
+      {/* <a-entity
                   id={`model-${model.name}`}
                   class="clickableMesh"
                   model={toAframeString({
@@ -78,14 +77,68 @@ function AframeScene({ models, sliders }) {
                     transferFunction: JSON.stringify(model.transferFunction),
                     useTransferFunction: model.useTransferFunction,
                   })}
-                />
-              </a-entity>
+                /> */}
+      {/* </a-entity>
             )
         )}
+      </a-entity> */}
+
+      <a-entity
+        id="dataset-container"
+        // TODO: Position, rotation, and scale should be separate props
+        position={position}
+        rotation={rotation}
+        scale={scale}
+      >
+        {/* CLICKABLE PLANE FOR MOUSE INTERACTIONS */}
+        <a-plane
+          id="clipplane2D"
+          // id={`clipplane2D-${model.name}`}
+          class="clickable"
+          visible="false"
+          height="1"
+          width="1"
+          material="color: red; side: double; transparent: true; opacity: 0.2"
+        />
+
+        {/* MOUSE LISTENER FOR CLICKABLE PLANE */}
+        <a-entity
+          id="clipplane2DListener"
+          // id={`clipplane2DListener-${model.name}`}
+          render-2d-clipplane={toAframeString({
+            activateClipPlane: true,
+            xBounds: sliders.x,
+            yBounds: sliders.y,
+            zBounds: sliders.z,
+          })}
+        />
+
+        {/* MODEL */}
+        <a-entity
+          // id={`model-${model.name}`}
+          id="dataset"
+          class="clickableMesh"
+          model={toAframeString({
+            // channel: model.channel,
+            // colorMap: JSON.stringify(model.colorMap),
+            // intensity: model.intensity,
+            // name: model.name,
+            // path: model.path,
+            // slices: model.slices,
+            // sliders: JSON.stringify(sliders),
+            // spacing: JSON.stringify(model.spacing),
+            // transferFunction: JSON.stringify(model.transferFunction),
+            // useTransferFunction: model.useTransferFunction,
+          })}
+        />
       </a-entity>
 
       {/* MOUSE */}
-      <a-entity cursor="rayOrigin:mouse" raycaster="objects: .clickable" />
+      <a-entity
+        id="mouse"
+        cursor="rayOrigin:mouse"
+        raycaster="objects: .clickable"
+      />
 
       {/* CAMERA */}
       <a-entity
