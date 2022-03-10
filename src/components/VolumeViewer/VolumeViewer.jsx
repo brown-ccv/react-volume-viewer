@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
-// import { isEqual, differenceWith } from "lodash";
 
 import { DEFAULT_SLIDERS } from "../../constants";
 
@@ -9,37 +8,16 @@ import Controls from "../Controls";
 import AframeScene from "../AframeScene";
 import { buildModels, useModelsPropMemo } from "../../utils";
 
-// TODO: Changing controlsVisible will reset models (newModels runs)
-// TODO: Changing any specific model property will reset all models' properties
-// Need to do a deep comparison between newModels and newModels
-// and call setState (in useEffect) on models w/ difference between newModels and prevnewModels
-
 function VolumeViewer({
   className,
   style,
   controlsVisible,
   models: modelsProp,
 }) {
-  // Check if modelsProp is different from previous render
-
-  const newModels = useModelsPropMemo(modelsProp);
-
-  // Control the models in state; override on prop change
+  // Control the models in state; override on modelsProp change
   const [models, setModels] = useState([]);
+  const newModels = useModelsPropMemo(modelsProp);
   useEffect(() => {
-    // useEffect now only runs when modelsProp changes
-    console.log("USE EFFECT", newModels);
-
-    // Build newModels
-    // Inside setState:
-    // Get modelsDiff (NEED PREVMODELS)
-    // Search model in models by newModels name
-    // Get the difference between the individual models
-    // Swap the property difference
-    // Name in newModels - just add to models
-    // Name in models - ignore, it's not in the new prop
-
-    // const modelsDiff = differenceWith(models, prevModels, isEqual)
     setModels(buildModels(newModels));
   }, [newModels]);
 

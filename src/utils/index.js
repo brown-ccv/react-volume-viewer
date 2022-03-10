@@ -63,10 +63,8 @@ function useModelsPropMemo(models) {
   const previousRef = useRef();
   const prevModels = previousRef.current;
 
-  const modelsDiff = differenceWith(models, prevModels, isEqual);
-  const noChange = isEmpty(modelsDiff);
-
-  console.log("MODELS noChange", noChange);
+  // Returns true if models and prevModels are equal
+  const noChange = isEmpty(differenceWith(models, prevModels, isEqual));
 
   // Update reference to previous value if not the same
   useEffect(() => {
@@ -75,4 +73,25 @@ function useModelsPropMemo(models) {
   return noChange ? prevModels : models;
 }
 
-export { validateModels, buildModels, useModelsPropMemo };
+// Translate object to aframe string
+function toAframeString(obj) {
+  let str = "";
+  Object.entries(obj).forEach(([key, val]) => {
+    if (key === "colorMap") {
+      /* 
+        colorMap.path is either a png encoded string or the path to a png
+
+        png encoded strings begin with data:image/png;64
+        Remove ; to parse into aframe correctly
+        Note that the ; is re-injected in model.js
+        TODO: Do colorMaps need to be a png?
+      */
+      val = val.replace("data:image/png;", "data:image/png");
+    }
+
+    str += `${key}: ${val};`;
+  });
+  return str;
+};
+
+export { validateModels, buildModels, useModelsPropMemo, toAframeString };

@@ -1,7 +1,6 @@
 import React from "react";
 
 import "aframe";
-
 import "../../Aframe/arcball-camera";
 import "../../Aframe/buttons-check";
 import "../../Aframe/model";
@@ -9,32 +8,9 @@ import "../../Aframe/render-2d-clipplane";
 import "../../Aframe/entity-collider-check";
 import "../../Aframe/collider-check";
 
-// aframe data is passed as a string
-const toAframeString = (obj) => {
-  let str = "";
-  Object.entries(obj).forEach(([key, val]) => {
-    if (key === "colorMap") {
-      /* 
-        colorMap.path is either a png encoded string or the path to a png
-
-        png encoded strings begin with data:image/png;64
-        Remove ; to parse into aframe correctly
-        Note that the ; is re-injected in model.js
-        TODO: Do colorMaps need to be a png?
-      */
-      val = val.replace("data:image/png;", "data:image/png");
-    }
-
-    str += `${key}: ${val};`;
-  });
-  return str;
-};
+import { toAframeString } from "../../utils"
 
 function AframeScene({ models, sliders }) {
-  /* 
-    TODO: The whole scene does not have to re-render
-    Only the specific model in models.map changes
-  */
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
