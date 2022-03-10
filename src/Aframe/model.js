@@ -10,18 +10,27 @@ import {
 const bind = AFRAME.utils.bind;
 
 AFRAME.registerComponent("model", {
-  dependencies: ["render-2d-clipplane", "buttons-check"],
+  dependencies: ["hand", "render-2d-clipplane", "buttons-check"],
   schema: {
-    channel: { type: "number", default: DEFAULT_MODEL.channel },
-    colorMap: { parse: JSON.parse },
-    intensity: { type: "number", default: DEFAULT_MODEL.intensity },
-    name: { type: "string", default: "" },
-    path: { type: "string" },
-    slices: { type: "number", default: DEFAULT_MODEL.slices },
-    sliders: { parse: JSON.parse, default: DEFAULT_SLIDERS },
-    spacing: { parse: JSON.parse, default: DEFAULT_MODEL.spacing },
-    transferFunction: { parse: JSON.parse, default: DEFAULT_TRANSFER_FUNCTION },
-    useTransferFunction: { type: "boolean", default: false },
+    // channel: { type: "number", default: DEFAULT_MODEL.channel },
+    // colorMap: { parse: JSON.parse },
+    // intensity: { type: "number", default: DEFAULT_MODEL.intensity },
+    // name: { type: "string", default: "" },
+    // path: { type: "string" },
+    // slices: { type: "number", default: DEFAULT_MODEL.slices },
+    // sliders: { parse: JSON.parse, default: DEFAULT_SLIDERS },
+    // spacing: { parse: JSON.parse, default: DEFAULT_MODEL.spacing },
+    // transferFunction: { parse: JSON.parse, default: DEFAULT_TRANSFER_FUNCTION },
+    // useTransferFunction: { type: "boolean", default: false },
+    // models: {
+    //   default: [],
+    //   parse: function (value) {
+    //     console.log("PARSE", value);
+    //     return []; // TEMP
+    //   },
+    // },
+    // models: { parse: JSON.parse, default: [] },
+    // models: { type: "array", default: [] },
   },
 
   init: function () {
@@ -32,11 +41,13 @@ AFRAME.registerComponent("model", {
     this.rayCollided = false;
     this.grabbed = false;
 
+    console.log("DATA", this.data);
+
     // Get other entities
-    this.controllerObject = document.getElementById("rhand").object3D;
+    this.controllerObject = document.getElementById("hand").object3D;
     this.controllerObject.matrixAutoUpdate = false;
     this.clipPlaneListenerHandler = document.getElementById(
-      `clipplane2DListener-${this.data.name}`
+      "clipplane2DListener"
     ).object3D;
 
     // Bind functions
@@ -66,58 +77,58 @@ AFRAME.registerComponent("model", {
     document.getElementById("camera").setAttribute("camera", "active", true);
 
     // Load data and colorMap
-    this.loadModel();
-    this.loadColorMap();
+    // this.loadModel();
+    // this.loadColorMap();
   },
 
-  update: function (oldData) {
-    // Update model
-    if (oldData.path !== this.data.path) this.loadModel();
+  // update: function (oldData) {
+  //   // Update model
+  //   if (oldData.path !== this.data.path) this.loadModel();
 
-    // Update color map
-    if (oldData.colorMap !== this.data.colorMap) this.loadColorMap();
+  //   // Update color map
+  //   if (oldData.colorMap !== this.data.colorMap) this.loadColorMap();
 
-    // Update clipping
-    if (oldData.sliders !== this.data.sliders) this.updateClipping();
+  //   // Update clipping
+  //   if (oldData.sliders !== this.data.sliders) this.updateClipping();
 
-    if (this.data.useTransferFunction) {
-      // Update transfer function
-      if (oldData.transferFunction !== this.data.transferFunction)
-        this.updateOpacityData();
-    } else {
-      // Update channel
-      if (oldData.channel !== this.data.channel) this.updateChannel();
-    }
-  },
+  //   if (this.data.useTransferFunction) {
+  //     // Update transfer function
+  //     if (oldData.transferFunction !== this.data.transferFunction)
+  //       this.updateOpacityData();
+  //   } else {
+  //     // Update channel
+  //     if (oldData.channel !== this.data.channel) this.updateChannel();
+  //   }
+  // },
 
-  tick: function (time, timeDelta) {
-    const isVrModeActive = this.scene.is("vr-mode");
-    const mesh = this.getMesh();
+  // tick: function (time, timeDelta) {
+  //   const isVrModeActive = this.scene.is("vr-mode");
+  //   const mesh = this.getMesh();
 
-    // Position is controlled by controllerObject in VR
-    if (this.controllerObject && isVrModeActive) {
-      const grabObject =
-        this.controllerObject.el.getAttribute("buttons-check").grabObject;
+  //   // Position is controlled by controllerObject in VR
+  //   if (this.controllerObject && isVrModeActive) {
+  //     const grabObject =
+  //       this.controllerObject.el.getAttribute("buttons-check").grabObject;
 
-      if (this.grabbed && !grabObject) {
-        mesh.matrix.premultiply(this.controllerObject.matrixWorld);
-        mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
-        this.el.object3D.add(mesh);
-        this.grabbed = false;
-      }
+  //     if (this.grabbed && !grabObject) {
+  //       mesh.matrix.premultiply(this.controllerObject.matrixWorld);
+  //       mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+  //       this.el.object3D.add(mesh);
+  //       this.grabbed = false;
+  //     }
 
-      // grab mesh
-      if (!this.grabbed && grabObject && this.rayCollided) {
-        const inverseControllerPos = new THREE.Matrix4();
-        inverseControllerPos.getInverse(this.controllerObject.matrixWorld);
-        mesh.matrix.premultiply(inverseControllerPos);
-        mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
-        this.controllerObject.add(mesh);
-        this.grabbed = true;
-      }
-      this.updateMeshClipMatrix();
-    }
-  },
+  //     // grab mesh
+  //     if (!this.grabbed && grabObject && this.rayCollided) {
+  //       const inverseControllerPos = new THREE.Matrix4();
+  //       inverseControllerPos.getInverse(this.controllerObject.matrixWorld);
+  //       mesh.matrix.premultiply(inverseControllerPos);
+  //       mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+  //       this.controllerObject.add(mesh);
+  //       this.grabbed = true;
+  //     }
+  //     this.updateMeshClipMatrix();
+  //   }
+  // },
 
   remove: function () {
     this.scene.removeEventListener("enter-vr", this.onEnterVR);
