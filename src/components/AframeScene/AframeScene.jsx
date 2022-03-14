@@ -1,4 +1,5 @@
 import React from "react";
+import { pick } from "lodash";
 
 import "aframe";
 import "../../Aframe/arcball-camera";
@@ -12,61 +13,40 @@ import { toAframeString } from "../../utils";
 
 // TEMP
 function getModels(models) {
-  // TODO: Need to parse imported images correctly
-  // const out = models.map((model) => {
-  //   // Remove unneeded properties
-  //   Object.keys(model).forEach((key) => {
-  //     if (
-  //       ![
-  //         "channel",
-  //         "colorMap",
-  //         "enabled",
-  //         "intensity",
-  //         "name",
-  //         "path",
-  //         "slices",
-  //         "transferFunction",
-  //         "useTransferFunction",
-  //       ].includes(key)
-  //     )
-  //       delete model[key];
-  //   });
-  //   return JSON.stringify(model);
-  // });
+  // TODO: Can we do this in place? forEach instead of map
+  const out = models.map((model) => {
+    // Pick only needed properties
+    model = pick(model, [
+      "channel",
+      "colorMap",
+      "enabled",
+      "intensity",
+      "name",
+      "path",
+      "slices",
+      "transferFunction",
+      "useTransferFunction",
+    ]);
 
-  // const out = models.map((model) => {
-  const out = JSON.stringify(models, (key, value) => {
-    // Remove unneeded properties
-    console.log("KEY", key, "VAL", value)
-    // Object.keys(model).forEach((key) => {
-    //   if (
-    //     ![
-    //       "channel",
-    //       "colorMap",
-    //       "enabled",
-    //       "intensity",
-    //       "name",
-    //       "path",
-    //       "slices",
-    //       "transferFunction",
-    //       "useTransferFunction",
-    //     ].includes(key)
-    //   )
-    //     delete model[key];
-    // });
-    // return JSON.stringify(model);
-  })
+    /* colorMap.path is either a png encoded string or the path to a png
+      png encoded strings begin with data:image/png;64
+      Remove ; to parse into aframe correctly (re-injected in model.js)
+      TODO: Do colorMaps need to be a png?
+    */
+    model.colorMap = {
+      name: model.colorMap.name,
+      path: model.colorMap.path.replace("data:image/png;", "data:image/png"),
+    };
 
-
-  console.log("TO AFRAME", `models: ${out}`);
-  return `models: ${out}`;
+    return model;
+  });
+  return JSON.stringify(out);
 }
 
 function AframeScene({ models, position, rotation, scale, sliders }) {
   // TODO: Only 1 model
   // TODO: Pass models array into aframe
   // TODO: Blend textures into 1 mesh in model.js
-  console.log(models);
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
@@ -81,61 +61,6 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
           intersecting: false,
         })}
       />
-
-      {/* <a-entity id="models">
-        {models.map(
-          (model) =>
-            model.enabled && (
-              <a-entity
-                key={model.name}
-                id={model.name}
-                position={model.position}
-                rotation={model.rotation}
-                scale={model.scale}
-              > */}
-      {/* <a-entity
-                  // id="clipplane2DListener"
-                  id={`clipplane2DListener-${model.name}`}
-                  render-2d-clipplane={toAframeString({
-                    activateClipPlane: true,
-                    xBounds: sliders.x,
-                    yBounds: sliders.y,
-                    zBounds: sliders.z,
-                  })}
-                /> */}
-
-      {/* CLICKABLE PLANE FOR MOUSE INTERACTIONS */}
-      {/* <a-plane
-                  id={`clipplane2D-${model.name}`}
-                  class="clickable"
-                  visible="false"
-                  height="1"
-                  width="1"
-                  material="color: red; side: double; transparent: true; opacity: 0.2"
-                /> */}
-
-      {/* MODEL */}
-      {/* <a-entity
-                  id={`model-${model.name}`}
-                  class="clickableMesh"
-                  model={toAframeString({
-                    channel: model.channel,
-                    colorMap: JSON.stringify(model.colorMap),
-                    intensity: model.intensity,
-                    name: model.name,
-                    path: model.path,
-                    slices: model.slices,
-                    sliders: JSON.stringify(sliders),
-                    spacing: JSON.stringify(model.spacing),
-                    transferFunction: JSON.stringify(model.transferFunction),
-                    useTransferFunction: model.useTransferFunction,
-                  })}
-                /> */}
-      {/* </a-entity>
-            )
-        )}
-      </a-entity> */}
-
       <a-entity
         id="dataset-container"
         position={position}
@@ -145,7 +70,6 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
         {/* CLICKABLE PLANE FOR MOUSE INTERACTIONS */}
         <a-plane
           id="clipplane2D"
-          // id={`clipplane2D-${model.name}`}
           class="clickable"
           visible="false"
           height="1"
@@ -156,7 +80,6 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
         {/* MOUSE LISTENER FOR CLICKABLE PLANE */}
         <a-entity
           id="clipplane2DListener"
-          // id={`clipplane2DListener-${model.name}`}
           render-2d-clipplane={toAframeString({
             activateClipPlane: true,
             xBounds: sliders.x,
@@ -167,24 +90,9 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
 
         {/* MODEL */}
         <a-entity
-          // id={`model-${model.name}`}
           id="dataset"
           class="clickableMesh"
-          // model={toAframeString({
-          // channel: model.channel,
-          // colorMap: JSON.stringify(model.colorMap),
-          // intensity: model.intensity,
-          // name: model.name,
-          // path: model.path,
-          // slices: model.slices,
-          // sliders: JSON.stringify(sliders),
-          // spacing: JSON.stringify(model.spacing),
-          // transferFunction: JSON.stringify(model.transferFunction),
-          // useTransferFunction: model.useTransferFunction,
-          // })}
-
-          model={getModels(models)}
-          // model={`${models}`}
+          model={`models: ${getModels(models)};`}
         />
       </a-entity>
 

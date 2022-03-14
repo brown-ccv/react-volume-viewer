@@ -41,7 +41,7 @@ function App() {
     {
       name: "Opposite",
       // colorMap: colorMap === haline ? thermal : haline,
-      colorMap: thermal,
+      colorMap: ColorMaps.rgb,
       ...(!singleColorMap && { colorMaps: allColorMaps }),
       enabled: true,
       range: {

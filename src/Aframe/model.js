@@ -12,25 +12,7 @@ const bind = AFRAME.utils.bind;
 AFRAME.registerComponent("model", {
   dependencies: ["hand", "render-2d-clipplane", "buttons-check"],
   schema: {
-    // channel: { type: "number", default: DEFAULT_MODEL.channel },
-    // colorMap: { parse: JSON.parse },
-    // intensity: { type: "number", default: DEFAULT_MODEL.intensity },
-    // name: { type: "string", default: "" },
-    // path: { type: "string" },
-    // slices: { type: "number", default: DEFAULT_MODEL.slices },
-    // sliders: { parse: JSON.parse, default: DEFAULT_SLIDERS },
-    // spacing: { parse: JSON.parse, default: DEFAULT_MODEL.spacing },
-    // transferFunction: { parse: JSON.parse, default: DEFAULT_TRANSFER_FUNCTION },
-    // useTransferFunction: { type: "boolean", default: false },
-    // models: {
-    //   default: [],
-    //   parse: function (value) {
-    //     console.log("PARSE", value);
-    //     return []; // TEMP
-    //   },
-    // },
-    // models: { parse: JSON.parse, default: [] },
-    // models: { type: "array", default: [] },
+    models: { parse: JSON.parse, default: [] },
   },
 
   init: function () {
@@ -40,8 +22,6 @@ AFRAME.registerComponent("model", {
     this.colorMapData = [];
     this.rayCollided = false;
     this.grabbed = false;
-
-    console.log("DATA", this.data);
 
     // Get other entities
     this.controllerObject = document.getElementById("hand").object3D;
@@ -75,60 +55,60 @@ AFRAME.registerComponent("model", {
 
     // Activate camera
     document.getElementById("camera").setAttribute("camera", "active", true);
-
-    // Load data and colorMap
-    // this.loadModel();
-    // this.loadColorMap();
   },
 
-  // update: function (oldData) {
-  //   // Update model
-  //   if (oldData.path !== this.data.path) this.loadModel();
+  update: function (oldData) {
+    if (oldData.models !== this.data.models) {
+      console.log("DATA", oldData.models, this.data.models);
+    }
 
-  //   // Update color map
-  //   if (oldData.colorMap !== this.data.colorMap) this.loadColorMap();
+    //   // Update model
+    //   if (oldData.path !== this.data.path) this.loadModel();
 
-  //   // Update clipping
-  //   if (oldData.sliders !== this.data.sliders) this.updateClipping();
+    //   // Update color map
+    //   if (oldData.colorMap !== this.data.colorMap) this.loadColorMap();
 
-  //   if (this.data.useTransferFunction) {
-  //     // Update transfer function
-  //     if (oldData.transferFunction !== this.data.transferFunction)
-  //       this.updateOpacityData();
-  //   } else {
-  //     // Update channel
-  //     if (oldData.channel !== this.data.channel) this.updateChannel();
-  //   }
-  // },
+    //   // Update clipping
+    //   if (oldData.sliders !== this.data.sliders) this.updateClipping();
 
-  // tick: function (time, timeDelta) {
-  //   const isVrModeActive = this.scene.is("vr-mode");
-  //   const mesh = this.getMesh();
+    //   if (this.data.useTransferFunction) {
+    //     // Update transfer function
+    //     if (oldData.transferFunction !== this.data.transferFunction)
+    //       this.updateOpacityData();
+    //   } else {
+    //     // Update channel
+    //     if (oldData.channel !== this.data.channel) this.updateChannel();
+    //   }
+    // },
 
-  //   // Position is controlled by controllerObject in VR
-  //   if (this.controllerObject && isVrModeActive) {
-  //     const grabObject =
-  //       this.controllerObject.el.getAttribute("buttons-check").grabObject;
+    // tick: function (time, timeDelta) {
+    //   const isVrModeActive = this.scene.is("vr-mode");
+    //   const mesh = this.getMesh();
 
-  //     if (this.grabbed && !grabObject) {
-  //       mesh.matrix.premultiply(this.controllerObject.matrixWorld);
-  //       mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
-  //       this.el.object3D.add(mesh);
-  //       this.grabbed = false;
-  //     }
+    //   // Position is controlled by controllerObject in VR
+    //   if (this.controllerObject && isVrModeActive) {
+    //     const grabObject =
+    //       this.controllerObject.el.getAttribute("buttons-check").grabObject;
 
-  //     // grab mesh
-  //     if (!this.grabbed && grabObject && this.rayCollided) {
-  //       const inverseControllerPos = new THREE.Matrix4();
-  //       inverseControllerPos.getInverse(this.controllerObject.matrixWorld);
-  //       mesh.matrix.premultiply(inverseControllerPos);
-  //       mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
-  //       this.controllerObject.add(mesh);
-  //       this.grabbed = true;
-  //     }
-  //     this.updateMeshClipMatrix();
-  //   }
-  // },
+    //     if (this.grabbed && !grabObject) {
+    //       mesh.matrix.premultiply(this.controllerObject.matrixWorld);
+    //       mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+    //       this.el.object3D.add(mesh);
+    //       this.grabbed = false;
+    //     }
+
+    //     // grab mesh
+    //     if (!this.grabbed && grabObject && this.rayCollided) {
+    //       const inverseControllerPos = new THREE.Matrix4();
+    //       inverseControllerPos.getInverse(this.controllerObject.matrixWorld);
+    //       mesh.matrix.premultiply(inverseControllerPos);
+    //       mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+    //       this.controllerObject.add(mesh);
+    //       this.grabbed = true;
+    //     }
+    //     this.updateMeshClipMatrix();
+    //   }
+  },
 
   remove: function () {
     this.scene.removeEventListener("enter-vr", this.onEnterVR);
