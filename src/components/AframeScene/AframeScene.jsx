@@ -14,6 +14,8 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
   // TODO: Only 1 model
   // TODO: Pass models array into aframe
   // TODO: Blend textures into 1 mesh in model.js
+
+  // TODO: position/rotation/scale not loading correctly
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
@@ -24,7 +26,7 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
         collider-check={`intersecting: ${false};`}
       />
       <a-entity
-        id="dataset-container"
+        id="volume-container"
         position={position}
         rotation={rotation}
         scale={scale}

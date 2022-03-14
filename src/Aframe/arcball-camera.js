@@ -16,7 +16,7 @@ AFRAME.registerComponent("arcball-camera", {
     this.oldPosition = new THREE.Vector3();
     this.oldMatrix = new THREE.Matrix4();
     this.meshObjectHandler =
-      document.getElementById("dataset-container").object3D;
+      document.getElementById("volume-container").object3D;
 
     // Create controls
     this.controls = new THREE.TrackballControls(
