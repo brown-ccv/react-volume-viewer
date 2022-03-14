@@ -1,15 +1,10 @@
 /* globals AFRAME THREE */
 
 import "./Shader.js";
-import {
-  DEFAULT_TRANSFER_FUNCTION,
-  DEFAULT_MODEL,
-  DEFAULT_SLIDERS,
-} from "../constants";
 
 const bind = AFRAME.utils.bind;
 
-AFRAME.registerComponent("model", {
+AFRAME.registerComponent("volume", {
   dependencies: ["hand", "render-2d-clipplane", "buttons-check"],
   schema: {
     models: { parse: JSON.parse, default: [] },
@@ -61,25 +56,6 @@ AFRAME.registerComponent("model", {
     if (oldData.models !== this.data.models) {
       console.log("DATA", oldData.models, this.data.models);
     }
-
-    //   // Update model
-    //   if (oldData.path !== this.data.path) this.loadModel();
-
-    //   // Update color map
-    //   if (oldData.colorMap !== this.data.colorMap) this.loadColorMap();
-
-    //   // Update clipping
-    //   if (oldData.sliders !== this.data.sliders) this.updateClipping();
-
-    //   if (this.data.useTransferFunction) {
-    //     // Update transfer function
-    //     if (oldData.transferFunction !== this.data.transferFunction)
-    //       this.updateOpacityData();
-    //   } else {
-    //     // Update channel
-    //     if (oldData.channel !== this.data.channel) this.updateChannel();
-    //   }
-    // },
 
     // tick: function (time, timeDelta) {
     //   const isVrModeActive = this.scene.is("vr-mode");

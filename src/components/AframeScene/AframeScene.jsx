@@ -1,47 +1,14 @@
 import React from "react";
-import { pick } from "lodash";
 
 import "aframe";
+import "../../Aframe/volume";
 import "../../Aframe/arcball-camera";
 import "../../Aframe/buttons-check";
-import "../../Aframe/model";
 import "../../Aframe/render-2d-clipplane";
 import "../../Aframe/entity-collider-check";
 import "../../Aframe/collider-check";
 
-import { toAframeString } from "../../utils";
-
-// TEMP
-function getModels(models) {
-  // TODO: Can we do this in place? forEach instead of map
-  const out = models.map((model) => {
-    // Pick only needed properties
-    model = pick(model, [
-      "channel",
-      "colorMap",
-      "enabled",
-      "intensity",
-      "name",
-      "path",
-      "slices",
-      "transferFunction",
-      "useTransferFunction",
-    ]);
-
-    /* colorMap.path is either a png encoded string or the path to a png
-      png encoded strings begin with data:image/png;64
-      Remove ; to parse into aframe correctly (re-injected in model.js)
-      TODO: Do colorMaps need to be a png?
-    */
-    model.colorMap = {
-      name: model.colorMap.name,
-      path: model.colorMap.path.replace("data:image/png;", "data:image/png"),
-    };
-
-    return model;
-  });
-  return JSON.stringify(out);
-}
+import { getAframeModels } from "../../utils";
 
 function AframeScene({ models, position, rotation, scale, sliders }) {
   // TODO: Only 1 model
@@ -53,13 +20,8 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
       <a-entity
         id="hand"
         raycaster="objects: .clickableMesh"
-        buttons-check={toAframeString({
-          clipPlane: false,
-          grabObject: false,
-        })}
-        collider-check={toAframeString({
-          intersecting: false,
-        })}
+        buttons-check={`clipPlane: ${false}; grabObject: ${false};`}
+        collider-check={`intersecting: ${false};`}
       />
       <a-entity
         id="dataset-container"
@@ -80,19 +42,20 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
         {/* MOUSE LISTENER FOR CLICKABLE PLANE */}
         <a-entity
           id="clipplane2DListener"
-          render-2d-clipplane={toAframeString({
-            activateClipPlane: true,
-            xBounds: sliders.x,
-            yBounds: sliders.y,
-            zBounds: sliders.z,
-          })}
+          // TODO: Do we need this at all? Just activateClipPlane
+          render-2d-clipplane={`
+            activateClipPlane: true;
+            xBounds: ${sliders.x};
+            yBounds: ${sliders.y};
+            zBounds: ${sliders.z};
+          `}
         />
 
         {/* MODEL */}
         <a-entity
           id="dataset"
           class="clickableMesh"
-          model={`models: ${getModels(models)};`}
+          volume={`models: ${getAframeModels(models)};`}
         />
       </a-entity>
 

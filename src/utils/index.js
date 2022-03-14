@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { isEmpty, isEqual, differenceWith } from "lodash";
+import { isEmpty, isEqual, differenceWith, pick } from "lodash";
 
 import { DEFAULT_MODEL, DEFAULT_TRANSFER_FUNCTION } from "../constants";
 
@@ -73,25 +73,35 @@ function useModelsPropMemo(models) {
   return noChange ? prevModels : models;
 }
 
-// Translate object to aframe string
-function toAframeString(obj) {
-  let str = "";
-  Object.entries(obj).forEach(([key, val]) => {
-    if (key === "colorMap") {
-      /* 
-        colorMap.path is either a png encoded string or the path to a png
+// Filter model properties needed from aframe
+function getAframeModels(models) {
+  const out = models.map((model) => {
+    // Pick only needed properties
+    model = pick(model, [
+      "channel",
+      "colorMap",
+      "enabled",
+      "intensity",
+      "name",
+      "path",
+      "slices",
+      "transferFunction",
+      "useTransferFunction",
+    ]);
 
-        png encoded strings begin with data:image/png;64
-        Remove ; to parse into aframe correctly
-        Note that the ; is re-injected in model.js
-        TODO: Do colorMaps need to be a png?
-      */
-      val = val.replace("data:image/png;", "data:image/png");
-    }
+    /* colorMap.path is either a png encoded string or the path to a png
+      png encoded strings begin with data:image/png;64
+      Remove ; to parse into aframe correctly (re-injected in model.js)
+      TODO: Do colorMaps need to be a png?
+    */
+    model.colorMap = {
+      name: model.colorMap.name,
+      path: model.colorMap.path.replace("data:image/png;", "data:image/png"),
+    };
 
-    str += `${key}: ${val};`;
+    return model;
   });
-  return str;
+  return JSON.stringify(out);
 }
 
-export { validateModels, buildModels, useModelsPropMemo, toAframeString };
+export { validateModels, buildModels, useModelsPropMemo, getAframeModels };

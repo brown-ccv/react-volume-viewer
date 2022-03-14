@@ -109,21 +109,12 @@ const MODEL = PropTypes.shape({
   /** Path to the model REQUIRED */
   path: PropTypes.string.isRequired,
 
-  // /** Position of the model in the scene */
-  // position: PropTypes.string,
-
   /** Minimum and maximum values of the model's dataset. */
   range: PropTypes.shape({
     min: PropTypes.number,
     max: PropTypes.number,
     unit: PropTypes.string,
   }),
-
-  // /** Position of the model in the scene */
-  // rotation: PropTypes.string,
-
-  // /** Scale of the model in the scene */
-  // scale: PropTypes.string,
 
   /** Number of slices used to generate the model */
   slices: PropTypes.number,
@@ -157,7 +148,7 @@ VolumeViewer.propTypes = {
   /** Array of models loaded into aframe REQUIRED */
   models: PropTypes.arrayOf(MODEL).isRequired,
 
-  // TODO CUSTOM STRING VALIDATION
+  // TODO CUSTOM STRING VALIDATION ON position, rotation, scale
 
   /** Position of the dataset in the scene */
   position: PropTypes.string,

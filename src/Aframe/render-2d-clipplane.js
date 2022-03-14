@@ -37,8 +37,6 @@ AFRAME.registerComponent("render-2d-clipplane", {
     window.addEventListener("keyup", this.onKeyUp);
   },
 
-  update: function () {},
-
   tick: function (time, timeDelta) {
     this.data.clipX = { x: this.data.xBounds[0], y: this.data.xBounds[1] };
     this.data.clipY = { x: this.data.yBounds[0], y: this.data.yBounds[1] };
