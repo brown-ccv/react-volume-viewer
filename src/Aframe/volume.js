@@ -349,61 +349,62 @@ AFRAME.registerComponent("volume", {
   },
 
   async loadModelTransferTexture(colorMapPath, transferFunction) {
-    //  Combine loadColorMap and updateTransferTexture
-    /* 
+    return await new Promise((resolve, reject) => {
+      /* 
       colorMapPath is either a png encoded string or the path to a png
 
       png encoded strings begin with data:image/png;64
       Add ; that was removed to parse into aframe correctly
     */
-    if (colorMapPath.startsWith("data:image/png"))
-      colorMapPath =
-        colorMapPath.substring(0, 14) + ";" + colorMapPath.substring(14);
+      if (colorMapPath.startsWith("data:image/png"))
+        colorMapPath =
+          colorMapPath.substring(0, 14) + ";" + colorMapPath.substring(14);
 
-    // Create and image and canvas
-    const img = document.createElement("img");
-    img.src = colorMapPath;
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
+      // Create and image and canvas
+      const img = document.createElement("img");
+      img.src = colorMapPath;
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
 
-    // TODO: Needs to be inside a promise like model
-    img.onload = () => {
-      // Get RGB data from color map
-      ctx.drawImage(img, 0, 0);
-      const colorData = ctx.getImageData(0, 0, img.width, 1).data;
+      // TODO: Needs to be inside a promise like model
+      img.onload = () => {
+        // Get RGB data from color map
+        ctx.drawImage(img, 0, 0);
+        const colorData = ctx.getImageData(0, 0, img.width, 1).data;
 
-      // Get alpha data from transfer function
-      const alphaData = [];
-      for (let i = 0; i < transferFunction.length - 1; i++) {
-        const start = transferFunction[i];
-        const end = transferFunction[i + 1];
-        const deltaX = end.x * 255 - start.x * 255;
+        // Get alpha data from transfer function
+        const alphaData = [];
+        for (let i = 0; i < transferFunction.length - 1; i++) {
+          const start = transferFunction[i];
+          const end = transferFunction[i + 1];
+          const deltaX = end.x * 255 - start.x * 255;
 
-        // Linear interpolation between points
-        const alphaStart = start.y * 255;
-        const alphaEnd = end.y * 255;
-        for (let j = 1 / deltaX; j < 1; j += 1 / deltaX) {
-          alphaData.push(alphaStart * (1 - j) + alphaEnd * j);
+          // Linear interpolation between points
+          const alphaStart = start.y * 255;
+          const alphaEnd = end.y * 255;
+          for (let j = 1 / deltaX; j < 1; j += 1 / deltaX) {
+            alphaData.push(alphaStart * (1 - j) + alphaEnd * j);
+          }
         }
-      }
 
-      // Build the transfer texture
-      const imageTransferData = new Uint8Array(4 * 256);
-      for (let i = 0; i < 256; i++) {
-        for (let j = 0; j < 3; j++)
-          imageTransferData[i * 4 + j] = colorData[i * 4 + j];
-        imageTransferData[i * 4 + 3] = alphaData[i];
-      }
-      console.log("DATA", imageTransferData);
-      const transferTexture = new THREE.DataTexture(
-        imageTransferData,
-        256,
-        1,
-        THREE.RGBAFormat
-      );
-      transferTexture.needsUpdate = true;
-      return transferTexture;
-    };
+        // Build the transfer texture
+        const imageTransferData = new Uint8Array(4 * 256);
+        for (let i = 0; i < 256; i++) {
+          for (let j = 0; j < 3; j++)
+            imageTransferData[i * 4 + j] = colorData[i * 4 + j];
+          imageTransferData[i * 4 + 3] = alphaData[i];
+        }
+        console.log("DATA", imageTransferData);
+        const transferTexture = new THREE.DataTexture(
+          imageTransferData,
+          256,
+          1,
+          THREE.RGBAFormat
+        );
+        transferTexture.needsUpdate = true;
+        resolve(transferTexture);
+      }; //TODO: reject on error
+    });
   },
 
   // TODO: Will be able to delete
