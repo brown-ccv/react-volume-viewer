@@ -51,7 +51,7 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
           `}
         />
 
-        {/* MODEL */}
+        {/* VOLUME */}
         <a-entity
           id="volume"
           class="clickableMesh"

@@ -32,7 +32,6 @@ AFRAME.registerComponent("render-2d-clipplane", {
 
     this.onKeyDown = this.onKeyDown.bind(this);
     this.onKeyUp = this.onKeyUp.bind(this);
-    this.activate2DClipPlane = this.activate2DClipPlane.bind(this);
     window.addEventListener("keydown", this.onKeyDown);
     window.addEventListener("keyup", this.onKeyUp);
   },
@@ -69,9 +68,5 @@ AFRAME.registerComponent("render-2d-clipplane", {
   onKeyUp: function (event) {
     const code = event.code;
     delete this.keys[code];
-  },
-
-  activate2DClipPlane: function (event) {
-    this.data.isActive = false;
   },
 });
