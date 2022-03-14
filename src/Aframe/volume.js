@@ -1,5 +1,6 @@
 /* globals AFRAME THREE */
 
+import { get } from "lodash";
 import "./Shader.js";
 
 const bind = AFRAME.utils.bind;
@@ -13,8 +14,9 @@ AFRAME.registerComponent("volume", {
   init: function () {
     this.scene = this.el.sceneEl;
     this.canvas = this.scene.canvas;
-    this.alphaData = [];
-    this.colorMapData = [];
+    this.modelsData = [];
+    this.alphaData = []; // These will be for each individual model
+    this.colorMapData = []; // These will be for each individual model
     this.rayCollided = false;
     this.grabbed = false;
 
@@ -26,6 +28,7 @@ AFRAME.registerComponent("volume", {
     ).object3D;
 
     // Bind functions
+    // TODO: Remove some of these?
     this.onEnterVR = bind(this.onEnterVR, this);
     this.onExitVR = bind(this.onExitVR, this);
     this.onCollide = this.onCollide.bind(this);
@@ -54,36 +57,67 @@ AFRAME.registerComponent("volume", {
 
   update: function (oldData) {
     if (oldData.models !== this.data.models) {
-      console.log("DATA", oldData.models, this.data.models);
+      console.log("UPDATE", this.data.models);
+      const models = this.data.models;
+
+      Promise.all(
+        models.map(async (model) => {
+          const modelData = { name: model.name };
+          // console.log("modelData NAME", modelData);
+
+          const texture = await this.loadModelTexture(model);
+          modelData.texture = texture;
+          // console.log("modelData TEXTURE", modelData);
+
+          const material = await this.loadModelMaterial(model, texture)
+          modelData.material = material
+          console.log("modelData MATERIAl", modelData);
+
+
+          // modelData.colorMapData
+          // modelData.alphaData
+
+          return modelData;
+        })
+      ).then(
+        (result) => {
+          this.modelsData = result;
+          console.log("All models loaded", this.modelsData);
+        },
+        (error) => console.error("Models could not be loaded:", error) 
+      );
     }
+    // TODO: Use some sort of update flag to detect when promise.all is complete?
+    console.log("OUTSIDE", this.modelsData)
+  },
 
-    // tick: function (time, timeDelta) {
-    //   const isVrModeActive = this.scene.is("vr-mode");
-    //   const mesh = this.getMesh();
+  tick: function (time, timeDelta) {
+    const isVrModeActive = this.scene.is("vr-mode");
+    const mesh = this.getMesh();
 
-    //   // Position is controlled by controllerObject in VR
-    //   if (this.controllerObject && isVrModeActive) {
-    //     const grabObject =
-    //       this.controllerObject.el.getAttribute("buttons-check").grabObject;
+    // Position is controlled by controllerObject in VR
+    if (this.controllerObject && isVrModeActive) {
+      const grabObject =
+        this.controllerObject.el.getAttribute("buttons-check").grabObject;
 
-    //     if (this.grabbed && !grabObject) {
-    //       mesh.matrix.premultiply(this.controllerObject.matrixWorld);
-    //       mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
-    //       this.el.object3D.add(mesh);
-    //       this.grabbed = false;
-    //     }
+      if (this.grabbed && !grabObject) {
+        mesh.matrix.premultiply(this.controllerObject.matrixWorld);
+        mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+        this.el.object3D.add(mesh);
+        this.grabbed = false;
+      }
 
-    //     // grab mesh
-    //     if (!this.grabbed && grabObject && this.rayCollided) {
-    //       const inverseControllerPos = new THREE.Matrix4();
-    //       inverseControllerPos.getInverse(this.controllerObject.matrixWorld);
-    //       mesh.matrix.premultiply(inverseControllerPos);
-    //       mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
-    //       this.controllerObject.add(mesh);
-    //       this.grabbed = true;
-    //     }
-    //     this.updateMeshClipMatrix();
-    //   }
+      // grab mesh
+      if (!this.grabbed && grabObject && this.rayCollided) {
+        const inverseControllerPos = new THREE.Matrix4();
+        inverseControllerPos.getInverse(this.controllerObject.matrixWorld);
+        mesh.matrix.premultiply(inverseControllerPos);
+        mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+        this.controllerObject.add(mesh);
+        this.grabbed = true;
+      }
+      this.updateMeshClipMatrix();
+    }
   },
 
   remove: function () {
@@ -122,7 +156,85 @@ AFRAME.registerComponent("volume", {
     return this.el.getObject3D("mesh");
   },
 
+  async loadModelTexture(model) {
+    return await new Promise((resolve, reject) => {
+      new THREE.TextureLoader().load(
+        model.path,
+        (texture) => {
+          texture.minFilter = texture.magFilter = THREE.LinearFilter;
+          texture.unpackAlignment = 1;
+          texture.needsUpdate = true;
+
+          resolve(texture);
+        },
+        () => {},
+        () => reject(new Error("Could not load the data at", model.path))
+      );
+    });
+  },
+
+  async loadModelMaterial(model, texture) {
+    const { channel, intensity, spacing, slices, useTransferFunction } = model;
+    const dim = Math.ceil(Math.sqrt(slices));
+    const volumeScale = [
+      1.0 / ((texture.image.width / dim) * spacing.x),
+      1.0 / ((texture.image.height / dim) * spacing.y),
+      1.0 / (slices * spacing.z),
+    ];
+    const zScale = volumeScale[0] / volumeScale[2];
+
+    // Set material properties
+    const shader = THREE.ShaderLib["ModelShader"];
+    const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+    uniforms.dim.value = dim;
+    uniforms.intensity.value = intensity;
+    uniforms.slice.value = slices;
+    uniforms.step_size.value = new THREE.Vector3(0.01, 0.01, 0.01);
+    uniforms.u_data.value = texture;
+    uniforms.viewPort.value = new THREE.Vector2(this.canvas.width, this.canvas.height);
+    uniforms.zScale.value = zScale;
+
+    // Set material properties from model
+    uniforms.channel.value = channel;
+    uniforms.useLut.value = useTransferFunction;
+
+    // Update clipping material from sliders (ignore if !activateClipPlane)
+    // const activateClipPlane = this.clipPlaneListenerHandler.el.getAttribute(
+      // "render-2d-clipplane"
+    // ).activateClipPlane;
+    const activateClipPlane = false; // TEMP
+    // TODO: Pass sliders into volume
+    if (activateClipPlane) {
+      const sliders = this.data.sliders;
+      uniforms.box_min.value = new THREE.Vector3(
+        sliders.x[0],
+        sliders.y[0],
+        sliders.z[0]
+      );
+      uniforms.box_max.value = new THREE.Vector3(
+        sliders.x[1],
+        sliders.y[1],
+        sliders.z[1]
+      );
+    } else {
+      uniforms.box_min.value = new THREE.Vector3(0, 0, 0);
+      uniforms.box_max.value = new THREE.Vector3(1, 1, 1);
+    }
+
+    const material = new THREE.ShaderMaterial({
+      uniforms: uniforms,
+      transparent: true,
+      vertexShader: shader.vertexShader,
+      fragmentShader: shader.fragmentShader,
+      side: THREE.BackSide, // The volume shader uses the "backface" as its reference point
+    });
+    material.needsUpdate = true;
+
+    return material;
+  },
+
   loadModel: function () {
+    console.log("loadModel");
     const { spacing, slices, path, useTransferFunction, intensity } = this.data;
 
     // Clear mesh and load new model
@@ -130,10 +242,13 @@ AFRAME.registerComponent("volume", {
     new THREE.TextureLoader().load(
       path,
       (texture) => {
+        console.log("LOAD MODEL", texture);
         // Create 3D material from texture
         texture.minFilter = texture.magFilter = THREE.LinearFilter;
         texture.unpackAlignment = 1;
         texture.needsUpdate = true;
+
+        // Above is for texture
 
         const dim = Math.ceil(Math.sqrt(slices));
         const volumeScale = [
@@ -173,6 +288,7 @@ AFRAME.registerComponent("volume", {
         });
 
         // Model is a unit cube with the file's material
+        // TODO: Move to separate function
         const geometry = new THREE.BoxGeometry(1, 1, 1);
         this.el.setObject3D("mesh", new THREE.Mesh(geometry, material));
         material.needsUpdate = true;
@@ -251,6 +367,7 @@ AFRAME.registerComponent("volume", {
     }
   },
 
+  // TODO: Will be able to remove this
   updateClipping: function () {
     const mesh = this.getMesh();
     const activateClipPlane = this.clipPlaneListenerHandler.el.getAttribute(
@@ -279,6 +396,7 @@ AFRAME.registerComponent("volume", {
     }
   },
 
+  // TODO: Will be able to remove this
   updateChannel: function () {
     const mesh = this.getMesh();
     if (mesh) {

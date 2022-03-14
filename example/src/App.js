@@ -23,21 +23,21 @@ function App() {
   const [modelPath, setModelPath] = useState(salt);
 
   const models = [
-    {
-      name: "Same",
-      colorMap: colorMap,
-      ...(!singleColorMap && { colorMaps: [haline, thermal] }),
-      enabled: true,
-      range: {
-        min: 0.05,
-        max: 33.71,
-      },
-      path: modelPath,
-      position: "-0.2 0 0",
-      scale: "1 -1 1",
-      rotation: "-55 0 0",
-      useTransferFunction: useTransferFunction,
-    },
+    // {
+    //   name: "Same",
+    //   colorMap: colorMap,
+    //   ...(!singleColorMap && { colorMaps: [haline, thermal] }),
+    //   enabled: true,
+    //   range: {
+    //     min: 0.05,
+    //     max: 33.71,
+    //   },
+    //   path: modelPath,
+    //   position: "-0.2 0 0",
+    //   scale: "1 -1 1",
+    //   rotation: "-55 0 0",
+    //   useTransferFunction: useTransferFunction,
+    // },
     {
       name: "Opposite",
       // colorMap: colorMap === haline ? thermal : haline,

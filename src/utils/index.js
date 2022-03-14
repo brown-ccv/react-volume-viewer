@@ -85,6 +85,7 @@ function getAframeModels(models) {
       "name",
       "path",
       "slices",
+      "spacing",
       "transferFunction",
       "useTransferFunction",
     ]);
