@@ -1,6 +1,6 @@
 /* globals AFRAME THREE */
 
-import { get } from "lodash";
+import { DEFAULT_SLIDERS } from "../constants/index.js";
 import "./Shader.js";
 
 const bind = AFRAME.utils.bind;
@@ -9,14 +9,15 @@ AFRAME.registerComponent("volume", {
   dependencies: ["hand", "render-2d-clipplane", "buttons-check"],
   schema: {
     models: { parse: JSON.parse, default: [] },
+    sliders: { parse: JSON.parse, default: DEFAULT_SLIDERS },
   },
 
   init: function () {
     this.scene = this.el.sceneEl;
     this.canvas = this.scene.canvas;
     this.modelsData = [];
-    this.alphaData = []; // These will be for each individual model
-    this.colorMapData = []; // These will be for each individual model
+    this.alphaData = []; // These will be for each individual model (remove)
+    this.colorMapData = []; // These will be for each individual model (remove)
     this.rayCollided = false;
     this.grabbed = false;
 
@@ -58,37 +59,43 @@ AFRAME.registerComponent("volume", {
   update: function (oldData) {
     if (oldData.models !== this.data.models) {
       console.log("UPDATE", this.data.models);
-      const models = this.data.models;
-
       Promise.all(
-        models.map(async (model) => {
-          const modelData = { name: model.name };
-          // console.log("modelData NAME", modelData);
+        this.data.models.map(async (model) => {
+          const name = await model.name;
+          console.log("NAME", name);
 
           const texture = await this.loadModelTexture(model);
-          modelData.texture = texture;
-          // console.log("modelData TEXTURE", modelData);
+          console.log("TEXTURE", texture);
 
-          const material = await this.loadModelMaterial(model, texture)
-          modelData.material = material
-          console.log("modelData MATERIAl", modelData);
+          const material = await this.loadModelMaterial(model, texture);
+          console.log("MATERIAl", material);
 
+          const transferTexture = await this.loadModelTransferTexture(
+            model.colorMap.path,
+            model.transferFunction
+          );
+          material.uniforms.u_lut.value = transferTexture;
+          material.needsUpdate = true;
+          console.log("TRANSFER TEXTURE", transferTexture);
 
-          // modelData.colorMapData
-          // modelData.alphaData
-
+          const modelData = {
+            name,
+            texture,
+            material,
+            transferTexture,
+          };
+          console.log("modelData", modelData);
           return modelData;
         })
       ).then(
         (result) => {
+          // TODO: Remove and re-apply mesh
           this.modelsData = result;
           console.log("All models loaded", this.modelsData);
         },
-        (error) => console.error("Models could not be loaded:", error) 
+        (error) => console.error("Models could not be loaded:", error)
       );
     }
-    // TODO: Use some sort of update flag to detect when promise.all is complete?
-    console.log("OUTSIDE", this.modelsData)
   },
 
   tick: function (time, timeDelta) {
@@ -191,7 +198,10 @@ AFRAME.registerComponent("volume", {
     uniforms.slice.value = slices;
     uniforms.step_size.value = new THREE.Vector3(0.01, 0.01, 0.01);
     uniforms.u_data.value = texture;
-    uniforms.viewPort.value = new THREE.Vector2(this.canvas.width, this.canvas.height);
+    uniforms.viewPort.value = new THREE.Vector2(
+      this.canvas.width,
+      this.canvas.height
+    );
     uniforms.zScale.value = zScale;
 
     // Set material properties from model
@@ -199,11 +209,9 @@ AFRAME.registerComponent("volume", {
     uniforms.useLut.value = useTransferFunction;
 
     // Update clipping material from sliders (ignore if !activateClipPlane)
-    // const activateClipPlane = this.clipPlaneListenerHandler.el.getAttribute(
-      // "render-2d-clipplane"
-    // ).activateClipPlane;
-    const activateClipPlane = false; // TEMP
-    // TODO: Pass sliders into volume
+    const activateClipPlane = this.clipPlaneListenerHandler.el.getAttribute(
+      "render-2d-clipplane"
+    ).activateClipPlane;
     if (activateClipPlane) {
       const sliders = this.data.sliders;
       uniforms.box_min.value = new THREE.Vector3(
@@ -233,8 +241,8 @@ AFRAME.registerComponent("volume", {
     return material;
   },
 
+  // TODO: Will be able to remove
   loadModel: function () {
-    console.log("loadModel");
     const { spacing, slices, path, useTransferFunction, intensity } = this.data;
 
     // Clear mesh and load new model
@@ -305,6 +313,7 @@ AFRAME.registerComponent("volume", {
     );
   },
 
+  // TODO: Will be able to remove
   loadColorMap: function () {
     let colorMapPath = this.data.colorMap.path;
 
@@ -334,11 +343,70 @@ AFRAME.registerComponent("volume", {
           colorTransfer[i * 3 + j] = colorData[i * 4 + j];
       }
       this.colorMapData = colorTransfer;
-
+      //
       this.updateTransferTexture();
     };
   },
 
+  async loadModelTransferTexture(colorMapPath, transferFunction) {
+    //  Combine loadColorMap and updateTransferTexture
+    /* 
+      colorMapPath is either a png encoded string or the path to a png
+
+      png encoded strings begin with data:image/png;64
+      Add ; that was removed to parse into aframe correctly
+    */
+    if (colorMapPath.startsWith("data:image/png"))
+      colorMapPath =
+        colorMapPath.substring(0, 14) + ";" + colorMapPath.substring(14);
+
+    // Create and image and canvas
+    const img = document.createElement("img");
+    img.src = colorMapPath;
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    // TODO: Needs to be inside a promise like model
+    img.onload = () => {
+      // Get RGB data from color map
+      ctx.drawImage(img, 0, 0);
+      const colorData = ctx.getImageData(0, 0, img.width, 1).data;
+
+      // Get alpha data from transfer function
+      const alphaData = [];
+      for (let i = 0; i < transferFunction.length - 1; i++) {
+        const start = transferFunction[i];
+        const end = transferFunction[i + 1];
+        const deltaX = end.x * 255 - start.x * 255;
+
+        // Linear interpolation between points
+        const alphaStart = start.y * 255;
+        const alphaEnd = end.y * 255;
+        for (let j = 1 / deltaX; j < 1; j += 1 / deltaX) {
+          alphaData.push(alphaStart * (1 - j) + alphaEnd * j);
+        }
+      }
+
+      // Build the transfer texture
+      const imageTransferData = new Uint8Array(4 * 256);
+      for (let i = 0; i < 256; i++) {
+        for (let j = 0; j < 3; j++)
+          imageTransferData[i * 4 + j] = colorData[i * 4 + j];
+        imageTransferData[i * 4 + 3] = alphaData[i];
+      }
+      console.log("DATA", imageTransferData);
+      const transferTexture = new THREE.DataTexture(
+        imageTransferData,
+        256,
+        1,
+        THREE.RGBAFormat
+      );
+      transferTexture.needsUpdate = true;
+      return transferTexture;
+    };
+  },
+
+  // TODO: Will be able to delete
   updateTransferTexture: function () {
     const colorMapData = this.colorMapData;
     const imageTransferData = new Uint8Array(4 * 256);
@@ -407,6 +475,7 @@ AFRAME.registerComponent("volume", {
     }
   },
 
+  // TODO: Will be able to remove this
   updateOpacityData: function () {
     this.alphaData = [];
     const transferFunction = this.data.transferFunction;
