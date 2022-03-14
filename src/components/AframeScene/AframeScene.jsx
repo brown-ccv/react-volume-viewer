@@ -53,7 +53,7 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
 
         {/* MODEL */}
         <a-entity
-          id="dataset"
+          id="volume"
           class="clickableMesh"
           volume={`models: ${getAframeModels(models)};`}
         />
