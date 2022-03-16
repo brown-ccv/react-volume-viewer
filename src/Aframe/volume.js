@@ -185,6 +185,7 @@ AFRAME.registerComponent("volume", {
 
   async loadMaterial(model, texture) {
     const { channel, intensity, spacing, slices, useTransferFunction } = model;
+
     const dim = Math.ceil(Math.sqrt(slices));
     const volumeScale = [
       1.0 / ((texture.image.width / dim) * spacing.x),
@@ -193,7 +194,7 @@ AFRAME.registerComponent("volume", {
     ];
     const zScale = volumeScale[0] / volumeScale[2];
 
-    // Set material properties
+    // Set uniforms from model
     const uniforms = THREE.UniformsUtils.clone(SHADER.uniforms);
     uniforms.dim.value = dim;
     uniforms.intensity.value = intensity;
@@ -205,12 +206,10 @@ AFRAME.registerComponent("volume", {
       this.canvas.height
     );
     uniforms.zScale.value = zScale;
-
-    // Set material properties from model
     uniforms.channel.value = channel;
     uniforms.useLut.value = useTransferFunction;
 
-    // Update clipping material from sliders (ignore if !activateClipPlane)
+    // Update clipping uniforms from sliders (ignore if !activateClipPlane)
     const activateClipPlane = this.clipPlaneListenerHandler.el.getAttribute(
       "render-2d-clipplane"
     ).activateClipPlane;
@@ -239,11 +238,10 @@ AFRAME.registerComponent("volume", {
   },
 
   async loadTransferTexture(colorMapPath, transferFunction) {
-    // TODO: Store a map of used colorMaps so you don't have to keep re-calculating
     return await new Promise((resolve, reject) => {
       const usedColorMaps = this.usedColorMaps;
 
-      // Get colorMap data
+      // Load colorMap data (RGB)
       new Promise((res, rej) => {
         if (usedColorMaps.has(colorMapPath))
           res(usedColorMaps.get(colorMapPath));
@@ -258,14 +256,12 @@ AFRAME.registerComponent("volume", {
             ? colorMapPath.substring(0, 14) + ";" + colorMapPath.substring(14)
             : colorMapPath;
 
-          // Create an image and canvas
+          // Load and draw image to get RGB data
           const img = document.createElement("img");
           img.src = colorMapPath;
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
-
           img.onload = () => {
-            // Draw image to get RGB data
             ctx.drawImage(img, 0, 0);
             const colorData = ctx.getImageData(0, 0, img.width, 1).data;
 
@@ -278,7 +274,7 @@ AFRAME.registerComponent("volume", {
         }
       })
         .then((colorData) => {
-          // Get alpha data from transfer function
+          // Load alpha data from transfer function
           const alphaData = [];
           for (let i = 0; i < transferFunction.length - 1; i++) {
             const start = transferFunction[i];
@@ -293,18 +289,18 @@ AFRAME.registerComponent("volume", {
             }
           }
 
-          // Build the transfer texture
-          const imageTransferData = new Uint8Array(4 * 256);
+          // Build the transfer texture (RGBA)
+          const rgbaData = new Uint8Array(4 * 256);
           for (let i = 0; i < 256; i++) {
             for (let j = 0; j < 3; j++)
-              imageTransferData[i * 4 + j] = colorData[i * 4 + j];
-            imageTransferData[i * 4 + 3] = alphaData[i];
+              rgbaData[i * 4 + j] = colorData[i * 4 + j];
+            rgbaData[i * 4 + 3] = alphaData[i];
           }
 
           const transferTexture = new THREE.DataTexture(
-            imageTransferData,
-            256, // Width
-            1, // Height
+            rgbaData,
+            256,
+            1,
             THREE.RGBAFormat
           );
           transferTexture.needsUpdate = true;
@@ -314,7 +310,7 @@ AFRAME.registerComponent("volume", {
     });
   },
 
-  // Blend model's into a single mesh and apply it to the model
+  // Blend model's into a single material and apply it to the model
   buildMesh: function () {
     // TODO: Blend all of the model's material into one
     if (this.modelsData.length > 0) {
@@ -324,13 +320,13 @@ AFRAME.registerComponent("volume", {
 
   updateMeshClipMatrix: function () {
     const mesh = this.getMesh();
-    const material = mesh.material;
+    const uniforms = mesh.material.uniforms;
 
     const volumeMatrix = mesh.matrixWorld;
     const scaleMatrix = new THREE.Matrix4().makeScale(
       1,
       1,
-      material.uniforms.zScale.value
+      uniforms.zScale.value
     );
     const translationMatrix = new THREE.Matrix4().makeTranslation(
       -0.5,
@@ -348,8 +344,8 @@ AFRAME.registerComponent("volume", {
     clipMatrix.multiplyMatrices(clipMatrix, translationMatrix);
 
     // Update shader uniforms
-    material.uniforms.clipPlane.value = clipMatrix;
-    material.uniforms.clipping.value =
+    uniforms.clipPlane.value = clipMatrix;
+    uniforms.clipping.value =
       this.scene.is("vr-mode") &&
       this.controllerObject.el.getAttribute("buttons-check").clipPlane &&
       !this.grabbed;
