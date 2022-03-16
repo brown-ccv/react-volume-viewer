@@ -316,16 +316,8 @@ AFRAME.registerComponent("volume", {
     // TODO: Blend all of the model's material into one
     const materials = this.modelsData.map((model) => model.material);
 
-
-    const test = materials.map(m => m.blending = THREE.NormalBlending)
-    this.getMesh().material = test
-
-    
     // TEMP
-    const blendedMaterial = materials[0]; // TEMP
-    this.getMesh().material = blendedMaterial;
-
-
+    this.getMesh().material = materials[0]; // TEMP;
   },
 
   updateMeshClipMatrix: function () {
