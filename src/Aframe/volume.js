@@ -53,7 +53,6 @@ AFRAME.registerComponent("volume", {
     );
 
     // Initialize mesh to shader defaults
-    console.log("DEFAULT", new THREE.ShaderMaterial(DEFAULT_MATERIAL));
     this.el.setObject3D(
       "mesh",
       new THREE.Mesh(
@@ -312,10 +311,21 @@ AFRAME.registerComponent("volume", {
 
   // Blend model's into a single material and apply it to the model
   buildMesh: function () {
+    if (!this.modelsData.length) return;
+
     // TODO: Blend all of the model's material into one
-    if (this.modelsData.length > 0) {
-      this.getMesh().material = this.modelsData[0].material;
-    }
+    const materials = this.modelsData.map((model) => model.material);
+
+
+    const test = materials.map(m => m.blending = THREE.NormalBlending)
+    this.getMesh().material = test
+
+    
+    // TEMP
+    const blendedMaterial = materials[0]; // TEMP
+    this.getMesh().material = blendedMaterial;
+
+
   },
 
   updateMeshClipMatrix: function () {
