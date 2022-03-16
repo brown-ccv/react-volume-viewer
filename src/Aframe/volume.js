@@ -15,21 +15,19 @@ AFRAME.registerComponent("volume", {
   init: function () {
     this.scene = this.el.sceneEl;
     this.canvas = this.scene.canvas;
-    this.modelsData = [];
-    // this.alphaData = [];
-    // this.colorMapData = [];
-    this.rayCollided = false;
-    this.grabbed = false;
-
-    // Initialize shader material
+    this.usedModels = new Map(); // Cache models (path: texture)
+    this.usedColorMaps = new Map(); // Cache color maps (path: RGB data)
     this.shader = THREE.ShaderLib["ModelShader"];
     this.DEFAULT_MATERIAL = {
       uniforms: THREE.UniformsUtils.clone(this.shader.uniforms),
       transparent: true,
       vertexShader: this.shader.vertexShader,
       fragmentShader: this.shader.fragmentShader,
-      side: THREE.BackSide, // The volume shader uses the "backface" as its reference point
+      side: THREE.BackSide, // Shader uses "backface" as its reference point
     };
+    this.modelsData = [];
+    this.rayCollided = false;
+    this.grabbed = false;
 
     // Get aframe entities
     this.controllerObject = document.getElementById("hand").object3D;
@@ -84,14 +82,12 @@ AFRAME.registerComponent("volume", {
           material.needsUpdate = true;
 
           // TODO: Return object directly
-          const modelData = {
+          return {
             name,
             texture,
             material,
             transferTexture,
           };
-          console.log("modelData", modelData);
-          return modelData;
         })
       )
         .then((result) => {
@@ -106,6 +102,7 @@ AFRAME.registerComponent("volume", {
   tick: function (time, timeDelta) {
     const isVrModeActive = this.scene.is("vr-mode");
     const mesh = this.getMesh();
+    this.updateMeshClipMatrix(); // TEMP
 
     // Position is controlled by controllerObject in VR
     if (this.controllerObject && isVrModeActive) {
@@ -169,8 +166,9 @@ AFRAME.registerComponent("volume", {
   },
 
   async loadTexture(model) {
-    // TODO: Store a map of used model paths so you don't have to keep re-calculating
     return await new Promise((resolve, reject) => {
+      const usedModels = this.usedModels;
+      if (usedModels.has(model.path)) resolve(usedModels.get(model.path));
       new THREE.TextureLoader().load(
         model.path,
         (texture) => {
@@ -178,6 +176,7 @@ AFRAME.registerComponent("volume", {
           texture.unpackAlignment = 1;
           texture.needsUpdate = true;
 
+          usedModels.set(model.path, texture);
           resolve(texture);
         },
         () => {},
@@ -234,73 +233,86 @@ AFRAME.registerComponent("volume", {
       uniforms.box_max.value = new THREE.Vector3(1, 1, 1);
     }
 
-    // TODO: Only, keep a constant for the rest?
-    const material = new THREE.ShaderMaterial({
+    // Create material
+    return new THREE.ShaderMaterial({
       ...this.DEFAULT_MATERIAL,
       uniforms: uniforms,
     });
-    material.needsUpdate = true;
-
-    return material;
   },
 
   async loadTransferTexture(colorMapPath, transferFunction) {
     // TODO: Store a map of used colorMaps so you don't have to keep re-calculating
     return await new Promise((resolve, reject) => {
-      /* 
-      colorMapPath is either a png encoded string or the path to a png
+      const usedColorMaps = this.usedColorMaps;
 
-      png encoded strings begin with data:image/png;64
-      Add ; that was removed to parse into aframe correctly
-    */
-      if (colorMapPath.startsWith("data:image/png"))
-        colorMapPath =
-          colorMapPath.substring(0, 14) + ";" + colorMapPath.substring(14);
+      // Get colorMap data
+      new Promise((res, rej) => {
+        if (usedColorMaps.has(colorMapPath))
+          res(usedColorMaps.get(colorMapPath));
+        else {
+          /* 
+            colorMapPath is either a png encoded string or the path to a png
 
-      // Create an image and canvas
-      const img = document.createElement("img");
-      img.src = colorMapPath;
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
+            png encoded strings begin with data:image/png;64
+            Add ; that was removed to parse into aframe correctly
+          */
+          colorMapPath = colorMapPath.startsWith("data:image/png")
+            ? colorMapPath.substring(0, 14) + ";" + colorMapPath.substring(14)
+            : colorMapPath;
 
-      img.onload = () => {
-        // Get RGB data from color map
-        ctx.drawImage(img, 0, 0);
-        const colorData = ctx.getImageData(0, 0, img.width, 1).data;
+          // Create an image and canvas
+          const img = document.createElement("img");
+          img.src = colorMapPath;
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
 
-        // Get alpha data from transfer function
-        const alphaData = [];
-        for (let i = 0; i < transferFunction.length - 1; i++) {
-          const start = transferFunction[i];
-          const end = transferFunction[i + 1];
-          const deltaX = end.x * 255 - start.x * 255;
+          img.onload = () => {
+            // Draw image to get RGB data
+            ctx.drawImage(img, 0, 0);
+            const colorData = ctx.getImageData(0, 0, img.width, 1).data;
 
-          // Linear interpolation between points
-          const alphaStart = start.y * 255;
-          const alphaEnd = end.y * 255;
-          for (let j = 1 / deltaX; j < 1; j += 1 / deltaX) {
-            alphaData.push(alphaStart * (1 - j) + alphaEnd * j);
+            usedColorMaps.set(colorMapPath, colorData);
+            res(colorData);
+          };
+          img.onerror = () => {
+            rej(new Error("Could not load the color map: " + colorMapPath));
+          };
+        }
+      })
+        .then((colorData) => {
+          // Get alpha data from transfer function
+          const alphaData = [];
+          for (let i = 0; i < transferFunction.length - 1; i++) {
+            const start = transferFunction[i];
+            const end = transferFunction[i + 1];
+            const deltaX = end.x * 255 - start.x * 255;
+
+            // Linear interpolation between points
+            const alphaStart = start.y * 255;
+            const alphaEnd = end.y * 255;
+            for (let j = 1 / deltaX; j < 1; j += 1 / deltaX) {
+              alphaData.push(alphaStart * (1 - j) + alphaEnd * j);
+            }
           }
-        }
 
-        // Build the transfer texture
-        const imageTransferData = new Uint8Array(4 * 256);
-        for (let i = 0; i < 256; i++) {
-          for (let j = 0; j < 3; j++)
-            imageTransferData[i * 4 + j] = colorData[i * 4 + j];
-          imageTransferData[i * 4 + 3] = alphaData[i];
-        }
-        const transferTexture = new THREE.DataTexture(
-          imageTransferData,
-          256,
-          1,
-          THREE.RGBAFormat
-        );
-        transferTexture.needsUpdate = true;
-        resolve(transferTexture);
-      };
-      img.onerror = () =>
-        reject(new Error("Could not load the color map at " + colorMapPath));
+          // Build the transfer texture
+          const imageTransferData = new Uint8Array(4 * 256);
+          for (let i = 0; i < 256; i++) {
+            for (let j = 0; j < 3; j++)
+              imageTransferData[i * 4 + j] = colorData[i * 4 + j];
+            imageTransferData[i * 4 + 3] = alphaData[i];
+          }
+
+          const transferTexture = new THREE.DataTexture(
+            imageTransferData,
+            256, // Width
+            1, // Height
+            THREE.RGBAFormat
+          );
+          transferTexture.needsUpdate = true;
+          resolve(transferTexture);
+        })
+        .catch((e) => reject(e));
     });
   },
 
@@ -322,30 +334,25 @@ AFRAME.registerComponent("volume", {
 
   updateMeshClipMatrix: function () {
     const mesh = this.getMesh();
-    const volumeMatrix = mesh.matrixWorld;
     const material = mesh.material;
 
-    // Matrix for zscaling
+    const volumeMatrix = mesh.matrixWorld;
     const scaleMatrix = new THREE.Matrix4().makeScale(
       1,
       1,
       material.uniforms.zScale.value
     );
-
-    // Translate to cube-coordinates ranging from 0 -1
     const translationMatrix = new THREE.Matrix4().makeTranslation(
       -0.5,
       -0.5,
       -0.5
     );
-
-    // Inverse of the clip matrix
-    const controllerMatrix_inverse = new THREE.Matrix4()
+    const inverseControllerMatrix = new THREE.Matrix4()
       .copy(this.controllerObject.matrixWorld)
       .invert();
 
     // clipMatrix = controller_inverse * volume * scale * translation
-    const clipMatrix = controllerMatrix_inverse;
+    const clipMatrix = inverseControllerMatrix;
     clipMatrix.multiplyMatrices(clipMatrix, volumeMatrix);
     clipMatrix.multiplyMatrices(clipMatrix, scaleMatrix);
     clipMatrix.multiplyMatrices(clipMatrix, translationMatrix);
