@@ -32,14 +32,14 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
         scale={scale}
       >
         {/* CLICKABLE PLANE FOR MOUSE INTERACTIONS */}
-        <a-plane
+        {/* <a-plane
           id="clipplane2D"
           class="clickable"
           visible="false"
           height="1"
           width="1"
           material="color: red; side: double; transparent: true; opacity: 0.2"
-        />
+        /> */}
 
         {/* MOUSE LISTENER FOR CLICKABLE PLANE */}
         <a-entity

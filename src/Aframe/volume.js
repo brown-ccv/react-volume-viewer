@@ -16,12 +16,22 @@ AFRAME.registerComponent("volume", {
     this.scene = this.el.sceneEl;
     this.canvas = this.scene.canvas;
     this.modelsData = [];
-    this.alphaData = []; // These will be for each individual model (remove)
-    this.colorMapData = []; // These will be for each individual model (remove)
+    // this.alphaData = [];
+    // this.colorMapData = [];
     this.rayCollided = false;
     this.grabbed = false;
 
-    // Get other entities
+    // Initialize shader material
+    this.shader = THREE.ShaderLib["ModelShader"];
+    this.DEFAULT_MATERIAL = {
+      uniforms: THREE.UniformsUtils.clone(this.shader.uniforms),
+      transparent: true,
+      vertexShader: this.shader.vertexShader,
+      fragmentShader: this.shader.fragmentShader,
+      side: THREE.BackSide, // The volume shader uses the "backface" as its reference point
+    };
+
+    // Get aframe entities
     this.controllerObject = document.getElementById("hand").object3D;
     this.controllerObject.matrixAutoUpdate = false;
     this.clipPlaneListenerHandler = document.getElementById(
@@ -29,7 +39,6 @@ AFRAME.registerComponent("volume", {
     ).object3D;
 
     // Bind functions
-    // TODO: Remove some of these?
     this.onEnterVR = bind(this.onEnterVR, this);
     this.onExitVR = bind(this.onExitVR, this);
     this.onCollide = this.onCollide.bind(this);
@@ -46,8 +55,15 @@ AFRAME.registerComponent("volume", {
       this.onClearCollide
     );
 
-    // Activate camera
+    // Activate camera and initialize mesh to shader defaults
     document.getElementById("camera").setAttribute("camera", "active", true);
+    this.el.setObject3D(
+      "mesh",
+      new THREE.Mesh(
+        new THREE.BoxGeometry(1, 1, 1),
+        new THREE.ShaderMaterial(this.DEFAULT_MATERIAL)
+      )
+    );
   },
 
   update: function (oldData) {
@@ -83,19 +99,18 @@ AFRAME.registerComponent("volume", {
 
           // TODO: Blend all of the models together
           if (this.modelsData.length > 0) {
+            // TEMP
             // Build and apply mesh
+            // TODO: Just update the mesh properties instead of creating a new one?
             this.el.setObject3D(
               "mesh",
               new THREE.Mesh(
                 new THREE.BoxGeometry(1, 1, 1),
                 this.modelsData[0].material
+                // materials
               )
             );
             this.modelsData[0].material.needsUpdate = true;
-
-            // TEMP: Need to fix position, rotation, and scale
-            const mesh = this.getMesh();
-            console.log(mesh.position, mesh.rotation, mesh.scale);
           }
         })
         .catch((error) => console.error("Models could not be loaded:", error));
@@ -168,6 +183,7 @@ AFRAME.registerComponent("volume", {
   },
 
   async loadTexture(model) {
+    // TODO: Store a map of used model paths so you don't have to keep re-calculating
     return await new Promise((resolve, reject) => {
       new THREE.TextureLoader().load(
         model.path,
@@ -195,8 +211,8 @@ AFRAME.registerComponent("volume", {
     const zScale = volumeScale[0] / volumeScale[2];
 
     // Set material properties
-    const shader = THREE.ShaderLib["ModelShader"];
-    const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+    // const shader = THREE.ShaderLib["ModelShader"];
+    const uniforms = THREE.UniformsUtils.clone(this.shader.uniforms);
     uniforms.dim.value = dim;
     uniforms.intensity.value = intensity;
     uniforms.slice.value = slices;
@@ -233,12 +249,14 @@ AFRAME.registerComponent("volume", {
       uniforms.box_max.value = new THREE.Vector3(1, 1, 1);
     }
 
+    // TODO: Only, keep a constant for the rest?
     const material = new THREE.ShaderMaterial({
+      ...this.DEFAULT_MATERIAL,
       uniforms: uniforms,
-      transparent: true,
-      vertexShader: shader.vertexShader,
-      fragmentShader: shader.fragmentShader,
-      side: THREE.BackSide, // The volume shader uses the "backface" as its reference point
+      // transparent: true,
+      // vertexShader: this.shader.vertexShader,
+      // fragmentShader: this.shader.fragmentShader,
+      // side: THREE.BackSide, // The volume shader uses the "backface" as its reference point
     });
     material.needsUpdate = true;
 
@@ -246,6 +264,7 @@ AFRAME.registerComponent("volume", {
   },
 
   async loadTransferTexture(colorMapPath, transferFunction) {
+    // TODO: Store a map of used colorMaps so you don't have to keep re-calculating
     return await new Promise((resolve, reject) => {
       /* 
       colorMapPath is either a png encoded string or the path to a png
