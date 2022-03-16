@@ -55,8 +55,7 @@ AFRAME.registerComponent("volume", {
       this.onClearCollide
     );
 
-    // Activate camera and initialize mesh to shader defaults
-    document.getElementById("camera").setAttribute("camera", "active", true);
+    // Initialize mesh to shader defaults
     this.el.setObject3D(
       "mesh",
       new THREE.Mesh(
@@ -145,6 +144,7 @@ AFRAME.registerComponent("volume", {
       this.updateMeshClipMatrix();
     }
   },
+
 
   remove: function () {
     this.scene.removeEventListener("enter-vr", this.onEnterVR);
@@ -323,229 +323,35 @@ AFRAME.registerComponent("volume", {
   },
 
   updateMeshClipMatrix: function () {
-    const volumeMatrix = this.getMesh().matrixWorld;
-    const material = this.getMesh().material;
+    // const volumeMatrix = this.getMesh().matrixWorld;
+    // const material = this.getMesh().material;
 
-    // Matrix for zscaling
-    const scaleMatrix = new THREE.Matrix4();
-    scaleMatrix.makeScale(1, 1, material.uniforms.zScale.value);
+    // // Matrix for zscaling
+    // const scaleMatrix = new THREE.Matrix4();
+    // scaleMatrix.makeScale(1, 1, material.uniforms.zScale.value);
 
-    // Translate to cube-coordinates ranging from 0 -1
-    const translationMatrix = new THREE.Matrix4();
-    translationMatrix.makeTranslation(-0.5, -0.5, -0.5);
+    // // Translate to cube-coordinates ranging from 0 -1
+    // const translationMatrix = new THREE.Matrix4();
+    // translationMatrix.makeTranslation(-0.5, -0.5, -0.5);
 
-    // Inverse of the clip matrix
-    const controllerMatrix = this.controllerObject.matrixWorld;
-    const controllerMatrix_inverse = new THREE.Matrix4();
-    controllerMatrix_inverse.copy(controllerMatrix).invert();
+    // // Inverse of the clip matrix
+    // const controllerMatrix = this.controllerObject.matrixWorld;
+    // const controllerMatrix_inverse = new THREE.Matrix4();
+    // controllerMatrix_inverse.copy(controllerMatrix).invert();
 
-    //outputmatrix - controller_inverse * volume * scale * translation
-    const clipMatrix = new THREE.Matrix4();
-    clipMatrix.multiplyMatrices(controllerMatrix_inverse, volumeMatrix);
-    clipMatrix.multiplyMatrices(clipMatrix, scaleMatrix);
-    clipMatrix.multiplyMatrices(clipMatrix, translationMatrix);
+    // //outputmatrix - controller_inverse * volume * scale * translation
+    // const clipMatrix = new THREE.Matrix4();
+    // clipMatrix.multiplyMatrices(controllerMatrix_inverse, volumeMatrix);
+    // clipMatrix.multiplyMatrices(clipMatrix, scaleMatrix);
+    // clipMatrix.multiplyMatrices(clipMatrix, translationMatrix);
 
-    //set uniforms of shader
-    const isVrModeActive = this.scene.is("vr-mode");
-    const isClipped =
-      isVrModeActive &&
-      this.controllerObject.el.getAttribute("buttons-check").clipPlane &&
-      !this.grabbed;
-    material.uniforms.clipPlane.value = clipMatrix;
-    material.uniforms.clipping.value = isClipped;
+    // //set uniforms of shader
+    // const isVrModeActive = this.scene.is("vr-mode");
+    // const isClipped =
+    //   isVrModeActive &&
+    //   this.controllerObject.el.getAttribute("buttons-check").clipPlane &&
+    //   !this.grabbed;
+    // material.uniforms.clipPlane.value = clipMatrix;
+    // material.uniforms.clipping.value = isClipped;
   },
-
-  // TODO: Will be able to remove
-  // loadModel: function () {
-  //   const { spacing, slices, path, useTransferFunction, intensity } = this.data;
-
-  //   // Clear mesh and load new model
-  //   if (this.getMesh()) this.el.removeObject3D("mesh");
-  //   new THREE.TextureLoader().load(
-  //     path,
-  //     (texture) => {
-  //       console.log("LOAD MODEL", texture);
-  //       // Create 3D material from texture
-  //       texture.minFilter = texture.magFilter = THREE.LinearFilter;
-  //       texture.unpackAlignment = 1;
-  //       texture.needsUpdate = true;
-
-  //       // Above is for texture
-
-  //       const dim = Math.ceil(Math.sqrt(slices));
-  //       const volumeScale = [
-  //         1.0 / ((texture.image.width / dim) * spacing.x),
-  //         1.0 / ((texture.image.height / dim) * spacing.y),
-  //         1.0 / (slices * spacing.z),
-  //       ];
-  //       const zScale = volumeScale[0] / volumeScale[2];
-
-  //       // Set material properties
-  //       const shader = THREE.ShaderLib["ModelShader"];
-  //       const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-  //       uniforms.dim.value = dim;
-  //       uniforms.intensity.value = intensity;
-  //       uniforms.slice.value = slices;
-  //       uniforms.step_size.value = new THREE.Vector3(0.01, 0.01, 0.01);
-  //       uniforms.u_data.value = texture;
-  //       uniforms.viewPort.value = new THREE.Vector2(
-  //         this.canvas.width,
-  //         this.canvas.height
-  //       );
-  //       uniforms.zScale.value = zScale;
-  //       if (useTransferFunction) {
-  //         uniforms.channel.value = 1;
-  //         uniforms.useLut.value = true;
-  //       } else {
-  //         uniforms.channel.value = 6;
-  //         uniforms.useLut.value = false;
-  //       }
-
-  //       const material = new THREE.ShaderMaterial({
-  //         uniforms: uniforms,
-  //         transparent: true,
-  //         vertexShader: shader.vertexShader,
-  //         fragmentShader: shader.fragmentShader,
-  //         side: THREE.BackSide, // The volume shader uses the "backface" as its reference point
-  //       });
-
-  //       // Model is a unit cube with the file's material
-  //       // TODO: Move to separate function
-  //       const geometry = new THREE.BoxGeometry(1, 1, 1);
-  //       this.el.setObject3D("mesh", new THREE.Mesh(geometry, material));
-  //       material.needsUpdate = true;
-
-  //       // Update colorMapping/data channel once model is loaded
-  //       if (useTransferFunction) this.loadColorMap();
-  //       else this.updateChannel();
-  //       this.updateClipping();
-  //     },
-  //     () => {},
-  //     () => {
-  //       throw new Error("Could not load the data at", path);
-  //     }
-  //   );
-  // },
-
-  // TODO: Will be able to remove
-  // loadColorMap: function () {
-  //   let colorMapPath = this.data.colorMap.path;
-
-  //   /*
-  //     colorMapPath is either a png encoded string or the path to a png
-
-  //     png encoded strings begin with data:image/png;64
-  //     Add ; that was removed to parse into aframe correctly
-  //   */
-  //   if (colorMapPath.startsWith("data:image/png"))
-  //     colorMapPath =
-  //       colorMapPath.substring(0, 14) + ";" + colorMapPath.substring(14);
-
-  //   // Create and image and canvas
-  //   const img = document.createElement("img");
-  //   img.src = colorMapPath;
-  //   const canvas = document.createElement("canvas");
-  //   const ctx = canvas.getContext("2d");
-
-  //   // Draw img on the canvas and read RGB data
-  //   img.onload = () => {
-  //     ctx.drawImage(img, 0, 0);
-  //     const colorData = ctx.getImageData(0, 0, img.width, 1).data;
-  //     const colorTransfer = new Uint8Array(3 * 256);
-  //     for (let i = 0; i < 256; i++) {
-  //       for (let j = 0; j < 3; j++)
-  //         colorTransfer[i * 3 + j] = colorData[i * 4 + j];
-  //     }
-  //     this.colorMapData = colorTransfer;
-  //     this.updateTransferTexture();
-  //   };
-  // },
-
-  // TODO: Will be able to delete
-  // updateTransferTexture: function () {
-  //   const colorMapData = this.colorMapData;
-  //   const imageTransferData = new Uint8Array(4 * 256);
-  //   for (let i = 0; i < 256; i++) {
-  //     for (let j = 0; j < 3; j++)
-  //       imageTransferData[i * 4 + j] = colorMapData[i * 3 + j];
-  //     imageTransferData[i * 4 + 3] = this.alphaData[i];
-  //   }
-
-  //   const transferTexture = new THREE.DataTexture(
-  //     imageTransferData,
-  //     256,
-  //     1,
-  //     THREE.RGBAFormat
-  //   );
-  //   transferTexture.needsUpdate = true;
-
-  // Apply transfer texture
-  // const mesh = this.getMesh();
-  // if (mesh) {
-  //   const material = mesh.material;
-  //   material.uniforms.u_lut.value = transferTexture;
-  //   material.uniforms.channel.value = this.data.channel;
-  //   material.uniforms.useLut.value = this.data.useTransferFunction;
-  //   material.needsUpdate = true;
-  // }
-  // },
-
-  // TODO: Will be able to remove this
-  // updateClipping: function () {
-  //   const mesh = this.getMesh();
-  //   const activateClipPlane = this.clipPlaneListenerHandler.el.getAttribute(
-  //     "render-2d-clipplane"
-  //   ).activateClipPlane;
-
-  //   if (mesh) {
-  //     const material = mesh.material;
-  //     if (activateClipPlane) {
-  //       const sliders = this.data.sliders;
-  //       material.uniforms.box_min.value = new THREE.Vector3(
-  //         sliders.x[0],
-  //         sliders.y[0],
-  //         sliders.z[0]
-  //       );
-  //       material.uniforms.box_max.value = new THREE.Vector3(
-  //         sliders.x[1],
-  //         sliders.y[1],
-  //         sliders.z[1]
-  //       );
-  //     } else {
-  //       // Ignore sliders
-  //       material.uniforms.box_min.value = new THREE.Vector3(0, 0, 0);
-  //       material.uniforms.box_max.value = new THREE.Vector3(1, 1, 1);
-  //     }
-  //   }
-  // },
-
-  // TODO: Will be able to remove this
-  // updateChannel: function () {
-  //   const mesh = this.getMesh();
-  //   if (mesh) {
-  //     const material = mesh.material;
-  //     material.uniforms.channel.value = this.data.channel;
-  //     material.uniforms.useLut.value = this.data.useTransferFunction;
-  //     material.needsUpdate = true;
-  //   }
-  // },
-
-  // TODO: Will be able to remove this
-  // updateOpacityData: function () {
-  //   this.alphaData = [];
-  //   const transferFunction = this.data.transferFunction;
-  //   for (let i = 0; i < transferFunction.length - 1; i++) {
-  //     const start = transferFunction[i];
-  //     const end = transferFunction[i + 1];
-  //     const deltaX = end.x * 255 - start.x * 255;
-
-  //     // Linear interpolation between points
-  //     const alphaStart = start.y * 255;
-  //     const alphaEnd = end.y * 255;
-  //     for (let j = 1 / deltaX; j < 1; j += 1 / deltaX) {
-  //       this.alphaData.push(alphaStart * (1 - j) + alphaEnd * j);
-  //     }
-  //   }
-  //   this.updateTransferTexture();
-  // },
 });

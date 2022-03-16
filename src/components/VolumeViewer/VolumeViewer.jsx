@@ -22,8 +22,6 @@ function VolumeViewer({
   rotation,
   scale,
 }) {
-  // TODO: Pass sliders as a prop
-
   // Control the models in state; override on modelsProp change
   const [models, setModels] = useState([]);
   const newModels = useModelsPropMemo(modelsProp);
@@ -32,6 +30,7 @@ function VolumeViewer({
   }, [newModels]);
 
   // Always initialize to DEFAULT_SLIDERS
+  // TODO: Pass sliders as a prop
   const [sliders, setSliders] = useState(DEFAULT_SLIDERS);
 
   // Changing a components key will remount the entire thing
@@ -42,9 +41,12 @@ function VolumeViewer({
     <Wrapper key={remountKey} className={className} style={style}>
       <AframeScene
         models={models}
-        position={position ?? DEFAULT_POSITION}
-        rotation={rotation ?? DEFAULT_ROTATION}
-        scale={scale ?? DEFAULT_SCALE}
+        position={position}
+        rotation={rotation}
+        scale={scale}
+        // position={position ?? DEFAULT_POSITION}
+        // rotation={rotation ?? DEFAULT_ROTATION}
+        // scale={scale ?? DEFAULT_SCALE}
         sliders={sliders}
       />
 
@@ -162,6 +164,9 @@ VolumeViewer.propTypes = {
 
 VolumeViewer.defaultProps = {
   controlsVisible: false,
+  position: DEFAULT_POSITION,
+  rotation: DEFAULT_ROTATION,
+  scale: DEFAULT_SCALE
 };
 
 export default VolumeViewer;

@@ -33,15 +33,11 @@ function App() {
         max: 33.71,
       },
       path: modelPath,
-      position: "-0.2 0 0",
-      scale: "1 -1 1",
-      rotation: "-55 0 0",
       useTransferFunction: useTransferFunction,
     },
     {
       name: "Opposite",
-      // colorMap: colorMap === haline ? thermal : haline,
-      colorMap: ColorMaps.rgb,
+      colorMap: colorMap === haline ? thermal : haline,
       ...(!singleColorMap && { colorMaps: allColorMaps }),
       enabled: true,
       range: {
@@ -50,9 +46,6 @@ function App() {
         unit: "°C",
       },
       path: modelPath === salt ? temp : salt,
-      position: "0.2 0 0",
-      scale: "1 -1 1",
-      rotation: "-55 0 0",
       useTransferFunction: useTransferFunction,
     },
   ];
@@ -92,7 +85,13 @@ function App() {
   );
 
   const VV = (
-    <StyledVolumeViewer controlsVisible={controlsVisible} models={models} />
+    <StyledVolumeViewer 
+      controlsVisible={controlsVisible} 
+      models={models} 
+      position="0 0 0"
+      scale="1 -1 1"
+      rotation="-55 0 0"
+    />
   );
 
   return (

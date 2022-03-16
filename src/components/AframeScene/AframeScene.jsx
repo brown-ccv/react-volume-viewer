@@ -11,11 +11,6 @@ import "../../Aframe/collider-check";
 import { getAframeModels } from "../../utils";
 
 function AframeScene({ models, position, rotation, scale, sliders }) {
-  // TODO: Only 1 model
-  // TODO: Pass models array into aframe
-  // TODO: Blend textures into 1 mesh in model.js
-
-  // TODO: position/rotation/scale not loading correctly
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
@@ -32,14 +27,14 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
         scale={scale}
       >
         {/* CLICKABLE PLANE FOR MOUSE INTERACTIONS */}
-        {/* <a-plane
+        <a-plane
           id="clipplane2D"
           class="clickable"
           visible="false"
           height="1"
           width="1"
           material="color: red; side: double; transparent: true; opacity: 0.2"
-        /> */}
+        />
 
         {/* MOUSE LISTENER FOR CLICKABLE PLANE */}
         <a-entity
