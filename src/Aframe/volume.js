@@ -70,6 +70,7 @@ AFRAME.registerComponent("volume", {
     if (oldData.models !== this.data.models) {
       Promise.all(
         this.data.models.map(async (model) => {
+          // Load data
           const name = await model.name;
           const texture = await this.loadTexture(model);
           const material = await this.loadMaterial(model, texture);
@@ -78,6 +79,7 @@ AFRAME.registerComponent("volume", {
             model.transferFunction
           );
 
+          // Update material
           material.uniforms.u_lut.value = transferTexture;
           material.needsUpdate = true;
 
@@ -95,20 +97,7 @@ AFRAME.registerComponent("volume", {
         .then((result) => {
           this.modelsData = result;
           console.log("All models loaded", this.modelsData);
-
-          // TODO: Blend all of the models together
-          if (this.modelsData.length > 0) {
-            // Build and apply mesh
-            // TODO: Just update the mesh properties instead of creating a new one?
-            this.el.setObject3D(
-              "mesh",
-              new THREE.Mesh(
-                new THREE.BoxGeometry(1, 1, 1),
-                this.modelsData[0].material
-              )
-            );
-            this.modelsData[0].material.needsUpdate = true;
-          }
+          this.buildMesh();
         })
         .catch((error) => console.error("Loading failed:", error));
     }
@@ -315,36 +304,57 @@ AFRAME.registerComponent("volume", {
     });
   },
 
+  // TODO: Blend all of the models together
+  // Blend model's into a single mesh and apply it to the model
+  buildMesh: function () {
+    if (this.modelsData.length > 0) {
+      // TODO: Just update the mesh properties instead of creating a new one?
+      this.el.setObject3D(
+        "mesh",
+        new THREE.Mesh(
+          new THREE.BoxGeometry(1, 1, 1),
+          this.modelsData[0].material
+        )
+      );
+      this.modelsData[0].material.needsUpdate = true;
+    }
+  },
+
   updateMeshClipMatrix: function () {
-    const volumeMatrix = this.getMesh().matrixWorld;
-    const material = this.getMesh().material;
+    const mesh = this.getMesh();
+    const volumeMatrix = mesh.matrixWorld;
+    const material = mesh.material;
 
     // Matrix for zscaling
-    const scaleMatrix = new THREE.Matrix4();
-    scaleMatrix.makeScale(1, 1, material.uniforms.zScale.value);
+    const scaleMatrix = new THREE.Matrix4().makeScale(
+      1,
+      1,
+      material.uniforms.zScale.value
+    );
 
     // Translate to cube-coordinates ranging from 0 -1
-    const translationMatrix = new THREE.Matrix4();
-    translationMatrix.makeTranslation(-0.5, -0.5, -0.5);
+    const translationMatrix = new THREE.Matrix4().makeTranslation(
+      -0.5,
+      -0.5,
+      -0.5
+    );
 
     // Inverse of the clip matrix
-    const controllerMatrix = this.controllerObject.matrixWorld;
-    const controllerMatrix_inverse = new THREE.Matrix4();
-    controllerMatrix_inverse.copy(controllerMatrix).invert();
+    const controllerMatrix_inverse = new THREE.Matrix4()
+      .copy(this.controllerObject.matrixWorld)
+      .invert();
 
-    //outputmatrix - controller_inverse * volume * scale * translation
-    const clipMatrix = new THREE.Matrix4();
-    clipMatrix.multiplyMatrices(controllerMatrix_inverse, volumeMatrix);
+    // clipMatrix = controller_inverse * volume * scale * translation
+    const clipMatrix = controllerMatrix_inverse;
+    clipMatrix.multiplyMatrices(clipMatrix, volumeMatrix);
     clipMatrix.multiplyMatrices(clipMatrix, scaleMatrix);
     clipMatrix.multiplyMatrices(clipMatrix, translationMatrix);
 
-    //set uniforms of shader
-    const isVrModeActive = this.scene.is("vr-mode");
-    const isClipped =
-      isVrModeActive &&
+    // Update shader uniforms
+    material.uniforms.clipPlane.value = clipMatrix;
+    material.uniforms.clipping.value =
+      this.scene.is("vr-mode") &&
       this.controllerObject.el.getAttribute("buttons-check").clipPlane &&
       !this.grabbed;
-    material.uniforms.clipPlane.value = clipMatrix;
-    material.uniforms.clipping.value = isClipped;
   },
 });

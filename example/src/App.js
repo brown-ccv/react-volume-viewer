@@ -32,8 +32,7 @@ function App() {
         min: 0.05,
         max: 33.71,
       },
-      // path: modelPath,
-      path: "bad/path",
+      path: modelPath,
       useTransferFunction: useTransferFunction,
     },
     {
