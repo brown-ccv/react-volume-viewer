@@ -166,7 +166,7 @@ VolumeViewer.defaultProps = {
   controlsVisible: false,
   position: DEFAULT_POSITION,
   rotation: DEFAULT_ROTATION,
-  scale: DEFAULT_SCALE
+  scale: DEFAULT_SCALE,
 };
 
 export default VolumeViewer;

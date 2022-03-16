@@ -98,7 +98,6 @@ AFRAME.registerComponent("volume", {
 
           // TODO: Blend all of the models together
           if (this.modelsData.length > 0) {
-            // TEMP
             // Build and apply mesh
             // TODO: Just update the mesh properties instead of creating a new one?
             this.el.setObject3D(
@@ -106,13 +105,12 @@ AFRAME.registerComponent("volume", {
               new THREE.Mesh(
                 new THREE.BoxGeometry(1, 1, 1),
                 this.modelsData[0].material
-                // materials
               )
             );
             this.modelsData[0].material.needsUpdate = true;
           }
         })
-        .catch((error) => console.error("Models could not be loaded:", error));
+        .catch((error) => console.error("Loading failed:", error));
     }
   },
 
@@ -144,7 +142,6 @@ AFRAME.registerComponent("volume", {
       this.updateMeshClipMatrix();
     }
   },
-
 
   remove: function () {
     this.scene.removeEventListener("enter-vr", this.onEnterVR);
@@ -195,7 +192,7 @@ AFRAME.registerComponent("volume", {
           resolve(texture);
         },
         () => {},
-        () => reject(new Error("Could not load the data at", model.path))
+        () => reject(new Error("Could not load the model at " + model.path))
       );
     });
   },
@@ -211,7 +208,6 @@ AFRAME.registerComponent("volume", {
     const zScale = volumeScale[0] / volumeScale[2];
 
     // Set material properties
-    // const shader = THREE.ShaderLib["ModelShader"];
     const uniforms = THREE.UniformsUtils.clone(this.shader.uniforms);
     uniforms.dim.value = dim;
     uniforms.intensity.value = intensity;
@@ -253,10 +249,6 @@ AFRAME.registerComponent("volume", {
     const material = new THREE.ShaderMaterial({
       ...this.DEFAULT_MATERIAL,
       uniforms: uniforms,
-      // transparent: true,
-      // vertexShader: this.shader.vertexShader,
-      // fragmentShader: this.shader.fragmentShader,
-      // side: THREE.BackSide, // The volume shader uses the "backface" as its reference point
     });
     material.needsUpdate = true;
 
@@ -276,13 +268,12 @@ AFRAME.registerComponent("volume", {
         colorMapPath =
           colorMapPath.substring(0, 14) + ";" + colorMapPath.substring(14);
 
-      // Create and image and canvas
+      // Create an image and canvas
       const img = document.createElement("img");
       img.src = colorMapPath;
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
 
-      // TODO: Needs to be inside a promise like model
       img.onload = () => {
         // Get RGB data from color map
         ctx.drawImage(img, 0, 0);
@@ -318,40 +309,42 @@ AFRAME.registerComponent("volume", {
         );
         transferTexture.needsUpdate = true;
         resolve(transferTexture);
-      }; //TODO: reject on error
+      };
+      img.onerror = () =>
+        reject(new Error("Could not load the color map at " + colorMapPath));
     });
   },
 
   updateMeshClipMatrix: function () {
-    // const volumeMatrix = this.getMesh().matrixWorld;
-    // const material = this.getMesh().material;
+    const volumeMatrix = this.getMesh().matrixWorld;
+    const material = this.getMesh().material;
 
-    // // Matrix for zscaling
-    // const scaleMatrix = new THREE.Matrix4();
-    // scaleMatrix.makeScale(1, 1, material.uniforms.zScale.value);
+    // Matrix for zscaling
+    const scaleMatrix = new THREE.Matrix4();
+    scaleMatrix.makeScale(1, 1, material.uniforms.zScale.value);
 
-    // // Translate to cube-coordinates ranging from 0 -1
-    // const translationMatrix = new THREE.Matrix4();
-    // translationMatrix.makeTranslation(-0.5, -0.5, -0.5);
+    // Translate to cube-coordinates ranging from 0 -1
+    const translationMatrix = new THREE.Matrix4();
+    translationMatrix.makeTranslation(-0.5, -0.5, -0.5);
 
-    // // Inverse of the clip matrix
-    // const controllerMatrix = this.controllerObject.matrixWorld;
-    // const controllerMatrix_inverse = new THREE.Matrix4();
-    // controllerMatrix_inverse.copy(controllerMatrix).invert();
+    // Inverse of the clip matrix
+    const controllerMatrix = this.controllerObject.matrixWorld;
+    const controllerMatrix_inverse = new THREE.Matrix4();
+    controllerMatrix_inverse.copy(controllerMatrix).invert();
 
-    // //outputmatrix - controller_inverse * volume * scale * translation
-    // const clipMatrix = new THREE.Matrix4();
-    // clipMatrix.multiplyMatrices(controllerMatrix_inverse, volumeMatrix);
-    // clipMatrix.multiplyMatrices(clipMatrix, scaleMatrix);
-    // clipMatrix.multiplyMatrices(clipMatrix, translationMatrix);
+    //outputmatrix - controller_inverse * volume * scale * translation
+    const clipMatrix = new THREE.Matrix4();
+    clipMatrix.multiplyMatrices(controllerMatrix_inverse, volumeMatrix);
+    clipMatrix.multiplyMatrices(clipMatrix, scaleMatrix);
+    clipMatrix.multiplyMatrices(clipMatrix, translationMatrix);
 
-    // //set uniforms of shader
-    // const isVrModeActive = this.scene.is("vr-mode");
-    // const isClipped =
-    //   isVrModeActive &&
-    //   this.controllerObject.el.getAttribute("buttons-check").clipPlane &&
-    //   !this.grabbed;
-    // material.uniforms.clipPlane.value = clipMatrix;
-    // material.uniforms.clipping.value = isClipped;
+    //set uniforms of shader
+    const isVrModeActive = this.scene.is("vr-mode");
+    const isClipped =
+      isVrModeActive &&
+      this.controllerObject.el.getAttribute("buttons-check").clipPlane &&
+      !this.grabbed;
+    material.uniforms.clipPlane.value = clipMatrix;
+    material.uniforms.clipping.value = isClipped;
   },
 });

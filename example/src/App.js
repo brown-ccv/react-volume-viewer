@@ -32,7 +32,8 @@ function App() {
         min: 0.05,
         max: 33.71,
       },
-      path: modelPath,
+      // path: modelPath,
+      path: "bad/path",
       useTransferFunction: useTransferFunction,
     },
     {
@@ -85,9 +86,9 @@ function App() {
   );
 
   const VV = (
-    <StyledVolumeViewer 
-      controlsVisible={controlsVisible} 
-      models={models} 
+    <StyledVolumeViewer
+      controlsVisible={controlsVisible}
+      models={models}
       position="0 0 0"
       scale="1 -1 1"
       rotation="-55 0 0"
