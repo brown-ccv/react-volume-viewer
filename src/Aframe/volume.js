@@ -3,7 +3,14 @@
 import { DEFAULT_SLIDERS } from "../constants/index.js";
 import "./Shader.js";
 
-const bind = AFRAME.utils.bind;
+const SHADER = THREE.ShaderLib["ModelShader"];
+const DEFAULT_MATERIAL = {
+  uniforms: THREE.UniformsUtils.clone(SHADER.uniforms),
+  transparent: true,
+  vertexShader: SHADER.vertexShader,
+  fragmentShader: SHADER.fragmentShader,
+  side: THREE.BackSide, // Shader uses "backface" as its reference point
+};
 
 AFRAME.registerComponent("volume", {
   dependencies: ["hand", "render-2d-clipplane", "buttons-check"],
@@ -17,14 +24,6 @@ AFRAME.registerComponent("volume", {
     this.canvas = this.scene.canvas;
     this.usedModels = new Map(); // Cache models (path: texture)
     this.usedColorMaps = new Map(); // Cache color maps (path: RGB data)
-    this.shader = THREE.ShaderLib["ModelShader"];
-    this.DEFAULT_MATERIAL = {
-      uniforms: THREE.UniformsUtils.clone(this.shader.uniforms),
-      transparent: true,
-      vertexShader: this.shader.vertexShader,
-      fragmentShader: this.shader.fragmentShader,
-      side: THREE.BackSide, // Shader uses "backface" as its reference point
-    };
     this.modelsData = [];
     this.rayCollided = false;
     this.grabbed = false;
@@ -37,8 +36,8 @@ AFRAME.registerComponent("volume", {
     ).object3D;
 
     // Bind functions
-    this.onEnterVR = bind(this.onEnterVR, this);
-    this.onExitVR = bind(this.onExitVR, this);
+    this.onEnterVR = AFRAME.utils.bind(this.onEnterVR, this);
+    this.onExitVR = AFRAME.utils.bind(this.onExitVR, this);
     this.onCollide = this.onCollide.bind(this);
     this.onClearCollide = this.onClearCollide.bind(this);
     this.getMesh = this.getMesh.bind(this);
@@ -54,11 +53,12 @@ AFRAME.registerComponent("volume", {
     );
 
     // Initialize mesh to shader defaults
+    console.log("DEFAULT", new THREE.ShaderMaterial(DEFAULT_MATERIAL));
     this.el.setObject3D(
       "mesh",
       new THREE.Mesh(
         new THREE.BoxGeometry(1, 1, 1),
-        new THREE.ShaderMaterial(this.DEFAULT_MATERIAL)
+        new THREE.ShaderMaterial(DEFAULT_MATERIAL)
       )
     );
   },
@@ -81,7 +81,6 @@ AFRAME.registerComponent("volume", {
           material.uniforms.u_lut.value = transferTexture;
           material.needsUpdate = true;
 
-          // TODO: Return object directly
           return {
             name,
             texture,
@@ -102,7 +101,6 @@ AFRAME.registerComponent("volume", {
   tick: function (time, timeDelta) {
     const isVrModeActive = this.scene.is("vr-mode");
     const mesh = this.getMesh();
-    this.updateMeshClipMatrix(); // TEMP
 
     // Position is controlled by controllerObject in VR
     if (this.controllerObject && isVrModeActive) {
@@ -196,7 +194,7 @@ AFRAME.registerComponent("volume", {
     const zScale = volumeScale[0] / volumeScale[2];
 
     // Set material properties
-    const uniforms = THREE.UniformsUtils.clone(this.shader.uniforms);
+    const uniforms = THREE.UniformsUtils.clone(SHADER.uniforms);
     uniforms.dim.value = dim;
     uniforms.intensity.value = intensity;
     uniforms.slice.value = slices;
@@ -235,7 +233,7 @@ AFRAME.registerComponent("volume", {
 
     // Create material
     return new THREE.ShaderMaterial({
-      ...this.DEFAULT_MATERIAL,
+      ...DEFAULT_MATERIAL,
       uniforms: uniforms,
     });
   },
@@ -316,19 +314,11 @@ AFRAME.registerComponent("volume", {
     });
   },
 
-  // TODO: Blend all of the models together
   // Blend model's into a single mesh and apply it to the model
   buildMesh: function () {
+    // TODO: Blend all of the model's material into one
     if (this.modelsData.length > 0) {
-      // TODO: Just update the mesh properties instead of creating a new one?
-      this.el.setObject3D(
-        "mesh",
-        new THREE.Mesh(
-          new THREE.BoxGeometry(1, 1, 1),
-          this.modelsData[0].material
-        )
-      );
-      this.modelsData[0].material.needsUpdate = true;
+      this.getMesh().material = this.modelsData[0].material;
     }
   },
 
