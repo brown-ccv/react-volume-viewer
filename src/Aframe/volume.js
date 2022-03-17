@@ -53,7 +53,6 @@ AFRAME.registerComponent("volume", {
     );
 
     // Initialize mesh to shader defaults
-    console.log("DEFAULT", new THREE.ShaderMaterial(DEFAULT_MATERIAL));
     this.el.setObject3D(
       "mesh",
       new THREE.Mesh(
@@ -107,6 +106,7 @@ AFRAME.registerComponent("volume", {
       const triggerDown =
         this.controllerObject.el.getAttribute("buttons-check").triggerDown;
 
+      // Stop grabbing object
       if (this.grabbed && !triggerDown) {
         mesh.matrix.premultiply(this.controllerObject.matrixWorld);
         mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
@@ -114,7 +114,7 @@ AFRAME.registerComponent("volume", {
         this.grabbed = false;
       }
 
-      // grab mesh
+      // Grab object
       if (!this.grabbed && triggerDown && this.rayCollided) {
         const inverseControllerPos = new THREE.Matrix4();
         inverseControllerPos.getInverse(this.controllerObject.matrixWorld);
@@ -149,11 +149,14 @@ AFRAME.registerComponent("volume", {
     }
   },
 
+  // TODO: onCollide is called once at runtime and is always true
   onCollide: function (event) {
+    console.log("ray collided")
     this.rayCollided = true;
   },
 
   onClearCollide: function (event) {
+    console.log("clear ray collided")
     this.rayCollided = false;
   },
 
