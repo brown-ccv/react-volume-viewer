@@ -104,10 +104,10 @@ AFRAME.registerComponent("volume", {
 
     // Position is controlled by controllerObject in VR
     if (this.controllerObject && isVrModeActive) {
-      const grabObject =
-        this.controllerObject.el.getAttribute("buttons-check").grabObject;
+      const triggerDown =
+        this.controllerObject.el.getAttribute("buttons-check").triggerDown;
 
-      if (this.grabbed && !grabObject) {
+      if (this.grabbed && !triggerDown) {
         mesh.matrix.premultiply(this.controllerObject.matrixWorld);
         mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
         this.el.object3D.add(mesh);
@@ -115,7 +115,7 @@ AFRAME.registerComponent("volume", {
       }
 
       // grab mesh
-      if (!this.grabbed && grabObject && this.rayCollided) {
+      if (!this.grabbed && triggerDown && this.rayCollided) {
         const inverseControllerPos = new THREE.Matrix4();
         inverseControllerPos.getInverse(this.controllerObject.matrixWorld);
         mesh.matrix.premultiply(inverseControllerPos);
@@ -347,7 +347,7 @@ AFRAME.registerComponent("volume", {
     uniforms.clipPlane.value = clipMatrix;
     uniforms.clipping.value =
       this.scene.is("vr-mode") &&
-      this.controllerObject.el.getAttribute("buttons-check").clipPlane &&
+      this.controllerObject.el.getAttribute("buttons-check").gripDown &&
       !this.grabbed;
   },
 });

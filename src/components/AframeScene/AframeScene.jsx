@@ -17,7 +17,7 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
       <a-entity
         id="hand"
         raycaster="objects: .clickableMesh"
-        buttons-check={`clipPlane: ${false}; grabObject: ${false};`}
+        buttons-check={`gripDown: ${false}; triggerDown: ${false};`}
         collider-check={`intersecting: ${false};`}
       />
       <a-entity
@@ -41,7 +41,7 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
           id="clipplane2DListener"
           // TODO: Do we need this at all? Just activateClipPlane
           render-2d-clipplane={`
-            activateClipPlane: true;
+            activateClipPlane: ${true};
             xBounds: ${sliders.x};
             yBounds: ${sliders.y};
             zBounds: ${sliders.z};
