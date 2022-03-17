@@ -37,8 +37,6 @@ function VolumeViewer({
   // Because the model's position is handled internally by aframe we need to remount it to reset its position
   const [remountKey, setRemountKey] = useState(Math.random());
 
-  console.log("VV", models)
-
   return (
     <Wrapper key={remountKey} className={className} style={style}>
       <AframeScene
