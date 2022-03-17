@@ -178,6 +178,7 @@ AFRAME.registerComponent("volume", {
           texture.unpackAlignment = 1;
           texture.needsUpdate = true;
 
+          this.usedModels.set(modelPath, texture);
           resolve(texture);
         },
         () => {},
@@ -205,7 +206,6 @@ AFRAME.registerComponent("volume", {
       img.onload = () => {
         ctx.drawImage(img, 0, 0);
         const colorData = ctx.getImageData(0, 0, img.width, 1).data;
-
         this.usedColorMaps.set(colorMapPath, colorData);
         resolve(colorData);
       };
