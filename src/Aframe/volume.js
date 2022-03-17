@@ -13,7 +13,7 @@ const DEFAULT_MATERIAL = {
 };
 
 AFRAME.registerComponent("volume", {
-  dependencies: ["hand", "render-2d-clipplane", "buttons-check"],
+  dependencies: ["keypress-listener"], // Adds component to the entity
   schema: {
     models: { parse: JSON.parse, default: [] },
     sliders: { parse: JSON.parse, default: DEFAULT_SLIDERS },
@@ -31,9 +31,6 @@ AFRAME.registerComponent("volume", {
     // Get aframe entities
     this.controllerObject = document.getElementById("hand").object3D;
     this.controllerObject.matrixAutoUpdate = false;
-    this.clipPlaneListenerHandler = document.getElementById(
-      "clipplane2DListener"
-    ).object3D;
 
     // Bind functions
     this.onEnterVR = AFRAME.utils.bind(this.onEnterVR, this);
@@ -151,12 +148,10 @@ AFRAME.registerComponent("volume", {
 
   // TODO: onCollide is called once at runtime and is always true
   onCollide: function (event) {
-    console.log("ray collided")
     this.rayCollided = true;
   },
 
   onClearCollide: function (event) {
-    console.log("clear ray collided")
     this.rayCollided = false;
   },
 
@@ -213,10 +208,7 @@ AFRAME.registerComponent("volume", {
     uniforms.useLut.value = useTransferFunction;
 
     // Update clipping uniforms from sliders (ignore if !activateClipPlane)
-    const activateClipPlane = this.clipPlaneListenerHandler.el.getAttribute(
-      "render-2d-clipplane"
-    ).activateClipPlane;
-    if (activateClipPlane) {
+    if (this.el.getAttribute("keypress-listener").activateClipPlane) {
       const sliders = this.data.sliders;
       uniforms.box_min.value = new THREE.Vector3(
         sliders.x[0],

@@ -1,12 +1,13 @@
 import React from "react";
 
 import "aframe";
-import "../../Aframe/volume";
+
 import "../../Aframe/arcball-camera";
 import "../../Aframe/buttons-check";
-import "../../Aframe/render-2d-clipplane";
-import "../../Aframe/entity-collider-check";
 import "../../Aframe/collider-check";
+import "../../Aframe/entity-collider-check";
+import "../../Aframe/keypress-listener";
+import "../../Aframe/volume";
 
 import { getAframeModels } from "../../utils";
 
@@ -36,18 +37,6 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
           material="color: red; side: double; transparent: true; opacity: 0.2"
         />
 
-        {/* MOUSE LISTENER FOR CLICKABLE PLANE */}
-        <a-entity
-          id="clipplane2DListener"
-          // TODO: Do we need this at all? Just activateClipPlane
-          render-2d-clipplane={`
-            activateClipPlane: ${true};
-            xBounds: ${sliders.x};
-            yBounds: ${sliders.y};
-            zBounds: ${sliders.z};
-          `}
-        />
-
         {/* VOLUME */}
         <a-entity
           id="volume"
@@ -56,6 +45,7 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
             models: ${getAframeModels(models)};
             sliders: ${JSON.stringify(sliders)};
           `}
+          // render-2d-clipplane={`activateClipPlane: ${true};`}
         />
       </a-entity>
 
