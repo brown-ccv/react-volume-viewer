@@ -24,7 +24,8 @@ AFRAME.registerComponent("volume", {
     this.canvas = this.scene.canvas;
     this.usedModels = new Map(); // Cache models (path: texture)
     this.usedColorMaps = new Map(); // Cache color maps (path: RGB data)
-    this.modelsData = [];
+    // this.modelsData = [];
+    this.materials = new Map(); // Cache the model(s) material
     this.rayCollided = false;
     this.grabbed = false;
 
@@ -61,6 +62,7 @@ AFRAME.registerComponent("volume", {
 
   update: function (oldData) {
     const { data, usedModels, usedColorMaps } = this; // Extra read-only data
+    console.log(oldData, data);
 
     // TODO: Only change this.modelsData based on difference between oldData and this.data
     if (oldData.models !== data.models) {
@@ -81,23 +83,17 @@ AFRAME.registerComponent("volume", {
             colorData,
             transferFunction
           );
-
-          // TODO: All we really need is the material - Map(name -> material)
-          const material = this.buildMaterial(model, texture, transferTexture);
-          return {
-            name: name,
-            texture,
-            material,
-            transferTexture,
-          };
+          this.materials.set(
+            name,
+            this.buildMaterial(model, texture, transferTexture)
+          );
         })
       )
-        .then((result) => {
-          this.modelsData = result;
-          console.log("All models loaded", this.modelsData);
-          this.buildMesh();
-        })
+        .then(() => this.buildMesh())
         .catch((error) => console.error("Loading failed:", error));
+    }
+
+    if (oldData.sliders !== data.sliders) {
     }
   },
 
@@ -309,10 +305,16 @@ AFRAME.registerComponent("volume", {
 
   // Blend model's into a single material and apply it to the model
   buildMesh: function () {
+    console.log("All models loaded", this.materials);
+
     // TODO: Blend all of the model's material into one
-    if (this.modelsData.length > 0) {
-      this.getMesh().material = this.modelsData[0].material;
-    }
+
+    this.getMesh().material =
+      this.materials.size > 0
+        ? // TEMP - first value
+          this.materials.values().next().value
+        : // No models - use default material
+          new THREE.ShaderMaterial(DEFAULT_MATERIAL);
   },
 
   updateMeshClipMatrix: function () {

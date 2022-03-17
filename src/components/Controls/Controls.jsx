@@ -1,74 +1,52 @@
 import React from "react";
 import styled from "styled-components";
-import { Tabs, TabList, Tab, TabPanels, TabPanel } from "@reach/tabs";
-import "@reach/tabs/styles.css";
 
 import ColorMapControls from "../ColorMapControls";
 import OpacityControls from "../OpacityControls";
 import ClipControls from "../ClipControls";
 
-function Controls({ models, sliders, setModels, setSliders, reset }) {
-  // Keep track of currently open model
-  const [tabIndex, setTabIndex] = React.useState(0);
-  const handleTabsChange = (index) => {
-    setTabIndex(index);
-  };
-
-  // TODO: Each individual Tab/TabPanel should only updated when the specific model changes
+function Controls({
+  colorMaps,
+  initModel,
+  model,
+  sliders,
+  setModel,
+  setSliders,
+  reset,
+}) {
   return (
-    <Wrapper index={tabIndex} onChange={handleTabsChange}>
-      <StyledTabList>
-        {models.map((model) => (
-          <Tab key={model.name}>{model.name}</Tab>
-        ))}
-      </StyledTabList>
+    <Wrapper>
+      <ColorMapControls
+        colorMaps={colorMaps}
+        model={model}
+        setModel={setModel}
+      />
 
-      <StyledTabPanels>
-        {models.map((model) => (
-          <TabPanel key={model.name}>
-            <ColorMapControls
-              model={model}
-              modelIdx={tabIndex}
-              setModels={setModels}
-            />
+      {model.useTransferFunction && (
+        <OpacityControls
+          initModel={initModel}
+          range={model.range}
+          setModel={setModel}
+        />
+      )}
+      <Button onClick={reset}> Reset </Button>
 
-            {model.useTransferFunction && (
-              <OpacityControls
-                initTransferFunction={model.initTransferFunction}
-                modelIdx={tabIndex}
-                range={model.range}
-                setModels={setModels}
-              />
-            )}
-            <p>Enabled: {model.enabled.toString()}</p>
-            <Button onClick={reset}> Reset </Button>
-          </TabPanel>
-        ))}
-        <ClipControls sliders={sliders} setSliders={setSliders} />
-      </StyledTabPanels>
+      <ClipControls sliders={sliders} setSliders={setSliders} />
     </Wrapper>
   );
 }
 
-const Wrapper = styled(Tabs)`
+const Wrapper = styled.div`
   background-color: white;
   position: absolute;
   box-sizing: border-box;
+  padding: 0px 16px; // Section component handles spacing on y axis
   width: 320px;
   left: 8px;
   top: 8px;
   height: fit-content;
   max-height: calc(100% - 16px); // Leaves 8px to the bottom of the AframeScene
   overflow: auto;
-`;
-
-// TODO: Cleaner way than just the scrollbar
-const StyledTabList = styled(TabList)`
-  overflow: auto;
-`;
-
-const StyledTabPanels = styled(TabPanels)`
-  padding: 0px 16px; // Section.jsx handles spacing on y axis
 `;
 
 const Button = styled.button``;
