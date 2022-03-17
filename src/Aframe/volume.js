@@ -62,7 +62,6 @@ AFRAME.registerComponent("volume", {
 
   update: function (oldData) {
     const { data, usedModels, usedColorMaps } = this; // Extra read-only data
-    console.log(oldData, data);
 
     // TODO: Only change this.modelsData based on difference between oldData and this.data
     if (oldData.models !== data.models) {
@@ -94,6 +93,7 @@ AFRAME.registerComponent("volume", {
     }
 
     if (oldData.sliders !== data.sliders) {
+      console.log(oldData.sliders, data.sliders)
     }
   },
 

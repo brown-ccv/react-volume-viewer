@@ -4,7 +4,6 @@ import styled from "styled-components";
 import ColorMapControls from "../ColorMapControls";
 import OpacityControls from "../OpacityControls";
 import ClipControls from "../ClipControls";
-
 function Controls({
   colorMaps,
   initModel,
@@ -14,6 +13,7 @@ function Controls({
   setSliders,
   reset,
 }) {
+  console.log(model)
   return (
     <Wrapper>
       <ColorMapControls
