@@ -19,7 +19,7 @@ AFRAME.registerComponent("keypress-listener", {
     window.removeEventListener("keypress", this.onKeyPress);
   },
 
-  onKeyPress: function ({code}) {
+  onKeyPress: function ({ code }) {
     if (code === "KeyQ") this.data.activateClipPlane = true;
     else if (code === "KeyS") this.data.activateClipPlane = false;
   },
