@@ -1,4 +1,5 @@
 /* globals AFRAME THREE */
+import { isEqual } from "lodash";
 
 import { DEFAULT_SLIDERS } from "../constants/index.js";
 import "./Shader.js";
@@ -64,7 +65,8 @@ AFRAME.registerComponent("volume", {
     const { data, usedModels, usedColorMaps } = this; // Extra read-only data
 
     // TODO: Only change this.modelsData based on difference between oldData and this.data
-    if (oldData.models !== data.models) {
+    // if (oldData.models !== data.models) {
+    if (!isEqual(data.models, oldData.models)) {
       Promise.all(
         data.models.map(async (model) => {
           const { name, path, colorMap, transferFunction } = model;
@@ -92,8 +94,9 @@ AFRAME.registerComponent("volume", {
         .catch((error) => console.error("Loading failed:", error));
     }
 
-    if (oldData.sliders !== data.sliders) {
-      console.log(oldData.sliders, data.sliders)
+    if (!isEqual(data.sliders, oldData.sliders)) {
+      console.log("sliders");
+      this.updateClipping();
     }
   },
 
@@ -278,9 +281,19 @@ AFRAME.registerComponent("volume", {
     uniforms.u_data.value = texture;
     uniforms.u_lut.value = transferTexture;
 
-    // Update clipping uniforms from sliders (ignore if !activateClipPlane)
+    // Create material
+    return new THREE.ShaderMaterial({
+      ...DEFAULT_MATERIAL,
+      uniforms: uniforms,
+    });
+  },
+
+  // Update clipping uniforms from sliders (ignore if !activateClipPlane)
+  updateClipping() {
+    const sliders = this.data.sliders;
+    const uniforms = this.getMesh().material.uniforms;
+
     if (this.el.getAttribute("keypress-listener").activateClipPlane) {
-      const sliders = this.data.sliders;
       uniforms.box_min.value = new THREE.Vector3(
         sliders.x[0],
         sliders.y[0],
@@ -295,12 +308,6 @@ AFRAME.registerComponent("volume", {
       uniforms.box_min.value = new THREE.Vector3(0, 0, 0);
       uniforms.box_max.value = new THREE.Vector3(1, 1, 1);
     }
-
-    // Create material
-    return new THREE.ShaderMaterial({
-      ...DEFAULT_MATERIAL,
-      uniforms: uniforms,
-    });
   },
 
   // Blend model's into a single material and apply it to the model
