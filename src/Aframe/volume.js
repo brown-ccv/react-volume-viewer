@@ -25,7 +25,6 @@ AFRAME.registerComponent("volume", {
     this.canvas = this.scene.canvas;
     this.usedModels = new Map(); // Cache models (path: texture)
     this.usedColorMaps = new Map(); // Cache color maps (path: RGB data)
-    // this.modelsData = [];
     this.materials = new Map(); // Cache the model(s) material
     this.rayCollided = false;
     this.grabbed = false;
