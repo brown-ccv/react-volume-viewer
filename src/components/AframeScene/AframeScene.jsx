@@ -1,4 +1,5 @@
-import React from "react";
+import React, { memo } from "react";
+import { isEqual } from "lodash"
 
 import "aframe";
 
@@ -67,4 +68,4 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
   );
 }
 
-export default AframeScene;
+export default memo(AframeScene, isEqual);

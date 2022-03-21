@@ -75,6 +75,7 @@ function OpacityControls({ initTransferFunction, modelIdx, range, setModels }) {
 
   /** DRAW FUNCTION **/
 
+  // TODO: Don't want to run on renders where the other useEffect runs
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
