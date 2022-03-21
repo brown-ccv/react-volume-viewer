@@ -1,4 +1,5 @@
 import React, { memo } from "react";
+import { isEqual } from "lodash"
 
 import "aframe";
 import "../../Aframe/arcball-camera";
@@ -11,6 +12,7 @@ import "../../Aframe/collider-check";
 import { toAframeString } from "../../utils";
 
 function AframeScene({ models, sliders }) {
+  console.log("SCENE")
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
@@ -94,4 +96,4 @@ function AframeScene({ models, sliders }) {
   );
 }
 
-export default memo(AframeScene);
+export default memo(AframeScene, (prevProps, nextProps) => isEqual(prevProps, nextProps));

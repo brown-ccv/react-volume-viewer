@@ -32,7 +32,6 @@ function VolumeViewer({
     <Wrapper key={remountKey} className={className} style={style}>
       <AframeScene models={models} sliders={sliders} />
 
-      {/* {controlsVisible && ( */}
       <Controls
         controlsVisible={controlsVisible}
         models={models}
@@ -45,7 +44,6 @@ function VolumeViewer({
           setRemountKey(Math.random());
         }}
       />
-      {/* )} */}
     </Wrapper>
   );
 }
