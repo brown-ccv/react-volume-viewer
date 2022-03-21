@@ -8,10 +8,16 @@ import TransferFunctionControls from "./TransferFunctionControls.jsx";
 import ClipControls from "./ClipControls.jsx";
 import EnabledControls from "./EnabledControls.jsx";
 
-function Controls({ models, sliders, setModels, setSliders, reset }) {
-  // TODO: Each individual Tab/TabPanel should only updated when the specific model changes
+function Controls({
+  controlsVisible,
+  models,
+  sliders,
+  setModels,
+  setSliders,
+  reset,
+}) {
   return (
-    <Wrapper>
+    <Wrapper $visible={controlsVisible}>
       <StyledTabList>
         {models.map((model) => (
           <Tab key={model.name}>{model.name}</Tab>
@@ -59,6 +65,7 @@ const Wrapper = styled(Tabs)`
   height: fit-content;
   max-height: calc(100% - 16px); // Leaves 8px to the bottom of the AframeScene
   overflow: auto;
+  display: ${(props) => (props.$visible ? "initial" : "none")};
 `;
 
 // TODO: Cleaner way than just the scrollbar

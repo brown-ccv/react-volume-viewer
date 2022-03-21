@@ -1,4 +1,5 @@
-import React from "react";
+import React, { memo } from "react";
+import { isEqual } from "lodash"
 
 import "aframe";
 import "../../Aframe/arcball-camera";
@@ -94,4 +95,4 @@ function AframeScene({ models, sliders }) {
   );
 }
 
-export default AframeScene;
+export default memo(AframeScene, isEqual);
