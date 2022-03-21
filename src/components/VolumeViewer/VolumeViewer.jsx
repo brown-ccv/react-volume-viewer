@@ -50,19 +50,18 @@ function VolumeViewer({
         sliders={sliders}
       />
 
-      {controlsVisible && (
-        <Controls
-          models={models}
-          sliders={sliders}
-          setModels={setModels}
-          setSliders={setSliders}
-          reset={() => {
-            setModels(buildModels(modelsProp));
-            setSliders(DEFAULT_SLIDERS);
-            setRemountKey(Math.random());
-          }}
-        />
-      )}
+      <Controls
+        controlsVisible={controlsVisible}
+        models={models}
+        sliders={sliders}
+        setModels={setModels}
+        setSliders={setSliders}
+        reset={() => {
+          setModels(buildModels(modelsProp));
+          setSliders(DEFAULT_SLIDERS);
+          setRemountKey(Math.random());
+        }}
+      />
     </Wrapper>
   );
 }
