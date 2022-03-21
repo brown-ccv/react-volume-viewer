@@ -4,6 +4,7 @@ import { scaleLinear } from "d3-scale";
 
 import Section from "./Section.jsx";
 import { DECIMALS, CANVAS_PADDING, HOVER_RADIUS } from "../../constants";
+import Title from "./Title.jsx";
 
 /** Data Ranges and Transformations **/
 
@@ -210,6 +211,7 @@ function TransferFunctionControls({
 
   return (
     <Section title="Transfer Function">
+      <Title>Transfer Function</Title>
       <OutlinedCanvas
         id="opacityControls"
         ref={canvasRef}

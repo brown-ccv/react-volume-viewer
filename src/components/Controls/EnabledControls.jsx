@@ -2,12 +2,12 @@ import React from "react";
 import styled from "styled-components";
 
 import Section from "./Section.jsx";
+import Title from "./Title.jsx";
 
 function EnabledControls({ enabled, modelIdx, setModels }) {
-  console.log(enabled, modelIdx);
   return (
-    <Section>
-      <p>Enabled: {enabled.toString()}</p>
+    <FlexSection>
+      <Title>Enabled?</Title>
       <input
         type="checkbox"
         role="switch"
@@ -26,8 +26,14 @@ function EnabledControls({ enabled, modelIdx, setModels }) {
           })
         }
       />
-    </Section>
+    </FlexSection>
   );
 }
+
+const FlexSection = styled(Section)`
+  display: flex;
+  justify-content: center;
+  color: blue;
+`
 
 export default EnabledControls;

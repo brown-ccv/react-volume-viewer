@@ -11,10 +11,12 @@ import {
 import "@reach/listbox/styles.css";
 
 import Section from "./Section.jsx";
+import Title from "./Title.jsx";
 
 function ColorMapControls({ model, modelIdx, setModels }) {
   return (
     <Section title="Color Map">
+      <Title>Color Map</Title>
       {"colorMaps" in model ? (
         <StyledListboxInput
           aria-labelledby="ColorMap dropdown"
