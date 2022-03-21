@@ -7,7 +7,6 @@ import ColorMapControls from "../ColorMapControls";
 import OpacityControls from "../OpacityControls";
 import ClipControls from "../ClipControls";
 
-// function Controls({ models, sliders, setModels, setSliders, reset }) {
 function Controls({
   controlsVisible,
   models,
