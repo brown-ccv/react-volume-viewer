@@ -10,7 +10,7 @@ import {
 } from "@reach/listbox";
 import "@reach/listbox/styles.css";
 
-import Section from "../Section";
+import Section from "./Section.jsx";
 
 function ColorMapControls({ model, modelIdx, setModels }) {
   return (

@@ -3,20 +3,15 @@ import styled from "styled-components";
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from "@reach/tabs";
 import "@reach/tabs/styles.css";
 
-import ColorMapControls from "../ColorMapControls";
-import OpacityControls from "../OpacityControls";
-import ClipControls from "../ClipControls";
+import ColorMapControls from "./ColorMapControls.jsx";
+import TransferFunctionControls from "./TransferFunctionControls.jsx";
+import ClipControls from "./ClipControls.jsx";
+import EnabledControls from "./EnabledControls.jsx";
 
 function Controls({ models, sliders, setModels, setSliders, reset }) {
-  // Keep track of currently open model
-  const [tabIndex, setTabIndex] = React.useState(0);
-  const handleTabsChange = (index) => {
-    setTabIndex(index);
-  };
-
   // TODO: Each individual Tab/TabPanel should only updated when the specific model changes
   return (
-    <Wrapper index={tabIndex} onChange={handleTabsChange}>
+    <Wrapper>
       <StyledTabList>
         {models.map((model) => (
           <Tab key={model.name}>{model.name}</Tab>
@@ -24,23 +19,27 @@ function Controls({ models, sliders, setModels, setSliders, reset }) {
       </StyledTabList>
 
       <StyledTabPanels>
-        {models.map((model) => (
+        {models.map((model, idx) => (
           <TabPanel key={model.name}>
+            <EnabledControls
+              enabled={model.enabled}
+              modelIdx={idx}
+              setModels={setModels}
+            />
             <ColorMapControls
               model={model}
-              modelIdx={tabIndex}
+              modelIdx={idx}
               setModels={setModels}
             />
 
             {model.useTransferFunction && (
-              <OpacityControls
+              <TransferFunctionControls
                 initTransferFunction={model.initTransferFunction}
-                modelIdx={tabIndex}
+                modelIdx={idx}
                 range={model.range}
                 setModels={setModels}
               />
             )}
-            <p>Enabled: {model.enabled.toString()}</p>
             <Button onClick={reset}> Reset </Button>
           </TabPanel>
         ))}

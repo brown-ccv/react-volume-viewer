@@ -92,6 +92,6 @@ function toAframeString(obj) {
     str += `${key}: ${val};`;
   });
   return str;
-};
+}
 
 export { validateModels, buildModels, useModelsPropMemo, toAframeString };

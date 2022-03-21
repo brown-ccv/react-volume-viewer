@@ -8,7 +8,7 @@ import "../../Aframe/render-2d-clipplane";
 import "../../Aframe/entity-collider-check";
 import "../../Aframe/collider-check";
 
-import { toAframeString } from "../../utils"
+import { toAframeString } from "../../utils";
 
 function AframeScene({ models, sliders }) {
   return (

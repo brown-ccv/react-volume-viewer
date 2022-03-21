@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { scaleLinear } from "d3-scale";
 
-import Section from "../Section";
+import Section from "./Section.jsx";
 import { DECIMALS, CANVAS_PADDING, HOVER_RADIUS } from "../../constants";
 
 /** Data Ranges and Transformations **/
@@ -40,7 +40,12 @@ function getRelativeMousePos(e) {
   return position;
 }
 
-function OpacityControls({ initTransferFunction, modelIdx, range, setModels }) {
+function TransferFunctionControls({
+  initTransferFunction,
+  modelIdx,
+  range,
+  setModels,
+}) {
   const canvasRef = useRef(null);
   const [cursorType, setCursorType] = useState("pointer"); // Cursor type (styled-components)
   const [canvasPoints, setCanvasPoints] = useState([]); // Points in canvas space
@@ -275,4 +280,4 @@ const HelpText = styled.p`
   font-size: 0.75rem;
 `;
 
-export default OpacityControls;
+export default TransferFunctionControls;
