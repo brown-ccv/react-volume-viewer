@@ -42,7 +42,6 @@ function getRelativeMousePos(e) {
 
 function OpacityControls({ initTransferFunction, modelIdx, range, setModels }) {
   const canvasRef = useRef(null);
-  const readyToDraw = useRef(false);
   const [cursorType, setCursorType] = useState("pointer"); // Cursor type (styled-components)
   const [canvasPoints, setCanvasPoints] = useState([]); // Points in canvas space
   const [pointHovering, setPointHovering] = useState(null); // The point currently moused over
@@ -51,7 +50,6 @@ function OpacityControls({ initTransferFunction, modelIdx, range, setModels }) {
   /** INITIAL RENDER **/
 
   useEffect(() => {
-    readyToDraw.current = false;
     const canvas = canvasRef.current;
 
     // Set ranges and transformations
@@ -65,7 +63,6 @@ function OpacityControls({ initTransferFunction, modelIdx, range, setModels }) {
       .range(canvasRange.y);
 
     // Initialize canvasPoints
-    // console.log("INIT", modelIdx, initTransferFunction);
     setCanvasPoints(
       initTransferFunction.map((p) => {
         return {
@@ -74,7 +71,6 @@ function OpacityControls({ initTransferFunction, modelIdx, range, setModels }) {
         };
       })
     );
-    return () => (readyToDraw.current = true);
   }, [initTransferFunction]);
 
   /** DRAW FUNCTION **/
@@ -113,7 +109,6 @@ function OpacityControls({ initTransferFunction, modelIdx, range, setModels }) {
       context.fill();
     });
 
-    console.log("DRAW", modelIdx, canvasPoints);
     setModels((models) => [
       ...models.slice(0, modelIdx),
       {

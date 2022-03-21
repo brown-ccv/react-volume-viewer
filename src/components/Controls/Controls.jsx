@@ -16,8 +16,6 @@ function Controls({
   setSliders,
   reset,
 }) {
-  // TODO: Test ColorMap controls
-  console.log(controlsVisible);
   return (
     <Wrapper $visible={controlsVisible}>
       <StyledTabList>
