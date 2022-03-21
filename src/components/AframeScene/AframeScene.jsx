@@ -46,7 +46,6 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
             models: ${getAframeModels(models)};
             sliders: ${JSON.stringify(sliders)};
           `}
-          // render-2d-clipplane={`activateClipPlane: ${true};`}
         />
       </a-entity>
 
