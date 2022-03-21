@@ -12,7 +12,6 @@ import "../../Aframe/collider-check";
 import { toAframeString } from "../../utils";
 
 function AframeScene({ models, sliders }) {
-  console.log("SCENE")
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
