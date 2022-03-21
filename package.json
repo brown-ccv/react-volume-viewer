@@ -30,6 +30,7 @@
     "@reach/tabs": "^0.16.4",
     "aframe": "^1.2.0",
     "d3-scale": "^4.0.2",
+    "lodash": "^4.17.21",
     "rc-slider": "^9.7.4"
   },
   "peerDependencies": {

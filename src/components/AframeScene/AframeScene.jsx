@@ -1,4 +1,5 @@
-import React from "react";
+import React, { memo } from "react";
+import { isEqual } from "lodash"
 
 import "aframe";
 import "../../Aframe/arcball-camera";
@@ -8,7 +9,7 @@ import "../../Aframe/render-2d-clipplane";
 import "../../Aframe/entity-collider-check";
 import "../../Aframe/collider-check";
 
-import { toAframeString } from "../../utils"
+import { toAframeString } from "../../utils";
 
 function AframeScene({ models, sliders }) {
   return (
@@ -94,4 +95,4 @@ function AframeScene({ models, sliders }) {
   );
 }
 
-export default AframeScene;
+export default memo(AframeScene, isEqual);

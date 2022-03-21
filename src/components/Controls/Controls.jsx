@@ -7,16 +7,16 @@ import ColorMapControls from "../ColorMapControls";
 import OpacityControls from "../OpacityControls";
 import ClipControls from "../ClipControls";
 
-function Controls({ models, sliders, setModels, setSliders, reset }) {
-  // Keep track of currently open model
-  const [tabIndex, setTabIndex] = React.useState(0);
-  const handleTabsChange = (index) => {
-    setTabIndex(index);
-  };
-
-  // TODO: Each individual Tab/TabPanel should only updated when the specific model changes
+function Controls({
+  controlsVisible,
+  models,
+  sliders,
+  setModels,
+  setSliders,
+  reset,
+}) {
   return (
-    <Wrapper index={tabIndex} onChange={handleTabsChange}>
+    <Wrapper $visible={controlsVisible}>
       <StyledTabList>
         {models.map((model) => (
           <Tab key={model.name}>{model.name}</Tab>
@@ -24,18 +24,18 @@ function Controls({ models, sliders, setModels, setSliders, reset }) {
       </StyledTabList>
 
       <StyledTabPanels>
-        {models.map((model) => (
+        {models.map((model, idx) => (
           <TabPanel key={model.name}>
             <ColorMapControls
               model={model}
-              modelIdx={tabIndex}
+              modelIdx={idx}
               setModels={setModels}
             />
 
             {model.useTransferFunction && (
               <OpacityControls
                 initTransferFunction={model.initTransferFunction}
-                modelIdx={tabIndex}
+                modelIdx={idx}
                 range={model.range}
                 setModels={setModels}
               />
@@ -60,6 +60,7 @@ const Wrapper = styled(Tabs)`
   height: fit-content;
   max-height: calc(100% - 16px); // Leaves 8px to the bottom of the AframeScene
   overflow: auto;
+  display: ${(props) => (props.$visible ? "initial" : "none")};
 `;
 
 // TODO: Cleaner way than just the scrollbar
