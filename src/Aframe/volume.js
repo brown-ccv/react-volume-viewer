@@ -1,6 +1,6 @@
 /* globals AFRAME THREE */
-import { isEqual } from "lodash";
 
+import { deepDifference } from "../utils/index.js";
 import { DEFAULT_SLIDERS } from "../constants/index.js";
 import "./Shader.js";
 
@@ -63,9 +63,19 @@ AFRAME.registerComponent("volume", {
   update: function (oldData) {
     const { data, usedModels, usedColorMaps } = this; // Extra read-only data
 
+    console.log("DIFF", deepDifference(oldData, data));
+    (data.models.length > 0 && oldData.models.length > 0) && 
+    console.log(
+      "DIFF",
+      oldData.models[0].transferFunction,
+      data.models[0].transferFunction,
+      oldData.models[1].transferFunction,
+      data.models[1].transferFunction
+    );
+
     // TODO: Only change this.modelsData based on difference between oldData and this.data
-    // if (oldData.models !== data.models) {
-    if (!isEqual(data.models, oldData.models)) {
+    if (oldData.models !== data.models) {
+      // console.log("MODELS", data.models)
       Promise.all(
         data.models.map(async (model) => {
           const { name, path, colorMap, transferFunction } = model;
@@ -93,8 +103,8 @@ AFRAME.registerComponent("volume", {
         .catch((error) => console.error("Loading failed:", error));
     }
 
-    if (!isEqual(data.sliders, oldData.sliders)) {
-      console.log("sliders");
+    if (oldData.sliders !== data.sliders) {
+      // console.log("SLIDERS", data.sliders);
       this.updateClipping();
     }
   },
@@ -104,10 +114,11 @@ AFRAME.registerComponent("volume", {
     const mesh = this.getMesh();
 
     // Position is controlled by controllerObject in VR
+    // TODO: These updates should be event listeners?
+    // TODO: grabbed, triggerDown, and rayCollided are all booleans form event listeners
     if (this.controllerObject && isVrModeActive) {
       const triggerDown =
         this.controllerObject.el.getAttribute("buttons-check").triggerDown;
-
       // Stop grabbing object
       if (this.grabbed && !triggerDown) {
         mesh.matrix.premultiply(this.controllerObject.matrixWorld);
