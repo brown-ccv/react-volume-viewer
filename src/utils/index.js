@@ -83,7 +83,7 @@ function useModelsPropMemo(models) {
 
 // Filter model properties needed from aframe
 function getAframeModels(models) {
-  models =  models.map((model) => {
+  models = models.map((model) => {
     // Pick only needed properties
     model = pick(model, [
       "channel",

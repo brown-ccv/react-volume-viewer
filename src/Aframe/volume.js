@@ -64,14 +64,15 @@ AFRAME.registerComponent("volume", {
     const { data, usedModels, usedColorMaps } = this; // Extra read-only data
 
     console.log("DIFF", deepDifference(oldData, data));
-    (data.models.length > 0 && oldData.models.length > 0) && 
-    console.log(
-      "DIFF",
-      oldData.models[0].transferFunction,
-      data.models[0].transferFunction,
-      oldData.models[1].transferFunction,
-      data.models[1].transferFunction
-    );
+    data.models.length > 0 &&
+      oldData.models.length > 0 &&
+      console.log(
+        "DIFF",
+        oldData.models[0].transferFunction,
+        data.models[0].transferFunction,
+        oldData.models[1].transferFunction,
+        data.models[1].transferFunction
+      );
 
     // TODO: Only change this.modelsData based on difference between oldData and this.data
     if (oldData.models !== data.models) {
