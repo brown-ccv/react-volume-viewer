@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
-function Section({ children }) {
-  return <Wrapper>{children}</Wrapper>;
+function Section({ className, children }) {
+  return <Wrapper className={className}>{children}</Wrapper>;
 }
 
 const Wrapper = styled.div`

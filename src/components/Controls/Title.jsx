@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
-function Title({ children }) {
-  return <H2>{children}</H2>;
+function Title({ className, children }) {
+  return <H2 className={className}>{children}</H2>;
 }
 
 const H2 = styled.h2`

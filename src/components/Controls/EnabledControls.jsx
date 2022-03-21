@@ -7,14 +7,12 @@ import Title from "./Title.jsx";
 function EnabledControls({ enabled, modelIdx, setModels }) {
   return (
     <FlexSection>
-      <Title>Enabled?</Title>
-      <input
+      <StyledTitle>Enabled?</StyledTitle>
+      <Switch
         type="checkbox"
-        role="switch"
         checked={enabled}
         onChange={(event) =>
           setModels((models) => {
-            console.log(models, models[modelIdx]);
             return [
               ...models.slice(0, modelIdx),
               {
@@ -32,8 +30,16 @@ function EnabledControls({ enabled, modelIdx, setModels }) {
 
 const FlexSection = styled(Section)`
   display: flex;
-  justify-content: center;
-  color: blue;
-`
+  justify-content: space-between;
+  align-items: baseline;
+`;
+
+const StyledTitle = styled(Title)`
+  margin: 0;
+`;
+
+const Switch = styled.input`
+  transform: scale(1.5);
+`;
 
 export default EnabledControls;
