@@ -95,4 +95,4 @@ function AframeScene({ models, sliders }) {
   );
 }
 
-export default memo(AframeScene, (prevProps, nextProps) => isEqual(prevProps, nextProps));
+export default memo(AframeScene, isEqual);
