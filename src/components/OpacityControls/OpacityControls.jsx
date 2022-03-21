@@ -63,6 +63,7 @@ function OpacityControls({ initTransferFunction, modelIdx, range, setModels }) {
       .range(canvasRange.y);
 
     // Initialize canvasPoints
+    console.log("INIT", modelIdx, initTransferFunction);
     setCanvasPoints(
       initTransferFunction.map((p) => {
         return {
@@ -108,6 +109,7 @@ function OpacityControls({ initTransferFunction, modelIdx, range, setModels }) {
       context.fill();
     });
 
+    console.log("DRAW", modelIdx, canvasPoints);
     setModels((models) => [
       ...models.slice(0, modelIdx),
       {
