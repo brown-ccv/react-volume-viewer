@@ -7,10 +7,19 @@ import ColorMapControls from "../ColorMapControls";
 import OpacityControls from "../OpacityControls";
 import ClipControls from "../ClipControls";
 
-function Controls({ models, sliders, setModels, setSliders, reset }) {
+// function Controls({ models, sliders, setModels, setSliders, reset }) {
+function Controls({
+  controlsVisible,
+  models,
+  sliders,
+  setModels,
+  setSliders,
+  reset,
+}) {
   // TODO: Test ColorMap controls
+  console.log(controlsVisible);
   return (
-    <Wrapper>
+    <Wrapper $visible={controlsVisible}>
       <StyledTabList>
         {models.map((model) => (
           <Tab key={model.name}>{model.name}</Tab>
@@ -54,6 +63,7 @@ const Wrapper = styled(Tabs)`
   height: fit-content;
   max-height: calc(100% - 16px); // Leaves 8px to the bottom of the AframeScene
   overflow: auto;
+  display: ${(props) => (props.$visible ? "initial" : "none")};
 `;
 
 // TODO: Cleaner way than just the scrollbar

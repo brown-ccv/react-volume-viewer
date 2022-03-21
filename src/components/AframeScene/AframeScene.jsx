@@ -1,4 +1,5 @@
 import React from "react";
+import { memo } from "react";
 
 import "aframe";
 import "../../Aframe/arcball-camera";
@@ -11,7 +12,6 @@ import "../../Aframe/collider-check";
 import { toAframeString } from "../../utils";
 
 function AframeScene({ models, sliders }) {
-  console.log("SCENE", models);
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
@@ -95,4 +95,4 @@ function AframeScene({ models, sliders }) {
   );
 }
 
-export default AframeScene;
+export default memo(AframeScene);
