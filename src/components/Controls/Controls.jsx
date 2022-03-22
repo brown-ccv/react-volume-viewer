@@ -19,19 +19,21 @@ function Controls({
   return (
     <Wrapper $visible={controlsVisible}>
       <StyledTabList>
-        {models.map((model) => (
-          <Tab key={model.name}>{model.name}</Tab>
+        {models.map((model, idx) => (
+          <FlexTab key={model.name}>
+            {model.name}
+            <EnabledControls
+              enabled={model.enabled}
+              modelIdx={idx}
+              setModels={setModels}
+            />
+          </FlexTab>
         ))}
       </StyledTabList>
 
       <StyledTabPanels>
         {models.map((model, idx) => (
           <TabPanel key={model.name}>
-            <EnabledControls
-              enabled={model.enabled}
-              modelIdx={idx}
-              setModels={setModels}
-            />
             <ColorMapControls
               model={model}
               modelIdx={idx}
@@ -71,6 +73,12 @@ const Wrapper = styled(Tabs)`
 // TODO: Cleaner way than just the scrollbar
 const StyledTabList = styled(TabList)`
   overflow: auto;
+`;
+
+const FlexTab = styled(Tab)`
+  display: flex;
+  align-items: center;
+  gap: 5px;
 `;
 
 const StyledTabPanels = styled(TabPanels)`
