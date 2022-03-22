@@ -64,10 +64,11 @@ AFRAME.registerComponent("volume", {
 
     // TODO: Only change this.modelsData based on difference between oldData and this.data
     if (oldData.models !== data.models) {
+      // Asynchronously loop through the data.models array
+      // Each element runs serially and .map() buildMesh() waits for map to finish
       Promise.all(
         data.models.map(async (model) => {
           const { name, path, colorMap, transferFunction } = model;
-
           // Load texture from png
           const texture = usedModels.has(path)
             ? usedModels.get(path)
@@ -94,7 +95,6 @@ AFRAME.registerComponent("volume", {
       )
         .then((result) => {
           this.modelsData = result;
-          console.log("All models loaded", this.modelsData);
           this.buildMesh();
         })
         .catch((error) => console.error("Loading failed:", error));
@@ -170,7 +170,7 @@ AFRAME.registerComponent("volume", {
 
   // Load THREE Texture from the model's path
   async loadTexture(modelPath) {
-    return await new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       new THREE.TextureLoader().load(
         modelPath,
         (texture) => {
@@ -189,7 +189,7 @@ AFRAME.registerComponent("volume", {
 
   // Load color map data (RGB)
   async loadColorMap(colorMapPath) {
-    return await new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       /*  colorMapPath is either a png encoded string or the path to a png
         png encoded strings begin with data:image/png;64
         Add ; that was removed to parse into aframe correctly
@@ -217,7 +217,7 @@ AFRAME.registerComponent("volume", {
 
   // Load THREE DataTexture from
   async loadTransferTexture(colorData, transferFunction) {
-    return await new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       // Load alpha data from transfer function
       const alphaData = [];
       for (let i = 0; i < transferFunction.length - 1; i++) {
@@ -310,6 +310,7 @@ AFRAME.registerComponent("volume", {
   // Blend model's into a single material and apply it to the model
   buildMesh: function () {
     // TODO: Blend all of the model's material into one
+    console.log("All models loaded", this.modelsData);
     if (this.modelsData.length > 0) {
       this.getMesh().material = this.modelsData[0].material;
     }
