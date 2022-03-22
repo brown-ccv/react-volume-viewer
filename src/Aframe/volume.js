@@ -169,7 +169,7 @@ AFRAME.registerComponent("volume", {
   },
 
   // Load THREE Texture from the model's path
-  async loadTexture(modelPath) {
+  loadTexture(modelPath) {
     return new Promise((resolve, reject) => {
       new THREE.TextureLoader().load(
         modelPath,
@@ -188,7 +188,7 @@ AFRAME.registerComponent("volume", {
   },
 
   // Load color map data (RGB)
-  async loadColorMap(colorMapPath) {
+  loadColorMap(colorMapPath) {
     return new Promise((resolve, reject) => {
       /*  colorMapPath is either a png encoded string or the path to a png
         png encoded strings begin with data:image/png;64
@@ -216,7 +216,7 @@ AFRAME.registerComponent("volume", {
   },
 
   // Load THREE DataTexture from
-  async loadTransferTexture(colorData, transferFunction) {
+  loadTransferTexture(colorData, transferFunction) {
     return new Promise((resolve, reject) => {
       // Load alpha data from transfer function
       const alphaData = [];
