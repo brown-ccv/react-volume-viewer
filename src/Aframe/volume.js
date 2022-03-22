@@ -63,7 +63,7 @@ AFRAME.registerComponent("volume", {
     const { data, usedModels, usedColorMaps } = this; // Extra read-only data
 
     // TODO: Only change this.modelsData based on difference between oldData and this.data
-    if (oldData.models !== data.models) {
+    if (oldData !== data) {
       // Asynchronously loop through the data.models array
       // Each element runs serially and .map() buildMesh() waits for map to finish
       Promise.all(
