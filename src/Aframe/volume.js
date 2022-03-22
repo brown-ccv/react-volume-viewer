@@ -1,4 +1,5 @@
 /* globals AFRAME THREE */
+import { isEqual } from "lodash";
 
 import { deepDifference } from "../utils/index.js";
 import { DEFAULT_SLIDERS } from "../constants/index.js";
@@ -64,19 +65,11 @@ AFRAME.registerComponent("volume", {
     const { data, usedModels, usedColorMaps } = this; // Extra read-only data
 
     console.log("DIFF", deepDifference(oldData, data));
-    data.models.length > 0 &&
-      oldData.models.length > 0 &&
-      console.log(
-        "DIFF",
-        oldData.models[0].transferFunction,
-        data.models[0].transferFunction,
-        oldData.models[1].transferFunction,
-        data.models[1].transferFunction
-      );
 
     // TODO: Only change this.modelsData based on difference between oldData and this.data
-    if (oldData.models !== data.models) {
-      // console.log("MODELS", data.models)
+    if (!isEqual(oldData.models, data.models)) {
+      console.log("UPDATE MODELS", isEqual(oldData.models, data.models));
+
       Promise.all(
         data.models.map(async (model) => {
           const { name, path, colorMap, transferFunction } = model;
@@ -104,8 +97,8 @@ AFRAME.registerComponent("volume", {
         .catch((error) => console.error("Loading failed:", error));
     }
 
-    if (oldData.sliders !== data.sliders) {
-      // console.log("SLIDERS", data.sliders);
+    if (!isEqual(oldData.sliders, data.sliders)) {
+      console.log("UPDATE SLIDERS", data.sliders);
       this.updateClipping();
     }
   },
@@ -179,8 +172,8 @@ AFRAME.registerComponent("volume", {
   },
 
   // Load THREE Texture from the model's path
-  async loadTexture(modelPath) {
-    return await new Promise((resolve, reject) => {
+  loadTexture(modelPath) {
+    return new Promise((resolve, reject) => {
       new THREE.TextureLoader().load(
         modelPath,
         (texture) => {
@@ -198,8 +191,8 @@ AFRAME.registerComponent("volume", {
   },
 
   // Load color map data (RGB)
-  async loadColorMap(colorMapPath) {
-    return await new Promise((resolve, reject) => {
+  loadColorMap(colorMapPath) {
+    return new Promise((resolve, reject) => {
       /*  colorMapPath is either a png encoded string or the path to a png
         png encoded strings begin with data:image/png;64
         Add ; that was removed to parse into aframe correctly
@@ -226,8 +219,8 @@ AFRAME.registerComponent("volume", {
   },
 
   // Load THREE DataTexture from
-  async loadTransferTexture(colorData, transferFunction) {
-    return await new Promise((resolve, reject) => {
+  loadTransferTexture(colorData, transferFunction) {
+    return new Promise((resolve, reject) => {
       // Load alpha data from transfer function
       const alphaData = [];
       for (let i = 0; i < transferFunction.length - 1; i++) {
@@ -301,6 +294,7 @@ AFRAME.registerComponent("volume", {
 
   // Update clipping uniforms from sliders (ignore if !activateClipPlane)
   updateClipping() {
+    // return await new Promise((resolve, reject) => {
     const sliders = this.data.sliders;
     const uniforms = this.getMesh().material.uniforms;
 
@@ -319,6 +313,8 @@ AFRAME.registerComponent("volume", {
       uniforms.box_min.value = new THREE.Vector3(0, 0, 0);
       uniforms.box_max.value = new THREE.Vector3(1, 1, 1);
     }
+    // resolve();
+    // });
   },
 
   // Blend model's into a single material and apply it to the model
