@@ -25,6 +25,12 @@ THREE.ShaderLib["ModelShader"] = {
   },
 
   vertexShader: `
+    varying  vec3 vUV; //3D texture coordinates for texture lookup in the fragment shader
+    varying  vec3 camPos;
+    uniform float zScale;
+    uniform mat4 controllerPoseMatrix;
+    uniform bool grabMesh;
+
     mat4 scale(mat4 m, vec3 v) {
       mat4 Result;
       Result[0] = m[0]  * v[0];
@@ -96,11 +102,6 @@ THREE.ShaderLib["ModelShader"] = {
       return Result;
     }
 
-    varying  vec3 vUV; //3D texture coordinates for texture lookup in the fragment shader
-    varying  vec3 camPos;
-    uniform float zScale;
-    uniform mat4 controllerPoseMatrix;
-    uniform bool grabMesh;
     void main() {
       mat4 MV_tmp = scale(modelViewMatrix,vec3(1,1,zScale));
       mat4 MVP = projectionMatrix * MV_tmp;
@@ -125,15 +126,38 @@ THREE.ShaderLib["ModelShader"] = {
       }
     */
 
+    #define FILTER_LIN 1
+    uniform float slice;
+    uniform float dim;
+    
+    //precision mediump sampler3D;
+    varying  vec3 vUV; //3D texture coordinates form vertex shader interpolated by rasterizer
+    uniform sampler2D u_data; //volume dataset
+    uniform mat4 clipPlane; 
+    uniform bool clipping;
+    uniform float threshold;
+    uniform float multiplier;
+    //uniform vec3 camPos;						//camera position
+    uniform vec3 step_size; //ray step size
+    const int MAX_SAMPLES = 3000; //total samples for each ray march step
+    uniform int channel;
+    uniform sampler2D  u_lut; //transferfunction
+    uniform bool useLut;
+    uniform sampler2D depth;
+    uniform vec2 viewport;
+    uniform mat4 P_inv;
+    uniform vec3 box_min;
+    uniform vec3 box_max;
+    uniform float intensity;
+    vec4 vFragColor;
+    varying vec3 camPos;
+    //in mat4 nClipPlane; 
+
     mat4 translate(mat4 m, vec3 v) {
       mat4 Result;
       Result[3] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3];
       return Result;
     }
-
-    #define FILTER_LIN 1
-    uniform float slice;
-    uniform float dim;
 
     vec4 sampleAs3DTexture(sampler2D tex, vec3 texCoord) {
       float sliceSize = 1.0 / slice; // space of 1 slice
@@ -165,30 +189,7 @@ THREE.ShaderLib["ModelShader"] = {
       float t1 = min(tmax.x, min(tmax.y, tmax.z));
       return vec2(t0, t1);
     }
-
-    //precision mediump sampler3D;
-    varying  vec3 vUV; //3D texture coordinates form vertex shader interpolated by rasterizer
-    uniform sampler2D u_data; //volume dataset
-    uniform mat4 clipPlane; 
-    uniform bool clipping;
-    uniform float threshold;
-    uniform float multiplier;
-    //uniform vec3 camPos;						//camera position
-    uniform vec3 step_size; //ray step size
-    const int MAX_SAMPLES = 3000; //total samples for each ray march step
-    uniform int channel;
-    uniform sampler2D  u_lut; //transferfunction
-    uniform bool useLut;
-    uniform sampler2D depth;
-    uniform vec2 viewport;
-    uniform mat4 P_inv;
-    uniform vec3 box_min;
-    uniform vec3 box_max;
-    uniform float intensity;
-    vec4 vFragColor;
-    varying vec3 camPos;
-    //in mat4 nClipPlane; 
-
+    
     void main() {
       //get the 3D texture coordinates for lookup into the volume dataset
       vec3 dataPos = vUV;
