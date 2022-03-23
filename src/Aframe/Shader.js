@@ -7,16 +7,10 @@ THREE.ShaderLib["ModelShader"] = {
     channel: { value: 1 },
     clipping: { value: false },
     clipPlane: { value: new THREE.Matrix4() },
-    // controllerPoseMatrix: { value: new THREE.Matrix4() },
-    // depth: { value: null },
     dim: { value: 1.0 },
-    // grabMesh: { value: false },
     intensity: { value: 1.0 },
-    // multiplier: { value: 1 },
-    // P_inv: { value: new THREE.Matrix4() },
     slice: { value: 1.0 },
     step_size: { value: new THREE.Vector3(1, 1, 1) },
-    // threshold: { value: 1 },
     u_data: { value: null },
     u_lut: { value: null },
     useLut: { value: true },
@@ -143,13 +137,13 @@ THREE.ShaderLib["ModelShader"] = {
     }
 
     vec4 sampleAs3DTexture(sampler2D tex, vec3 texCoord) {
-      float sliceSize = 1.0 / slice; // space of 1 slice
-      float zSlice0 = floor(texCoord.z / sliceSize); //first slice
-      float zSlice1 = min(zSlice0 + 1.0,slice-1.0); //second slice
-      vec2 pos1 = vec2(mod(zSlice0,dim), dim - floor(zSlice0/dim) - 1.0); //texture position 1
-      vec2 pos2 = vec2(mod(zSlice1,dim), dim - floor(zSlice1/dim) - 1.0); //texture position 2
-      vec2 coords1 = vec2(texCoord.x / dim + pos1.x / dim, texCoord.y / dim + pos1.y / dim); //texture coords 1
-      vec2 coords2 = vec2(texCoord.x / dim + pos2.x / dim, texCoord.y / dim + pos2.y / dim); //texture coords 2
+      float sliceSize = 1.0 / slice;  // Space of 1 slice
+      float zSlice0 = floor(texCoord.z / sliceSize);  // First slice
+      float zSlice1 = min(zSlice0 + 1.0,slice-1.0); // Second slice
+      vec2 pos1 = vec2(mod(zSlice0,dim), dim - floor(zSlice0/dim) - 1.0); // Texture position 1
+      vec2 pos2 = vec2(mod(zSlice1,dim), dim - floor(zSlice1/dim) - 1.0); // Texture position 2
+      vec2 coords1 = vec2(texCoord.x / dim + pos1.x / dim, texCoord.y / dim + pos1.y / dim); // Texture coords 1
+      vec2 coords2 = vec2(texCoord.x / dim + pos2.x / dim, texCoord.y / dim + pos2.y / dim); // Texture coords 2
       #if FILTER_LIN
         vec4 slice0Color = texture2D(tex, coords1); //texture lookup 1
         vec4 slice1Color = texture2D(tex, coords2); //texture lookup 2
@@ -174,94 +168,103 @@ THREE.ShaderLib["ModelShader"] = {
     }
     
     void main() {
-      //get the 3D texture coordinates for lookup into the volume dataset
+      // Get the 3D texture coordinates for lookup into the volume dataset
       vec3 dataPos = vUV;
       vFragColor = vec4(0);
 
-      //get the object space position by subtracting 0.5 from the
-      //3D texture coordinates. Then subtract it from camera position
-      //and normalize to get the ray marching direction
+      /*
+        Get the object space position by subtracting 0.5 from the
+        3D texture coordinates. Then subtract it from camera position
+        and normalize to get the ray marching direction
+      */
       vec3 geomDir = normalize( dataPos - camPos);
 
-      //get the t values for the intersection with the box
+      // Get the t values for the intersection with the box
       vec2 t_hit = intersect_box(camPos, geomDir,box_min,box_max);
 
-      //first value should always be lower by definition and this case should never occur. If it does discard the fragment.
+      /*
+        First value should always be lower by definition and this case should 
+        never occur. If it does discard the fragment.
+      */
       if (t_hit.x > t_hit.y) discard;
 
-      // We dont want to sample voxels behind the eye if its
-      // inside the volume, so keep the starting point at or in front
-      // of the eye
+      /*
+        We dont want to sample voxels behind the eye if its inside the volume, 
+        so keep the starting point at or in front of the eye
+      */
       if(t_hit.x < 0.0) t_hit.x= max(t_hit.x, 0.0);
 
-      //We not know if the ray was cast from the back or the front face. (Note: For now we also render the back face only)
-      //To ensure we update dataPos and t_hit to reflect a ray from entry point to exit
+      /*
+        We don't know if the ray was cast from the back or the front face. To ensure we 
+        update dataPos and t_hit to reflect a ray from entry point to exit 
+        (Note: For now we also render the back face only) 
+      */
       dataPos = camPos + t_hit.x * geomDir;
-      t_hit.y = t_hit.y-t_hit.x;
+      t_hit.y = t_hit.y - t_hit.x;
       t_hit.x = 0.0;
 
-      //get t for the clipping plane and overwrite the entry point
+      // Get t for the clipping plane and overwrite the entry point
       if(clipping) {
         vec4 p_in = clipPlane * vec4(dataPos + t_hit.x * geomDir, 1);
         vec4 p_out = clipPlane * vec4(dataPos + t_hit.y * geomDir, 1);
         if(p_in.y * p_out.y < 0.0 ) {
-          //both points lie on different sides of the plane
-          //we need to compute a new clip point
+          // Both points lie on different sides of the plane, need a new clip point
           vec4 c_pos = clipPlane * vec4(dataPos, 1);
           vec4 c_dir = clipPlane * vec4(geomDir, 0);
           float t_clip = -c_pos.y / c_dir.y;
 
-          //update either entry or exit based on which is on the clipped side
+          // Update either entry or exit based on which is on the clipped side
           if (p_in.y > 0.0) t_hit.x = t_clip; 
           else t_hit.y = t_clip; 
         } else {
-          //both points lie on the same side of the plane.
-          //if one of them is on the wrong side they can be clipped
+          /*
+            Both points lie on the same side of the plane, if one of them is 
+            on the wrong side they can be clipped
+          */
           if(p_in.y > 0.0) discard;
         }
       }
   
-      // Compute step size as the minimum of the stepsize
+      // Compute step size as the minimum of the step size
       float dt = min(step_size.x, min(step_size.y, step_size.z));
   
-      // Step 4: Starting from the entry point, march the ray through the volume and sample it
+      // Starting from the entry point, march the ray through the volume and sample it
       dataPos = dataPos + t_hit.x * geomDir;
       float t = t_hit.x; 
       for (float t_ = 0.0; t_ < 1000.0; t_ += 1.0) {
         t += dt;
         if(t >= t_hit.y) break;
         
-        vec4 smple;
-        if (channel == 1) smple = sampleAs3DTexture(u_data, dataPos).rrrr;
-        else if (channel == 2) smple = sampleAs3DTexture(u_data, dataPos).gggg; 
-        else if (channel == 3) smple = sampleAs3DTexture(u_data, dataPos).bbbb; 
-        else if (channel == 4) smple = sampleAs3DTexture(u_data, dataPos).aaaa; 
-        else if (channel == 5) smple = sampleAs3DTexture(u_data, dataPos); 
+        vec4 volumeSample;
+        if (channel == 1) volumeSample = sampleAs3DTexture(u_data, dataPos).rrrr;
+        else if (channel == 2) volumeSample = sampleAs3DTexture(u_data, dataPos).gggg;
+        else if (channel == 3) volumeSample = sampleAs3DTexture(u_data, dataPos).bbbb;
+        else if (channel == 4) volumeSample = sampleAs3DTexture(u_data, dataPos).aaaa;
+        else if (channel == 5) volumeSample = sampleAs3DTexture(u_data, dataPos);
         else { 
-          smple = sampleAs3DTexture(u_data, dataPos);
+          volumeSample = sampleAs3DTexture(u_data, dataPos);
 
-          // as we dont have an alpha from the datasets,
-          // we initialized it as the max between the 3 channels
-          smple.a = max(smple.r, max(smple.g,smple.b));
-          if(smple.a < 0.25) smple.a = 0.1*smple.a;
+          // Dont have an alpha from the datasets, initialize as the max between the 3 channels
+          volumeSample.a = max(volumeSample.r, max(volumeSample.g, volumeSample.b));
+          if(volumeSample.a < 0.25) volumeSample.a = 0.1 * volumeSample.a;
         }
         
         // artificially increasing pixel intensity
-        smple.rgb = smple.rgb*intensity;
+        volumeSample.rgb = volumeSample.rgb * intensity;
+
         if(useLut) {
-          //we lookup the density value in the transfer function and return the
-          //appropriate color value
-          smple = texture2D(u_lut, vec2(clamp(smple.a,0.0,1.0),0.5));
+          // Look up the density value in the transfer function and return the appropriate color value
+          volumeSample = texture2D(u_lut, vec2(clamp(volumeSample.a,0.0,1.0),0.5));
         }
         
-        //blending (front to back)
-        vFragColor.rgb += (1.0 - vFragColor.a) * smple.a * smple.rgb;
-        vFragColor.a += (1.0 - vFragColor.a) * smple.a;
+        // Blending (front to back)
+        vFragColor.rgb += (1.0 - vFragColor.a) * volumeSample.a * volumeSample.rgb;
+        vFragColor.a += (1.0 - vFragColor.a) * volumeSample.a;
         
-        //early exit if opacity is reached
+        // Early exit if opacity is reached
         if (vFragColor.a >= 0.95) break;
         
-        //advance point
+        // Advance point
         dataPos += geomDir * dt; 
       }
 
