@@ -1,4 +1,4 @@
-/* globals AFRAME  */
+import AFRAME from "aframe";
 
 // TODO: Change vars to triggerDown and gripDown
 AFRAME.registerComponent("buttons-check", {

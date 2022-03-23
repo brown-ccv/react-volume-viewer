@@ -1,4 +1,4 @@
-/* globals AFRAME THREE */
+import AFRAME, { THREE } from "aframe";
 
 import "./Shader.js";
 import {

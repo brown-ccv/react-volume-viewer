@@ -1,4 +1,4 @@
-/* globals AFRAME  */
+import AFRAME from "aframe";
 
 let KEYS = [
   "KeyW",

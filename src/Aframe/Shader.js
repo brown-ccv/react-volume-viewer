@@ -1,26 +1,27 @@
-/* globals THREE */
+import { THREE } from "aframe";
+const { ShaderLib, Vector2, Vector3, Matrix4 } = THREE;
 
-THREE.ShaderLib["ModelShader"] = {
+ShaderLib["ModelShader"] = {
   uniforms: {
-    box_max: { value: new THREE.Vector3(1, 1, 1) },
-    box_min: { value: new THREE.Vector3(0, 0, 0) },
+    box_max: { value: new Vector3(1, 1, 1) },
+    box_min: { value: new Vector3(0, 0, 0) },
     channel: { value: 1 },
     clipping: { value: false },
-    clipPlane: { value: new THREE.Matrix4() },
-    controllerPoseMatrix: { value: new THREE.Matrix4() },
+    clipPlane: { value: new Matrix4() },
+    controllerPoseMatrix: { value: new Matrix4() },
     depth: { value: null },
     dim: { value: 1.0 },
     grabMesh: { value: false },
     intensity: { value: 1.0 },
     multiplier: { value: 1 },
-    P_inv: { value: new THREE.Matrix4() },
+    P_inv: { value: new Matrix4() },
     slice: { value: 1.0 },
-    step_size: { value: new THREE.Vector3(1, 1, 1) },
+    step_size: { value: new Vector3(1, 1, 1) },
     threshold: { value: 1 },
     u_data: { value: null },
     u_lut: { value: null },
     useLut: { value: true },
-    viewPort: { value: new THREE.Vector2() },
+    viewPort: { value: new Vector2() },
     zScale: { value: 1.0 },
   },
 

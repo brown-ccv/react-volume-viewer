@@ -1,7 +1,6 @@
 import React, { memo } from "react";
-import { isEqual } from "lodash"
+import { isEqual } from "lodash";
 
-import "aframe";
 import "../../Aframe/arcball-camera";
 import "../../Aframe/buttons-check";
 import "../../Aframe/model";
