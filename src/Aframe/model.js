@@ -213,9 +213,9 @@ AFRAME.registerComponent("model", {
         }
 
         const material = new THREE.ShaderMaterial({
-          uniforms: uniforms,
-          vertexShader: vertexShader,
-          fragmentShader: fragmentShader,
+          uniforms,
+          vertexShader,
+          fragmentShader,
           transparent: true,
           side: THREE.BackSide, // The volume shader uses the "backface" as its reference point
         });
