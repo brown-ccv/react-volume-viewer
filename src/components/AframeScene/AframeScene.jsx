@@ -37,14 +37,13 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
         />
 
         {/* VOLUME */}
-        <a-entity
+        <a-box
           id="volume"
           class="clickableMesh"
           volume={`
             models: ${getAframeModels(models)};
             sliders: ${JSON.stringify(sliders)};
           `}
-          // render-2d-clipplane={`activateClipPlane: ${true};`}
         />
       </a-entity>
 

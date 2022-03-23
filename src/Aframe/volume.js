@@ -6,8 +6,6 @@ const {
   UniformsUtils,
   LinearFilter,
   RGBAFormat,
-  Mesh,
-  BoxGeometry,
   ShaderMaterial,
   Vector2,
   Vector3,
@@ -52,11 +50,9 @@ AFRAME.registerComponent("volume", {
       this.onClearCollide
     );
 
-    // Initialize mesh to shader defaults
-    this.el.setObject3D(
-      "mesh",
-      new Mesh(new BoxGeometry(1, 1, 1), new ShaderMaterial(DEFAULT_MATERIAL))
-    );
+    // Initialize material to shader defaults
+    // TODO: Move initialization to separate component
+    this.getMesh().material = new ShaderMaterial(DEFAULT_MATERIAL);
   },
 
   update: function (oldData) {
@@ -303,7 +299,7 @@ AFRAME.registerComponent("volume", {
 
   // Blend model's into a single material and apply it to the model
   buildMesh: function (modelsData) {
-    if (!modelsData.length) return;
+    if (!modelsData.length) return; //TEMP
 
     // TODO: Blend all of the model's material into one
     const materials = modelsData.map((model) => model.material);
