@@ -98,9 +98,7 @@ AFRAME.registerComponent("volume", {
           this.modelsData = result;
           this.buildMesh();
         })
-        .catch((error) => {
-          throw error;
-        });
+        .catch(error => console.error(error))
     }
   },
 
