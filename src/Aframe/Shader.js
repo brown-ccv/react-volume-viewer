@@ -7,16 +7,16 @@ THREE.ShaderLib["ModelShader"] = {
     channel: { value: 1 },
     clipping: { value: false },
     clipPlane: { value: new THREE.Matrix4() },
-    controllerPoseMatrix: { value: new THREE.Matrix4() },
-    depth: { value: null },
+    // controllerPoseMatrix: { value: new THREE.Matrix4() },
+    // depth: { value: null },
     dim: { value: 1.0 },
-    grabMesh: { value: false },
+    // grabMesh: { value: false },
     intensity: { value: 1.0 },
-    multiplier: { value: 1 },
-    P_inv: { value: new THREE.Matrix4() },
+    // multiplier: { value: 1 },
+    // P_inv: { value: new THREE.Matrix4() },
     slice: { value: 1.0 },
     step_size: { value: new THREE.Vector3(1, 1, 1) },
-    threshold: { value: 1 },
+    // threshold: { value: 1 },
     u_data: { value: null },
     u_lut: { value: null },
     useLut: { value: true },
@@ -28,8 +28,8 @@ THREE.ShaderLib["ModelShader"] = {
     varying  vec3 vUV; //3D texture coordinates for texture lookup in the fragment shader
     varying  vec3 camPos;
     uniform float zScale;
-    uniform mat4 controllerPoseMatrix;
-    uniform bool grabMesh;
+    // uniform mat4 controllerPoseMatrix;
+    // uniform bool grabMesh;
 
     mat4 scale(mat4 m, vec3 v) {
       mat4 Result;
