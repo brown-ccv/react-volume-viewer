@@ -1,12 +1,30 @@
 import AFRAME, { THREE } from "aframe";
 
-import "./Shader.js";
 import {
   DEFAULT_TRANSFER_FUNCTION,
   DEFAULT_MODEL,
   DEFAULT_SLIDERS,
 } from "../constants";
 
+import vertexShader from "./vertex-shader.vert";
+import fragmentShader from "./fragment-shader.frag";
+
+const uniforms = {
+  box_max: { value: new THREE.Vector3(1, 1, 1) },
+  box_min: { value: new THREE.Vector3(0, 0, 0) },
+  channel: { value: 1 },
+  clipping: { value: false },
+  clipPlane: { value: new THREE.Matrix4() },
+  dim: { value: 1.0 },
+  intensity: { value: 1.0 },
+  slice: { value: 1.0 },
+  step_size: { value: new THREE.Vector3(1, 1, 1) },
+  u_data: { value: null },
+  u_lut: { value: null },
+  useLut: { value: true },
+  viewPort: { value: new THREE.Vector2() },
+  zScale: { value: 1.0 },
+};
 const bind = AFRAME.utils.bind;
 
 AFRAME.registerComponent("model", {
@@ -177,8 +195,6 @@ AFRAME.registerComponent("model", {
         const zScale = volumeScale[0] / volumeScale[2];
 
         // Set material properties
-        const shader = THREE.ShaderLib["ModelShader"];
-        const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
         uniforms.dim.value = dim;
         uniforms.intensity.value = intensity;
         uniforms.slice.value = slices;
@@ -198,10 +214,10 @@ AFRAME.registerComponent("model", {
         }
 
         const material = new THREE.ShaderMaterial({
-          uniforms: uniforms,
+          uniforms,
+          vertexShader,
+          fragmentShader,
           transparent: true,
-          vertexShader: shader.vertexShader,
-          fragmentShader: shader.fragmentShader,
           side: THREE.BackSide, // The volume shader uses the "backface" as its reference point
         });
 
