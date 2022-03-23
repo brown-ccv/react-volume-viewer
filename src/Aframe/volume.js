@@ -70,6 +70,8 @@ AFRAME.registerComponent("volume", {
     if (!isEqual(oldData.models, data.models)) {
       console.log("UPDATE MODELS", isEqual(oldData.models, data.models));
 
+      // Asynchronously loop through the data.models array
+      // Each element runs serially and .map() buildMesh() waits for map to finish
       Promise.all(
         data.models.map(async (model) => {
           const { name, path, colorMap, transferFunction } = model;
@@ -201,12 +203,13 @@ AFRAME.registerComponent("volume", {
         ? colorMapPath.substring(0, 14) + ";" + colorMapPath.substring(14)
         : colorMapPath;
 
-      // Load and draw image to get RGB data
+      // Create canvas to load image on
       const img = document.createElement("img");
       img.src = colorMapPath;
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
       img.onload = () => {
+        // Draw image and extrapolate RGB data
         ctx.drawImage(img, 0, 0);
         const colorData = ctx.getImageData(0, 0, img.width, 1).data;
         this.usedColorMaps.set(colorMapPath, colorData);
@@ -218,7 +221,7 @@ AFRAME.registerComponent("volume", {
     });
   },
 
-  // Load THREE DataTexture from
+  // Create a THREE DataTexture from the RGB and A data
   loadTransferTexture(colorData, transferFunction) {
     return new Promise((resolve, reject) => {
       // Load alpha data from transfer function
