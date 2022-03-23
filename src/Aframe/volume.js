@@ -69,6 +69,7 @@ AFRAME.registerComponent("volume", {
       Promise.all(
         data.models.map(async (model) => {
           const { name, path, colorMap, transferFunction } = model;
+          model.path = "saacs";
           // Load texture from png
           const texture = usedModels.has(path)
             ? usedModels.get(path)
@@ -97,7 +98,9 @@ AFRAME.registerComponent("volume", {
           this.modelsData = result;
           this.buildMesh();
         })
-        .catch((error) => console.error("Loading failed:", error));
+        .catch((error) => {
+          throw error;
+        });
     }
   },
 
