@@ -1,23 +1,38 @@
-import AFRAME, { THREE } from "aframe"
+import AFRAME, { THREE } from "aframe";
 
 import { DEFAULT_SLIDERS } from "../constants/index.js";
 import vertexShader from "./vertex-shader.vert";
 import fragmentShader from "./fragment-shader.frag";
 
+const {
+  UniformsUtils,
+  BackSide,
+  LinearFilter,
+  RGBAFormat,
+  Mesh,
+  BoxGeometry,
+  ShaderMaterial,
+  Vector2,
+  Vector3,
+  Matrix4,
+  TextureLoader,
+  DataTexture,
+} = THREE;
+
 const DEFAULT_UNIFORMS = {
-  box_max: { value: new THREE.Vector3(1, 1, 1) },
-  box_min: { value: new THREE.Vector3(0, 0, 0) },
+  box_max: { value: new Vector3(1, 1, 1) },
+  box_min: { value: new Vector3(0, 0, 0) },
   channel: { value: 1 },
   clipping: { value: false },
-  clipPlane: { value: new THREE.Matrix4() },
+  clipPlane: { value: new Matrix4() },
   dim: { value: 1.0 },
   intensity: { value: 1.0 },
   slice: { value: 1.0 },
-  step_size: { value: new THREE.Vector3(1, 1, 1) },
+  step_size: { value: new Vector3(1, 1, 1) },
   u_data: { value: null },
   u_lut: { value: null },
   useLut: { value: true },
-  viewPort: { value: new THREE.Vector2() },
+  viewPort: { value: new Vector2() },
   zScale: { value: 1.0 },
 };
 
@@ -26,7 +41,7 @@ const DEFAULT_MATERIAL = {
   transparent: true,
   vertexShader: vertexShader,
   fragmentShader: fragmentShader,
-  side: THREE.BackSide, // Shader uses "backface" as its reference point
+  side: BackSide, // Shader uses "backface" as its reference point
 };
 
 AFRAME.registerComponent("volume", {
@@ -68,10 +83,7 @@ AFRAME.registerComponent("volume", {
     // Initialize mesh to shader defaults
     this.el.setObject3D(
       "mesh",
-      new THREE.Mesh(
-        new THREE.BoxGeometry(1, 1, 1),
-        new THREE.ShaderMaterial(DEFAULT_MATERIAL)
-      )
+      new Mesh(new BoxGeometry(1, 1, 1), new ShaderMaterial(DEFAULT_MATERIAL))
     );
   },
 
@@ -134,7 +146,7 @@ AFRAME.registerComponent("volume", {
 
       // Grab object
       if (!this.grabbed && triggerDown && this.rayCollided) {
-        const inverseControllerPos = new THREE.Matrix4();
+        const inverseControllerPos = new Matrix4();
         inverseControllerPos.getInverse(this.controllerObject.matrixWorld);
         mesh.matrix.premultiply(inverseControllerPos);
         mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
@@ -162,7 +174,7 @@ AFRAME.registerComponent("volume", {
   onExitVR: function () {
     const mesh = this.getMesh();
     if (mesh) {
-      mesh.position.copy(new THREE.Vector3());
+      mesh.position.copy(new Vector3());
       mesh.rotation.set(0, 0, 0);
     }
   },
@@ -185,10 +197,10 @@ AFRAME.registerComponent("volume", {
   // Load THREE Texture from the model's path
   loadTexture(modelPath) {
     return new Promise((resolve, reject) => {
-      new THREE.TextureLoader().load(
+      new TextureLoader().load(
         modelPath,
         (texture) => {
-          texture.minFilter = texture.magFilter = THREE.LinearFilter;
+          texture.minFilter = texture.magFilter = LinearFilter;
           texture.unpackAlignment = 1;
           texture.needsUpdate = true;
 
@@ -255,12 +267,7 @@ AFRAME.registerComponent("volume", {
         rgbaData[i * 4 + 3] = alphaData[i];
       }
 
-      const transferTexture = new THREE.DataTexture(
-        rgbaData,
-        256,
-        1,
-        THREE.RGBAFormat
-      );
+      const transferTexture = new DataTexture(rgbaData, 256, 1, RGBAFormat);
       transferTexture.needsUpdate = true;
       resolve(transferTexture);
     });
@@ -279,9 +286,9 @@ AFRAME.registerComponent("volume", {
     const zScale = volumeScale[0] / volumeScale[2];
 
     // Set uniforms from model
-    const uniforms = THREE.UniformsUtils.clone(DEFAULT_UNIFORMS);
-    uniforms.step_size.value = new THREE.Vector3(0.01, 0.01, 0.01);
-    uniforms.viewPort.value = new THREE.Vector2(
+    const uniforms = UniformsUtils.clone(DEFAULT_UNIFORMS);
+    uniforms.step_size.value = new Vector3(0.01, 0.01, 0.01);
+    uniforms.viewPort.value = new Vector2(
       this.canvas.width,
       this.canvas.height
     );
@@ -300,23 +307,23 @@ AFRAME.registerComponent("volume", {
     // Update clipping uniforms from sliders (ignore if !activateClipPlane)
     if (this.el.getAttribute("keypress-listener").activateClipPlane) {
       const sliders = this.data.sliders;
-      uniforms.box_min.value = new THREE.Vector3(
+      uniforms.box_min.value = new Vector3(
         sliders.x[0],
         sliders.y[0],
         sliders.z[0]
       );
-      uniforms.box_max.value = new THREE.Vector3(
+      uniforms.box_max.value = new Vector3(
         sliders.x[1],
         sliders.y[1],
         sliders.z[1]
       );
     } else {
-      uniforms.box_min.value = new THREE.Vector3(0, 0, 0);
-      uniforms.box_max.value = new THREE.Vector3(1, 1, 1);
+      uniforms.box_min.value = new Vector3(0, 0, 0);
+      uniforms.box_max.value = new Vector3(1, 1, 1);
     }
 
     // Create material
-    return new THREE.ShaderMaterial({
+    return new ShaderMaterial({
       ...DEFAULT_MATERIAL,
       uniforms: uniforms,
     });
@@ -338,17 +345,9 @@ AFRAME.registerComponent("volume", {
     const uniforms = mesh.material.uniforms;
 
     const volumeMatrix = mesh.matrixWorld;
-    const scaleMatrix = new THREE.Matrix4().makeScale(
-      1,
-      1,
-      uniforms.zScale.value
-    );
-    const translationMatrix = new THREE.Matrix4().makeTranslation(
-      -0.5,
-      -0.5,
-      -0.5
-    );
-    const inverseControllerMatrix = new THREE.Matrix4()
+    const scaleMatrix = new Matrix4().makeScale(1, 1, uniforms.zScale.value);
+    const translationMatrix = new Matrix4().makeTranslation(-0.5, -0.5, -0.5);
+    const inverseControllerMatrix = new Matrix4()
       .copy(this.controllerObject.matrixWorld)
       .invert();
 
