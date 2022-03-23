@@ -24,7 +24,6 @@ AFRAME.registerComponent("volume", {
     this.canvas = this.scene.canvas;
     this.usedModels = new Map(); // Cache models (path: texture)
     this.usedColorMaps = new Map(); // Cache color maps (path: RGB data)
-    this.modelsData = [];
     this.rayCollided = false;
     this.grabbed = false;
 
@@ -62,8 +61,10 @@ AFRAME.registerComponent("volume", {
   update: function (oldData) {
     const { data, usedModels, usedColorMaps } = this; // Extra read-only data
 
-    // TODO: Only change this.modelsData based on difference between oldData and this.data
-    if (oldData.models !== data.models) {
+    // TODO: Only change based on difference between oldData and this.data
+    if (oldData !== data) {
+      // Asynchronously loop through the data.models array
+      // Each element runs serially and .map() buildMesh() waits for map to finish
       Promise.all(
         data.models.map(async (model) => {
           const { name, path, colorMap, transferFunction } = model;
@@ -92,12 +93,8 @@ AFRAME.registerComponent("volume", {
           };
         })
       )
-        .then((result) => {
-          this.modelsData = result;
-          console.log("All models loaded", this.modelsData);
-          this.buildMesh();
-        })
-        .catch((error) => console.error("Loading failed:", error));
+        .then((result) => this.buildMesh(result))
+        .catch((error) => console.error(error));
     }
   },
 
@@ -169,8 +166,8 @@ AFRAME.registerComponent("volume", {
   },
 
   // Load THREE Texture from the model's path
-  async loadTexture(modelPath) {
-    return await new Promise((resolve, reject) => {
+  loadTexture(modelPath) {
+    return new Promise((resolve, reject) => {
       new THREE.TextureLoader().load(
         modelPath,
         (texture) => {
@@ -188,8 +185,8 @@ AFRAME.registerComponent("volume", {
   },
 
   // Load color map data (RGB)
-  async loadColorMap(colorMapPath) {
-    return await new Promise((resolve, reject) => {
+  loadColorMap(colorMapPath) {
+    return new Promise((resolve, reject) => {
       /*  colorMapPath is either a png encoded string or the path to a png
         png encoded strings begin with data:image/png;64
         Add ; that was removed to parse into aframe correctly
@@ -198,12 +195,13 @@ AFRAME.registerComponent("volume", {
         ? colorMapPath.substring(0, 14) + ";" + colorMapPath.substring(14)
         : colorMapPath;
 
-      // Load and draw image to get RGB data
+      // Create canvas to load image on
       const img = document.createElement("img");
       img.src = colorMapPath;
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
       img.onload = () => {
+        // Draw image and extrapolate RGB data
         ctx.drawImage(img, 0, 0);
         const colorData = ctx.getImageData(0, 0, img.width, 1).data;
         this.usedColorMaps.set(colorMapPath, colorData);
@@ -215,9 +213,9 @@ AFRAME.registerComponent("volume", {
     });
   },
 
-  // Load THREE DataTexture from
-  async loadTransferTexture(colorData, transferFunction) {
-    return await new Promise((resolve, reject) => {
+  // Create a THREE DataTexture from the RGB and A data
+  loadTransferTexture(colorData, transferFunction) {
+    return new Promise((resolve, reject) => {
       // Load alpha data from transfer function
       const alphaData = [];
       for (let i = 0; i < transferFunction.length - 1; i++) {
@@ -308,11 +306,11 @@ AFRAME.registerComponent("volume", {
   },
 
   // Blend model's into a single material and apply it to the model
-  buildMesh: function () {
-    if (!this.modelsData.length) return;
+  buildMesh: function (modelsData) {
+    if (!modelsData.length) return;
 
     // TODO: Blend all of the model's material into one
-    const materials = this.modelsData.map((model) => model.material);
+    const materials = modelsData.map((model) => model.material);
 
     // TEMP
     this.getMesh().material = materials[0]; // TEMP;
