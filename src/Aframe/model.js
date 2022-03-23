@@ -31,12 +31,6 @@ AFRAME.registerComponent("model", {
     this.rayCollided = false;
     this.grabbed = false;
 
-    // fetch("file:///fragment-shader.glsl")
-    // .then((r) => r.text())
-    // .then(text  => {
-    //   console.log(text);
-    // }) 
-
     // Get other entities
     this.controllerObject = document.getElementById("rhand").object3D;
     this.controllerObject.matrixAutoUpdate = false;
