@@ -69,7 +69,7 @@ AFRAME.registerComponent("volume", {
       Promise.all(
         data.models.map(async (model) => {
           const { name, path, colorMap, transferFunction } = model;
-          model.path = "saacs";
+          
           // Load texture from png
           const texture = usedModels.has(path)
             ? usedModels.get(path)
