@@ -55,28 +55,26 @@ const HOVER_RADIUS = 15;
 
 const { BackSide, Vector2, Vector3, Matrix4 } = THREE;
 
-const DEFAULT_UNIFORMS = {
-  box_max: { value: new Vector3(1, 1, 1) },
-  box_min: { value: new Vector3(0, 0, 0) },
-  channel: { value: 1 },
-  clipping: { value: false },
-  clipPlane: { value: new Matrix4() },
-  dim: { value: 1.0 },
-  intensity: { value: 1.0 },
-  slice: { value: 1.0 },
-  step_size: { value: new Vector3(1, 1, 1) },
-  u_data: { value: null },
-  u_lut: { value: null },
-  useLut: { value: true },
-  viewPort: { value: new Vector2() },
-  zScale: { value: 1.0 },
-};
-
 const DEFAULT_MATERIAL = {
-  uniforms: DEFAULT_UNIFORMS,
-  transparent: true,
+  uniforms: {
+    box_max: { value: new Vector3(1, 1, 1) },
+    box_min: { value: new Vector3(0, 0, 0) },
+    channel: { value: 1 },
+    clipping: { value: false },
+    clipPlane: { value: new Matrix4() },
+    dim: { value: 1.0 },
+    intensity: { value: 1.0 },
+    slice: { value: 1.0 },
+    step_size: { value: new Vector3(1, 1, 1) },
+    u_data: { value: null },
+    u_lut: { value: null },
+    useLut: { value: true },
+    viewPort: { value: new Vector2() },
+    zScale: { value: 1.0 },
+  },
   vertexShader: vertexShader,
   fragmentShader: fragmentShader,
+  transparent: true,
   side: BackSide, // Shader uses "backface" as its reference point
 };
 
@@ -92,6 +90,5 @@ export {
   DECIMALS,
   CANVAS_PADDING,
   HOVER_RADIUS,
-  DEFAULT_UNIFORMS,
   DEFAULT_MATERIAL,
 };

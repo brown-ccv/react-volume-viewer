@@ -1,10 +1,6 @@
 import AFRAME, { THREE } from "aframe";
 
-import {
-  DEFAULT_SLIDERS,
-  DEFAULT_UNIFORMS,
-  DEFAULT_MATERIAL,
-} from "../constants/index.js";
+import { DEFAULT_SLIDERS, DEFAULT_MATERIAL } from "../constants/index.js";
 
 const {
   UniformsUtils,
@@ -262,7 +258,7 @@ AFRAME.registerComponent("volume", {
     const zScale = volumeScale[0] / volumeScale[2];
 
     // Set uniforms from model
-    const uniforms = UniformsUtils.clone(DEFAULT_UNIFORMS);
+    const uniforms = UniformsUtils.clone(DEFAULT_MATERIAL.uniforms);
     uniforms.step_size.value = new Vector3(0.01, 0.01, 0.01);
     uniforms.viewPort.value = new Vector2(
       this.canvas.width,
