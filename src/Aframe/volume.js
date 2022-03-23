@@ -1,16 +1,11 @@
 import AFRAME, { THREE } from "aframe";
 
-import { DEFAULT_SLIDERS } from "../constants/index.js";
-import "./Shader.js";
+import { DEFAULT_SLIDERS, DEFAULT_MATERIAL } from "../constants/index.js";
 
 const {
-  ShaderLib,
   UniformsUtils,
-  BackSide,
   LinearFilter,
   RGBAFormat,
-  Mesh,
-  BoxGeometry,
   ShaderMaterial,
   Vector2,
   Vector3,
@@ -18,15 +13,6 @@ const {
   TextureLoader,
   DataTexture,
 } = THREE;
-
-const SHADER = ShaderLib["ModelShader"];
-const DEFAULT_MATERIAL = {
-  uniforms: UniformsUtils.clone(SHADER.uniforms),
-  transparent: true,
-  vertexShader: SHADER.vertexShader,
-  fragmentShader: SHADER.fragmentShader,
-  side: BackSide, // Shader uses "backface" as its reference point
-};
 
 AFRAME.registerComponent("volume", {
   dependencies: ["keypress-listener"], // Adds component to the entity
@@ -64,11 +50,8 @@ AFRAME.registerComponent("volume", {
       this.onClearCollide
     );
 
-    // Initialize mesh to shader defaults
-    this.el.setObject3D(
-      "mesh",
-      new Mesh(new BoxGeometry(1, 1, 1), new ShaderMaterial(DEFAULT_MATERIAL))
-    );
+    // Initialize material to shader defaults
+    this.getMesh().material = new THREE.ShaderMaterial(DEFAULT_MATERIAL);
   },
 
   update: function (oldData) {
@@ -270,7 +253,7 @@ AFRAME.registerComponent("volume", {
     const zScale = volumeScale[0] / volumeScale[2];
 
     // Set uniforms from model
-    const uniforms = UniformsUtils.clone(SHADER.uniforms);
+    const uniforms = UniformsUtils.clone(DEFAULT_MATERIAL.uniforms);
     uniforms.step_size.value = new Vector3(0.01, 0.01, 0.01);
     uniforms.viewPort.value = new Vector2(
       this.canvas.width,
@@ -315,7 +298,7 @@ AFRAME.registerComponent("volume", {
 
   // Blend model's into a single material and apply it to the model
   buildMesh: function (modelsData) {
-    if (!modelsData.length) return;
+    if (!modelsData.length) return; //TEMP
 
     // TODO: Blend all of the model's material into one
     const materials = modelsData.map((model) => model.material);
