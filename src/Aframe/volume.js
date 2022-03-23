@@ -51,8 +51,7 @@ AFRAME.registerComponent("volume", {
     );
 
     // Initialize material to shader defaults
-    // TODO: Move initialization to separate component
-    this.getMesh().material = new ShaderMaterial(DEFAULT_MATERIAL);
+    this.getMesh().material = new THREE.ShaderMaterial(DEFAULT_MATERIAL);
   },
 
   update: function (oldData) {
