@@ -1,6 +1,10 @@
+import { THREE } from "aframe";
+
 import grayscale from "../images/grayscale.png";
 import natural from "../images/natural.png";
 import rgb from "../images/rgb.png";
+import vertexShader from "../Aframe/vertex-shader.vert";
+import fragmentShader from "../Aframe/fragment-shader.frag";
 
 /** Default Props */
 
@@ -41,9 +45,40 @@ const DEFAULT_POSITION = "0 0 0";
 const DEFAULT_ROTATION = "0 0 0";
 const DEFAULT_SCALE = "1 1 1";
 
+/** OpacityControls.jsx */
+
 const DECIMALS = 2;
 const CANVAS_PADDING = 10;
 const HOVER_RADIUS = 15;
+
+/** AFRAME Constants */
+
+const { BackSide, Vector2, Vector3, Matrix4 } = THREE;
+
+const DEFAULT_UNIFORMS = {
+  box_max: { value: new Vector3(1, 1, 1) },
+  box_min: { value: new Vector3(0, 0, 0) },
+  channel: { value: 1 },
+  clipping: { value: false },
+  clipPlane: { value: new Matrix4() },
+  dim: { value: 1.0 },
+  intensity: { value: 1.0 },
+  slice: { value: 1.0 },
+  step_size: { value: new Vector3(1, 1, 1) },
+  u_data: { value: null },
+  u_lut: { value: null },
+  useLut: { value: true },
+  viewPort: { value: new Vector2() },
+  zScale: { value: 1.0 },
+};
+
+const DEFAULT_MATERIAL = {
+  uniforms: DEFAULT_UNIFORMS,
+  transparent: true,
+  vertexShader: vertexShader,
+  fragmentShader: fragmentShader,
+  side: BackSide, // Shader uses "backface" as its reference point
+};
 
 export {
   ColorMaps,
@@ -57,4 +92,6 @@ export {
   DECIMALS,
   CANVAS_PADDING,
   HOVER_RADIUS,
+  DEFAULT_UNIFORMS,
+  DEFAULT_MATERIAL,
 };

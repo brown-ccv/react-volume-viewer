@@ -1,12 +1,13 @@
 import AFRAME, { THREE } from "aframe";
 
-import { DEFAULT_SLIDERS } from "../constants/index.js";
-import vertexShader from "./vertex-shader.vert";
-import fragmentShader from "./fragment-shader.frag";
+import {
+  DEFAULT_SLIDERS,
+  DEFAULT_UNIFORMS,
+  DEFAULT_MATERIAL,
+} from "../constants/index.js";
 
 const {
   UniformsUtils,
-  BackSide,
   LinearFilter,
   RGBAFormat,
   Mesh,
@@ -18,31 +19,6 @@ const {
   TextureLoader,
   DataTexture,
 } = THREE;
-
-const DEFAULT_UNIFORMS = {
-  box_max: { value: new Vector3(1, 1, 1) },
-  box_min: { value: new Vector3(0, 0, 0) },
-  channel: { value: 1 },
-  clipping: { value: false },
-  clipPlane: { value: new Matrix4() },
-  dim: { value: 1.0 },
-  intensity: { value: 1.0 },
-  slice: { value: 1.0 },
-  step_size: { value: new Vector3(1, 1, 1) },
-  u_data: { value: null },
-  u_lut: { value: null },
-  useLut: { value: true },
-  viewPort: { value: new Vector2() },
-  zScale: { value: 1.0 },
-};
-
-const DEFAULT_MATERIAL = {
-  uniforms: DEFAULT_UNIFORMS,
-  transparent: true,
-  vertexShader: vertexShader,
-  fragmentShader: fragmentShader,
-  side: BackSide, // Shader uses "backface" as its reference point
-};
 
 AFRAME.registerComponent("volume", {
   dependencies: ["keypress-listener"], // Adds component to the entity
