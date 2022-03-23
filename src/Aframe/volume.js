@@ -1,14 +1,31 @@
-/* globals AFRAME THREE */
+import AFRAME, { THREE } from "aframe"
 
 import { DEFAULT_SLIDERS } from "../constants/index.js";
-import "./Shader.js";
+import vertexShader from "./vertex-shader.vert";
+import fragmentShader from "./fragment-shader.frag";
 
-const SHADER = THREE.ShaderLib["ModelShader"];
+const DEFAULT_UNIFORMS = {
+  box_max: { value: new THREE.Vector3(1, 1, 1) },
+  box_min: { value: new THREE.Vector3(0, 0, 0) },
+  channel: { value: 1 },
+  clipping: { value: false },
+  clipPlane: { value: new THREE.Matrix4() },
+  dim: { value: 1.0 },
+  intensity: { value: 1.0 },
+  slice: { value: 1.0 },
+  step_size: { value: new THREE.Vector3(1, 1, 1) },
+  u_data: { value: null },
+  u_lut: { value: null },
+  useLut: { value: true },
+  viewPort: { value: new THREE.Vector2() },
+  zScale: { value: 1.0 },
+};
+
 const DEFAULT_MATERIAL = {
-  uniforms: THREE.UniformsUtils.clone(SHADER.uniforms),
+  uniforms: DEFAULT_UNIFORMS,
   transparent: true,
-  vertexShader: SHADER.vertexShader,
-  fragmentShader: SHADER.fragmentShader,
+  vertexShader: vertexShader,
+  fragmentShader: fragmentShader,
   side: THREE.BackSide, // Shader uses "backface" as its reference point
 };
 
@@ -262,7 +279,7 @@ AFRAME.registerComponent("volume", {
     const zScale = volumeScale[0] / volumeScale[2];
 
     // Set uniforms from model
-    const uniforms = THREE.UniformsUtils.clone(SHADER.uniforms);
+    const uniforms = THREE.UniformsUtils.clone(DEFAULT_UNIFORMS);
     uniforms.step_size.value = new THREE.Vector3(0.01, 0.01, 0.01);
     uniforms.viewPort.value = new THREE.Vector2(
       this.canvas.width,
