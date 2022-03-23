@@ -9,7 +9,7 @@ import {
 import vertexShader from "./vertex-shader.vert";
 import fragmentShader from "./fragment-shader.frag";
 
-const uniforms = {
+const DEFAULT_UNIFORMS = {
   box_max: { value: new THREE.Vector3(1, 1, 1) },
   box_min: { value: new THREE.Vector3(0, 0, 0) },
   channel: { value: 1 },
@@ -195,6 +195,7 @@ AFRAME.registerComponent("model", {
         const zScale = volumeScale[0] / volumeScale[2];
 
         // Set material properties
+        const uniforms = THREE.UniformsUtils.clone(DEFAULT_UNIFORMS);
         uniforms.dim.value = dim;
         uniforms.intensity.value = intensity;
         uniforms.slice.value = slices;
