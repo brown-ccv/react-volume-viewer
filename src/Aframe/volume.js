@@ -24,7 +24,6 @@ AFRAME.registerComponent("volume", {
     this.canvas = this.scene.canvas;
     this.usedModels = new Map(); // Cache models (path: texture)
     this.usedColorMaps = new Map(); // Cache color maps (path: RGB data)
-    this.modelsData = [];
     this.rayCollided = false;
     this.grabbed = false;
 
@@ -62,14 +61,14 @@ AFRAME.registerComponent("volume", {
   update: function (oldData) {
     const { data, usedModels, usedColorMaps } = this; // Extra read-only data
 
-    // TODO: Only change this.modelsData based on difference between oldData and this.data
+    // TODO: Only change based on difference between oldData and this.data
     if (oldData !== data) {
       // Asynchronously loop through the data.models array
       // Each element runs serially and .map() buildMesh() waits for map to finish
       Promise.all(
         data.models.map(async (model) => {
           const { name, path, colorMap, transferFunction } = model;
-          
+
           // Load texture from png
           const texture = usedModels.has(path)
             ? usedModels.get(path)
@@ -95,10 +94,9 @@ AFRAME.registerComponent("volume", {
         })
       )
         .then((result) => {
-          this.modelsData = result;
-          this.buildMesh();
+          this.buildMesh(result);
         })
-        .catch(error => console.error(error))
+        .catch((error) => console.error(error));
     }
   },
 
@@ -310,11 +308,11 @@ AFRAME.registerComponent("volume", {
   },
 
   // Blend model's into a single material and apply it to the model
-  buildMesh: function () {
+  buildMesh: function (modelsData) {
     // TODO: Blend all of the model's material into one
-    console.log("All models loaded", this.modelsData);
-    if (this.modelsData.length > 0) {
-      this.getMesh().material = this.modelsData[0].material;
+    console.log("All models loaded", modelsData);
+    if (modelsData.length > 0) {
+      this.getMesh().material = modelsData[0].material;
     }
   },
 
