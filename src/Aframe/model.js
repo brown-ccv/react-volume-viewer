@@ -25,7 +25,6 @@ const DEFAULT_UNIFORMS = {
   viewPort: { value: new THREE.Vector2() },
   zScale: { value: 1.0 },
 };
-const bind = AFRAME.utils.bind;
 
 AFRAME.registerComponent("model", {
   dependencies: ["render-2d-clipplane", "buttons-check"],
@@ -58,8 +57,8 @@ AFRAME.registerComponent("model", {
     ).object3D;
 
     // Bind functions
-    this.onEnterVR = bind(this.onEnterVR, this);
-    this.onExitVR = bind(this.onExitVR, this);
+    this.onEnterVR = AFRAME.utils.bind(this.onEnterVR, this);
+    this.onExitVR = AFRAME.utils.bind(this.onExitVR, this);
     this.onCollide = this.onCollide.bind(this);
     this.onClearCollide = this.onClearCollide.bind(this);
     this.getMesh = this.getMesh.bind(this);
