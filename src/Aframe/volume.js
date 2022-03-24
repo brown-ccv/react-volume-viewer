@@ -82,34 +82,42 @@ AFRAME.registerComponent("volume", {
         data.models.map(async (model) => {
           const { name, path, colorMap, transferFunction } = model;
 
-          // Load texture from png
-          const texture = usedModels.has(path)
-            ? usedModels.get(path)
-            : await this.loadTexture(model.path);
+          try {
+            // Load texture from png
+            const texture = usedModels.has(path)
+              ? usedModels.get(path)
+              : await this.loadTexture(model.path);
 
-          // Load THREE DataTexture from color map's png and model.transferFunction
-          const colorData = usedColorMaps.has(colorMap.path)
-            ? usedColorMaps.get(colorMap.path)
-            : await this.loadColorMap(colorMap.path);
-          const transferTexture = await this.loadTransferTexture(
-            colorData,
-            transferFunction
-          );
+            // Load THREE DataTexture from color map's png and model.transferFunction
+            const colorData = usedColorMaps.has(colorMap.path)
+              ? usedColorMaps.get(colorMap.path)
+              : await this.loadColorMap(colorMap.path);
+            const transferTexture = await this.loadTransferTexture(
+              colorData,
+              transferFunction
+            );
 
-          // TODO: All we really need is the material - Map(name -> material)
-          const material = this.buildMaterial(model, texture, transferTexture);
-          return {
-            name: name,
-            texture,
-            material,
-            transferTexture,
-          };
+            const material = this.buildMaterial(
+              model,
+              texture,
+              transferTexture
+            );
+
+            return {
+              name: name,
+              texture,
+              material,
+              transferTexture,
+            };
+          } catch (error) {
+            // loadTexture or loadColorMap threw an error
+            console.error(error)
+            throw new Error("Failed to load model '" + model.name + "'");
+          }
         })
       )
-        .then((result) => {
-          this.buildMesh(result);
-        })
-        .catch((error) => console.error(error));
+        .then((result) => this.buildMesh(result))
+        .catch((error) => { throw error; });
     }
   },
 
@@ -194,7 +202,7 @@ AFRAME.registerComponent("volume", {
           resolve(texture);
         },
         () => {},
-        () => reject(new Error("Could not load the model at " + modelPath))
+        () => reject(new Error("Invalid model path: " + modelPath))
       );
     });
   },
@@ -223,7 +231,7 @@ AFRAME.registerComponent("volume", {
         resolve(colorData);
       };
       img.onerror = () => {
-        reject(new Error("Could not load the color map: " + colorMapPath));
+        reject(new Error("Invalid colorMap path: " + colorMapPath));
       };
     });
   },
