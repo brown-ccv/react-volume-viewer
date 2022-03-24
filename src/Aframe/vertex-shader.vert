@@ -1,6 +1,6 @@
+uniform float zScale;
 varying  vec3 vUV; //3D texture coordinates for texture lookup in the fragment shader
 varying  vec3 camPos;
-uniform float zScale;
 
 mat4 scale(mat4 m, vec3 v) {
     mat4 Result;
@@ -74,10 +74,10 @@ mat4 translate(mat4 m, vec3 v) {
 }
 
 void main() {
-    mat4 MV_tmp = scale(modelViewMatrix,vec3(1,1,zScale));
+    mat4 MV_tmp = scale(modelViewMatrix, vec3(1, 1, zScale));
     mat4 MVP = projectionMatrix * MV_tmp;
-    gl_Position = MVP * vec4( position, 1.0 );
+    gl_Position = MVP * vec4(position, 1.0);
     vUV = position + vec3(0.5);
-    camPos = (getInverse(MV_tmp) *vec4(0,0,0,1)).xyz; 
-    camPos = camPos+ vec3(0.5);
+    camPos = (getInverse(MV_tmp) * vec4(0, 0, 0, 1)).xyz; 
+    camPos = camPos + vec3(0.5);
 }

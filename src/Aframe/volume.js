@@ -107,7 +107,7 @@ AFRAME.registerComponent("volume", {
       if (this.grabbed && !triggerDown) {
         mesh.matrix.premultiply(this.controllerObject.matrixWorld);
         mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
-        this.el.object3D.add(mesh);
+        this.el.object3D.add(mesh); // Add? Shouldn't this be setObject3D?
         this.grabbed = false;
       }
 

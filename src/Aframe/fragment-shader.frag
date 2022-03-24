@@ -1,5 +1,6 @@
 #define FILTER_LIN 1
 
+precision mediump float;
 uniform float slice;
 uniform float dim;
 uniform sampler2D u_data; //volume dataset
@@ -38,12 +39,12 @@ vec4 sampleAs3DTexture(sampler2D tex, vec3 texCoord) {
     vec2 coords1 = vec2(texCoord.x / dim + pos1.x / dim, texCoord.y / dim + pos1.y / dim); // Texture coords 1
     vec2 coords2 = vec2(texCoord.x / dim + pos2.x / dim, texCoord.y / dim + pos2.y / dim); // Texture coords 2
     #if FILTER_LIN
-    vec4 slice0Color = texture2D(tex, coords1); //texture lookup 1
-    vec4 slice1Color = texture2D(tex, coords2); //texture lookup 2
-    float zOffset = (texCoord.z * slice - zSlice0); //blending factor
-    return mix(slice0Color,slice1Color, zOffset); //interpolated color
+        vec4 slice0Color = texture2D(tex, coords1); //texture lookup 1
+        vec4 slice1Color = texture2D(tex, coords2); //texture lookup 2
+        float zOffset = (texCoord.z * slice - zSlice0); //blending factor
+        return mix(slice0Color,slice1Color, zOffset); //interpolated color
     #else
-    return texture2D(tex, coords1);
+        return texture2D(tex, coords1);
     #endif
 }
 
