@@ -6,7 +6,7 @@ const {
   UniformsUtils,
   LinearFilter,
   RGBAFormat,
-  ShaderMaterial,
+  RawShaderMaterial,
   Vector2,
   Vector3,
   Matrix4,
@@ -51,7 +51,7 @@ AFRAME.registerComponent("volume", {
     );
 
     // Initialize material to shader defaults
-    this.getMesh().material = new THREE.ShaderMaterial(DEFAULT_MATERIAL);
+    this.getMesh().material = new THREE.RawShaderMaterial(DEFAULT_MATERIAL);
   },
 
   update: function (oldData) {
@@ -240,7 +240,7 @@ AFRAME.registerComponent("volume", {
     });
   },
 
-  // Build THREE ShaderMaterial from model and color map
+  // Build THREE RawShaderMaterial from model and color map
   buildMaterial(model, texture, transferTexture) {
     const { channel, intensity, spacing, slices, useTransferFunction } = model;
 
@@ -290,7 +290,7 @@ AFRAME.registerComponent("volume", {
     }
 
     // Create material
-    return new ShaderMaterial({
+    return new RawShaderMaterial({
       ...DEFAULT_MATERIAL,
       uniforms: uniforms,
     });

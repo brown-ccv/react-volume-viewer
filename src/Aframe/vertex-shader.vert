@@ -2,6 +2,11 @@ uniform float zScale;
 varying  vec3 vUV; //3D texture coordinates for texture lookup in the fragment shader
 varying  vec3 camPos;
 
+// WebGl Variables
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+attribute vec3 position;
+
 mat4 scale(mat4 m, vec3 v) {
     mat4 Result;
     Result[0] = m[0]  * v[0];
@@ -74,6 +79,7 @@ mat4 translate(mat4 m, vec3 v) {
 }
 
 void main() {
+    // modelViewMatrix and position are added by WebGl at runtime
     mat4 MV_tmp = scale(modelViewMatrix, vec3(1, 1, zScale));
     mat4 MVP = projectionMatrix * MV_tmp;
     gl_Position = MVP * vec4(position, 1.0);
