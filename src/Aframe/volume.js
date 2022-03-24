@@ -95,11 +95,9 @@ AFRAME.registerComponent("volume", {
   },
 
   tick: function (time, timeDelta) {
-    const isVrModeActive = this.scene.is("vr-mode");
-    const mesh = this.getMesh();
-
     // Position is controlled by controllerObject in VR
-    if (this.controllerObject && isVrModeActive) {
+    if (this.controllerObject && this.scene.is("vr-mode")) {
+      const mesh = this.getMesh();
       const triggerDown =
         this.controllerObject.el.getAttribute("buttons-check").triggerDown;
 
@@ -308,6 +306,7 @@ AFRAME.registerComponent("volume", {
   },
 
   updateMeshClipMatrix: function () {
+    // TODO: This is handled in the vertex-shader?
     const mesh = this.getMesh();
     const uniforms = mesh.material.uniforms;
 

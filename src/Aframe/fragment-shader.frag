@@ -1,34 +1,22 @@
 #define FILTER_LIN 1
 
 precision mediump float;
-uniform float slice;
+uniform float slice;        // Number of slices in the volume
 uniform float dim;
-uniform sampler2D u_data; //volume dataset
+uniform sampler2D u_data;   // Dataset of the model
 uniform mat4 clipPlane; 
 uniform bool clipping;
-uniform float threshold;
-uniform float multiplier;
-uniform vec3 step_size; //ray step size
+uniform vec3 step_size;     // Ray step size
 uniform int channel;
-uniform sampler2D u_lut; //transfer function
+uniform sampler2D u_lut;    //Transfer Function
 uniform bool useLut;
-uniform sampler2D depth;
-uniform vec2 viewport;
-uniform mat4 P_inv;
-uniform vec3 box_min;
-uniform vec3 box_max;
+uniform vec3 box_min;       // Clip minimum
+uniform vec3 box_max;       // Clip maximum
 uniform float intensity;
-varying vec3 vUV; //3D texture coordinates form vertex shader interpolated by rasterizer
+varying vec3 vUV;           // 3D texture coordinates form vertex shader interpolated by rasterizer
 varying vec3 camPos;
 
-const int MAX_SAMPLES = 3000; //total samples for each ray march step
 vec4 vFragColor;
-
-mat4 translate(mat4 m, vec3 v) {
-    mat4 Result;
-    Result[3] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3];
-    return Result;
-}
 
 vec4 sampleAs3DTexture(sampler2D tex, vec3 texCoord) {
     float sliceSize = 1.0 / slice;  // Space of 1 slice
@@ -42,7 +30,7 @@ vec4 sampleAs3DTexture(sampler2D tex, vec3 texCoord) {
         vec4 slice0Color = texture2D(tex, coords1); //texture lookup 1
         vec4 slice1Color = texture2D(tex, coords2); //texture lookup 2
         float zOffset = (texCoord.z * slice - zSlice0); //blending factor
-        return mix(slice0Color,slice1Color, zOffset); //interpolated color
+        return mix(slice0Color, slice1Color, zOffset); //interpolated color
     #else
         return texture2D(tex, coords1);
     #endif
