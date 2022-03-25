@@ -1,103 +1,107 @@
-#define FILTER_LIN 1
+#define LINEAR_FILTER 1
 
 precision mediump float;
-uniform float slice;        // Number of slices in the volume
-uniform float dim;
-uniform sampler2D u_data;   // Dataset of the model
-uniform mat4 clipPlane; 
-uniform bool clipping;
-uniform vec3 step_size;     // Ray step size
-uniform int channel;
-uniform sampler2D u_lut;    //Transfer Function
-uniform bool useLut;
 uniform vec3 box_min;       // Clip minimum
 uniform vec3 box_max;       // Clip maximum
-uniform float intensity;
-varying vec3 vUV;           // 3D texture coordinates form vertex shader interpolated by rasterizer
+uniform int channel;
+uniform bool clipping;
+uniform mat4 clipPlane;
+uniform float dim;
+uniform float intensity;    // Artifically scale each pixel intensity
+uniform float slice;        // Number of slices in the volumes
+uniform float step_size;    // Ray step size 
+uniform sampler2D u_data;   // Dataset of the model
+uniform sampler2D u_lut;    // Dataset of the color map and transfer function
+uniform bool useLut;        // useTransferFunction
+
+varying vec3 vUV;           // 3D coordinates of the texture (interpolated by rasterizer)
 varying vec3 camPos;
 
-vec4 vFragColor;
+// Sample model texture as 3D object
+vec4 sampleAs3DTexture(sampler2D tex, vec3 tex_coordinates) {
+    float z_start = floor(tex_coordinates.z / (1.0 / slice));
+    float z_end = min(z_start + 1.0, slice - 1.0);
+    vec2 position_start = vec2(mod(z_start, dim), dim - floor(z_start / dim) - 1.0);
+    vec2 position_end = vec2(mod(z_end, dim), dim - floor(z_end / dim) - 1.0);
+    vec2 coordinates_start = vec2(
+        tex_coordinates.x / dim + position_start.x / dim, 
+        tex_coordinates.y / dim + position_start.y / dim
+    );
+    vec2 coordinates_end = vec2(
+        tex_coordinates.x / dim + position_end.x / dim,
+        tex_coordinates.y / dim + position_end.y / dim
+    );
 
-vec4 sampleAs3DTexture(sampler2D tex, vec3 texCoord) {
-    float sliceSize = 1.0 / slice;  // Space of 1 slice
-    float zSlice0 = floor(texCoord.z / sliceSize);  // First slice
-    float zSlice1 = min(zSlice0 + 1.0,slice-1.0); // Second slice
-    vec2 pos1 = vec2(mod(zSlice0,dim), dim - floor(zSlice0/dim) - 1.0); // Texture position 1
-    vec2 pos2 = vec2(mod(zSlice1,dim), dim - floor(zSlice1/dim) - 1.0); // Texture position 2
-    vec2 coords1 = vec2(texCoord.x / dim + pos1.x / dim, texCoord.y / dim + pos1.y / dim); // Texture coords 1
-    vec2 coords2 = vec2(texCoord.x / dim + pos2.x / dim, texCoord.y / dim + pos2.y / dim); // Texture coords 2
-    #if FILTER_LIN
-        vec4 slice0Color = texture2D(tex, coords1); //texture lookup 1
-        vec4 slice1Color = texture2D(tex, coords2); //texture lookup 2
-        float zOffset = (texCoord.z * slice - zSlice0); //blending factor
-        return mix(slice0Color, slice1Color, zOffset); //interpolated color
+    #if LINEAR_FILTER
+        // Apply linear interpolation between start and end coordinates
+        vec4 color_start = texture2D(tex, coordinates_start);
+        vec4 color_end = texture2D(tex, coordinates_end);
+        float z_offset = (tex_coordinates.z * slice - z_start);
+        return mix(color_start, color_end, z_offset);
     #else
-        return texture2D(tex, coords1);
+        return texture2D(tex, coordinates_start);
     #endif
 }
 
-vec2 intersect_box(vec3 orig, vec3 dir, vec3 minBox, vec3 maxBox ) {
-    vec3 box_min = minBox;
-    vec3 box_max = maxBox;
-    vec3 inv_dir = 1.0 / dir;
-    vec3 tmin_tmp = (box_min - orig) * inv_dir;
-    vec3 tmax_tmp = (box_max - orig) * inv_dir;
+// Clip the volume between box_min and box_max
+vec2 intersect_box(vec3 camera, vec3 direction, vec3 box_min, vec3 box_max ) {
+    vec3 direction_inverse = 1.0 / direction;
+    vec3 tmin_tmp = (box_min - camera) * direction_inverse;
+    vec3 tmax_tmp = (box_max - camera) * direction_inverse;
     vec3 tmin = min(tmin_tmp, tmax_tmp);
     vec3 tmax = max(tmin_tmp, tmax_tmp);
-    float t0 = max(tmin.x, max(tmin.y, tmin.z));
-    float t1 = min(tmax.x, min(tmax.y, tmax.z));
-    return vec2(t0, t1);
+    float start = max(tmin.x, max(tmin.y, tmin.z));
+    float end = min(tmax.x, min(tmax.y, tmax.z));
+    return vec2(start, end);
 }
 
 void main() {
     // Get the 3D texture coordinates for lookup into the volume dataset
-    vec3 dataPos = vUV;
-    vFragColor = vec4(0);
+    vec3 data_position = vUV;
+    vec4 vFragColor = vec4(0);
 
     /*
         Get the object space position by subtracting 0.5 from the
         3D texture coordinates. Then subtract it from camera position
         and normalize to get the ray marching direction
     */
-    vec3 geomDir = normalize( dataPos - camPos);
+    vec3 ray_direction = normalize(data_position - camPos);
 
     // Get the t values for the intersection with the box
-    vec2 t_hit = intersect_box(camPos, geomDir,box_min,box_max);
-
-    /*
-        First value should always be lower by definition and this case should 
-        never occur. If it does discard the fragment.
-    */
-    if (t_hit.x > t_hit.y) discard;
+    vec2 t_hit = intersect_box(camPos, ray_direction, box_min, box_max);
+    float t_start = t_hit.x;
+    float t_end = t_hit.y;
 
     /*
         We dont want to sample voxels behind the eye if its inside the volume, 
         so keep the starting point at or in front of the eye
     */
-    if(t_hit.x < 0.0) t_hit.x= max(t_hit.x, 0.0);
+    // if(t_start < 0.0) t_start = max(t_start, 0.0);
+    t_start = max(t_start, 0.0);
 
     /*
         We don't know if the ray was cast from the back or the front face. To ensure we 
-        update dataPos and t_hit to reflect a ray from entry point to exit 
-        (Note: For now we also render the back face only) 
+        update data_position and t_hit to reflect a ray from entry point to exit 
+        (Note: We only render the back face)
     */
-    dataPos = camPos + t_hit.x * geomDir;
-    t_hit.y = t_hit.y - t_hit.x;
-    t_hit.x = 0.0;
+    // Shift box to [0.0, end - start]
+    data_position = camPos + t_start * ray_direction;
+    t_end = t_end - t_start;
+    t_start = 0.0;
 
     // Get t for the clipping plane and overwrite the entry point
     if(clipping) {
-        vec4 p_in = clipPlane * vec4(dataPos + t_hit.x * geomDir, 1);
-        vec4 p_out = clipPlane * vec4(dataPos + t_hit.y * geomDir, 1);
+        vec4 p_in = clipPlane * vec4(data_position + t_start * ray_direction, 1);
+        vec4 p_out = clipPlane * vec4(data_position + t_end * ray_direction, 1);
         if(p_in.y * p_out.y < 0.0 ) {
             // Both points lie on different sides of the plane, need a new clip point
-            vec4 c_pos = clipPlane * vec4(dataPos, 1);
-            vec4 c_dir = clipPlane * vec4(geomDir, 0);
+            vec4 c_pos = clipPlane * vec4(data_position, 1);
+            vec4 c_dir = clipPlane * vec4(ray_direction, 0);
             float t_clip = -c_pos.y / c_dir.y;
     
             // Update either entry or exit based on which is on the clipped side
-            if (p_in.y > 0.0) t_hit.x = t_clip; 
-            else t_hit.y = t_clip; 
+            if (p_in.y > 0.0) t_start = t_clip; 
+            else t_end = t_clip; 
         } else {
             /*
                 Both points lie on the same side of the plane, if one of them is 
@@ -107,36 +111,34 @@ void main() {
         }
     }
 
-    // Compute step size as the minimum of the step size
-    float dt = min(step_size.x, min(step_size.y, step_size.z));
-
     // Starting from the entry point, march the ray through the volume and sample it
-    dataPos = dataPos + t_hit.x * geomDir;
-    float t = t_hit.x; 
+    data_position = data_position + t_start * ray_direction;
+
+    // TODO: Initialize loop as t = t_start
+    float t = t_start;
     for (float t_ = 0.0; t_ < 1000.0; t_ += 1.0) {
-        t += dt;
-        if(t >= t_hit.y) break;
+        t += step_size;
+        if(t >= t_end) break; // Over box_max
 
-        vec4 volumeSample;
-        if (channel == 1) volumeSample = sampleAs3DTexture(u_data, dataPos).rrrr;
-        else if (channel == 2) volumeSample = sampleAs3DTexture(u_data, dataPos).gggg;
-        else if (channel == 3) volumeSample = sampleAs3DTexture(u_data, dataPos).bbbb;
-        else if (channel == 4) volumeSample = sampleAs3DTexture(u_data, dataPos).aaaa;
-        else if (channel == 5) volumeSample = sampleAs3DTexture(u_data, dataPos);
+        vec4 volumeSample = sampleAs3DTexture(u_data, data_position);
+        if (channel == 1) volumeSample = volumeSample.rrrr;
+        else if (channel == 2) volumeSample = volumeSample.gggg;
+        else if (channel == 3) volumeSample = volumeSample.bbbb;
+        else if (channel == 4) volumeSample = volumeSample.aaaa;
+        else if (channel == 5) volumeSample = volumeSample;
         else { 
-            volumeSample = sampleAs3DTexture(u_data, dataPos);
-
-            // Dont have an alpha from the datasets, initialize as the max between the 3 channels
+            // Dont have an alpha from the datasets, initialize as the max of the 3 channels
             volumeSample.a = max(volumeSample.r, max(volumeSample.g, volumeSample.b));
             if(volumeSample.a < 0.25) volumeSample.a = 0.1 * volumeSample.a;
         }
 
-        // artificially increasing pixel intensity
+        // Artificially increase pixel intensity
         volumeSample.rgb = volumeSample.rgb * intensity;
 
+        // Apply color to texture
         if(useLut) {
             // Look up the density value in the transfer function and return the appropriate color value
-            volumeSample = texture2D(u_lut, vec2(clamp(volumeSample.a,0.0,1.0),0.5));
+            volumeSample = texture2D(u_lut, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
         }
 
         // Blending (front to back)
@@ -147,7 +149,7 @@ void main() {
         if (vFragColor.a >= 0.95) break;
 
         // Advance point
-        dataPos += geomDir * dt; 
+        data_position += ray_direction * step_size;
     }
 
     gl_FragColor = vFragColor;

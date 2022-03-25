@@ -23,7 +23,6 @@ AFRAME.registerComponent("volume", {
 
   init: function () {
     this.scene = this.el.sceneEl;
-    this.canvas = this.scene.canvas;
     this.usedModels = new Map(); // Cache models (path: texture)
     this.usedColorMaps = new Map(); // Cache color maps (path: RGB data)
     this.rayCollided = false;
@@ -50,14 +49,13 @@ AFRAME.registerComponent("volume", {
       this.onClearCollide
     );
 
-    // Initialize material to shader defaults
+    // Initialize material
     this.getMesh().material = new THREE.RawShaderMaterial(DEFAULT_MATERIAL);
   },
 
   update: function (oldData) {
     const { data, usedModels, usedColorMaps } = this; // Extra read-only data
 
-    // TODO: Only change based on difference between oldData and this.data
     if (oldData !== data) {
       // Asynchronously loop through the data.models array
       // Each element runs serially and .map() buildMesh() waits for map to finish
@@ -242,49 +240,39 @@ AFRAME.registerComponent("volume", {
   buildMaterial(model, texture, transferTexture) {
     const { channel, intensity, spacing, slices, useTransferFunction } = model;
 
-    const dim = Math.ceil(Math.sqrt(slices));
-    const volumeScale = [
-      1.0 / ((texture.image.width / dim) * spacing.x),
-      1.0 / ((texture.image.height / dim) * spacing.y),
-      1.0 / (slices * spacing.z),
-    ];
-    const zScale = volumeScale[0] / volumeScale[2];
-
-    // Set uniforms from model
     const uniforms = UniformsUtils.clone(DEFAULT_MATERIAL.uniforms);
-    uniforms.step_size.value = new Vector3(0.01, 0.01, 0.01);
+
+    // Resize viewport to scene
     uniforms.viewPort.value = new Vector2(
-      this.canvas.width,
-      this.canvas.height
+      this.scene.canvas.width,
+      this.scene.canvas.height
     );
 
+    // Calculate uniforms for the texture's dimensions and scale
+    const dim = Math.ceil(Math.sqrt(slices));
+    const volumeScale = new Vector3(
+      1.0 / ((texture.image.width / dim) * spacing.x),
+      1.0 / ((texture.image.height / dim) * spacing.y),
+      1.0 / (slices * spacing.z)
+    );
     uniforms.dim.value = dim;
-    uniforms.zScale.value = zScale;
+    uniforms.zScale.value = volumeScale.x / volumeScale.z;
 
+    // Set uniforms from model object
     uniforms.channel.value = channel;
     uniforms.intensity.value = intensity;
     uniforms.slice.value = slices;
     uniforms.useLut.value = useTransferFunction;
 
+    // THESE ARE THE BIG ONES
     uniforms.u_data.value = texture;
     uniforms.u_lut.value = transferTexture;
 
     // Update clipping uniforms from sliders (ignore if !activateClipPlane)
     if (this.el.getAttribute("keypress-listener").activateClipPlane) {
-      const sliders = this.data.sliders;
-      uniforms.box_min.value = new Vector3(
-        sliders.x[0],
-        sliders.y[0],
-        sliders.z[0]
-      );
-      uniforms.box_max.value = new Vector3(
-        sliders.x[1],
-        sliders.y[1],
-        sliders.z[1]
-      );
-    } else {
-      uniforms.box_min.value = new Vector3(0, 0, 0);
-      uniforms.box_max.value = new Vector3(1, 1, 1);
+      const { x, y, z } = this.data.sliders;
+      uniforms.box_min.value = new Vector3(x[0], y[0], z[0]);
+      uniforms.box_max.value = new Vector3(x[1], y[1], z[1]);
     }
 
     // Create material

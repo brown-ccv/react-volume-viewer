@@ -58,14 +58,14 @@ const { BackSide, Vector2, Vector3, Matrix4 } = THREE;
 const DEFAULT_MATERIAL = {
   uniforms: {
     box_max: { value: new Vector3(1, 1, 1) },
-    box_min: { value: new Vector3(0, 0, 0) },
+    box_min: { value: new Vector3() },
     channel: { value: 1 },
     clipping: { value: false },
     clipPlane: { value: new Matrix4() },
     dim: { value: 1.0 },
     intensity: { value: 1.0 },
     slice: { value: 1.0 },
-    step_size: { value: new Vector3(1, 1, 1) },
+    step_size: { value: 0.01 },
     u_data: { value: null },
     u_lut: { value: null },
     useLut: { value: true },
