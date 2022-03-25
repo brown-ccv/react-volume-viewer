@@ -104,23 +104,21 @@ AFRAME.registerComponent("volume", {
             );
 
             return {
-              name: name,
+              name,
               texture,
               material,
               transferTexture,
             };
           } catch (error) {
-            // Display errors asynchronously 
+            // Display errors asynchronously
             Promise.reject(error);
-            Promise.reject(
-              new Error("Failed to load model '" + model.name + "'")
-            );
+            Promise.reject(new Error("Failed to load model '" + name + "'"));
           }
         })
       )
         .then((result) => this.buildMesh(result))
         .catch((error) => {
-          // Halt execution (includes errors in then block)
+          // Halt execution (includes errors in this.buildMesh)
           throw error;
         });
     }
@@ -329,12 +327,16 @@ AFRAME.registerComponent("volume", {
   },
 
   // Blend model's into a single material and apply it to the model
+  // TODO: Blend all of the model's material into one
   buildMesh: function (modelsData) {
-    // TODO: Blend all of the model's material into one
+    // TEMP: Force error if any modelData is undefined
+    modelsData.forEach((modelData) => {
+      if (modelData === undefined) throw new Error("Error loading models");
+    });
+
+    // TEMP: Use first model
     console.log("All models loaded", modelsData);
-    if (modelsData.length > 0) {
-      this.getMesh().material = modelsData[0].material;
-    }
+    this.getMesh().material = modelsData[0].material;
   },
 
   updateMeshClipMatrix: function () {

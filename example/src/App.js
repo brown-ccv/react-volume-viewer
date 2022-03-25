@@ -23,7 +23,6 @@ function App() {
   const [modelPath, setModelPath] = useState(salt);
 
   haline.path = "haline/path";
-  // thermal.path="thermal/path"
 
   const models = [
     {
@@ -36,7 +35,6 @@ function App() {
         max: 33.71,
       },
       path: modelPath,
-      // path: "bad/model/path",
       useTransferFunction: useTransferFunction,
     },
     {
