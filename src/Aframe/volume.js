@@ -110,14 +110,19 @@ AFRAME.registerComponent("volume", {
               transferTexture,
             };
           } catch (error) {
-            // loadTexture or loadColorMap threw an error
-            console.error(error)
-            throw new Error("Failed to load model '" + model.name + "'");
+            // Display errors asynchronously 
+            Promise.reject(error);
+            Promise.reject(
+              new Error("Failed to load model '" + model.name + "'")
+            );
           }
         })
       )
         .then((result) => this.buildMesh(result))
-        .catch((error) => { throw error; });
+        .catch((error) => {
+          // Halt execution (includes errors in then block)
+          throw error;
+        });
     }
   },
 

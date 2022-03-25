@@ -22,23 +22,27 @@ function App() {
   const [useTransferFunction, setUseTransferFunction] = useState(true);
   const [modelPath, setModelPath] = useState(salt);
 
+  haline.path = "haline/path";
+  // thermal.path="thermal/path"
+
   const models = [
     {
       name: "Same",
       colorMap: colorMap,
-      ...(!singleColorMap && { colorMaps: [haline, thermal] }),
+      ...(!singleColorMap && { colorMaps: allColorMaps }),
       enabled: true,
       range: {
         min: 0.05,
         max: 33.71,
       },
       path: modelPath,
+      // path: "bad/model/path",
       useTransferFunction: useTransferFunction,
     },
     {
       name: "Opposite",
       colorMap: colorMap === haline ? thermal : haline,
-      ...(!singleColorMap && { colorMaps: allColorMaps }),
+      ...(!singleColorMap && { colorMaps: [haline, thermal] }),
       enabled: true,
       range: {
         min: 0.05,
