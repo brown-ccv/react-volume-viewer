@@ -20,7 +20,7 @@ function Controls({
     <Wrapper $visible={controlsVisible}>
       <StyledTabList>
         {models.map((model, idx) => (
-          <FlexTab key={model.name}>
+          <FlexTab key={model.name} onClick={(e) => e.preventDefault()}>
             {model.name}
             <EnabledControls
               enabled={model.enabled}
@@ -79,6 +79,11 @@ const FlexTab = styled(Tab)`
   display: flex;
   align-items: center;
   gap: 5px;
+
+  // Prevent default button click animation
+  &:active {
+    background-color: initial;
+  }
 `;
 
 const StyledTabPanels = styled(TabPanels)`
