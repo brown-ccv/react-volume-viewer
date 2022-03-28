@@ -52,8 +52,12 @@ AFRAME.registerComponent("volume", {
     );
 
     // Initialize material
-    // TODO: Update viewPort first
-    this.getMesh().material = new RawShaderMaterial(DEFAULT_MATERIAL);
+    const initMaterial = DEFAULT_MATERIAL;
+    initMaterial.uniforms.viewPort.value = new Vector2(
+      this.scene.canvas.width,
+      this.scene.canvas.height
+    );
+    this.getMesh().material = new RawShaderMaterial(initMaterial);
   },
 
   update: function (oldData) {
@@ -96,11 +100,11 @@ AFRAME.registerComponent("volume", {
         .catch((error) => {
           throw error; // Halt execution (includes errors in this.updateMaterial)
         });
+    }
 
-      // Update clipping on sliders change
-      if (!isEqual(oldData.sliders, data.sliders)) {
-        this.updateClipping();
-      }
+    // Update clipping on sliders change
+    if (!isEqual(oldData.sliders, data.sliders)) {
+      this.updateClipping();
     }
   },
 
@@ -277,9 +281,12 @@ AFRAME.registerComponent("volume", {
     uniforms.useLut.value = useTransferFunction;
 
     // THESE ARE THE BIG ONES
-    uniforms.u_data.value = texture;
-    uniforms.u_lut.value = transferTexture;
+    uniforms.u_data.value = texture; // Model data
+    uniforms.u_lut.value = transferTexture; // Color Map + transfer function
 
+    // Sliders are updated separately
+    uniforms.box_min.value = this.getMesh().material.uniforms.box_min.value;
+    uniforms.box_max.value = this.getMesh().material.uniforms.box_max.value;
     return uniforms;
   },
 
