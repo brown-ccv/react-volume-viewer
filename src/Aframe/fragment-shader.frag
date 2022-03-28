@@ -9,7 +9,7 @@ uniform bool clipping;
 uniform mat4 clipPlane;
 uniform float dim;
 uniform float intensity;    // Artifically scale each pixel intensity
-uniform float slice;        // Number of slices in the volumes
+uniform float slices;        // Number of slicess in the volumes
 uniform float step_size;    // Ray step size 
 uniform sampler2D u_data;   // Dataset of the model
 uniform sampler2D u_lut;    // Dataset of the color map and transfer function
@@ -20,8 +20,8 @@ varying vec3 camPos;
 
 // Sample model texture as 3D object
 vec4 sampleAs3DTexture(sampler2D tex, vec3 tex_coordinates) {
-    float z_start = floor(tex_coordinates.z / (1.0 / slice));
-    float z_end = min(z_start + 1.0, slice - 1.0);
+    float z_start = floor(tex_coordinates.z / (1.0 / slices));
+    float z_end = min(z_start + 1.0, slices - 1.0);
     vec2 position_start = vec2(mod(z_start, dim), dim - floor(z_start / dim) - 1.0);
     vec2 position_end = vec2(mod(z_end, dim), dim - floor(z_end / dim) - 1.0);
     vec2 coordinates_start = vec2(
@@ -37,7 +37,7 @@ vec4 sampleAs3DTexture(sampler2D tex, vec3 tex_coordinates) {
         // Apply linear interpolation between start and end coordinates
         vec4 color_start = texture2D(tex, coordinates_start);
         vec4 color_end = texture2D(tex, coordinates_end);
-        float z_offset = (tex_coordinates.z * slice - z_start);
+        float z_offset = (tex_coordinates.z * slices - z_start);
         return mix(color_start, color_end, z_offset);
     #else
         return texture2D(tex, coordinates_start);

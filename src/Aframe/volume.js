@@ -83,8 +83,6 @@ AFRAME.registerComponent("volume", {
               transferFunction
             );
             uniform = this.buildUniform(model, texture, transferTexture);
-            
-            
           } catch (error) {
             // Display errors asynchronously
             Promise.reject(error);
@@ -268,13 +266,14 @@ AFRAME.registerComponent("volume", {
       1.0 / ((texture.image.height / dim) * spacing.y),
       1.0 / (slices * spacing.z)
     );
+    uniforms.slices.value = slices;
     uniforms.dim.value = dim;
     uniforms.zScale.value = volumeScale.x / volumeScale.z;
 
     // Set uniforms from model object
     uniforms.channel.value = channel;
     uniforms.intensity.value = intensity;
-    uniforms.slice.value = slices;
+
     uniforms.useLut.value = useTransferFunction;
 
     // THESE ARE THE BIG ONES
@@ -302,8 +301,11 @@ AFRAME.registerComponent("volume", {
     // TEMP: Force error if any modelData is undefined
     this.uniforms.forEach((value) => {
       if (value === undefined) throw new Error("Error loading models");
-    })
+    });
     console.log("MODELS LOADED", this.uniforms);
+
+    const oldMaterial = this.getMesh().material;
+    // TODO: Compare difference between oldMaterial, create new one
 
     this.getMesh().material =
       this.uniforms.size > 0
