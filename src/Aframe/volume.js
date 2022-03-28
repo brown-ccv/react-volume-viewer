@@ -311,8 +311,8 @@ AFRAME.registerComponent("volume", {
     });
     console.log("MODELS LOADED", this.uniforms);
 
-    const oldMaterial = this.getMesh().material;
     // TODO: Compare difference between oldMaterial, create new one
+    // const oldMaterial = this.getMesh().material;
 
     this.getMesh().material =
       this.uniforms.size > 0

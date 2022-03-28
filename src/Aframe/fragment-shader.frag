@@ -135,7 +135,7 @@ void main() {
         // Artificially increase pixel intensity
         volumeSample.rgb = volumeSample.rgb * intensity;
 
-        // Apply color to texture
+        // This is what actually applies the color texture
         if(useLut) {
             // Look up the density value in the transfer function and return the appropriate color value
             volumeSample = texture2D(u_lut, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
