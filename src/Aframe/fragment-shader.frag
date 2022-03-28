@@ -1,4 +1,5 @@
 #define LINEAR_FILTER 1
+#define MAX_ITERATIONS 1000
 
 precision mediump float;
 uniform vec3 box_min;       // Clip minimum
@@ -46,13 +47,13 @@ vec4 sampleAs3DTexture(sampler2D tex, vec3 tex_coordinates) {
 // Clip the volume between box_min and box_max
 vec2 intersect_box(vec3 camera, vec3 direction, vec3 box_min, vec3 box_max ) {
     vec3 direction_inverse = 1.0 / direction;
-    vec3 tmin_tmp = (box_min - camera) * direction_inverse;
-    vec3 tmax_tmp = (box_max - camera) * direction_inverse;
-    vec3 tmin = min(tmin_tmp, tmax_tmp);
-    vec3 tmax = max(tmin_tmp, tmax_tmp);
-    float start = max(tmin.x, max(tmin.y, tmin.z));
-    float end = min(tmax.x, min(tmax.y, tmax.z));
-    return vec2(start, end);
+    vec3 bmin_direction = (box_min - camera) * direction_inverse;
+    vec3 bmax_direction = (box_max - camera) * direction_inverse;
+    vec3 tmin = min(bmin_direction, bmax_direction);
+    vec3 tmax = max(bmin_direction, bmax_direction);
+    float tstart = max(tmin.x, max(tmin.y, tmin.z));
+    float tend = min(tmax.x, min(tmax.y, tmax.z));
+    return vec2(tstart, tend);
 }
 
 void main() {
@@ -60,11 +61,7 @@ void main() {
     vec3 data_position = vUV;
     vec4 vFragColor = vec4(0);
 
-    /*
-        Get the object space position by subtracting 0.5 from the
-        3D texture coordinates. Then subtract it from camera position
-        and normalize to get the ray marching direction
-    */
+    // Direction the ray is marching in
     vec3 ray_direction = normalize(data_position - camPos);
 
     // Get the t values for the intersection with the box
@@ -90,6 +87,7 @@ void main() {
     t_start = 0.0;
 
     // Get t for the clipping plane and overwrite the entry point
+    // This only occurs when grabbing volume in VR
     if(clipping) {
         vec4 p_in = clipPlane * vec4(data_position + t_start * ray_direction, 1);
         vec4 p_out = clipPlane * vec4(data_position + t_end * ray_direction, 1);
@@ -112,13 +110,15 @@ void main() {
     }
 
     // Starting from the entry point, march the ray through the volume and sample it
+    // t_start is 0 - this does nothing?
     data_position = data_position + t_start * ray_direction;
 
-    // TODO: Initialize loop as t = t_start
+    // Loop from t_start to t_end by step_size
     float t = t_start;
-    for (float t_ = 0.0; t_ < 1000.0; t_ += 1.0) {
+    for(int i = 0; i < MAX_ITERATIONS; i++) {
         t += step_size;
         if(t >= t_end) break; // Over box_max
+    
 
         vec4 volumeSample = sampleAs3DTexture(u_data, data_position);
         if (channel == 1) volumeSample = volumeSample.rrrr;
@@ -145,7 +145,7 @@ void main() {
         vFragColor.rgb += (1.0 - vFragColor.a) * volumeSample.a * volumeSample.rgb;
         vFragColor.a += (1.0 - vFragColor.a) * volumeSample.a;
 
-        // Early exit if opacity is reached
+        // Early exit if 95% opacity is reached
         if (vFragColor.a >= 0.95) break;
 
         // Advance point

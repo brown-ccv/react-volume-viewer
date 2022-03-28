@@ -3,8 +3,8 @@ varying  vec3 vUV;      // 3D texture coordinates for texture lookup in the frag
 varying  vec3 camPos;   // Position of the camera
 
 // WebGl Variables
-uniform mat4 modelViewMatrix;
-uniform mat4 projectionMatrix;
+uniform mat4 modelViewMatrix;   // Position of model
+uniform mat4 projectionMatrix;  // Convert world space to clip space
 attribute vec3 position;
 
 mat4 scale(mat4 m, vec3 v) {
@@ -73,10 +73,13 @@ mat4 getInverse(mat4 m) {
 }
 
 void main() {
-    mat4 MV_tmp = scale(modelViewMatrix, vec3(1, 1, zScale));  
-    mat4 MVP = projectionMatrix * MV_tmp;
+    // clip space = modelViewMatrix * zScale * projectionMatrix
+    // clip space = position * scale * translation
+    mat4 MV_scaled = scale(modelViewMatrix, vec3(1, 1, zScale));
+    mat4 MVP = projectionMatrix * MV_scaled; 
+
+    // Set position, texture coordinates, and camera
     gl_Position = MVP * vec4(position, 1.0);
     vUV = position + vec3(0.5);
-    camPos = (getInverse(MV_tmp) * vec4(0, 0, 0, 1)).xyz; 
-    camPos = camPos + vec3(0.5);
+    camPos = (getInverse(MV_scaled) * vec4(0, 0, 0, 1)).xyz + vec3(0.5);
 }
