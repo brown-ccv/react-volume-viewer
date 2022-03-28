@@ -1,4 +1,5 @@
 import AFRAME, { THREE } from "aframe";
+import { isEqual } from "lodash";
 
 import { DEFAULT_SLIDERS, DEFAULT_MATERIAL } from "../constants/index.js";
 
@@ -25,6 +26,7 @@ AFRAME.registerComponent("volume", {
     this.scene = this.el.sceneEl;
     this.usedModels = new Map(); // Cache models (path: texture)
     this.usedColorMaps = new Map(); // Cache color maps (path: RGB data)
+    this.uniforms = new Map(); // Map each model to it's uniform (name: uniform)
     this.rayCollided = false;
     this.grabbed = false;
 
@@ -50,19 +52,22 @@ AFRAME.registerComponent("volume", {
     );
 
     // Initialize material
-    this.getMesh().material = new THREE.RawShaderMaterial(DEFAULT_MATERIAL);
+    // TODO: Update viewPort first
+    this.getMesh().material = new RawShaderMaterial(DEFAULT_MATERIAL);
   },
 
   update: function (oldData) {
     const { data, usedModels, usedColorMaps } = this; // Extra read-only data
 
-    if (oldData !== data) {
+    // Update modelsData on models change
+    if (!isEqual(oldData.models, data.models)) {
       // Asynchronously loop through the data.models array
-      // Each element runs serially and .map() buildMesh() waits for map to finish
+      // Each element runs serially and .map() updateMaterial() waits for map to finish
       Promise.all(
         data.models.map(async (model) => {
           const { name, path, colorMap, transferFunction } = model;
 
+          let uniform;
           try {
             // Load texture from png
             const texture = usedModels.has(path)
@@ -77,31 +82,27 @@ AFRAME.registerComponent("volume", {
               colorData,
               transferFunction
             );
-
-            const material = this.buildMaterial(
-              model,
-              texture,
-              transferTexture
-            );
-
-            return {
-              name,
-              texture,
-              material,
-              transferTexture,
-            };
+            uniform = this.buildUniform(model, texture, transferTexture);
+            
+            
           } catch (error) {
             // Display errors asynchronously
             Promise.reject(error);
             Promise.reject(new Error("Failed to load model '" + name + "'"));
+          } finally {
+            this.uniforms.set(model.name, uniform);
           }
         })
       )
-        .then((result) => this.buildMesh(result))
+        .then(() => this.updateMaterial())
         .catch((error) => {
-          // Halt execution (includes errors in this.buildMesh)
-          throw error;
+          throw error; // Halt execution (includes errors in this.updateMaterial)
         });
+
+      // Update clipping on sliders change
+      if (!isEqual(oldData.sliders, data.sliders)) {
+        this.updateClipping();
+      }
     }
   },
 
@@ -112,6 +113,14 @@ AFRAME.registerComponent("volume", {
       const triggerDown =
         this.controllerObject.el.getAttribute("buttons-check").triggerDown;
 
+      // Grab object
+      if (!this.grabbed && triggerDown && this.rayCollided) {
+        mesh.matrix.premultiply(this.controllerObject.matrixWorld.invert());
+        mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+        this.controllerObject.add(mesh);
+        this.grabbed = true;
+      }
+
       // Stop grabbing object
       if (this.grabbed && !triggerDown) {
         mesh.matrix.premultiply(this.controllerObject.matrixWorld);
@@ -120,15 +129,6 @@ AFRAME.registerComponent("volume", {
         this.grabbed = false;
       }
 
-      // Grab object
-      if (!this.grabbed && triggerDown && this.rayCollided) {
-        const inverseControllerPos = new Matrix4();
-        inverseControllerPos.getInverse(this.controllerObject.matrixWorld);
-        mesh.matrix.premultiply(inverseControllerPos);
-        mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
-        this.controllerObject.add(mesh);
-        this.grabbed = true;
-      }
       this.updateMeshClipMatrix();
     }
   },
@@ -171,7 +171,7 @@ AFRAME.registerComponent("volume", {
   },
 
   // Load THREE Texture from the model's path
-  loadTexture(modelPath) {
+  loadTexture: function (modelPath) {
     return new Promise((resolve, reject) => {
       new TextureLoader().load(
         modelPath,
@@ -190,7 +190,7 @@ AFRAME.registerComponent("volume", {
   },
 
   // Load color map data (RGB)
-  loadColorMap(colorMapPath) {
+  loadColorMap: function (colorMapPath) {
     return new Promise((resolve, reject) => {
       /*  colorMapPath is either a png encoded string or the path to a png
         png encoded strings begin with data:image/png;64
@@ -219,7 +219,7 @@ AFRAME.registerComponent("volume", {
   },
 
   // Create a THREE DataTexture from the RGB and A data
-  loadTransferTexture(colorData, transferFunction) {
+  loadTransferTexture: function (colorData, transferFunction) {
     return new Promise((resolve, reject) => {
       // Load alpha data from transfer function
       const alphaData = [];
@@ -250,7 +250,7 @@ AFRAME.registerComponent("volume", {
   },
 
   // Build THREE RawShaderMaterial from model and color map
-  buildMaterial(model, texture, transferTexture) {
+  buildUniform: function (model, texture, transferTexture) {
     const { channel, intensity, spacing, slices, useTransferFunction } = model;
 
     const uniforms = UniformsUtils.clone(DEFAULT_MATERIAL.uniforms);
@@ -281,31 +281,39 @@ AFRAME.registerComponent("volume", {
     uniforms.u_data.value = texture;
     uniforms.u_lut.value = transferTexture;
 
-    // Update clipping uniforms from sliders (ignore if !activateClipPlane)
+    return uniforms;
+  },
+
+  // Update clipping uniforms from sliders (reset if !activateClipPlane)
+  updateClipping: function () {
+    const uniforms = this.getMesh().material.uniforms;
+    const { x, y, z } = this.data.sliders;
     if (this.el.getAttribute("keypress-listener").activateClipPlane) {
-      const { x, y, z } = this.data.sliders;
       uniforms.box_min.value = new Vector3(x[0], y[0], z[0]);
       uniforms.box_max.value = new Vector3(x[1], y[1], z[1]);
+    } else {
+      uniforms.box_min.value = new Vector3(0, 0, 0);
+      uniforms.box_max.value = new Vector3(1, 1, 1);
     }
-
-    // Create material
-    return new RawShaderMaterial({
-      ...DEFAULT_MATERIAL,
-      uniforms: uniforms,
-    });
   },
 
   // Blend model's into a single material and apply it to the model
-  // TODO: Blend all of the model's material into one
-  buildMesh: function (modelsData) {
+  updateMaterial: function () {
     // TEMP: Force error if any modelData is undefined
-    modelsData.forEach((modelData) => {
-      if (modelData === undefined) throw new Error("Error loading models");
-    });
+    this.uniforms.forEach((value) => {
+      if (value === undefined) throw new Error("Error loading models");
+    })
+    console.log("MODELS LOADED", this.uniforms);
 
-    // TEMP: Use first model
-    console.log("All models loaded", modelsData);
-    this.getMesh().material = modelsData[0].material;
+    this.getMesh().material =
+      this.uniforms.size > 0
+        ? // TEMP - use first material
+          new RawShaderMaterial({
+            ...DEFAULT_MATERIAL,
+            uniforms: this.uniforms.values().next().value,
+          })
+        : // No models - use default material
+          new RawShaderMaterial(DEFAULT_MATERIAL);
   },
 
   updateMeshClipMatrix: function () {
