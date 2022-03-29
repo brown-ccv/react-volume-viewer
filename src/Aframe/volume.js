@@ -328,13 +328,14 @@ AFRAME.registerComponent("volume", {
   // Blend model's into a single material and apply it to the model
   // TODO: Blend all of the model's material into one
   buildMesh: function (modelsData) {
+    console.log("All models loaded", modelsData); // TEMP
+
     // TEMP: Force error if any modelData is undefined
     modelsData.forEach((modelData) => {
       if (modelData === undefined) throw new Error("Error loading models");
     });
 
     // TEMP: Use first model
-    console.log("All models loaded", modelsData);
     this.getMesh().material = modelsData[0].material;
   },
 
