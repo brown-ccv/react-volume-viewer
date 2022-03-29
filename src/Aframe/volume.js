@@ -92,7 +92,7 @@ AFRAME.registerComponent("volume", {
             const colorData = usedColorMaps.has(colorMap.path)
               ? usedColorMaps.get(colorMap.path)
               : await this.loadColorMap(colorMap.path);
-            const transferTexture = await this.loadTransferTexture(
+            const transferTexture = this.buildTransferTexture(
               colorData,
               transferFunction
             );
@@ -192,7 +192,7 @@ AFRAME.registerComponent("volume", {
   },
 
   // Load THREE Texture from the model's path
-  loadTexture(modelPath) {
+  loadTexture: function (modelPath) {
     return new Promise((resolve, reject) => {
       new TextureLoader().load(
         modelPath,
@@ -211,7 +211,7 @@ AFRAME.registerComponent("volume", {
   },
 
   // Load color map data (RGB)
-  loadColorMap(colorMapPath) {
+  loadColorMap: function (colorMapPath) {
     return new Promise((resolve, reject) => {
       /*  colorMapPath is either a png encoded string or the path to a png
         png encoded strings begin with data:image/png;64
@@ -240,38 +240,37 @@ AFRAME.registerComponent("volume", {
   },
 
   // Create a THREE DataTexture from the RGB and A data
-  loadTransferTexture(colorData, transferFunction) {
-    return new Promise((resolve, reject) => {
-      // Load alpha data from transfer function
-      const alphaData = [];
-      for (let i = 0; i < transferFunction.length - 1; i++) {
-        const start = transferFunction[i];
-        const end = transferFunction[i + 1];
-        const deltaX = end.x * 255 - start.x * 255;
+  buildTransferTexture: function (colorData, transferFunction) {
+    // Load alpha data from transfer function
+    const alphaData = [];
+    for (let i = 0; i < transferFunction.length - 1; i++) {
+      const start = transferFunction[i];
+      const end = transferFunction[i + 1];
+      const deltaX = end.x * 255 - start.x * 255;
 
-        // Linear interpolation between points
-        const alphaStart = start.y * 255;
-        const alphaEnd = end.y * 255;
-        for (let j = 1 / deltaX; j < 1; j += 1 / deltaX) {
-          alphaData.push(alphaStart * (1 - j) + alphaEnd * j);
-        }
+      // Linear interpolation between points
+      const alphaStart = start.y * 255;
+      const alphaEnd = end.y * 255;
+      for (let j = 1 / deltaX; j < 1; j += 1 / deltaX) {
+        alphaData.push(alphaStart * (1 - j) + alphaEnd * j);
       }
+    }
 
-      // Combine RGB and A data
-      const rgbaData = new Uint8Array(4 * 256);
-      for (let i = 0; i < 256; i++) {
-        for (let j = 0; j < 3; j++) rgbaData[i * 4 + j] = colorData[i * 4 + j];
-        rgbaData[i * 4 + 3] = alphaData[i];
-      }
+    // Combine RGB and A data
+    const rgbaData = new Uint8Array(4 * 256);
+    for (let i = 0; i < 256; i++) {
+      for (let j = 0; j < 3; j++) rgbaData[i * 4 + j] = colorData[i * 4 + j];
+      rgbaData[i * 4 + 3] = alphaData[i];
+    }
 
-      const transferTexture = new DataTexture(rgbaData, 256, 1, RGBAFormat);
-      transferTexture.needsUpdate = true;
-      resolve(transferTexture);
-    });
+    const transferTexture = new DataTexture(rgbaData, 256, 1, RGBAFormat);
+    transferTexture.needsUpdate = true;
+    return transferTexture;
+    // return new DataTexture(rgbaData, 256, 1, RGBAFormat)
   },
 
   // Build THREE ShaderMaterial from model and color map
-  buildMaterial(model, texture, transferTexture) {
+  buildMaterial: function (model, texture, transferTexture) {
     const { channel, intensity, spacing, slices, useTransferFunction } = model;
 
     const dim = Math.ceil(Math.sqrt(slices));
