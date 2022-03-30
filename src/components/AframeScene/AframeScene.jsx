@@ -1,4 +1,5 @@
 import React, { memo, useState, useEffect } from "react";
+import styled from "styled-components";
 import { isEqual } from "lodash";
 
 import "../../Aframe/arcball-camera";
@@ -24,7 +25,7 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
 
   console.log("Caught error", errors);
 
-  return errors.length === 0 ? (
+  return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
       <a-entity
@@ -54,9 +55,9 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
           id="volume"
           class="clickableMesh"
           volume={`
-            models: ${getAframeModels(models)};
-            sliders: ${JSON.stringify(sliders)};
-          `}
+              models: ${getAframeModels(models)};
+              sliders: ${JSON.stringify(sliders)};
+            `}
         />
       </a-entity>
 
@@ -74,17 +75,29 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
         look-controls
         arcball-camera="initialPosition: 0 0 1;"
       />
+
+      {/* TODO: Replace with better error message */}
+      {errors.length && (
+        <Wrapper>
+          {errors.map((e) => (
+            <p key={e}>
+              {e.message}: &nbsp; {e.cause.message}
+            </p>
+          ))}
+        </Wrapper>
+      )}
     </a-scene>
-  ) : (
-    // TODO: Replace with better error message
-    <ul>
-      {errors.map((e) => (
-        <li key={e}>
-          {e.message}: &nbsp; {e.cause.message}
-        </li>
-      ))}
-    </ul>
   );
 }
+
+const Wrapper = styled.div`
+  background-color: white;
+  position: relative;
+  width: 90%;
+  height: 90%;
+  top: 5%; // (100% - height) / 2
+  margin: auto;
+  overflow: auto;
+`;
 
 export default memo(AframeScene, isEqual);
