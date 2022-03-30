@@ -107,30 +107,34 @@ AFRAME.registerComponent("volume", {
             });
           }
         })
-      )
-        .then((promises) => {
-          if (promises.some((p) => p.status === "rejected")) {
-            // Display errors and halt execution
-            promises.forEach((p) => {
-              if (p.status === "rejected") {
-                console.error(p.reason.cause);
-                console.error(p.reason);
-                return undefined;
-              }
-            });
-            throw new Error("Failed to load volume");
-          } else return promises.map((p) => p.value); // Return modelData
-        })
-        .then((modelsData) => this.buildMesh(modelsData));
+      ).then((promises) => {
+        const errors = promises
+          .filter((p) => p.status === "rejected")
+          .map((p) => p.reason);
+
+        if (errors.length) {
+          // Bubble errors up to AframeScene
+          document.dispatchEvent(
+            new CustomEvent("aframe-error", {
+              detail: errors,
+            })
+          );
+        } else {
+          // Blend model's into a single material and apply it to the model
+          const modelsData = promises.map((p) => p.value);
+
+          // TODO: Blend all of the model's material into one
+          this.getMesh().material = modelsData[0].material;
+          console.log("All models loaded", modelsData); // TEMP
+        }
+      });
     }
   },
 
   tick: function (time, timeDelta) {
-    const isVrModeActive = this.scene.is("vr-mode");
-    const mesh = this.getMesh();
-
     // Position is controlled by controllerObject in VR
-    if (this.controllerObject && isVrModeActive) {
+    if (this.controllerObject && this.scene.is("vr-mode")) {
+      const mesh = this.getMesh();
       const triggerDown =
         this.controllerObject.el.getAttribute("buttons-check").triggerDown;
 
@@ -323,15 +327,6 @@ AFRAME.registerComponent("volume", {
       ...DEFAULT_MATERIAL,
       uniforms: uniforms,
     });
-  },
-
-  // Blend model's into a single material and apply it to the model
-  // TODO: Blend all of the model's material into one
-  buildMesh: function (modelsData) {
-    console.log("All models loaded", modelsData); // TEMP
-
-    // TEMP: Use first model
-    this.getMesh().material = modelsData[0].material;
   },
 
   updateMeshClipMatrix: function () {

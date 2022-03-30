@@ -20,7 +20,10 @@ function App() {
   const [singleColorMap, setSingleColorMap] = useState(false);
 
   const [useTransferFunction, setUseTransferFunction] = useState(true);
-  const [modelPath, setModelPath] = useState(salt);
+  // const [modelPath, setModelPath] = useState(salt);
+
+  const [modelPath, setModelPath] = useState("model/path");
+  thermal.path = "haline/path";
 
   const models = [
     {

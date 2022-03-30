@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useState, useEffect } from "react";
 import { isEqual } from "lodash";
 
 import "../../Aframe/arcball-camera";
@@ -11,7 +11,20 @@ import "../../Aframe/volume";
 import { getAframeModels } from "../../utils";
 
 function AframeScene({ models, position, rotation, scale, sliders }) {
-  return (
+  const [errors, setErrors] = useState([]);
+  useEffect(() => {
+    const handler = (e) => {
+      setErrors(e.detail);
+    };
+
+    document.addEventListener("aframe-error", handler);
+
+    return () => document.removeEventListener("aframe-error", handler);
+  }, []);
+
+  console.log("Caught error", errors);
+
+  return errors.length === 0 ? (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
       <a-entity
@@ -44,7 +57,6 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
             models: ${getAframeModels(models)};
             sliders: ${JSON.stringify(sliders)};
           `}
-          // render-2d-clipplane={`activateClipPlane: ${true};`}
         />
       </a-entity>
 
@@ -63,6 +75,15 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
         arcball-camera="initialPosition: 0 0 1;"
       />
     </a-scene>
+  ) : (
+    // TODO: Replace with better error message
+    <ul>
+      {errors.map((e) => (
+        <li key={e}>
+          {e.message}: &nbsp; {e.cause.message}
+        </li>
+      ))}
+    </ul>
   );
 }
 
