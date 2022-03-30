@@ -77,11 +77,10 @@ AFRAME.registerComponent("volume", {
     // TODO: Only change based on difference between oldData and this.data
     if (oldData !== data) {
       // Asynchronously loop through the data.models array
-      // Each element runs serially and .map() buildMesh() waits for map to finish
-      Promise.all(
+      // Each element runs serially and this.buildMesh() waits for all of the promises to finish
+      Promise.allSettled(
         data.models.map(async (model) => {
           const { name, path, colorMap, transferFunction } = model;
-
           try {
             // Load texture from png
             const texture = usedModels.has(path)
@@ -97,30 +96,32 @@ AFRAME.registerComponent("volume", {
               transferFunction
             );
 
-            const material = this.buildMaterial(
-              model,
-              texture,
-              transferTexture
-            );
-
+            // Build and return the material
             return {
               name,
-              texture,
-              material,
-              transferTexture,
+              material: this.buildMaterial(model, texture, transferTexture),
             };
           } catch (error) {
-            // Display errors asynchronously
-            Promise.reject(error);
-            Promise.reject(new Error("Failed to load model '" + name + "'"));
+            throw new Error("Failed to load model '" + name + "'", {
+              cause: error,
+            });
           }
         })
       )
-        .then((result) => this.buildMesh(result))
-        .catch((error) => {
-          // Halt execution (includes errors in this.buildMesh)
-          throw error;
-        });
+        .then((promises) => {
+          if (promises.some((p) => p.status === "rejected")) {
+            // Display errors and halt execution
+            promises.forEach((p) => {
+              if (p.status === "rejected") {
+                console.error(p.reason.cause);
+                console.error(p.reason);
+                return undefined;
+              }
+            });
+            throw new Error("Failed to load volume");
+          } else return promises.map((p) => p.value); // Return modelData
+        })
+        .then((modelsData) => this.buildMesh(modelsData));
     }
   },
 
@@ -266,7 +267,6 @@ AFRAME.registerComponent("volume", {
     const transferTexture = new DataTexture(rgbaData, 256, 1, RGBAFormat);
     transferTexture.needsUpdate = true;
     return transferTexture;
-    // return new DataTexture(rgbaData, 256, 1, RGBAFormat)
   },
 
   // Build THREE ShaderMaterial from model and color map
@@ -329,11 +329,6 @@ AFRAME.registerComponent("volume", {
   // TODO: Blend all of the model's material into one
   buildMesh: function (modelsData) {
     console.log("All models loaded", modelsData); // TEMP
-
-    // TEMP: Force error if any modelData is undefined
-    modelsData.forEach((modelData) => {
-      if (modelData === undefined) throw new Error("Error loading models");
-    });
 
     // TEMP: Use first model
     this.getMesh().material = modelsData[0].material;

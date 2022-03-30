@@ -22,8 +22,6 @@ function App() {
   const [useTransferFunction, setUseTransferFunction] = useState(true);
   const [modelPath, setModelPath] = useState(salt);
 
-  // haline.path = "haline/path";
-
   const models = [
     {
       name: "Same",
