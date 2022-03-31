@@ -3,9 +3,10 @@ import styled from "styled-components";
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from "@reach/tabs";
 import "@reach/tabs/styles.css";
 
-import ColorMapControls from "../ColorMapControls";
-import OpacityControls from "../OpacityControls";
-import ClipControls from "../ClipControls";
+import ColorMapControls from "./ColorMapControls.jsx";
+import TransferFunctionControls from "./TransferFunctionControls.jsx";
+import ClipControls from "./ClipControls.jsx";
+import EnabledControls from "./EnabledControls.jsx";
 
 function Controls({
   controlsVisible,
@@ -18,8 +19,15 @@ function Controls({
   return (
     <Wrapper $visible={controlsVisible}>
       <StyledTabList>
-        {models.map((model) => (
-          <Tab key={model.name}>{model.name}</Tab>
+        {models.map((model, idx) => (
+          <FlexTab key={model.name} onClick={(e) => e.preventDefault()}>
+            {model.name}
+            <EnabledControls
+              enabled={model.enabled}
+              modelIdx={idx}
+              setModels={setModels}
+            />
+          </FlexTab>
         ))}
       </StyledTabList>
 
@@ -33,15 +41,13 @@ function Controls({
             />
 
             {model.useTransferFunction && (
-              <OpacityControls
+              <TransferFunctionControls
                 initTransferFunction={model.initTransferFunction}
                 modelIdx={idx}
                 range={model.range}
                 setModels={setModels}
               />
             )}
-            {/* TODO: Checkbox / switch for model enabled */}
-            <p>Enabled: {model.enabled.toString()}</p>
             <Button onClick={reset}> Reset </Button>
           </TabPanel>
         ))}
@@ -67,6 +73,17 @@ const Wrapper = styled(Tabs)`
 // TODO: Cleaner way than just the scrollbar
 const StyledTabList = styled(TabList)`
   overflow: auto;
+`;
+
+const FlexTab = styled(Tab)`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  // Prevent default button click animation
+  &:active {
+    background-color: initial;
+  }
 `;
 
 const StyledTabPanels = styled(TabPanels)`
