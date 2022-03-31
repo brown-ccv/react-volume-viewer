@@ -1,5 +1,13 @@
 import { useEffect, useRef } from "react";
-import { isEmpty, isEqual, differenceWith, pick } from "lodash";
+import {
+  isEmpty,
+  isEqual,
+  differenceWith,
+  pick,
+  isArray,
+  isObject,
+  transform,
+} from "lodash";
 
 import { DEFAULT_MODEL, DEFAULT_TRANSFER_FUNCTION } from "../constants";
 
@@ -75,7 +83,7 @@ function useModelsPropMemo(models) {
 
 // Filter model properties needed from aframe
 function getAframeModels(models) {
-  const out = models.map((model) => {
+  models = models.map((model) => {
     // Pick only needed properties
     model = pick(model, [
       "channel",
@@ -102,7 +110,32 @@ function getAframeModels(models) {
 
     return model;
   });
-  return JSON.stringify(out);
+  return JSON.stringify(models);
 }
 
-export { validateModels, buildModels, useModelsPropMemo, getAframeModels };
+// TODO: Just use lodash?
+// Recursively find the differences between two objects
+function deepDifference(oldObj, newObj) {
+  const changes = (newObj, oldObj) => {
+    let arrayIndexCounter = 0;
+    return transform(newObj, (result, value, key) => {
+      if (!isEqual(value, oldObj[key])) {
+        const resultKey = isArray(oldObj) ? arrayIndexCounter++ : key;
+        result[resultKey] =
+          isObject(value) && isObject(oldObj[key])
+            ? changes(value, oldObj[key])
+            : value;
+      }
+    });
+  };
+
+  return changes(newObj, oldObj);
+}
+
+export {
+  validateModels,
+  buildModels,
+  useModelsPropMemo,
+  getAframeModels,
+  deepDifference,
+};

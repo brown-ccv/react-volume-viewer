@@ -40,6 +40,7 @@ function Controls({
                 setModels={setModels}
               />
             )}
+            {/* TODO: Checkbox / switch for model enabled */}
             <p>Enabled: {model.enabled.toString()}</p>
             <Button onClick={reset}> Reset </Button>
           </TabPanel>

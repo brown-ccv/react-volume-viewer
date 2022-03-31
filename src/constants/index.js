@@ -64,7 +64,7 @@ const DEFAULT_MATERIAL = {
     clipPlane: { value: new Matrix4() },
     dim: { value: 1.0 },
     intensity: { value: 1.0 },
-    slice: { value: 1.0 },
+    slices: { value: 1.0 },
     step_size: { value: 0.01 },
     u_data: { value: null },
     u_lut: { value: null },

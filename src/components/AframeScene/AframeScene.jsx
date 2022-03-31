@@ -19,11 +19,8 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
     };
 
     document.addEventListener("aframe-error", handler);
-
     return () => document.removeEventListener("aframe-error", handler);
   }, []);
-
-  console.log("Caught error", errors);
 
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
@@ -55,9 +52,9 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
           id="volume"
           class="clickableMesh"
           volume={`
-              models: ${getAframeModels(models)};
-              sliders: ${JSON.stringify(sliders)};
-            `}
+            models: ${getAframeModels(models)};
+            sliders: ${JSON.stringify(sliders)};
+          `}
         />
       </a-entity>
 
