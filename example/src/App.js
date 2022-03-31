@@ -22,7 +22,7 @@ function App() {
   const [useTransferFunction, setUseTransferFunction] = useState(true);
   const [modelPath, setModelPath] = useState(salt);
 
-  thermal.path = "thermal/path";
+  // thermal.path = "thermal/path";
 
   const models = [
     {
