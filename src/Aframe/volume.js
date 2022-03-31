@@ -72,7 +72,7 @@ AFRAME.registerComponent("volume", {
       let uniform;
 
       // Asynchronously loop through the data.models array
-      // Each element runs serially and this.buildMesh() waits for all of the promises to finish
+      // Each element runs serially and this.updateMaterial waits for all of the promises to finish
       Promise.allSettled(
         data.models.map(async (model) => {
           const { name, path, colorMap, transferFunction } = model;
@@ -335,12 +335,6 @@ AFRAME.registerComponent("volume", {
           })
         : // No models - use default material
           new RawShaderMaterial(DEFAULT_MATERIAL);
-  },
-
-  buildMesh: function (modelsData) {
-    // TODO: Blend all of the model's material into one
-    this.getMesh().material = modelsData[0].material;
-    console.log("All models loaded", modelsData); // TEMP
   },
 
   updateMeshClipMatrix: function () {
