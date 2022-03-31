@@ -44,9 +44,6 @@ function VolumeViewer({
         position={position}
         rotation={rotation}
         scale={scale}
-        // position={position ?? DEFAULT_POSITION}
-        // rotation={rotation ?? DEFAULT_ROTATION}
-        // scale={scale ?? DEFAULT_SCALE}
         sliders={sliders}
       />
 
