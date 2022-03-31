@@ -126,15 +126,7 @@ AFRAME.registerComponent("volume", {
               detail: errors,
             })
           );
-        } else {
-          this.buildMesh();
-          // // Blend model's into a single material and apply it to the model
-          // const modelsData = promises.map((p) => p.value);
-
-          // // TODO: Blend all of the model's material into one
-          // this.getMesh().material = modelsData[0].material;
-          // console.log("All models loaded", modelsData); // TEMP
-        }
+        } else this.buildMesh();
       });
 
       if (!isEqual(oldData.sliders, data.sliders)) {
@@ -321,7 +313,7 @@ AFRAME.registerComponent("volume", {
     // Create material
     return new ShaderMaterial({
       ...DEFAULT_MATERIAL,
-      uniforms: uniforms,
+      uniforms,
     });
   },
 
@@ -351,7 +343,7 @@ AFRAME.registerComponent("volume", {
   buildMesh: function () {
     console.log("All models loaded", this.materials);
 
-    // TODO: Blend all of the model's material into one
+    // TODO: Blend all of the materials into one
 
     this.getMesh().material =
       this.materials.size > 0
