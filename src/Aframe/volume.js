@@ -326,8 +326,6 @@ AFRAME.registerComponent("volume", {
     console.log("MODELS LOADED", this.uniforms);
 
     // TODO: Compare difference between oldMaterial, create new one
-    // const oldMaterial = this.getMesh().material;
-
     this.getMesh().material =
       this.uniforms.size > 0
         ? // TEMP - use first material
@@ -337,6 +335,12 @@ AFRAME.registerComponent("volume", {
           })
         : // No models - use default material
           new RawShaderMaterial(DEFAULT_MATERIAL);
+  },
+
+  buildMesh: function (modelsData) {
+    // TODO: Blend all of the model's material into one
+    this.getMesh().material = modelsData[0].material;
+    console.log("All models loaded", modelsData); // TEMP
   },
 
   updateMeshClipMatrix: function () {
