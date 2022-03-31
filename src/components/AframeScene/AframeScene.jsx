@@ -23,8 +23,6 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
     return () => document.removeEventListener("aframe-error", handler);
   }, []);
 
-  console.log("Caught error", errors);
-
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
@@ -78,19 +76,21 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
 
       {/* TODO: Replace with better error message */}
       {errors.length && (
-        <Wrapper>
-          {errors.map((e) => (
-            <p key={e}>
-              {e.message}: &nbsp; {e.cause.message}
-            </p>
-          ))}
-        </Wrapper>
+        <Error>
+          <ul>
+            {errors.map((e) => (
+              <li key={e}>
+                {e.message}: &nbsp; {e.cause.message}
+              </li>
+            ))}
+          </ul>
+        </Error>
       )}
     </a-scene>
   );
 }
 
-const Wrapper = styled.div`
+const Error = styled.div`
   background-color: white;
   position: relative;
   width: 90%;
@@ -98,6 +98,9 @@ const Wrapper = styled.div`
   top: 5%; // (100% - height) / 2
   margin: auto;
   overflow: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 export default memo(AframeScene, isEqual);
