@@ -58,11 +58,10 @@ AFRAME.registerComponent("volume", {
 
     if (oldData !== data) {
       // Asynchronously loop through the data.models array
-      // Each element runs serially and .map() buildMesh() waits for map to finish
-      Promise.all(
+      // Each element runs serially and this.buildMesh() waits for all of the promises to finish
+      Promise.allSettled(
         data.models.map(async (model) => {
           const { name, path, colorMap, transferFunction } = model;
-
           try {
             // Load texture from png
             const texture = usedModels.has(path)
@@ -73,35 +72,43 @@ AFRAME.registerComponent("volume", {
             const colorData = usedColorMaps.has(colorMap.path)
               ? usedColorMaps.get(colorMap.path)
               : await this.loadColorMap(colorMap.path);
-            const transferTexture = await this.loadTransferTexture(
+            const transferTexture = this.buildTransferTexture(
               colorData,
               transferFunction
             );
 
-            const material = this.buildMaterial(
-              model,
-              texture,
-              transferTexture
-            );
-
+            // Build and return the material
             return {
               name,
-              texture,
-              material,
-              transferTexture,
+              material: this.buildMaterial(model, texture, transferTexture),
             };
           } catch (error) {
-            // Display errors asynchronously
-            Promise.reject(error);
-            Promise.reject(new Error("Failed to load model '" + name + "'"));
+            throw new Error("Failed to load model '" + name + "'", {
+              cause: error,
+            });
           }
         })
-      )
-        .then((result) => this.buildMesh(result))
-        .catch((error) => {
-          // Halt execution (includes errors in this.buildMesh)
-          throw error;
-        });
+      ).then((promises) => {
+        const errors = promises
+          .filter((p) => p.status === "rejected")
+          .map((p) => p.reason);
+
+        if (errors.length) {
+          // Bubble errors up to AframeScene
+          document.dispatchEvent(
+            new CustomEvent("aframe-error", {
+              detail: errors,
+            })
+          );
+        } else {
+          // Blend model's into a single material and apply it to the model
+          const modelsData = promises.map((p) => p.value);
+
+          // TODO: Blend all of the model's material into one
+          this.getMesh().material = modelsData[0].material;
+          console.log("All models loaded", modelsData); // TEMP
+        }
+      });
     }
   },
 
@@ -171,7 +178,7 @@ AFRAME.registerComponent("volume", {
   },
 
   // Load THREE Texture from the model's path
-  loadTexture(modelPath) {
+  loadTexture: function (modelPath) {
     return new Promise((resolve, reject) => {
       new TextureLoader().load(
         modelPath,
@@ -190,7 +197,7 @@ AFRAME.registerComponent("volume", {
   },
 
   // Load color map data (RGB)
-  loadColorMap(colorMapPath) {
+  loadColorMap: function (colorMapPath) {
     return new Promise((resolve, reject) => {
       /*  colorMapPath is either a png encoded string or the path to a png
         png encoded strings begin with data:image/png;64
@@ -219,38 +226,36 @@ AFRAME.registerComponent("volume", {
   },
 
   // Create a THREE DataTexture from the RGB and A data
-  loadTransferTexture(colorData, transferFunction) {
-    return new Promise((resolve, reject) => {
-      // Load alpha data from transfer function
-      const alphaData = [];
-      for (let i = 0; i < transferFunction.length - 1; i++) {
-        const start = transferFunction[i];
-        const end = transferFunction[i + 1];
-        const deltaX = end.x * 255 - start.x * 255;
+  buildTransferTexture: function (colorData, transferFunction) {
+    // Load alpha data from transfer function
+    const alphaData = [];
+    for (let i = 0; i < transferFunction.length - 1; i++) {
+      const start = transferFunction[i];
+      const end = transferFunction[i + 1];
+      const deltaX = end.x * 255 - start.x * 255;
 
-        // Linear interpolation between points
-        const alphaStart = start.y * 255;
-        const alphaEnd = end.y * 255;
-        for (let j = 1 / deltaX; j < 1; j += 1 / deltaX) {
-          alphaData.push(alphaStart * (1 - j) + alphaEnd * j);
-        }
+      // Linear interpolation between points
+      const alphaStart = start.y * 255;
+      const alphaEnd = end.y * 255;
+      for (let j = 1 / deltaX; j < 1; j += 1 / deltaX) {
+        alphaData.push(alphaStart * (1 - j) + alphaEnd * j);
       }
+    }
 
-      // Combine RGB and A data
-      const rgbaData = new Uint8Array(4 * 256);
-      for (let i = 0; i < 256; i++) {
-        for (let j = 0; j < 3; j++) rgbaData[i * 4 + j] = colorData[i * 4 + j];
-        rgbaData[i * 4 + 3] = alphaData[i];
-      }
+    // Combine RGB and A data
+    const rgbaData = new Uint8Array(4 * 256);
+    for (let i = 0; i < 256; i++) {
+      for (let j = 0; j < 3; j++) rgbaData[i * 4 + j] = colorData[i * 4 + j];
+      rgbaData[i * 4 + 3] = alphaData[i];
+    }
 
-      const transferTexture = new DataTexture(rgbaData, 256, 1, RGBAFormat);
-      transferTexture.needsUpdate = true;
-      resolve(transferTexture);
-    });
+    const transferTexture = new DataTexture(rgbaData, 256, 1, RGBAFormat);
+    transferTexture.needsUpdate = true;
+    return transferTexture;
   },
 
-  // Build THREE RawShaderMaterial from model and color map
-  buildMaterial(model, texture, transferTexture) {
+  // Build THREE ShaderMaterial from model and color map
+  buildMaterial: function (model, texture, transferTexture) {
     const { channel, intensity, spacing, slices, useTransferFunction } = model;
 
     const uniforms = UniformsUtils.clone(DEFAULT_MATERIAL.uniforms);
@@ -293,19 +298,6 @@ AFRAME.registerComponent("volume", {
       ...DEFAULT_MATERIAL,
       uniforms: uniforms,
     });
-  },
-
-  // Blend model's into a single material and apply it to the model
-  // TODO: Blend all of the model's material into one
-  buildMesh: function (modelsData) {
-    // TEMP: Force error if any modelData is undefined
-    modelsData.forEach((modelData) => {
-      if (modelData === undefined) throw new Error("Error loading models");
-    });
-
-    // TEMP: Use first model
-    console.log("All models loaded", modelsData);
-    this.getMesh().material = modelsData[0].material;
   },
 
   updateMeshClipMatrix: function () {
