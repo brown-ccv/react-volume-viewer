@@ -318,7 +318,7 @@ AFRAME.registerComponent("volume", {
     // Create material
     return new ShaderMaterial({
       ...DEFAULT_MATERIAL,
-      uniforms: uniforms,
+      uniforms,
     });
   },
 
