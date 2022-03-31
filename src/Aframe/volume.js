@@ -84,48 +84,74 @@ AFRAME.registerComponent("volume", {
       console.log("UPDATE MODELS", isEqual(oldData.models, data.models));
 
       // Asynchronously loop through the data.models array
-      // Each element runs serially and .map() buildMesh() waits for map to finish
-      Promise.all(
+      // Each element runs serially and this.buildMesh() waits for all of the promises to finish
+      Promise.allSettled(
         data.models.map(async (model) => {
           const { name, path, colorMap, transferFunction } = model;
+          try {
+            // Load texture from png
+            const texture = usedModels.has(path)
+              ? usedModels.get(path)
+              : await this.loadTexture(model.path);
 
-          // Load texture from png
-          const texture = usedModels.has(path)
-            ? usedModels.get(path)
-            : await this.loadTexture(model.path);
+            // Load THREE DataTexture from color map's png and model.transferFunction
+            const colorData = usedColorMaps.has(colorMap.path)
+              ? usedColorMaps.get(colorMap.path)
+              : await this.loadColorMap(colorMap.path);
+            const transferTexture = this.buildTransferTexture(
+              colorData,
+              transferFunction
+            );
 
-          // Load THREE DataTexture from color map's png and model.transferFunction
-          const colorData = usedColorMaps.has(colorMap.path)
-            ? usedColorMaps.get(colorMap.path)
-            : await this.loadColorMap(colorMap.path);
-          const transferTexture = await this.loadTransferTexture(
-            colorData,
-            transferFunction
-          );
-          this.materials.set(
-            name,
-            this.buildMaterial(model, texture, transferTexture)
-          );
+            // Build and return the material
+            this.materials.set(
+              name,
+              this.buildMaterial(model, texture, transferTexture)
+            );
+          } catch (error) {
+            throw new Error("Failed to load model '" + name + "'", {
+              cause: error,
+            });
+          }
         })
-      )
-        .then(() => this.buildMesh())
-        .catch((error) => console.error("Loading failed:", error));
-    }
+      ).then((promises) => {
+        const errors = promises
+          .filter((p) => p.status === "rejected")
+          .map((p) => p.reason);
+
+        if (errors.length) {
+          // Bubble errors up to AframeScene
+          document.dispatchEvent(
+            new CustomEvent("aframe-error", {
+              detail: errors,
+            })
+          );
+
+        }
+        else {
+          this.buildMesh();
+          // // Blend model's into a single material and apply it to the model
+          // const modelsData = promises.map((p) => p.value);
+
+          // // TODO: Blend all of the model's material into one
+          // this.getMesh().material = modelsData[0].material;
+          // console.log("All models loaded", modelsData); // TEMP
+        }
+      })
 
     if (!isEqual(oldData.sliders, data.sliders)) {
       console.log("UPDATE SLIDERS", data.sliders);
       this.updateClipping();
+      } 
     }
   },
 
   tick: function (time, timeDelta) {
-    const isVrModeActive = this.scene.is("vr-mode");
-    const mesh = this.getMesh();
-
     // Position is controlled by controllerObject in VR
     // TODO: These updates should be event listeners?
     // TODO: grabbed, triggerDown, and rayCollided are all booleans form event listeners
-    if (this.controllerObject && isVrModeActive) {
+    if (this.controllerObject && this.scene.is("vr-mode")) {
+      const mesh = this.getMesh();
       const triggerDown =
         this.controllerObject.el.getAttribute("buttons-check").triggerDown;
       // Stop grabbing object
@@ -187,7 +213,7 @@ AFRAME.registerComponent("volume", {
   },
 
   // Load THREE Texture from the model's path
-  loadTexture(modelPath) {
+  loadTexture: function (modelPath) {
     return new Promise((resolve, reject) => {
       new TextureLoader().load(
         modelPath,
@@ -200,13 +226,13 @@ AFRAME.registerComponent("volume", {
           resolve(texture);
         },
         () => {},
-        () => reject(new Error("Could not load the model at " + modelPath))
+        () => reject(new Error("Invalid model path: " + modelPath))
       );
     });
   },
 
   // Load color map data (RGB)
-  loadColorMap(colorMapPath) {
+  loadColorMap: function (colorMapPath) {
     return new Promise((resolve, reject) => {
       /*  colorMapPath is either a png encoded string or the path to a png
         png encoded strings begin with data:image/png;64
@@ -229,44 +255,42 @@ AFRAME.registerComponent("volume", {
         resolve(colorData);
       };
       img.onerror = () => {
-        reject(new Error("Could not load the color map: " + colorMapPath));
+        reject(new Error("Invalid colorMap path: " + colorMapPath));
       };
     });
   },
 
   // Create a THREE DataTexture from the RGB and A data
-  loadTransferTexture(colorData, transferFunction) {
-    return new Promise((resolve, reject) => {
-      // Load alpha data from transfer function
-      const alphaData = [];
-      for (let i = 0; i < transferFunction.length - 1; i++) {
-        const start = transferFunction[i];
-        const end = transferFunction[i + 1];
-        const deltaX = end.x * 255 - start.x * 255;
+  buildTransferTexture: function (colorData, transferFunction) {
+    // Load alpha data from transfer function
+    const alphaData = [];
+    for (let i = 0; i < transferFunction.length - 1; i++) {
+      const start = transferFunction[i];
+      const end = transferFunction[i + 1];
+      const deltaX = end.x * 255 - start.x * 255;
 
-        // Linear interpolation between points
-        const alphaStart = start.y * 255;
-        const alphaEnd = end.y * 255;
-        for (let j = 1 / deltaX; j < 1; j += 1 / deltaX) {
-          alphaData.push(alphaStart * (1 - j) + alphaEnd * j);
-        }
+      // Linear interpolation between points
+      const alphaStart = start.y * 255;
+      const alphaEnd = end.y * 255;
+      for (let j = 1 / deltaX; j < 1; j += 1 / deltaX) {
+        alphaData.push(alphaStart * (1 - j) + alphaEnd * j);
       }
+    }
 
-      // Combine RGB and A data
-      const rgbaData = new Uint8Array(4 * 256);
-      for (let i = 0; i < 256; i++) {
-        for (let j = 0; j < 3; j++) rgbaData[i * 4 + j] = colorData[i * 4 + j];
-        rgbaData[i * 4 + 3] = alphaData[i];
-      }
+    // Combine RGB and A data
+    const rgbaData = new Uint8Array(4 * 256);
+    for (let i = 0; i < 256; i++) {
+      for (let j = 0; j < 3; j++) rgbaData[i * 4 + j] = colorData[i * 4 + j];
+      rgbaData[i * 4 + 3] = alphaData[i];
+    }
 
-      const transferTexture = new DataTexture(rgbaData, 256, 1, RGBAFormat);
-      transferTexture.needsUpdate = true;
-      resolve(transferTexture);
-    });
+    const transferTexture = new DataTexture(rgbaData, 256, 1, RGBAFormat);
+    transferTexture.needsUpdate = true;
+    return transferTexture;
   },
 
   // Build THREE ShaderMaterial from model and color map
-  buildMaterial(model, texture, transferTexture) {
+  buildMaterial: function (model, texture, transferTexture) {
     const { channel, intensity, spacing, slices, useTransferFunction } = model;
 
     const dim = Math.ceil(Math.sqrt(slices));
