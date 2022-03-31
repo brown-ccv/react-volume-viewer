@@ -126,9 +126,7 @@ AFRAME.registerComponent("volume", {
               detail: errors,
             })
           );
-
-        }
-        else {
+        } else {
           this.buildMesh();
           // // Blend model's into a single material and apply it to the model
           // const modelsData = promises.map((p) => p.value);
@@ -137,12 +135,12 @@ AFRAME.registerComponent("volume", {
           // this.getMesh().material = modelsData[0].material;
           // console.log("All models loaded", modelsData); // TEMP
         }
-      })
+      });
 
-    if (!isEqual(oldData.sliders, data.sliders)) {
-      console.log("UPDATE SLIDERS", data.sliders);
-      this.updateClipping();
-      } 
+      if (!isEqual(oldData.sliders, data.sliders)) {
+        console.log("UPDATE SLIDERS", data.sliders);
+        this.updateClipping();
+      }
     }
   },
 
