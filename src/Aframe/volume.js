@@ -2,33 +2,19 @@ import AFRAME, { THREE } from "aframe";
 import { isEqual } from "lodash";
 
 import { deepDifference } from "../utils/index.js";
-import { DEFAULT_SLIDERS } from "../constants/index.js";
-import "./Shader.js";
+import { DEFAULT_SLIDERS, DEFAULT_MATERIAL } from "../constants/index.js";
 
 const {
-  ShaderLib,
   UniformsUtils,
-  BackSide,
   LinearFilter,
   RGBAFormat,
-  Mesh,
-  BoxGeometry,
-  ShaderMaterial,
+  RawShaderMaterial,
   Vector2,
   Vector3,
   Matrix4,
   TextureLoader,
   DataTexture,
 } = THREE;
-
-const SHADER = ShaderLib["ModelShader"];
-const DEFAULT_MATERIAL = {
-  uniforms: UniformsUtils.clone(SHADER.uniforms),
-  transparent: true,
-  vertexShader: SHADER.vertexShader,
-  fragmentShader: SHADER.fragmentShader,
-  side: BackSide, // Shader uses "backface" as its reference point
-};
 
 AFRAME.registerComponent("volume", {
   dependencies: ["keypress-listener"], // Adds component to the entity
@@ -39,10 +25,9 @@ AFRAME.registerComponent("volume", {
 
   init: function () {
     this.scene = this.el.sceneEl;
-    this.canvas = this.scene.canvas;
     this.usedModels = new Map(); // Cache models (path: texture)
     this.usedColorMaps = new Map(); // Cache color maps (path: RGB data)
-    this.materials = new Map(); // Cache the model(s) material
+    this.uniforms = new Map(); // Map each model to it's uniform (name: uniform)
     this.rayCollided = false;
     this.grabbed = false;
 
@@ -67,11 +52,13 @@ AFRAME.registerComponent("volume", {
       this.onClearCollide
     );
 
-    // Initialize mesh to shader defaults
-    this.el.setObject3D(
-      "mesh",
-      new Mesh(new BoxGeometry(1, 1, 1), new ShaderMaterial(DEFAULT_MATERIAL))
+    // Initialize material
+    const initMaterial = DEFAULT_MATERIAL;
+    initMaterial.uniforms.viewPort.value = new Vector2(
+      this.scene.canvas.width,
+      this.scene.canvas.height
     );
+    this.getMesh().material = new RawShaderMaterial(initMaterial);
   },
 
   update: function (oldData) {
@@ -82,6 +69,7 @@ AFRAME.registerComponent("volume", {
     // TODO: Only change this.modelsData based on difference between oldData and this.data
     if (!isEqual(oldData.models, data.models)) {
       console.log("UPDATE MODELS", isEqual(oldData.models, data.models));
+      let uniform;
 
       // Asynchronously loop through the data.models array
       // Each element runs serially and this.buildMesh() waits for all of the promises to finish
@@ -103,11 +91,9 @@ AFRAME.registerComponent("volume", {
               transferFunction
             );
 
-            // Build and return the material
-            this.materials.set(
-              name,
-              this.buildMaterial(model, texture, transferTexture)
-            );
+            // Build and return the uniform
+            uniform = this.buildUniform(model, texture, transferTexture);
+            this.uniforms.set(model.name, uniform);
           } catch (error) {
             throw new Error("Failed to load model '" + name + "'", {
               cause: error,
@@ -126,13 +112,13 @@ AFRAME.registerComponent("volume", {
               detail: errors,
             })
           );
-        } else this.buildMesh();
+        } else this.updateMaterial();
       });
+    }
 
-      if (!isEqual(oldData.sliders, data.sliders)) {
-        console.log("UPDATE SLIDERS", data.sliders);
-        this.updateClipping();
-      }
+    if (!isEqual(oldData.sliders, data.sliders)) {
+      console.log("UPDATE SLIDERS", data.sliders);
+      this.updateClipping();
     }
   },
 
@@ -144,23 +130,23 @@ AFRAME.registerComponent("volume", {
       const mesh = this.getMesh();
       const triggerDown =
         this.controllerObject.el.getAttribute("buttons-check").triggerDown;
-      // Stop grabbing object
-      if (this.grabbed && !triggerDown) {
-        mesh.matrix.premultiply(this.controllerObject.matrixWorld);
-        mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
-        this.el.object3D.add(mesh);
-        this.grabbed = false;
-      }
 
       // Grab object
       if (!this.grabbed && triggerDown && this.rayCollided) {
-        const inverseControllerPos = new Matrix4();
-        inverseControllerPos.getInverse(this.controllerObject.matrixWorld);
-        mesh.matrix.premultiply(inverseControllerPos);
+        mesh.matrix.premultiply(this.controllerObject.matrixWorld.invert());
         mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
         this.controllerObject.add(mesh);
         this.grabbed = true;
       }
+
+      // Stop grabbing object
+      if (this.grabbed && !triggerDown) {
+        mesh.matrix.premultiply(this.controllerObject.matrixWorld);
+        mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+        this.el.object3D.add(mesh); // Add? Shouldn't this be setObject3D?
+        this.grabbed = false;
+      }
+
       this.updateMeshClipMatrix();
     }
   },
@@ -279,60 +265,52 @@ AFRAME.registerComponent("volume", {
     return transferTexture;
   },
 
-  // Build THREE ShaderMaterial from model and color map
-  buildMaterial: function (model, texture, transferTexture) {
+  // Build THREE RawShaderMaterial from model and color map
+  buildUniform: function (model, texture, transferTexture) {
     const { channel, intensity, spacing, slices, useTransferFunction } = model;
 
-    const dim = Math.ceil(Math.sqrt(slices));
-    const volumeScale = [
-      1.0 / ((texture.image.width / dim) * spacing.x),
-      1.0 / ((texture.image.height / dim) * spacing.y),
-      1.0 / (slices * spacing.z),
-    ];
-    const zScale = volumeScale[0] / volumeScale[2];
+    const uniforms = UniformsUtils.clone(DEFAULT_MATERIAL.uniforms);
 
-    // Set uniforms from model
-    const uniforms = UniformsUtils.clone(SHADER.uniforms);
-    uniforms.step_size.value = new Vector3(0.01, 0.01, 0.01);
+    // Resize viewport to scene
     uniforms.viewPort.value = new Vector2(
-      this.canvas.width,
-      this.canvas.height
+      this.scene.canvas.width,
+      this.scene.canvas.height
     );
 
+    // Calculate uniforms for the texture's dimensions and scale
+    const dim = Math.ceil(Math.sqrt(slices));
+    const volumeScale = new Vector3(
+      1.0 / ((texture.image.width / dim) * spacing.x),
+      1.0 / ((texture.image.height / dim) * spacing.y),
+      1.0 / (slices * spacing.z)
+    );
+    uniforms.slices.value = slices;
     uniforms.dim.value = dim;
-    uniforms.zScale.value = zScale;
+    uniforms.zScale.value = volumeScale.x / volumeScale.z;
 
+    // Set uniforms from model object
     uniforms.channel.value = channel;
     uniforms.intensity.value = intensity;
-    uniforms.slice.value = slices;
+
     uniforms.useLut.value = useTransferFunction;
 
-    uniforms.u_data.value = texture;
-    uniforms.u_lut.value = transferTexture;
+    // THESE ARE THE BIG ONES
+    uniforms.u_data.value = texture; // Model data
+    uniforms.u_lut.value = transferTexture; // Color Map + transfer function
 
-    // Create material
-    return new ShaderMaterial({
-      ...DEFAULT_MATERIAL,
-      uniforms,
-    });
+    // Sliders are updated separately
+    uniforms.box_min.value = this.getMesh().material.uniforms.box_min.value;
+    uniforms.box_max.value = this.getMesh().material.uniforms.box_max.value;
+    return uniforms;
   },
 
-  // Update clipping uniforms from sliders (ignore if !activateClipPlane)
-  updateClipping() {
-    const sliders = this.data.sliders;
+  // Update clipping uniforms from sliders (reset if !activateClipPlane)
+  updateClipping: function () {
     const uniforms = this.getMesh().material.uniforms;
-
+    const { x, y, z } = this.data.sliders;
     if (this.el.getAttribute("keypress-listener").activateClipPlane) {
-      uniforms.box_min.value = new Vector3(
-        sliders.x[0],
-        sliders.y[0],
-        sliders.z[0]
-      );
-      uniforms.box_max.value = new Vector3(
-        sliders.x[1],
-        sliders.y[1],
-        sliders.z[1]
-      );
+      uniforms.box_min.value = new Vector3(x[0], y[0], z[0]);
+      uniforms.box_max.value = new Vector3(x[1], y[1], z[1]);
     } else {
       uniforms.box_min.value = new Vector3(0, 0, 0);
       uniforms.box_max.value = new Vector3(1, 1, 1);
@@ -340,20 +318,29 @@ AFRAME.registerComponent("volume", {
   },
 
   // Blend model's into a single material and apply it to the model
-  buildMesh: function () {
-    console.log("All models loaded", this.materials);
+  updateMaterial: function () {
+    // TEMP: Force error if any modelData is undefined
+    this.uniforms.forEach((value) => {
+      if (value === undefined) throw new Error("Error loading models");
+    });
+    console.log("MODELS LOADED", this.uniforms);
 
-    // TODO: Blend all of the materials into one
+    // TODO: Compare difference between oldMaterial, create new one
+    // const oldMaterial = this.getMesh().material;
 
     this.getMesh().material =
-      this.materials.size > 0
-        ? // TEMP - first value
-          this.materials.values().next().value
+      this.uniforms.size > 0
+        ? // TEMP - use first material
+          new RawShaderMaterial({
+            ...DEFAULT_MATERIAL,
+            uniforms: this.uniforms.values().next().value,
+          })
         : // No models - use default material
-          new ShaderMaterial(DEFAULT_MATERIAL);
+          new RawShaderMaterial(DEFAULT_MATERIAL);
   },
 
   updateMeshClipMatrix: function () {
+    // TODO: This is handled in the vertex-shader?
     const mesh = this.getMesh();
     const uniforms = mesh.material.uniforms;
 

@@ -48,13 +48,13 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
         />
 
         {/* VOLUME */}
-        <a-entity
+        <a-box
           id="volume"
           class="clickableMesh"
           volume={`
-              models: ${getAframeModels(models)};
-              sliders: ${JSON.stringify(sliders)};
-            `}
+            models: ${getAframeModels(models)};
+            sliders: ${JSON.stringify(sliders)};
+          `}
         />
       </a-entity>
 
