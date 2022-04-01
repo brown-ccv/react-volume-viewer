@@ -211,7 +211,7 @@ function TransferFunctionControls({
   }
 
   return (
-    <Section title="Transfer Function">
+    <Section>
       <Title>Transfer Function</Title>
       <OutlinedCanvas
         id="opacityControls"

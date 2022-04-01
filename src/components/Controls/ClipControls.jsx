@@ -17,7 +17,7 @@ function ClipControls({ sliders, setSliders }) {
   }
 
   return (
-    <Section title="">
+    <Section>
       <Title>Clip</Title>
       {["x", "y", "z"].map((axis) => (
         <SliderGroup key={axis}>
