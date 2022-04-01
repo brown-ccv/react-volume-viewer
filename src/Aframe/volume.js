@@ -326,6 +326,7 @@ AFRAME.registerComponent("volume", {
     console.log("MODELS LOADED", this.uniforms);
 
     // TODO: Compare difference between oldMaterial, create new one
+    // model.enabled does does nothing right now because we always select the first one.
     this.getMesh().material =
       this.uniforms.size > 0
         ? // TEMP - use first material
