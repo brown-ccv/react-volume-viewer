@@ -23,10 +23,7 @@ const DEFAULT_MODEL = {
   description: "",
   enabled: true,
   intensity: 1.0,
-  position: "0 0 0",
   range: { min: 0, max: 1, unit: "" },
-  rotation: "0 0 0",
-  scale: "1 1 1",
   slices: 55,
   spacing: { x: 2, y: 2, z: 1 },
   transferFunction: DEFAULT_TRANSFER_FUNCTION,
@@ -40,6 +37,10 @@ const DEFAULT_SLIDERS = {
   z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
 };
 
+const DEFAULT_POSITION = "0 0 0";
+const DEFAULT_ROTATION = "0 0 0";
+const DEFAULT_SCALE = "1 1 1";
+
 const DECIMALS = 2;
 const CANVAS_PADDING = 10;
 const HOVER_RADIUS = 15;
@@ -50,6 +51,9 @@ export {
   DEFAULT_TRANSFER_FUNCTION,
   SLIDER_RANGE,
   DEFAULT_SLIDERS,
+  DEFAULT_POSITION,
+  DEFAULT_ROTATION,
+  DEFAULT_SCALE,
   DECIMALS,
   CANVAS_PADDING,
   HOVER_RADIUS,
