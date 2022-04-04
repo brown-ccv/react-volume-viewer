@@ -77,7 +77,7 @@ function useModelsPropMemo(models) {
 function getAframeModels(models) {
   const out = models.map((model) => {
     // Pick only needed properties
-    model = pick(model, [
+    const aframeModel = pick(model, [
       "channel",
       "colorMap",
       "enabled",
@@ -95,12 +95,12 @@ function getAframeModels(models) {
       Remove ; to parse into aframe correctly (re-injected in model.js)
       TODO: Do colorMaps need to be a png?
     */
-    model.colorMap = {
+    aframeModel.colorMap = {
       name: model.colorMap.name,
       path: model.colorMap.path.replace("data:image/png;", "data:image/png"),
     };
 
-    return model;
+    return aframeModel;
   });
   return JSON.stringify(out);
 }
