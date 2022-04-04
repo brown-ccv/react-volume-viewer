@@ -96,7 +96,7 @@ function getAframeModels(models) {
       TODO: Do colorMaps need to be a png?
     */
     aframeModel.colorMap = {
-      name: model.colorMap.name,
+      ...model.colorMap,
       path: model.colorMap.path.replace("data:image/png;", "data:image/png"),
     };
 
