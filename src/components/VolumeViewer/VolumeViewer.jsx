@@ -55,7 +55,7 @@ function VolumeViewer({
         setModels={setModels}
         setSliders={setSliders}
         reset={() => {
-          setModels(buildModels(modelsProp));
+          setModels(buildModels(newModels));
           setSliders(DEFAULT_SLIDERS);
           setRemountKey(Math.random());
         }}

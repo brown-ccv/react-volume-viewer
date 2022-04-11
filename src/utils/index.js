@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { isEmpty, isEqual, differenceWith, pick } from "lodash";
 
-import { DEFAULT_MODEL, DEFAULT_TRANSFER_FUNCTION } from "../constants";
+import { DEFAULT_MODEL } from "../constants";
 
 // Custom validation function for the 'models' prop
 function validateModels(models) {
@@ -81,17 +81,19 @@ function buildModels(models) {
     const newModel = {
       ...DEFAULT_MODEL,
       ...model,
-      initTransferFunction: model.transferFunction ?? DEFAULT_MODEL.transferFunction,
-    }
+      initTransferFunction:
+        model.transferFunction ?? DEFAULT_MODEL.transferFunction,
+    };
 
-    if(!model.useTransferFunction) {
-      delete model.transferFunction
-      delete model.initTransferFunction
-    }
-    if(!model.useColorMap) {
-      delete model.colorMap
-      delete model.colorMaps
-    }
+    // TODO: Need to update shader code before removing these
+    // if(!model.useTransferFunction) {
+    //   delete model.transferFunction
+    //   delete model.initTransferFunction
+    // }
+    // if(!model.useColorMap) {
+    //   delete model.colorMap
+    //   delete model.colorMaps
+    // }
 
     return newModel;
   });
@@ -130,6 +132,7 @@ function getAframeModels(models) {
       "spacing",
       "transferFunction",
       "useTransferFunction",
+      "useColorMap",
     ]);
 
     /* colorMap.path is either a png encoded string or the path to a png
