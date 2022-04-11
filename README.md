@@ -189,7 +189,7 @@ const DEFAULT_TRANSFER_FUNCTION = [
   { x: 1, y: 1 },
 ];
 const DEFAULT_MODEL = {
-  channel: 1,
+  blending: Blending.None,
   description: "",
   enabled: true,
   intensity: 1.0,

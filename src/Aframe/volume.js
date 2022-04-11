@@ -270,7 +270,7 @@ AFRAME.registerComponent("volume", {
 
   // Build THREE ShaderMaterial from model and color map
   buildMaterial: function (model, texture, transferTexture) {
-    const { channel, intensity, useTransferFunction } = model;
+    const { blending, intensity, useTransferFunction } = model;
     const { slices, spacing } = this.data;
 
     const dim = Math.ceil(Math.sqrt(slices));
@@ -292,7 +292,7 @@ AFRAME.registerComponent("volume", {
     uniforms.dim.value = dim;
     uniforms.zScale.value = zScale;
 
-    uniforms.channel.value = channel;
+    uniforms.blending.value = blending.blending;
     uniforms.intensity.value = intensity;
     uniforms.slice.value = slices;
     uniforms.useLut.value = useTransferFunction;

@@ -122,7 +122,7 @@ function getAframeModels(models) {
   const out = models.map((model) => {
     // Pick only needed properties
     const aframeModel = pick(model, [
-      "channel",
+      "blending",
       "colorMap",
       "enabled",
       "intensity",

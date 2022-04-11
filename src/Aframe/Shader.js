@@ -5,7 +5,7 @@ ShaderLib["ModelShader"] = {
   uniforms: {
     box_max: { value: new Vector3(1, 1, 1) },
     box_min: { value: new Vector3(0, 0, 0) },
-    channel: { value: 1 },
+    blending: { value: 1 },
     clipping: { value: false },
     clipPlane: { value: new Matrix4() },
     controllerPoseMatrix: { value: new Matrix4() },

@@ -6,11 +6,12 @@ import rgb from "../images/rgb.png";
 
 // Blending enum exposed to the user
 class Blending {
-  static None = new Blending("None")
-  static Add = new Blending("Add")
+  static None = new Blending("None", 0);
+  static Add = new Blending("Add");
 
-  constructor(name) {
+  constructor(name, blending) {
     this.name = name;
+    this.blending = blending;
   }
   toString() {
     return `Blending.${this.name}`;
