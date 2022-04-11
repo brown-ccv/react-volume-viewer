@@ -156,13 +156,13 @@ VolumeViewer.propTypes = {
   // TODO: CUSTOM VALIDATION on slices (must be int)
 
   /** Position of the dataset in the scene */
-  position: PropTypes.string.isRequired,
+  position: PropTypes.string,
 
   /** Position of the dataset in the scene */
-  rotation: PropTypes.string.isRequired,
+  rotation: PropTypes.string,
 
   /** Scale of the dataset in the scene */
-  scale: PropTypes.string.isRequired,
+  scale: PropTypes.string,
 
   /** Number of slices used to generate the model */
   slices: PropTypes.number.isRequired,
@@ -175,7 +175,7 @@ VolumeViewer.propTypes = {
     x: SLIDER,
     y: SLIDER,
     z: SLIDER,
-  }).isRequired,
+  }),
 };
 
 VolumeViewer.defaultProps = {
