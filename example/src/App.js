@@ -106,6 +106,8 @@ function App() {
       position="0 0 0"
       scale="1 -1 1"
       rotation="-55 0 0"
+      slices={55}
+      spacing="2 2 1"
     />
   );
 

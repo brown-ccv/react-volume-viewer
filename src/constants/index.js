@@ -24,8 +24,6 @@ const DEFAULT_MODEL = {
   enabled: true,
   intensity: 1.0,
   range: { min: 0, max: 1, unit: "" },
-  slices: 55,
-  spacing: { x: 2, y: 2, z: 1 },
   transferFunction: DEFAULT_TRANSFER_FUNCTION,
   useTransferFunction: true,
   useColorMap: true,

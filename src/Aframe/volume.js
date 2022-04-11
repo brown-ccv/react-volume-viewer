@@ -32,6 +32,8 @@ AFRAME.registerComponent("volume", {
   dependencies: ["keypress-listener"], // Adds component to the entity
   schema: {
     models: { parse: JSON.parse, default: [] },
+    slices: { type: "int" },
+    spacing: { type: "vec3" },
     sliders: { parse: JSON.parse, default: DEFAULT_SLIDERS },
   },
 
@@ -268,7 +270,8 @@ AFRAME.registerComponent("volume", {
 
   // Build THREE ShaderMaterial from model and color map
   buildMaterial: function (model, texture, transferTexture) {
-    const { channel, intensity, spacing, slices, useTransferFunction } = model;
+    const { channel, intensity, useTransferFunction } = model;
+    const {slices, spacing} = this.data
 
     const dim = Math.ceil(Math.sqrt(slices));
     const volumeScale = [

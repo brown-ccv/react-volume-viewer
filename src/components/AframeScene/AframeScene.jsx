@@ -11,7 +11,15 @@ import "../../Aframe/volume";
 
 import { getAframeModels } from "../../utils";
 
-function AframeScene({ models, position, rotation, scale, sliders }) {
+function AframeScene({
+  models,
+  position,
+  rotation,
+  scale,
+  slices,
+  spacing,
+  sliders,
+}) {
   const [errors, setErrors] = useState([]);
   useEffect(() => {
     const handler = (e) => {
@@ -54,6 +62,8 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
           class="clickableMesh"
           volume={`
               models: ${getAframeModels(models)};
+              slices: ${slices};
+              spacing: ${spacing};
               sliders: ${JSON.stringify(sliders)};
             `}
         />

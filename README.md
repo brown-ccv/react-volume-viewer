@@ -69,16 +69,6 @@ const MODEL = PropTypes.shape({
     unit: PropTypes.string,
   }),
 
-  /** Number of slices used to generate the model */
-  slices: PropTypes.number,
-
-  /** Spacing between the slices of the model */
-  spacing: PropTypes.exact({
-    x: PropTypes.number,
-    y: PropTypes.number,
-    z: PropTypes.number,
-  }),
-
   /**
    * The transfer function applied to the color map
    * Array of 2D points
@@ -119,6 +109,16 @@ VolumeViewer.propTypes = {
   /** Scale of the dataset in the scene */
   scale: PropTypes.string,
 
+  /** Number of slices used to generate the model */
+  slices: PropTypes.number.isRequired,
+
+  /** Spacing between the slices of the model */
+  spacing: PropTypes.exact({
+    x: PropTypes.number,
+    y: PropTypes.number,
+    z: PropTypes.number,
+  }).isRequired,
+
   /* Sliders for control of clipping along the x, y, and z axes */
   sliders: PropTypes.exact({
     x: SLIDER,
@@ -130,7 +130,7 @@ VolumeViewer.propTypes = {
 
 ### Default Props
 
-The `DEFAULT_MODEL` object will be merged with every `model` in the `models` array. Note, however, that there is no default value for `models`.
+The `DEFAULT_MODEL` object will be merged with every `model` in the `models` array. Note, however, that there is no default value for `models`. `slices` and `spacing` are also required props that do not have a default
 
 ```jsx
 VolumeViewer.defaultProps = {
@@ -151,8 +151,6 @@ const DEFAULT_MODEL = {
   enabled: true,
   intensity: 1.0,
   range: { min: 0, max: 1, unit: "" },
-  slices: 55,
-  spacing: { x: 2, y: 2, z: 1 },
   transferFunction: DEFAULT_TRANSFER_FUNCTION,
   useTransferFunction: true,
 };

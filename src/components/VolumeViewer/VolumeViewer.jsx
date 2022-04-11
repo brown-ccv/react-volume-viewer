@@ -21,6 +21,8 @@ function VolumeViewer({
   position,
   rotation,
   scale,
+  slices,
+  spacing,
   sliders: slidersProp,
 }) {
   // Control the models in state; override on modelsProp change
@@ -45,6 +47,8 @@ function VolumeViewer({
         position={position}
         rotation={rotation}
         scale={scale}
+        slices={slices}
+        spacing={spacing}
         sliders={sliders}
       />
 
@@ -115,16 +119,6 @@ const MODEL = PropTypes.shape({
     unit: PropTypes.string,
   }),
 
-  /** Number of slices used to generate the model */
-  slices: PropTypes.number,
-
-  /** Spacing between the slices of the model */
-  spacing: PropTypes.exact({
-    x: PropTypes.number,
-    y: PropTypes.number,
-    z: PropTypes.number,
-  }),
-
   /**
    * The transfer function applied to the color map
    * Array of 2D points
@@ -157,7 +151,8 @@ VolumeViewer.propTypes = {
   /** Array of models loaded into aframe REQUIRED */
   models: PropTypes.arrayOf(MODEL).isRequired,
 
-  // TODO CUSTOM STRING VALIDATION ON position, rotation, scale
+  // TODO: CUSTOM STRING VALIDATION ON position, rotation, scale, spacing (vec3)
+  // TODO: CUSTOM VALIDATION on slices (must be int)
 
   /** Position of the dataset in the scene */
   position: PropTypes.string.isRequired,
@@ -167,6 +162,12 @@ VolumeViewer.propTypes = {
 
   /** Scale of the dataset in the scene */
   scale: PropTypes.string.isRequired,
+
+  /** Number of slices used to generate the model */
+  slices: PropTypes.number.isRequired,
+
+  /** Spacing between the slices of the model */
+  spacing: PropTypes.string.isRequired,
 
   /* Sliders for control of clipping along the x, y, and z axes */
   sliders: PropTypes.exact({
