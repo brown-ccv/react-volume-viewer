@@ -12,7 +12,13 @@ function validateModels(models) {
       throw new Error("Model name '" + model.name + "' is not unique");
     else modelNames.add(model.name);
 
-    // "colorMap" is required unless !useColorMap
+    if (model.useColorMap) {
+      // "colorMap" is required unless !useColorMap
+    }
+
+    if (model.useTransferFunction) {
+    }
+
     // "transferFunction is required unless !useColorMap"
 
     if ("colorMaps" in model) {
@@ -72,20 +78,22 @@ function validateSlider(prop, key, componentName, location, propFullName) {
 // Build models from prop and default values
 function buildModels(models) {
   return models.map((model) => {
-    // Determine transferFunction and build model
-    const transferFunction = model.useTransferFunction
-      ? // Inject DEFAULT_TRANSFER_FUNCTION if transferFunction property is not given
-        model.transferFunction ?? DEFAULT_TRANSFER_FUNCTION
-      : // Always use DEFAULT_TRANSFER_FUNCTIOn when !useTransferFunction
-        DEFAULT_TRANSFER_FUNCTION;
-
-    // Merge model with DEFAULT_MODEL object
-    return {
+    const newModel = {
       ...DEFAULT_MODEL,
       ...model,
-      transferFunction: transferFunction,
-      initTransferFunction: transferFunction,
-    };
+      initTransferFunction: model.transferFunction ?? DEFAULT_MODEL.transferFunction,
+    }
+
+    if(!model.useTransferFunction) {
+      delete model.transferFunction
+      delete model.initTransferFunction
+    }
+    if(!model.useColorMap) {
+      delete model.colorMap
+      delete model.colorMaps
+    }
+
+    return newModel;
   });
 }
 
