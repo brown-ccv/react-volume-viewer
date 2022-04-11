@@ -28,6 +28,7 @@ const DEFAULT_MODEL = {
   spacing: { x: 2, y: 2, z: 1 },
   transferFunction: DEFAULT_TRANSFER_FUNCTION,
   useTransferFunction: true,
+  useColorMap: true,
 };
 
 const SLIDER_RANGE = { min: 0, max: 1 };

@@ -7,7 +7,11 @@ import ColorMapControls from "./ColorMapControls.jsx";
 import TransferFunctionControls from "./TransferFunctionControls.jsx";
 import ClipControls from "./ClipControls.jsx";
 import EnabledControls from "./EnabledControls.jsx";
+import Section from "./Section.jsx";
 
+// TODO: Add switch for useTransferFunction
+// TODO: Add switch for useColorMap
+// TODO: Should reset button reset an individual model or all of them?
 function Controls({
   controlsVisible,
   models,
@@ -31,14 +35,16 @@ function Controls({
         ))}
       </StyledTabList>
 
-      <StyledTabPanels>
+      <TabPanels>
         {models.map((model, idx) => (
           <TabPanel key={model.name}>
-            <ColorMapControls
-              model={model}
-              modelIdx={idx}
-              setModels={setModels}
-            />
+            {model.useColorMap && (
+              <ColorMapControls
+                model={model}
+                modelIdx={idx}
+                setModels={setModels}
+              />
+            )}
 
             {model.useTransferFunction && (
               <TransferFunctionControls
@@ -48,11 +54,19 @@ function Controls({
                 setModels={setModels}
               />
             )}
-            <Button onClick={reset}> Reset </Button>
+
+            <Section>
+              <Button onClick={reset}> Reset </Button>
+            </Section>
           </TabPanel>
         ))}
-        <ClipControls sliders={sliders} setSliders={setSliders} />
-      </StyledTabPanels>
+      </TabPanels>
+
+      <Section>
+        <hr />
+      </Section>
+
+      <ClipControls sliders={sliders} setSliders={setSliders} />
     </Wrapper>
   );
 }
@@ -66,6 +80,7 @@ const Wrapper = styled(Tabs)`
   top: 8px;
   height: fit-content;
   max-height: calc(100% - 16px); // Leaves 8px to the bottom of the AframeScene
+  padding: 0px 16px;
   overflow: auto;
   display: ${(props) => (props.$visible ? "initial" : "none")};
 `;
@@ -73,6 +88,7 @@ const Wrapper = styled(Tabs)`
 // TODO: Cleaner way than just the scrollbar
 const StyledTabList = styled(TabList)`
   overflow: auto;
+  margin: 0px -16px; // Reverts Wrapper padding
 `;
 
 const FlexTab = styled(Tab)`
@@ -86,9 +102,9 @@ const FlexTab = styled(Tab)`
   }
 `;
 
-const StyledTabPanels = styled(TabPanels)`
-  padding: 0px 16px; // Section.jsx handles spacing on y axis
-`;
+// const StyledTabPanels = styled(TabPanels)`
+//   padding: 0px 16px; // Section.jsx handles spacing on y axis
+// `;
 
 const Button = styled.button``;
 

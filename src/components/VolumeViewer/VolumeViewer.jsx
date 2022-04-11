@@ -138,6 +138,9 @@ const MODEL = PropTypes.shape({
 
   /** Whether or not to apply a transfer function to the model */
   useTransferFunction: PropTypes.bool,
+
+  /** Whether or not to apply a color map to the model */
+  useColorMap: PropTypes.bool,
 });
 
 /**

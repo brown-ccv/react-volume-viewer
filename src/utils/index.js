@@ -12,6 +12,9 @@ function validateModels(models) {
       throw new Error("Model name '" + model.name + "' is not unique");
     else modelNames.add(model.name);
 
+    // "colorMap" is required unless !useColorMap
+    // "transferFunction is required unless !useColorMap"
+
     if ("colorMaps" in model) {
       // The model's colorMap must be in the colorMaps array
       if (!model.colorMaps.includes(model.colorMap))

@@ -20,6 +20,7 @@ function App() {
   const [singleColorMap, setSingleColorMap] = useState(false);
 
   const [useTransferFunction, setUseTransferFunction] = useState(true);
+  const [useColorMap, setUseColorMap] = useState(true);
 
   // TEMP: Force error
   const [modelPath, setModelPath] = useState(salt);
@@ -38,6 +39,7 @@ function App() {
       },
       path: modelPath,
       useTransferFunction: useTransferFunction,
+      useColorMap: useColorMap,
     },
     {
       name: "Opposite",
@@ -50,7 +52,8 @@ function App() {
         unit: "°C",
       },
       path: modelPath === salt ? temp : salt,
-      useTransferFunction: useTransferFunction,
+      useTransferFunction: !useTransferFunction,
+      useColorMap: !useColorMap,
     },
   ];
 
@@ -61,6 +64,9 @@ function App() {
       </button>
       <button onClick={() => setUseTransferFunction(!useTransferFunction)}>
         Use Transfer Function
+      </button>
+      <button onClick={() => setUseColorMap(!useColorMap)}>
+        Use Color Map
       </button>
       <button onClick={() => setSingleColorMap(singleColorMap ? false : true)}>
         Single Color Map
