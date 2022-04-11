@@ -4,13 +4,25 @@ import rgb from "../images/rgb.png";
 
 /** Default Props */
 
-const grayscaleColorMap = { name: "Grayscale", path: grayscale };
-const naturalColorMap = { name: "Natural", path: natural };
-const rgbColorMap = { name: "RGB", path: rgb };
+// Blending enum exposed to the user
+class Blending {
+  static None = new Blending("None")
+  static Add = new Blending("Add")
+
+  constructor(name) {
+    this.name = name;
+  }
+  toString() {
+    return `Blending.${this.name}`;
+  }
+}
+
+// Different color maps exposed to the user
+// TODO: Make this an enum class
 const ColorMaps = {
-  grayscale: grayscaleColorMap,
-  natural: naturalColorMap,
-  rgb: rgbColorMap,
+  grayscale: { name: "Grayscale", path: grayscale },
+  natural: { name: "Natural", path: natural },
+  rgb: { name: "RGB", path: rgb },
 };
 
 const DEFAULT_TRANSFER_FUNCTION = [
@@ -19,7 +31,7 @@ const DEFAULT_TRANSFER_FUNCTION = [
 ];
 
 const DEFAULT_MODEL = {
-  channel: 1,
+  blending: Blending.None,
   description: "",
   enabled: true,
   intensity: 1.0,
@@ -46,6 +58,7 @@ const HOVER_RADIUS = 15;
 
 export {
   ColorMaps,
+  Blending,
   DEFAULT_MODEL,
   DEFAULT_TRANSFER_FUNCTION,
   SLIDER_RANGE,

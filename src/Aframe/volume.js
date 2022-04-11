@@ -271,7 +271,7 @@ AFRAME.registerComponent("volume", {
   // Build THREE ShaderMaterial from model and color map
   buildMaterial: function (model, texture, transferTexture) {
     const { channel, intensity, useTransferFunction } = model;
-    const {slices, spacing} = this.data
+    const { slices, spacing } = this.data;
 
     const dim = Math.ceil(Math.sqrt(slices));
     const volumeScale = [

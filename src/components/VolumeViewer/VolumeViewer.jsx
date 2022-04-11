@@ -10,6 +10,7 @@ import {
   DEFAULT_POSITION,
   DEFAULT_ROTATION,
   DEFAULT_SCALE,
+  Blending,
 } from "../../constants";
 import { buildModels, useModelsPropMemo, validateSlider } from "../../utils";
 
@@ -87,6 +88,9 @@ const COLOR_MAP = PropTypes.exact({
 
 /** The model to be displayed and it's related information */
 const MODEL = PropTypes.shape({
+  /** Blending function to use*/
+  blending: PropTypes.instanceOf(Blending),
+
   /**
    * The current color map applied to the model
    * The colorMap must be present in the colorMaps array
@@ -96,9 +100,6 @@ const MODEL = PropTypes.shape({
 
   /** Array of color maps available in the controls. */
   colorMaps: PropTypes.arrayOf(COLOR_MAP),
-
-  /** Channel to load data from (R:1, G:2, B:3)*/
-  channel: PropTypes.number,
 
   /** Short description of the model */
   description: PropTypes.string,
