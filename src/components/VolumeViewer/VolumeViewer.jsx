@@ -11,7 +11,7 @@ import {
   DEFAULT_ROTATION,
   DEFAULT_SCALE,
 } from "../../constants";
-import { buildModels, useModelsPropMemo } from "../../utils";
+import { buildModels, useModelsPropMemo, validateSlider } from "../../utils";
 
 function VolumeViewer({
   className,
@@ -21,6 +21,7 @@ function VolumeViewer({
   position,
   rotation,
   scale,
+  sliders: slidersProp,
 }) {
   // Control the models in state; override on modelsProp change
   const [models, setModels] = useState([]);
@@ -31,7 +32,7 @@ function VolumeViewer({
 
   // Always initialize to DEFAULT_SLIDERS
   // TODO: Pass sliders as a prop
-  const [sliders, setSliders] = useState(DEFAULT_SLIDERS);
+  const [sliders, setSliders] = useState(slidersProp);
 
   // Changing a components key will remount the entire thing
   // Because the model's position is handled internally by aframe we need to remount it to reset its position
@@ -139,6 +140,13 @@ const MODEL = PropTypes.shape({
   useTransferFunction: PropTypes.bool,
 });
 
+/**
+ * Array of exactly two values between 0 and 1. slider[0] must be <= slider[1]
+ *  slider[0]: Minimum slider value
+ *  slider[1]: Maximum slider value
+ */
+const SLIDER = validateSlider;
+
 VolumeViewer.propTypes = {
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
@@ -149,13 +157,20 @@ VolumeViewer.propTypes = {
   // TODO CUSTOM STRING VALIDATION ON position, rotation, scale
 
   /** Position of the dataset in the scene */
-  position: PropTypes.string,
+  position: PropTypes.string.isRequired,
 
   /** Position of the dataset in the scene */
-  rotation: PropTypes.string,
+  rotation: PropTypes.string.isRequired,
 
   /** Scale of the dataset in the scene */
-  scale: PropTypes.string,
+  scale: PropTypes.string.isRequired,
+
+  /* Sliders for control of clipping along the x, y, and z axes */
+  sliders: PropTypes.exact({
+    x: SLIDER,
+    y: SLIDER,
+    z: SLIDER,
+  }).isRequired,
 };
 
 VolumeViewer.defaultProps = {
@@ -163,6 +178,7 @@ VolumeViewer.defaultProps = {
   position: DEFAULT_POSITION,
   rotation: DEFAULT_ROTATION,
   scale: DEFAULT_SCALE,
+  sliders: DEFAULT_SLIDERS,
 };
 
 export default VolumeViewer;

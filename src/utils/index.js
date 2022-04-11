@@ -3,7 +3,7 @@ import { isEmpty, isEqual, differenceWith, pick } from "lodash";
 
 import { DEFAULT_MODEL, DEFAULT_TRANSFER_FUNCTION } from "../constants";
 
-// Custom validation function for the model's prop
+// Custom validation function for the 'models' prop
 function validateModels(models) {
   const modelNames = new Set();
   models.forEach((model) => {
@@ -33,6 +33,37 @@ function validateModels(models) {
     }
   });
   return;
+}
+
+// Custom validation function for the 'sliders' prop
+function validateSlider(prop, key, componentName, location, propFullName) {
+  const slider = prop[key];
+
+  // Array length is exactly 2
+  if (slider.length !== 2) {
+    return new Error(
+      `Invalid prop '${propFullName}' supplied to '${componentName}'. ` +
+        `${propFullName} must be an array of length 2.`
+    );
+  }
+
+  // Minimum slider value must be <= maximum
+  if (slider[0] > slider[1]) {
+    return new Error(
+      `Invalid prop '${propFullName}' supplied to '${componentName}'. ` +
+        `${propFullName}[0] must be <= ${propFullName}[1].`
+    );
+  }
+
+  // Slider values must be between 0 and 1
+  for (let [idx, val] of slider.entries()) {
+    if (val < 0 || val > 1) {
+      return new Error(
+        `Invalid prop '${propFullName}' supplied to '${componentName}'. ` +
+          `slider[${idx}] must be between 0 and 1 (inclusive)`
+      );
+    }
+  }
 }
 
 // Build models from prop and default values
@@ -105,4 +136,10 @@ function getAframeModels(models) {
   return JSON.stringify(out);
 }
 
-export { validateModels, buildModels, useModelsPropMemo, getAframeModels };
+export {
+  validateModels,
+  validateSlider,
+  buildModels,
+  useModelsPropMemo,
+  getAframeModels,
+};
