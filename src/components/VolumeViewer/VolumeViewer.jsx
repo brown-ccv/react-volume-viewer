@@ -135,10 +135,10 @@ VolumeViewer.propTypes = {
    *  name: Common name of the color map
    *  path: Path to the color map src
    */
-  colorMaps: PropTypes.arrayOf(COLOR_MAP).isRequired,
+  colorMaps: PropTypes.arrayOf(COLOR_MAP),
 
   /** Whether or not the controls can be seen */
-  controlsVisible: PropTypes.bool.isRequired,
+  controlsVisible: PropTypes.bool,
 
   /** The model to be displayed and it's related information */
   model: PropTypes.shape({
@@ -204,7 +204,7 @@ VolumeViewer.propTypes = {
     x: SLIDER,
     y: SLIDER,
     z: SLIDER,
-  }).isRequired,
+  }),
 };
 
 VolumeViewer.defaultProps = {
