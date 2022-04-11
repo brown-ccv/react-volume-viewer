@@ -35,6 +35,13 @@ const COLOR_MAP = PropTypes.exact({
   path: PropTypes.string,
 });
 
+/**
+ * Array of exactly two values between 0 and 1. slider[0] must be <= slider[1]
+ *  slider[0]: Minimum slider value
+ *  slider[1]: Maximum slider value
+ */
+const SLIDER = /* Validation Function */
+
 VolumeViewer.propTypes = {
   /**
    * Array of color maps available in the controls.
@@ -100,6 +107,12 @@ VolumeViewer.propTypes = {
 
     /** Whether or not to apply a transfer function to the model */
     useTransferFunction: PropTypes.bool,
+  }).isRequired,
+
+  sliders: PropTypes.exact({
+    x: SLIDER,
+    y: SLIDER,
+    z: SLIDER,
   }),
 };
 ```
@@ -135,6 +148,11 @@ VolumeViewer.defaultProps = {
     ],
     useTransferFunction: true,
   }
+  sliders: {
+    x: [0, 1],
+    y: [0, 1],
+    z: [0, 1],
+  }
 };
 
 ```
@@ -146,6 +164,14 @@ The `ColorMaps` export is an object containing some default color maps that may 
 <img alt="grayscale" src="./src/images/grayscale.png" height="25"/>
 <img alt="natural" src="./src/images/natural.png" height="25"/>
 <img alt="rgb" src="./src/images/rgb.png" height="25"/>
+
+## DEFAULT_SLIDERS
+
+The `DEFAULT_SLIDERS` export is the default value for the `sliders` prop. It will be applied automatically if you do not pass `sliders` into `<VolumeViewer />`
+
+## DEFAULT_MODEL
+
+The `DEFAULT_MODEL` export is the default value for the `model` prop. It will be applied automatically if you do not pass `model` into `<VolumeViewer />`
 
 ## Example
 
