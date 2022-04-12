@@ -1,12 +1,17 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { VolumeViewer, ColorMap, Point } from "react-volume-viewer";
+import {
+  VolumeViewer,
+  ColorMap,
+  Point,
+  DEFAULT_COLOR_MAPS,
+} from "react-volume-viewer";
 
 const salt = "./assets/models/summer-high-salt.png";
 const temp = "./assets/models/summer-high-temp.png";
 const haline = new ColorMap("Haline", "./assets/colormaps/haline.png");
 const thermal = new ColorMap("Thermal", "./assets/colormaps/thermal.png");
-const allColorMaps = [haline, thermal, ...ColorMap.all];
+const allColorMaps = [haline, thermal, ...DEFAULT_COLOR_MAPS];
 
 function App() {
   const [colorMap, setColorMap] = useState(haline);
@@ -32,11 +37,7 @@ function App() {
         max: 33.71,
       },
       path: modelPath,
-      transferFunction: [
-        new Point(0, 0),
-        new Point(0.5, 0.5),
-        new Point(1, 1),
-      ],
+      transferFunction: [new Point(0, 0), new Point(0.5, 0.5), new Point(1, 1)],
       useTransferFunction: useTransferFunction,
       useColorMap: useColorMap,
     },

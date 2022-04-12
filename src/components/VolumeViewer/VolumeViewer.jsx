@@ -5,13 +5,12 @@ import styled from "styled-components";
 import Controls from "../Controls";
 import AframeScene from "../AframeScene";
 
+import { Blending, ColorMap } from "../../classes";
 import {
   DEFAULT_SLIDERS,
   DEFAULT_POSITION,
   DEFAULT_ROTATION,
   DEFAULT_SCALE,
-  Blending,
-  ColorMap,
 } from "../../constants";
 import { buildModels, useModelsPropMemo, validateSlider } from "../../utils";
 
