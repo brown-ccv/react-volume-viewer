@@ -2,9 +2,16 @@ import grayscale from "../images/grayscale.png";
 import natural from "../images/natural.png";
 import rgb from "../images/rgb.png";
 
-/** Default Props */
+
+/** Classes and Enums */
+
 
 // Blending enum exposed to the user
+/**
+ * Blending enum exposed to the user
+ *  None: Don't apply any blending
+ *  Add: Apply additive blending
+ */
 class Blending {
   static None = new Blending("None", 0);
   static Add = new Blending("Add", 1);
@@ -39,10 +46,29 @@ class ColorMap {
   }
 }
 
+
+/** DEFAULT VALUES */
+
+
+const SLIDER_RANGE = { min: 0, max: 1 };
 const DEFAULT_TRANSFER_FUNCTION = [
   { x: 0, y: 0 },
   { x: 1, y: 1 },
 ];
+
+// Used in TransferFunction
+const DECIMALS = 2;
+const CANVAS_PADDING = 10;
+const HOVER_RADIUS = 15;
+
+/** DEFAULT PROPS */
+
+
+const DEFAULT_SLIDERS = {
+  x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+  y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+  z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+};
 
 const DEFAULT_MODEL = {
   blending: Blending.None,
@@ -55,20 +81,9 @@ const DEFAULT_MODEL = {
   useColorMap: true,
 };
 
-const SLIDER_RANGE = { min: 0, max: 1 };
-const DEFAULT_SLIDERS = {
-  x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-  y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-  z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-};
-
 const DEFAULT_POSITION = "0 0 0";
 const DEFAULT_ROTATION = "0 0 0";
 const DEFAULT_SCALE = "1 1 1";
-
-const DECIMALS = 2;
-const CANVAS_PADDING = 10;
-const HOVER_RADIUS = 15;
 
 export {
   ColorMap,

@@ -34,8 +34,7 @@ function VolumeViewer({
     setModels(buildModels(newModels));
   }, [newModels]);
 
-  // Always initialize to DEFAULT_SLIDERS
-  // TODO: Pass sliders as a prop
+  // Sliders apply clipping to the volume as a whole
   const [sliders, setSliders] = useState(slidersProp);
 
   // Changing a components key will remount the entire thing
