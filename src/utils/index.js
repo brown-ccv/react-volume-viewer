@@ -182,7 +182,7 @@ function getAframeModels(models) {
 
     return aframeModel;
   });
-  return JSON.stringify(out);
+  return JSON.stringify(out.filter((model) => model.enabled));
 }
 
 export {
