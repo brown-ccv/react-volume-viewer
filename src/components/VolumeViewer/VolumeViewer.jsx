@@ -5,14 +5,18 @@ import styled from "styled-components";
 import Controls from "../Controls";
 import AframeScene from "../AframeScene";
 
-import { Blending, ColorMap } from "../../classes";
 import {
   DEFAULT_SLIDERS,
   DEFAULT_POSITION,
   DEFAULT_ROTATION,
   DEFAULT_SCALE,
 } from "../../constants";
-import { buildModels, useModelsPropMemo, validateSlider } from "../../utils";
+import {
+  useModelsPropMemo,
+  validateModels,
+  validateSlider,
+  validateVec3String,
+} from "../../utils";
 
 function VolumeViewer({
   className,
@@ -30,7 +34,7 @@ function VolumeViewer({
   const [models, setModels] = useState([]);
   const newModels = useModelsPropMemo(modelsProp);
   useEffect(() => {
-    setModels(buildModels(newModels));
+    setModels(newModels);
   }, [newModels]);
 
   // Sliders apply clipping to the volume as a whole
@@ -59,7 +63,7 @@ function VolumeViewer({
         setModels={setModels}
         setSliders={setSliders}
         reset={() => {
-          setModels(buildModels(newModels));
+          setModels(newModels);
           setSliders(DEFAULT_SLIDERS);
           setRemountKey(Math.random());
         }}
@@ -75,71 +79,13 @@ const Wrapper = styled.div`
   height: 100%;
 `;
 
-/** The model to be displayed and it's related information */
-const MODEL = PropTypes.shape({
-  /** Blending function to use*/
-  blending: PropTypes.instanceOf(Blending),
-
-  /**
-   * The current color map applied to the model
-   * The colorMap must be present in the colorMaps array
-   * REQUIRED
-   */
-  colorMap: PropTypes.instanceOf(ColorMap).isRequired,
-
-  /** Array of color maps available in the controls. */
-  colorMaps: PropTypes.arrayOf(PropTypes.instanceOf(ColorMap)),
-
-  /** Short description of the model */
-  description: PropTypes.string,
-
-  /** Flag to display the model */
-  enabled: PropTypes.bool,
-
-  /** Increase/decrease voxels intensity */
-  intensity: PropTypes.number,
-
-  /** Path to the model REQUIRED */
-  path: PropTypes.string.isRequired,
-
-  /** Minimum and maximum values of the model's dataset. */
-  range: PropTypes.shape({
-    min: PropTypes.number,
-    max: PropTypes.number,
-    unit: PropTypes.string,
-  }),
-
-  /**
-   * The transfer function applied to the color map
-   * Array of 2D points
-   */
-  transferFunction: PropTypes.arrayOf(
-    PropTypes.exact({
-      x: PropTypes.number,
-      y: PropTypes.number,
-    })
-  ),
-
-  /** Whether or not to apply a transfer function to the model */
-  useTransferFunction: PropTypes.bool,
-
-  /** Whether or not to apply a color map to the model */
-  useColorMap: PropTypes.bool,
-});
-
-/**
- * Array of exactly two values between 0 and 1. slider[0] must be <= slider[1]
- *  slider[0]: Minimum slider value
- *  slider[1]: Maximum slider value
- */
-const SLIDER = validateSlider;
-
 VolumeViewer.propTypes = {
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
 
   /** Array of models loaded into aframe REQUIRED */
-  models: PropTypes.arrayOf(MODEL).isRequired,
+  // models: PropTypes.arrayOf(PropTypes.instanceOf(Model)).isRequired,
+  models: validateModels,
 
   // TODO: CUSTOM STRING VALIDATION ON position, rotation, scale, spacing (vec3)
   // TODO: CUSTOM VALIDATION on slices (must be int)
@@ -156,14 +102,19 @@ VolumeViewer.propTypes = {
   /** Number of slices used to generate the model */
   slices: PropTypes.number.isRequired,
 
-  /** Spacing between the slices of the model */
+  /**
+   * Spacing between the slices of the model across each axis
+   * Each slider is an array of exactly two values between 0 and 1. slider[0] must be <= slider[1]
+   *  slider[0]: Minimum slider value
+   *  slider[1]: Maximum slider value
+   */
   spacing: PropTypes.string.isRequired,
 
   /* Sliders for control of clipping along the x, y, and z axes */
   sliders: PropTypes.exact({
-    x: SLIDER,
-    y: SLIDER,
-    z: SLIDER,
+    x: validateSlider,
+    y: validateSlider,
+    z: validateSlider,
   }),
 };
 

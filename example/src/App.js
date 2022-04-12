@@ -5,6 +5,7 @@ import {
   ColorMap,
   Point,
   DEFAULT_COLOR_MAPS,
+  Model,
 } from "react-volume-viewer";
 
 const salt = "./assets/models/summer-high-salt.png";
@@ -27,7 +28,7 @@ function App() {
   // thermal.path = "thermal/path";
 
   const models = [
-    {
+    new Model({
       name: "Same",
       colorMap: colorMap,
       ...(!singleColorMap && { colorMaps: allColorMaps }),
@@ -40,8 +41,8 @@ function App() {
       transferFunction: [new Point(0, 0), new Point(0.5, 0.5), new Point(1, 1)],
       useTransferFunction: useTransferFunction,
       useColorMap: useColorMap,
-    },
-    {
+    }),
+    new Model({
       name: "Opposite",
       colorMap: colorMap === haline ? thermal : haline,
       ...(!singleColorMap && { colorMaps: [haline, thermal] }),
@@ -54,7 +55,7 @@ function App() {
       path: modelPath === salt ? temp : salt,
       useTransferFunction: !useTransferFunction,
       useColorMap: !useColorMap,
-    },
+    }),
   ];
 
   const Buttons = (

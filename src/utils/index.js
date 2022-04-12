@@ -1,52 +1,55 @@
 import { useEffect, useRef } from "react";
 import { isEmpty, isEqual, differenceWith, pick } from "lodash";
-
-import { DEFAULT_MODEL } from "../constants";
+import { Model } from "../classes";
 
 // Custom validation function for the 'models' prop
-function validateModels(models) {
+const validateModels = function (props, propName, componentName) {
+  const models = props[propName];
+  if (models === undefined) {
+    return new Error(
+      `Failed prop type: The prop '${propName}' is required in '${componentName}', but its value is '${models}'.`
+    );
+  }
+
+  if (!Array.isArray(models)) {
+    return new Error(
+      `Failed prop type: Invalid prop '${propName}' of type '${typeof models}' ` +
+        `supplied to '${componentName}', expected 'Array'.`
+    );
+  }
+
   const modelNames = new Set();
-  models.forEach((model) => {
-    // TODO: model not an instance of Model class
+  for (const [idx, model] of models.entries()) {
+    if (!(model instanceof Model)) {
+      return new Error(
+        `Failed prop type: Invalid prop '${propName}[${idx}]' of type '${typeof model}' ` +
+          `supplied to '${componentName}', expected 'Model'. ` +
+          `Prop has a value of '${model}'.`
+      );
+    }
 
     // The model's name must be unique
     if (modelNames.has(model.name))
-      throw new Error("Model name '" + model.name + "' is not unique");
+      // TODO PropType error schema
+      // return new Error("Model name '" + model.name + "' is not unique");
+      return new Error(
+        `Invalid prop '${propName}[${idx}].name' supplied to '${componentName}'. ` +
+          `Name '${model.name}' is not unique in '${propName}'.`
+      );
     else modelNames.add(model.name);
 
-    if (model.useColorMap) {
-      // TODO "colorMap" is required unless !useColorMap
+    // PropTypes wants errors to be returned, not thrown
+    try {
+      model.validate();
+    } catch (error) {
+      return new Error(
+        `Invalid prop '${propName}[${idx}]' supplied to '${componentName}'. ` +
+          error.message
+      );
     }
-
-    if (model.useTransferFunction) {
-      // TODO "transferFunction is required unless !useColorMap"
-    }
-
-    if ("transferFunction" in model)
-      model.transferFunction.forEach((point) => point.validate());
-
-    if ("colorMaps" in model) {
-      // The model's colorMap must be in the colorMaps array
-      if (!model.colorMaps.includes(model.colorMap))
-        throw new Error("Color Map '" + model.colorMap + "' not in colorMaps");
-
-      // The model's colorMaps' names must be unique
-      const colorMapNames = new Set();
-      model.colorMaps.forEach((colorMap) => {
-        if (colorMapNames.has(colorMap.name))
-          throw new Error(
-            "Color map name '" +
-              colorMap.name +
-              "' is not unique on model '" +
-              model.name +
-              "'"
-          );
-        else colorMapNames.add(colorMap.name);
-      });
-    }
-  });
+  }
   return;
-}
+};
 
 // Custom validation function for the 'sliders' prop
 function validateSlider(prop, key, componentName, location, propFullName) {
@@ -79,34 +82,18 @@ function validateSlider(prop, key, componentName, location, propFullName) {
   }
 }
 
-// Build models from prop and default values
-function buildModels(models) {
-  return models.map((model) => {
-    const newModel = {
-      ...DEFAULT_MODEL,
-      ...model,
-      initTransferFunction:
-        model.transferFunction ?? DEFAULT_MODEL.transferFunction,
-    };
-
-    // TODO: Need to update shader code before removing these
-    // if(!model.useTransferFunction) {
-    //   delete model.transferFunction
-    //   delete model.initTransferFunction
-    // }
-    // if(!model.useColorMap) {
-    //   delete model.colorMap
-    //   delete model.colorMaps
-    // }
-
-    return newModel;
-  });
-}
+const validateVec3String = function (props, propName, componentName) {
+  console.log(props, propName, componentName);
+  // if (!/matchme/.test(props[propName])) {
+  //   return new Error(
+  //     'Invalid prop `' + propName + '` supplied to' +
+  //     ' `' + componentName + '`. Validation failed.'
+  //   );
+  // }
+};
 
 // Custom useMemo hook for models
 function useModelsPropMemo(models) {
-  validateModels(models);
-
   // Ref for storing previous models
   const previousRef = useRef();
   const prevModels = previousRef.current;
@@ -157,7 +144,7 @@ function getAframeModels(models) {
 export {
   validateModels,
   validateSlider,
-  buildModels,
+  validateVec3String,
   useModelsPropMemo,
   getAframeModels,
 };
