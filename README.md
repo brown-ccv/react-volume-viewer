@@ -180,7 +180,7 @@ const DEFAULT_SLIDERS = {
 
 ## DEFAULT_MODEL
 
-The `DEFAULT_MODEL` export is the default value for the `model` prop. It will be applied automatically if you do not pass `model` into `<VolumeViewer />`
+The `DEFAULT_MODEL` export contains the default values for each property of the `model` prop. It is merged with the `model` prop you pass into `<VolumeViewer />`. Note that `model.colorMap` and `model.path` are not included as they are required props.
 
 ```js
 const DEFAULT_MODEL = {

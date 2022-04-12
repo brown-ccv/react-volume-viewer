@@ -47,7 +47,6 @@ function VolumeViewer({
     setModel(initModel);
   }, [initModel, colorMaps]);
 
-  // Always begin with DEFAULT_SLIDERS value
   const [sliders, setSliders] = useState(slidersProp);
 
   // Changing a components key will remount the entire thing
