@@ -7,7 +7,7 @@ import rgb from "../images/rgb.png";
 // Blending enum exposed to the user
 class Blending {
   static None = new Blending("None", 0);
-  static Add = new Blending("Add");
+  static Add = new Blending("Add", 1);
 
   constructor(name, blending) {
     this.name = name;
@@ -18,13 +18,26 @@ class Blending {
   }
 }
 
-// Different color maps exposed to the user
-// TODO: Make this an enum class
-const ColorMaps = {
-  grayscale: { name: "Grayscale", path: grayscale },
-  natural: { name: "Natural", path: natural },
-  rgb: { name: "RGB", path: rgb },
-};
+/**
+ * Object containing the name and path to a color map image
+ * Grayscale, Natural, and Rgb are defaults
+ *  name: Common name of the color map
+ *  path: Path to the color map source image
+ */
+class ColorMap {
+  static Grayscale = new ColorMap("Grayscale", grayscale);
+  static Natural = new ColorMap("Natural", natural);
+  static Rgb = new ColorMap("RGB", rgb);
+  static all = [this.Grayscale, this.Natural, this.Rgb];
+
+  constructor(name, path) {
+    this.name = name;
+    this.path = path;
+  }
+  toString() {
+    return `ColorMaps.${this.name}: ${this.path}`;
+  }
+}
 
 const DEFAULT_TRANSFER_FUNCTION = [
   { x: 0, y: 0 },
@@ -58,7 +71,7 @@ const CANVAS_PADDING = 10;
 const HOVER_RADIUS = 15;
 
 export {
-  ColorMaps,
+  ColorMap,
   Blending,
   DEFAULT_MODEL,
   DEFAULT_TRANSFER_FUNCTION,

@@ -11,6 +11,7 @@ import {
   DEFAULT_ROTATION,
   DEFAULT_SCALE,
   Blending,
+  ColorMap,
 } from "../../constants";
 import { buildModels, useModelsPropMemo, validateSlider } from "../../utils";
 
@@ -76,16 +77,6 @@ const Wrapper = styled.div`
   height: 100%;
 `;
 
-/**
- * Object containing the name and path to a color map image
- *  name: Common name of the color map
- *  path: Path to the color map source image
- */
-const COLOR_MAP = PropTypes.exact({
-  name: PropTypes.string,
-  path: PropTypes.string,
-});
-
 /** The model to be displayed and it's related information */
 const MODEL = PropTypes.shape({
   /** Blending function to use*/
@@ -96,10 +87,10 @@ const MODEL = PropTypes.shape({
    * The colorMap must be present in the colorMaps array
    * REQUIRED
    */
-  colorMap: COLOR_MAP.isRequired,
+  colorMap: PropTypes.instanceOf(ColorMap).isRequired,
 
   /** Array of color maps available in the controls. */
-  colorMaps: PropTypes.arrayOf(COLOR_MAP),
+  colorMaps: PropTypes.arrayOf(PropTypes.instanceOf(ColorMap)),
 
   /** Short description of the model */
   description: PropTypes.string,

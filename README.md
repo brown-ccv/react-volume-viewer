@@ -25,17 +25,6 @@ The only required props are the model's path and it's minimum and maximum data p
 CSS styling for the height must be provided and a custom width can be provided as well. The styling can be passed in through classes or inline styles.
 
 ```jsx
-/**
- * Object containing the name and path to a color map image
- *  name: Common name of the color map
- *  path: Path to the color map source image
- */
-const COLOR_MAP = PropTypes.exact({
-  name: PropTypes.string,
-  path: PropTypes.string,
-});
-
-
 /** The model to be displayed and it's related information */
 const MODEL = PropTypes.shape({
   /** Blending function to use*/
@@ -46,10 +35,10 @@ const MODEL = PropTypes.shape({
    * The colorMap must be present in the colorMaps array
    * REQUIRED
    */
-  colorMap: COLOR_MAP.isRequired,
+  colorMap: PropTypes.instanceOf(ColorMap).isRequired,
 
   /** Array of color maps available in the controls. */
-  colorMaps: PropTypes.arrayOf(COLOR_MAP),
+  colorMaps: PropTypes.arrayOf(PropTypes.instanceOf(ColorMap)),
 
   /** Short description of the model */
   description: PropTypes.string,
@@ -83,6 +72,9 @@ const MODEL = PropTypes.shape({
 
   /** Whether or not to apply a transfer function to the model */
   useTransferFunction: PropTypes.bool,
+
+  /** Whether or not to apply a color map to the model */
+  useColorMap: PropTypes.bool,
 });
 
 /**
@@ -114,11 +106,7 @@ VolumeViewer.propTypes = {
   slices: PropTypes.number.isRequired,
 
   /** Spacing between the slices of the model */
-  spacing: PropTypes.exact({
-    x: PropTypes.number,
-    y: PropTypes.number,
-    z: PropTypes.number,
-  }).isRequired,
+  spacing: PropTypes.string.isRequired,
 
   /* Sliders for control of clipping along the x, y, and z axes */
   sliders: PropTypes.exact({
@@ -147,7 +135,7 @@ VolumeViewer.defaultProps = {
 };
 
 const DEFAULT_MODEL = {
-  blending: Blending.none
+  blending: Blending.None
   description: "",
   enabled: true,
   intensity: 1.0,
@@ -165,6 +153,29 @@ The `ColorMaps` export is an object containing some default color maps that may 
 <img alt="grayscale" src="./src/images/grayscale.png" height="25"/>
 <img alt="natural" src="./src/images/natural.png" height="25"/>
 <img alt="rgb" src="./src/images/rgb.png" height="25"/>
+
+```js
+/**
+ * Object containing the name and path to a color map image
+ * Grayscale, Natural, and Rgb are defaults
+ *  name: Common name of the color map
+ *  path: Path to the color map source image
+ */
+class ColorMap {
+  static Grayscale = new ColorMap("Grayscale", grayscale)
+  static Natural = new ColorMap("Natural", natural)
+  static Rgb = new ColorMap("RGB", rgb)
+  static all = [this.Grayscale, this.Natural, this.Rgb]
+
+  constructor(name, path) {
+    this.name = name;
+    this.path = path;
+  }
+  toString() {
+    return `ColorMaps.${this.name}: ${this.path}`;
+  }
+}
+```
 
 ## DEFAULT_SLIDERS
 
@@ -207,20 +218,20 @@ const DEFAULT_MODEL = {
 ```jsx
 import React from 'react'
 import styled from 'styled-components'
-import { VolumeViewer, ColorMaps } from "react-volume-viewer";
+import { VolumeViewer, ColorMap } from "react-volume-viewer";
 
 import model1 from "./path/to/model.png";
 import model2 from "./path/to/model.png";
 
-const haline = { name: "Haline", path: "path/to/colormaps/haline.png" };
-const thermal = { name: "Thermal", path: "path/to/colormaps/thermal.png" };
+const haline = new ColorMap("Haline", "./assets/colormaps/haline.png")
+const thermal = new ColorMap("Thermal", "./assets/colormaps/thermal.png")
 
 function App() {
   const [controlsVisible, setControlsVisible] = React.useState(true);
 
   return (
     <StyledVolumeViewer
-      colorMaps={[haline, thermal, ColorMaps.grayscale]}
+      colorMaps={[haline, thermal, ...ColorMap.all]}
       controlsVisible={controlsVisible}
       models={[
         {
@@ -241,7 +252,7 @@ function App() {
           enabled: false,
           description: "Model visualizing temperature data",
           range: {
-            min: 0.05,
+            min: 2.5,
             max: 42,
             unit: "°C",
           },

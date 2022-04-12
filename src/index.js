@@ -1,9 +1,9 @@
 import VolumeViewer from "./components/VolumeViewer";
 import {
-  ColorMaps,
+  ColorMap,
   Blending,
   DEFAULT_SLIDERS,
   DEFAULT_MODEL,
 } from "./constants";
 
-export { VolumeViewer, Blending, ColorMaps, DEFAULT_SLIDERS, DEFAULT_MODEL };
+export { VolumeViewer, Blending, ColorMap, DEFAULT_SLIDERS, DEFAULT_MODEL };
