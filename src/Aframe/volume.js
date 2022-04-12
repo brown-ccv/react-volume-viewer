@@ -330,7 +330,7 @@ AFRAME.registerComponent("volume", {
 
   buildMesh: function (modelsData) {
     this.getMesh().material = modelsData.length
-      ? modelsData[0].material  // TODO: Blend all of the model's material into one
+      ? modelsData[0].material // TODO: Blend all of the model's material into one
       : new ShaderMaterial(DEFAULT_MATERIAL);
     console.log("All models loaded", modelsData); // TEMP
   },

@@ -93,8 +93,6 @@ VolumeViewer.propTypes = {
   /** Array of models loaded into aframe REQUIRED */
   models: validateModels,
 
-  // TODO: CUSTOM VALIDATION on slices (must be int)
-
   /** Position of the dataset in the scene */
   position: validateVec3String,
 
@@ -104,7 +102,7 @@ VolumeViewer.propTypes = {
   /** Scale of the dataset in the scene */
   scale: validateVec3String,
 
-  /** Number of slices used to generate the model */
+  /** Number of slices used to generate the model REQUIRED */
   slices: validateInt,
 
   /**

@@ -86,6 +86,7 @@ class Point {
 class Model {
   static Default = new Model({
     colorMaps: [],
+    description: "",
     enabled: true,
     intensity: 1,
     range: { min: 0, max: 1, unit: "" },
