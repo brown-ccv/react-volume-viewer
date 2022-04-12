@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { VolumeViewer, ColorMap } from "react-volume-viewer";
+import { VolumeViewer, ColorMap, Point } from "react-volume-viewer";
 
 const salt = "./assets/models/summer-high-salt.png";
 const temp = "./assets/models/summer-high-temp.png";
@@ -33,9 +33,9 @@ function App() {
       },
       path: modelPath,
       transferFunction: [
-        { x: 0, y: 0 },
-        { x: 0.5, y: 0.5 },
-        { x: 1, y: 1 },
+        new Point(0, 0),
+        new Point(0.5, 0.5),
+        new Point(1, 1),
       ],
       useTransferFunction: useTransferFunction,
       useColorMap: useColorMap,

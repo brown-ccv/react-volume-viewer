@@ -2,9 +2,7 @@ import grayscale from "../images/grayscale.png";
 import natural from "../images/natural.png";
 import rgb from "../images/rgb.png";
 
-
 /** Classes and Enums */
-
 
 // Blending enum exposed to the user
 /**
@@ -46,29 +44,39 @@ class ColorMap {
   }
 }
 
+/**
+ * (x, y) coordinates for the transfer function. Values must be between 0 and 1
+ */
+class Point {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+  toString() {
+    return `Point: {x: ${this.x}, y: ${this.y}}`;
+  }
+  validate() {
+    if (this.x < 0 || this.x > 1)
+      throw new Error(
+        `Error: Point.x in ${this.toString()} out of range. ` +
+          `Coordinates must be between 0 and 1 (inclusive)`
+      );
+
+    if (this.y < 0 || this.y > 1)
+      throw new Error(
+        `Error: Point.y in ${this.toString()} out of range. ` +
+          `Coordinates must be between 0 and 1 (inclusive)`
+      );
+  }
+}
 
 /** DEFAULT VALUES */
 
-
 const SLIDER_RANGE = { min: 0, max: 1 };
-const DEFAULT_TRANSFER_FUNCTION = [
-  { x: 0, y: 0 },
-  { x: 1, y: 1 },
-];
+const DEFAULT_TRANSFER_FUNCTION = [new Point(0, 0), new Point(1, 1)];
 
-// Used in TransferFunction
-const DECIMALS = 2;
-const CANVAS_PADDING = 10;
-const HOVER_RADIUS = 15;
 
 /** DEFAULT PROPS */
-
-
-const DEFAULT_SLIDERS = {
-  x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-  y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-  z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
-};
 
 const DEFAULT_MODEL = {
   blending: Blending.None,
@@ -84,10 +92,16 @@ const DEFAULT_MODEL = {
 const DEFAULT_POSITION = "0 0 0";
 const DEFAULT_ROTATION = "0 0 0";
 const DEFAULT_SCALE = "1 1 1";
+const DEFAULT_SLIDERS = {
+  x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+  y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+  z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+};
 
 export {
   ColorMap,
   Blending,
+  Point,
   DEFAULT_MODEL,
   DEFAULT_TRANSFER_FUNCTION,
   SLIDER_RANGE,
@@ -95,7 +109,4 @@ export {
   DEFAULT_POSITION,
   DEFAULT_ROTATION,
   DEFAULT_SCALE,
-  DECIMALS,
-  CANVAS_PADDING,
-  HOVER_RADIUS,
 };

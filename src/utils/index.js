@@ -7,19 +7,23 @@ import { DEFAULT_MODEL } from "../constants";
 function validateModels(models) {
   const modelNames = new Set();
   models.forEach((model) => {
+    // TODO: model not an instance of Model class
+
     // The model's name must be unique
     if (modelNames.has(model.name))
       throw new Error("Model name '" + model.name + "' is not unique");
     else modelNames.add(model.name);
 
     if (model.useColorMap) {
-      // "colorMap" is required unless !useColorMap
+      // TODO "colorMap" is required unless !useColorMap
     }
 
     if (model.useTransferFunction) {
+      // TODO "transferFunction is required unless !useColorMap"
     }
 
-    // "transferFunction is required unless !useColorMap"
+    if ("transferFunction" in model)
+      model.transferFunction.forEach((point) => point.validate());
 
     if ("colorMaps" in model) {
       // The model's colorMap must be in the colorMaps array
