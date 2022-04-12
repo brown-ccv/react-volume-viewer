@@ -211,15 +211,6 @@ class Model {
     this.useTransferFunction =
       obj.useTransferFunction ?? Model.Default.useTransferFunction;
     this.useColorMap = obj.useColorMap ?? Model.Default.useColorMap;
-
-    if (!this.useTransferFunction) {
-      // TODO: Return to model defaults
-      // transferFunction is (0,1), (1,1)?
-    }
-
-    if (!this.useColorMap) {
-      // TODO: Return to model defaults
-    }
   }
   toString() {
     return `Model.${this.name}: ${this.path}`;
@@ -230,14 +221,6 @@ class Model {
 
     if (!this.colorMaps.includes(this.colorMap))
       throw new Error("Color Map '" + this.colorMap + "' not in colorMaps");
-
-    if (this.useColorMap) {
-      // TODO "colorMap" is required unless !useColorMap
-    }
-
-    if (this.useTransferFunction) {
-      // TODO "transferFunction is required unless !useColorMap"
-    }
 
     // Color map names in colorMaps must be unique
     const colorMapNames = new Set();

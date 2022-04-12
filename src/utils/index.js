@@ -34,8 +34,6 @@ const validateModels = function (props, propName, componentName) {
 
     // The model's name must be unique
     if (modelNames.has(model.name))
-      // TODO PropType error schema
-      // return new Error("Model name '" + model.name + "' is not unique");
       return new Error(
         `Invalid prop '${propName}[${idx}].name' supplied to '${componentName}'. ` +
           `Name '${model.name}' is not unique in '${propName}'.`
