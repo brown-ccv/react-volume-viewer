@@ -13,6 +13,7 @@ import {
 } from "../../constants";
 import {
   useModelsPropMemo,
+  validateInt,
   validateModels,
   validateSlider,
   validateVec3String,
@@ -87,20 +88,20 @@ VolumeViewer.propTypes = {
   // models: PropTypes.arrayOf(PropTypes.instanceOf(Model)).isRequired,
   models: validateModels,
 
-  // TODO: CUSTOM STRING VALIDATION ON position, rotation, scale, spacing (vec3)
   // TODO: CUSTOM VALIDATION on slices (must be int)
 
   /** Position of the dataset in the scene */
-  position: PropTypes.string,
+  position: validateVec3String,
 
   /** Position of the dataset in the scene */
-  rotation: PropTypes.string,
+  rotation: validateVec3String,
 
   /** Scale of the dataset in the scene */
-  scale: PropTypes.string,
+  scale: validateVec3String,
 
   /** Number of slices used to generate the model */
-  slices: PropTypes.number.isRequired,
+  // slices: PropTypes.number.isRequired,
+  slices: validateInt,
 
   /**
    * Spacing between the slices of the model across each axis
@@ -108,7 +109,7 @@ VolumeViewer.propTypes = {
    *  slider[0]: Minimum slider value
    *  slider[1]: Maximum slider value
    */
-  spacing: PropTypes.string.isRequired,
+  spacing: validateVec3String,
 
   /* Sliders for control of clipping along the x, y, and z axes */
   sliders: PropTypes.exact({

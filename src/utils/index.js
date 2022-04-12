@@ -5,26 +5,30 @@ import { Model } from "../classes";
 // Custom validation function for the 'models' prop
 const validateModels = function (props, propName, componentName) {
   const models = props[propName];
+
+  // models is required
   if (models === undefined) {
     return new Error(
-      `Failed prop type: The prop '${propName}' is required in '${componentName}', but its value is '${models}'.`
+      `The prop '${propName}' is required in '${componentName}', ` +
+        `but its value is '${models}'.`
     );
   }
 
+  // models is of array type
   if (!Array.isArray(models)) {
     return new Error(
-      `Failed prop type: Invalid prop '${propName}' of type '${typeof models}' ` +
-        `supplied to '${componentName}', expected 'Array'.`
+      `Invalid prop '${propName}' of type '${typeof models}' ` +
+        `supplied to '${componentName}'. '${models}' is not of type 'Array'.`
     );
   }
 
   const modelNames = new Set();
   for (const [idx, model] of models.entries()) {
+    // Each model in models is of type Model
     if (!(model instanceof Model)) {
       return new Error(
-        `Failed prop type: Invalid prop '${propName}[${idx}]' of type '${typeof model}' ` +
-          `supplied to '${componentName}', expected 'Model'. ` +
-          `Prop has a value of '${model}'.`
+        `Invalid prop '${propName}[${idx}]' of type '${typeof model}' ` +
+          `supplied to '${componentName}'. '${model}' is not of type 'Model'`
       );
     }
 
@@ -72,7 +76,7 @@ function validateSlider(prop, key, componentName, location, propFullName) {
   }
 
   // Slider values must be between 0 and 1
-  for (let [idx, val] of slider.entries()) {
+  for (const [idx, val] of slider.entries()) {
     if (val < 0 || val > 1) {
       return new Error(
         `Invalid prop '${propFullName}' supplied to '${componentName}'. ` +
@@ -83,13 +87,53 @@ function validateSlider(prop, key, componentName, location, propFullName) {
 }
 
 const validateVec3String = function (props, propName, componentName) {
-  console.log(props, propName, componentName);
-  // if (!/matchme/.test(props[propName])) {
-  //   return new Error(
-  //     'Invalid prop `' + propName + '` supplied to' +
-  //     ' `' + componentName + '`. Validation failed.'
-  //   );
-  // }
+  const string = props[propName];
+
+  // spacing is a required prop
+  if (propName === "spacing" && string === undefined) {
+    return new Error(
+      `The prop '${propName}' is required in '${componentName}', ` +
+        `but its value is '${string}'.`
+    );
+  }
+
+  // Should be 3 floats, space separated
+  const arr = string.split(" ");
+  if (arr.length !== 3) {
+    return new Error(
+      `Invalid prop '${propName}' supplied to '${componentName}'. ` +
+        `String should contain 3 numbers, has '${arr.length}': '${string}'.`
+    );
+  }
+
+  for (const num of arr) {
+    if (isNaN(Number(num))) {
+      return new Error(
+        `Invalid prop '${propName}' supplied to '${componentName}'. ` +
+          `'${num}' in '${string}' is not a number.`
+      );
+    }
+  }
+};
+
+const validateInt = function (props, propName, componentName) {
+  const num = props[propName];
+
+  // slices is a required prop
+  if (propName === "slices" && num === undefined) {
+    return new Error(
+      `The prop '${propName}' is required in '${componentName}', ` +
+        `but its value is '${num}'.`
+    );
+  }
+
+  // Value must be an integer
+  if (!Number.isInteger(num)) {
+    return new Error(
+      `Invalid prop '${propName}' of type '${typeof num}' ` +
+        `supplied to '${componentName}'. '${num}' is not an integer`
+    );
+  }
 };
 
 // Custom useMemo hook for models
@@ -145,6 +189,7 @@ export {
   validateModels,
   validateSlider,
   validateVec3String,
+  validateInt,
   useModelsPropMemo,
   getAframeModels,
 };
