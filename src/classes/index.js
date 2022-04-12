@@ -85,7 +85,6 @@ class Point {
  */
 class Model {
   static Default = new Model({
-    blending: Blending.None,
     colorMaps: [],
     enabled: true,
     intensity: 1,
@@ -97,7 +96,6 @@ class Model {
 
   // Merge passed in object with Model.Default
   constructor(obj) {
-    this.blending = obj.blending ?? Model.Default.blending;
     this.colorMap = obj.colorMap;
     this.colorMaps = obj.colorMaps ?? Model.Default.colorMaps;
     this.description = obj.description;

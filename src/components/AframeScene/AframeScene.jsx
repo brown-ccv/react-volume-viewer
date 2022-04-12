@@ -12,6 +12,7 @@ import "../../Aframe/volume";
 import { getAframeModels } from "../../utils";
 
 function AframeScene({
+  blending,
   models,
   position,
   rotation,
@@ -61,10 +62,11 @@ function AframeScene({
           id="volume"
           class="clickableMesh"
           volume={`
+              blending: ${JSON.stringify(blending)};
               models: ${getAframeModels(models)};
               slices: ${slices};
-              spacing: ${spacing};
               sliders: ${JSON.stringify(sliders)};
+              spacing: ${spacing};
             `}
         />
       </a-entity>

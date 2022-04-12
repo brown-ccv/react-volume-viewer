@@ -1,6 +1,7 @@
 import AFRAME, { THREE } from "aframe";
 
-import { DEFAULT_SLIDERS } from "../constants/index.js";
+import { Blending } from "../classes";
+import { DEFAULT_SLIDERS } from "../constants";
 import "./Shader.js";
 
 const {
@@ -31,6 +32,7 @@ const DEFAULT_MATERIAL = {
 AFRAME.registerComponent("volume", {
   dependencies: ["keypress-listener"], // Adds component to the entity
   schema: {
+    blending: { parse: JSON.parse, default: Blending.None },
     models: { parse: JSON.parse, default: [] },
     slices: { type: "int" },
     spacing: { type: "vec3" },
@@ -270,8 +272,9 @@ AFRAME.registerComponent("volume", {
 
   // Build THREE ShaderMaterial from model and color map
   buildMaterial: function (model, texture, transferTexture) {
-    const { blending, intensity, useTransferFunction } = model;
-    const { slices, spacing } = this.data;
+    const { intensity, useTransferFunction } = model;
+    // TODO: Need to change these in update function
+    const { blending, slices, spacing } = this.data;
 
     const dim = Math.ceil(Math.sqrt(slices));
     const volumeScale = [
