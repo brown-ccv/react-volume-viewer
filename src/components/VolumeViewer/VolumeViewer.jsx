@@ -91,7 +91,6 @@ VolumeViewer.propTypes = {
   controlsVisible: PropTypes.bool,
 
   /** Array of models loaded into aframe REQUIRED */
-  // models: PropTypes.arrayOf(PropTypes.instanceOf(Model)).isRequired,
   models: validateModels,
 
   // TODO: CUSTOM VALIDATION on slices (must be int)
@@ -106,7 +105,6 @@ VolumeViewer.propTypes = {
   scale: validateVec3String,
 
   /** Number of slices used to generate the model */
-  // slices: PropTypes.number.isRequired,
   slices: validateInt,
 
   /**
