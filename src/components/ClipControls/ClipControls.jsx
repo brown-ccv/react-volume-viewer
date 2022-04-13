@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-// import { Range } from "rc-slider";
-import Slider from "rc-slider"
+import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 
 import Section from "../Section";
@@ -11,7 +10,7 @@ const marks = {
   0: " ",
   0.5: " ",
   1: " ",
-}
+};
 
 // TODO: Slider range should be 0-1000 with a step of 1 (changes needed in AframeScene)
 function ClipControls({ sliders, setSliders }) {
