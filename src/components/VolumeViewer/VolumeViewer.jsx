@@ -13,6 +13,7 @@ function VolumeViewer({
   style,
   controlsVisible,
   models: modelsProp,
+  sliders: slidersProp,
 }) {
   // Control the models in state; override on modelsProp change
   const [models, setModels] = useState([]);
@@ -21,8 +22,8 @@ function VolumeViewer({
     setModels(buildModels(newModels));
   }, [newModels]);
 
-  // Always initialize to DEFAULT_SLIDERS
-  const [sliders, setSliders] = useState(DEFAULT_SLIDERS);
+  // Always initialize to slidersProp
+  const [sliders, setSliders] = useState(slidersProp);
 
   // Changing a components key will remount the entire thing
   // Because the model's position is handled internally by aframe we need to remount it to reset its position
@@ -64,6 +65,41 @@ const COLOR_MAP = PropTypes.exact({
   name: PropTypes.string,
   path: PropTypes.string,
 });
+
+/**
+ * Array of two values between 0 and 1
+ * arr[0]: Minimum slider value
+ * arr[1]: Maximum slider value
+ */
+ const SLIDER = function (prop, key, componentName, location, propFullName) {
+  const slider = prop[key];
+
+  // Array length is exactly 2
+  if (slider.length !== 2) {
+    return new Error(
+      `Invalid prop '${propFullName}' supplied to '${componentName}'. ` +
+        `${propFullName} must be an array of length 2.`
+    );
+  }
+
+  // Minimum slider value must be <= maximum
+  if (slider[0] > slider[1]) {
+    return new Error(
+      `Invalid prop '${propFullName}' supplied to '${componentName}'. ` +
+        `${propFullName}[0] must be <= ${propFullName}[1].`
+    );
+  }
+
+  // Slider values must be between 0 and 1
+  for (let [idx, val] of slider.entries()) {
+    if (val < 0 || val > 1) {
+      return new Error(
+        `Invalid prop '${propFullName}' supplied to '${componentName}'. ` +
+          `slider[${idx}] must be between 0 and 1 (inclusive)`
+      );
+    }
+  }
+};
 
 /** The model to be displayed and it's related information */
 const MODEL = PropTypes.shape({
@@ -139,10 +175,18 @@ VolumeViewer.propTypes = {
 
   /** Array of models loaded into aframe REQUIRED */
   models: PropTypes.arrayOf(MODEL).isRequired,
+
+  /* Sliders for control of clipping along the x, y, and z axes */
+  sliders: PropTypes.exact({
+    x: SLIDER,
+    y: SLIDER,
+    z: SLIDER,
+  }),
 };
 
 VolumeViewer.defaultProps = {
   controlsVisible: false,
+  sliders: DEFAULT_SLIDERS,
 };
 
 export default VolumeViewer;
