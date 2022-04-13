@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { Range } from "rc-slider";
+// import { Range } from "rc-slider";
+import Slider from "rc-slider"
 import "rc-slider/assets/index.css";
 
 import Section from "../Section";
@@ -20,7 +21,8 @@ function ClipControls({ sliders, setSliders }) {
       {["x", "y", "z"].map((axis) => (
         <SliderGroup key={axis}>
           <Axis> {axis.toUpperCase()} Axis</Axis>
-          <Range
+          <Slider
+            range
             min={SLIDER_RANGE.min}
             max={SLIDER_RANGE.max}
             step={0.001}
