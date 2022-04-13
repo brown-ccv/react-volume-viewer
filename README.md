@@ -35,6 +35,13 @@ const COLOR_MAP = PropTypes.exact({
   path: PropTypes.string,
 });
 
+/**
+ * Array of exactly two values between 0 and 1. slider[0] must be <= slider[1]
+ *  slider[0]: Minimum slider value
+ *  slider[1]: Maximum slider value
+ */
+const SLIDER = /* Validation Function */
+
 VolumeViewer.propTypes = {
   /**
    * Array of color maps available in the controls.
@@ -100,6 +107,12 @@ VolumeViewer.propTypes = {
 
     /** Whether or not to apply a transfer function to the model */
     useTransferFunction: PropTypes.bool,
+  }).isRequired,
+
+  sliders: PropTypes.exact({
+    x: SLIDER,
+    y: SLIDER,
+    z: SLIDER,
   }),
 };
 ```
@@ -135,6 +148,11 @@ VolumeViewer.defaultProps = {
     ],
     useTransferFunction: true,
   }
+  sliders: {
+    x: [0, 1],
+    y: [0, 1],
+    z: [0, 1],
+  }
 };
 
 ```
@@ -146,6 +164,38 @@ The `ColorMaps` export is an object containing some default color maps that may 
 <img alt="grayscale" src="./src/images/grayscale.png" height="25"/>
 <img alt="natural" src="./src/images/natural.png" height="25"/>
 <img alt="rgb" src="./src/images/rgb.png" height="25"/>
+
+## DEFAULT_SLIDERS
+
+The `DEFAULT_SLIDERS` export is the default value for the `sliders` prop. It will be applied automatically if you do not pass `sliders` into `<VolumeViewer />`
+
+```js
+const SLIDER_RANGE = { min: 0, max: 1 };
+const DEFAULT_SLIDERS = {
+  x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+  y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+  z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
+};
+```
+
+## DEFAULT_MODEL
+
+The `DEFAULT_MODEL` export contains the default values for each property of the `model` prop. It is merged with the `model` prop you pass into `<VolumeViewer />`. Note that `model.colorMap` and `model.path` are not included as they are required props.
+
+```js
+const DEFAULT_MODEL = {
+  channel: 1,
+  intensity: 1.0,
+  position: "0 0 0",
+  range: { min: 0, max: 1, unit: "" },
+  rotation: "0 0 0",
+  scale: "1 1 1",
+  slices: 55,
+  spacing: { x: 2, y: 2, z: 1 },
+  transferFunction: DEFAULT_TRANSFER_FUNCTION,
+  useTransferFunction: true,
+};
+```
 
 ## Example
 
