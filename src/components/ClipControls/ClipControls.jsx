@@ -6,6 +6,8 @@ import "rc-slider/assets/index.css";
 import Section from "../Section";
 import { SLIDER_RANGE } from "../../constants";
 
+// Adds a mark at each end and the middle of the slider
+// " " prevents a label from being added below the slider
 const marks = {
   0: " ",
   0.5: " ",
