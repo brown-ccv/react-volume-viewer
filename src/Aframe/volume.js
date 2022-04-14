@@ -1,7 +1,6 @@
 import AFRAME, { THREE } from "aframe";
 
-import { Blending } from "../classes";
-import { DEFAULT_SLIDERS } from "../constants";
+import { Blending, DEFAULT_SLIDERS } from "../constants";
 import "./Shader.js";
 
 const {

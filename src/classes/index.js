@@ -2,23 +2,18 @@ import grayscale from "../images/grayscale.png";
 import natural from "../images/natural.png";
 import rgb from "../images/rgb.png";
 
-/**
- * Blending enum exposed to the user
- *  None: Don't apply any blending
- *  Add: Apply additive blending
- */
-class Blending {
-  static None = new Blending("None", 0);
-  static Add = new Blending("Add", 1);
+// class Blending {
+//   static None = new Blending("None", 0);
+//   static Add = new Blending("Add", 1);
 
-  constructor(name, blending) {
-    this.name = name;
-    this.blending = blending;
-  }
-  toString() {
-    return `Blending.${this.name}`;
-  }
-}
+//   constructor(name, blending) {
+//     this.name = name;
+//     this.blending = blending;
+//   }
+//   toString() {
+//     return `Blending.${this.name}`;
+//   }
+// }
 
 /**
  * Object containing the name and path to a color map image
@@ -156,4 +151,4 @@ class Model {
   }
 }
 
-export { ColorMap, Blending, Model, Point };
+export { ColorMap, Model, Point };

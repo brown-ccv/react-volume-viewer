@@ -25,7 +25,10 @@ CSS styling for the height must be provided and a custom width can be provided a
 ```jsx
 
 VolumeViewer.propTypes = {
-  /** Blending algorithm to apply between the models */
+  /** Blending algorithm to apply between the models
+   *    Blending.None: Don't apply blending
+   *    Blending.Add: Apply additive blending
+   */
   blending: PropTypes.instanceOf(Blending),
 
   /** Whether or not the controls can be seen */
@@ -114,7 +117,7 @@ VolumeViewer.defaultProps = {
 The default model is merged with every `model` in the `models` array. Note, however, that there is no default value for `colorMap`, `name`, or `path`. Each of these is required.
 
 ```js
-  Model.Default = {
+  {
     colorMaps: [],
     description: "",
     enabled: true,

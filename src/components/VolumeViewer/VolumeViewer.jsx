@@ -6,6 +6,7 @@ import Controls from "../Controls";
 import AframeScene from "../AframeScene";
 
 import {
+  Blending,
   DEFAULT_SLIDERS,
   DEFAULT_POSITION,
   DEFAULT_ROTATION,
@@ -18,7 +19,6 @@ import {
   validateSlider,
   validateVec3String,
 } from "../../utils";
-import { Blending } from "../../classes";
 
 function VolumeViewer({
   className,
@@ -84,8 +84,12 @@ const Wrapper = styled.div`
 `;
 
 VolumeViewer.propTypes = {
-  /** Blending algorithm to apply between the models */
-  blending: PropTypes.instanceOf(Blending),
+  /**
+   * Blending enum exposed to the user
+   *  None: Don't apply any blending
+   *  Add: Apply additive blending
+   */
+  blending: PropTypes.oneOf(Object.keys(Blending).map((key) => Blending[key])),
 
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
