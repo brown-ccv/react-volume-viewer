@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { VolumeViewer, COLOR_MAPS, Model } from "react-volume-viewer";
+import { VolumeViewer, COLOR_MAPS } from "react-volume-viewer";
 
 const salt = "./assets/models/summer-high-salt.png";
 const temp = "./assets/models/summer-high-temp.png";
@@ -23,7 +23,7 @@ function App() {
   // thermal.path = "thermal/path";
 
   const models = [
-    new Model({
+    {
       name: "Same",
       colorMap: colorMap,
       ...(!singleColorMap && { colorMaps: allColorMaps }),
@@ -40,8 +40,8 @@ function App() {
       ],
       useTransferFunction: useTransferFunction,
       useColorMap: useColorMap,
-    }),
-    new Model({
+    },
+    {
       name: "Opposite",
       colorMap: colorMap === haline ? thermal : haline,
       ...(!singleColorMap && { colorMaps: [haline, thermal] }),
@@ -54,7 +54,7 @@ function App() {
       path: modelPath === salt ? temp : salt,
       useTransferFunction: !useTransferFunction,
       useColorMap: !useColorMap,
-    }),
+    },
   ];
 
   const Buttons = (

@@ -35,7 +35,6 @@ VolumeViewer.propTypes = {
   controlsVisible: PropTypes.bool,
 
   /** Array of models loaded into aframe REQUIRED
-   *  Each MODEL is of class Model
    *    colorMap: Object containing the path to the current color image applied to the model.
    *      name: Common name of the color map
    *      path: Path to the color map source image
@@ -235,6 +234,26 @@ const DEFAULT_SLIDERS = {
   y: [0, 1],
   z: [0, 1],
 };
+```
+
+### DEFAULT_MODEL
+
+The `DEFAULT_MODEL` object contains default values for some properties of an individual model. These values are automatically merged with each object in the `models` prop passed in if any specific property is not given. Note that the `colorMap`, `name`, and `path` properties are not present as these are required properties.
+
+```js
+const DEFAULT_MODEL = {
+  colorMaps: [],
+  description: "",
+  enabled: true,
+  intensity: 1,
+  range: { min: 0, max: 1, unit: "" },
+  transferFunction: [
+    { x: 0, y: 0 },
+    { x: 1, y: 1 },
+  ],
+  useTransferFunction: true,
+  useColorMap: true,
+}
 ```
 
 ## Example

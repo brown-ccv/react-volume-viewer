@@ -35,13 +35,27 @@ const DEFAULT_SLIDERS = {
   y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
   z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
 };
+const DEFAULT_MODEL = {
+  colorMaps: [],
+  description: "",
+  enabled: true,
+  intensity: 1,
+  range: { min: 0, max: 1, unit: "" },
+  transferFunction: [
+    { x: 0, y: 0 },
+    { x: 1, y: 1 },
+  ],
+  useTransferFunction: true,
+  useColorMap: true,
+};
 
 export {
   Blending,
   COLOR_MAPS,
-  SLIDER_RANGE,
-  DEFAULT_SLIDERS,
   DEFAULT_POSITION,
   DEFAULT_ROTATION,
   DEFAULT_SCALE,
+  SLIDER_RANGE,
+  DEFAULT_SLIDERS,
+  DEFAULT_MODEL,
 };

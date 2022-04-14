@@ -11,11 +11,12 @@ import {
   DEFAULT_POSITION,
   DEFAULT_ROTATION,
   DEFAULT_SCALE,
+  DEFAULT_MODEL,
 } from "../../constants";
 import {
   useModelsPropMemo,
   validateInt,
-  validateModels,
+  validateModel,
   validateSlider,
   validateVec3String,
 } from "../../utils";
@@ -37,7 +38,15 @@ function VolumeViewer({
   const [models, setModels] = useState([]);
   const newModels = useModelsPropMemo(modelsProp);
   useEffect(() => {
-    setModels(newModels);
+    // Inject default model
+    setModels(
+      newModels.map((model) => ({
+        ...DEFAULT_MODEL,
+        ...model,
+        initTransferFunction:
+          model.transferFunction ?? DEFAULT_MODEL.transferFunction,
+      }))
+    );
   }, [newModels]);
 
   // Sliders apply clipping to the volume as a whole
@@ -95,7 +104,8 @@ VolumeViewer.propTypes = {
   controlsVisible: PropTypes.bool,
 
   /** Array of models loaded into aframe REQUIRED */
-  models: validateModels,
+  // models: validateModels,
+  models: PropTypes.arrayOf(validateModel).isRequired,
 
   /** Position of the dataset in the scene */
   position: validateVec3String,
