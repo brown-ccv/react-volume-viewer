@@ -1,26 +1,16 @@
-import grayscale from "../images/grayscale.png";
-import natural from "../images/natural.png";
-import rgb from "../images/rgb.png";
+// class ColorMap {
+//   static Grayscale = new ColorMap("Grayscale", grayscale);
+//   static Natural = new ColorMap("Natural", natural);
+//   static Rgb = new ColorMap("RGB", rgb);
 
-/**
- * Object containing the name and path to a color map image
- * Grayscale, Natural, and Rgb are defaults
- *  name: Common name of the color map
- *  path: Path to the color map source image
- */
-class ColorMap {
-  static Grayscale = new ColorMap("Grayscale", grayscale);
-  static Natural = new ColorMap("Natural", natural);
-  static Rgb = new ColorMap("RGB", rgb);
-
-  constructor(name, path) {
-    this.name = name;
-    this.path = path;
-  }
-  toString() {
-    return `ColorMaps.${this.name}: ${this.path}`;
-  }
-}
+//   constructor(name, path) {
+//     this.name = name;
+//     this.path = path;
+//   }
+//   toString() {
+//     return `ColorMaps.${this.name}: ${this.path}`;
+//   }
+// }
 
 /**
  * Object containing information about a single model
@@ -126,4 +116,4 @@ class Model {
   }
 }
 
-export { ColorMap, Model };
+export { Model };

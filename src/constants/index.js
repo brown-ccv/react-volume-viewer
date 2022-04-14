@@ -1,8 +1,10 @@
-import { ColorMap } from "../classes";
+import grayscale from "../images/grayscale.png";
+import natural from "../images/natural.png";
+import rgb from "../images/rgb.png";
 
-const SLIDER_RANGE = { min: 0, max: 1 };
+// TODO: Use Typescript to create custom types (Blending, ColorMap, Model, Point)
 
-// TODO: Use Typescript to create custom types
+/** ENUM */
 
 /**
  * Blending enum exposed to the user
@@ -14,13 +16,20 @@ const Blending = {
   Add: 1,
 };
 
-/** DEFAULT VALUES */
+/** EXAMPLES */
 
-const DEFAULT_COLOR_MAPS = [ColorMap.Grayscale, ColorMap.Natural, ColorMap.Rgb];
+const COLOR_MAPS = {
+  Grayscale: { name: "Grayscale", path: grayscale },
+  Natural: { name: "Natural", path: natural },
+  Rgb: { name: "Rgb", path: rgb },
+};
+
+/** DEFAULT VALUES */
 
 const DEFAULT_POSITION = "0 0 0";
 const DEFAULT_ROTATION = "0 0 0";
 const DEFAULT_SCALE = "1 1 1";
+const SLIDER_RANGE = { min: 0, max: 1 };
 const DEFAULT_SLIDERS = {
   x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
   y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
@@ -29,7 +38,7 @@ const DEFAULT_SLIDERS = {
 
 export {
   Blending,
-  DEFAULT_COLOR_MAPS,
+  COLOR_MAPS,
   SLIDER_RANGE,
   DEFAULT_SLIDERS,
   DEFAULT_POSITION,

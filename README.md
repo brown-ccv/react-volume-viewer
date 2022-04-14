@@ -36,8 +36,9 @@ VolumeViewer.propTypes = {
 
   /** Array of models loaded into aframe REQUIRED
    *  Each MODEL is of class Model
-   *    colorMap: The color map applied to the model.
-   *      colorMap is an instance of ColorMap
+   *    colorMap: Object containing the path to the current color image applied to the model.
+   *      name: Common name of the color map
+   *      path: Path to the color map source image
    *    colorMaps: Array of possible color maps for the model
    *      colorMap must be present in colorMaps
    *      Each colorMap must have a unique name in colorMaps
@@ -140,44 +141,10 @@ The default model is merged with every `model` in the `models` array. Note, howe
 The `Blending` class is used as an enum for the different algorithms that can be used to blending the models together. `Blending.None` does not apply any blending. `Blending.Add` applies additive blending. Currently only `Blending.None` is implemented.
 
 ```js
-class Blending {
-  static None = new Blending("None", 0);
-  static Add = new Blending("Add", 1);
-
-  constructor(name, blending) {
-    this.name = name;
-    this.blending = blending;
-  }
-}
-```
-
-## Point
-
-The `Point` class creates a simple (x, y) coordinate. It is validated to a coordinate space from (0, 0) to (1,1) inclusive.
-
-```js
-class Point {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-  }
-  toString() {
-    return `Point: {x: ${this.x}, y: ${this.y}}`;
-  }
-  validate() {
-    if (this.x < 0 || this.x > 1)
-      throw new Error(
-        `Error: Point.x in ${this.toString()} out of range. ` +
-          `Coordinates must be between 0 and 1 (inclusive)`
-      );
-
-    if (this.y < 0 || this.y > 1)
-      throw new Error(
-        `Error: Point.y in ${this.toString()} out of range. ` +
-          `Coordinates must be between 0 and 1 (inclusive)`
-      );
-  }
-}
+const Blending = {
+  None: 0,
+  Add: 1,
+};
 ```
 
 ### Model
@@ -242,42 +209,27 @@ class Model {
 }
 ```
 
-### ColorMap
+### COLOR_MAPS
 
-`ColorMap` is the class used to pass color map images into the component. It contains some default color maps that may be useful for your project. There is a grayscale, natural, and rgb color map:
+`COLOR_MAPS` is an object containing some example colormaps. Any/all of the color maps can be imported into your project and passed into `model.colorMaps` array for any individual model.
 
 <img alt="grayscale" src="./src/images/grayscale.png" height="25"/>
 <img alt="natural" src="./src/images/natural.png" height="25"/>
 <img alt="rgb" src="./src/images/rgb.png" height="25"/>
 
 ```js
-class ColorMap {
-  static Grayscale = new ColorMap("Grayscale", grayscale)
-  static Natural = new ColorMap("Natural", natural)
-  static Rgb = new ColorMap("RGB", rgb)
-  static all = [this.Grayscale, this.Natural, this.Rgb]
-
-  constructor(name, path) {
-    this.name = name;
-    this.path = path;
-  }
+const COLOR_MAPS = {
+  Grayscale: {name: "Grayscale", path: grayscale},
+  Natural: {name: "Natural", path: natural},
+  Rgb: {name: "Rgb", path: rgb},
 }
-```
-
-### DEFAULT_COLOR_MAPS
-
-`DEFAULT_COLOR_MAPS` is an array of three example color maps. It can be imported into your project and passed into `model.colorMaps` for any individual model. Note that they can also be accessed through the ColorMap class directly.
-
-```js
-const DEFAULT_COLOR_MAPS = [ColorMap.Grayscale, ColorMap.Natural, ColorMap.Rgb];
 ```
 
 ### DEFAULT_SLIDERS
 
-The `DEFAULT_SLIDERS` export is the default value for the `sliders` prop. It will be applied automatically if you do not pass `sliders` into `<VolumeViewer />`
+The `DEFAULT_SLIDERS` export is the default value for the `sliders` prop. It will be applied automatically if you do not pass `sliders` into `<VolumeViewer />`.
 
 ```js
-const SLIDER_RANGE = { min: 0, max: 1 };
 const DEFAULT_SLIDERS = {
   x: [0, 1],
   y: [0, 1],

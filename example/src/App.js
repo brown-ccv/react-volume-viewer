@@ -1,17 +1,13 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import {
-  VolumeViewer,
-  ColorMap,
-  DEFAULT_COLOR_MAPS,
-  Model,
-} from "react-volume-viewer";
+import { VolumeViewer, COLOR_MAPS, Model } from "react-volume-viewer";
 
 const salt = "./assets/models/summer-high-salt.png";
 const temp = "./assets/models/summer-high-temp.png";
-const haline = new ColorMap("Haline", "./assets/colormaps/haline.png");
-const thermal = new ColorMap("Thermal", "./assets/colormaps/thermal.png");
-const allColorMaps = [haline, thermal, ...DEFAULT_COLOR_MAPS];
+const haline = { name: "Haline", path: "./assets/colormaps/haline.png" };
+const thermal = { name: "Thermal", path: "./assets/colormaps/thermal.png" };
+
+const allColorMaps = [haline, thermal, ...Object.values(COLOR_MAPS)];
 
 function App() {
   const [colorMap, setColorMap] = useState(haline);
