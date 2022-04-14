@@ -85,89 +85,94 @@ function validateSlider(prop, key, componentName, location, propFullName) {
 
 // Custom validation function for a single model
 const validateModel = function (
-  prop,
-  key,
+  models,
+  idx,
   componentName,
   location,
   propFullName
 ) {
+  const model = models[idx];
+
   // Each model must have a unique name
   const modelNames = new Set();
-  for (const model of prop) {
+  for (const model of models) {
     if (modelNames.has(model.name))
       return new Error(
         `Invalid prop '${propFullName}' supplied to '${componentName}'. ` +
-          `Name '${model.name}' is not unique in '${prop}'.`
+          `Name '${model.name}' is not unique in '${models}'.`
       );
     else modelNames.add(model.name);
   }
 
-  let model = prop[key];
-  console.log(prop, key, componentName, location, propFullName, model);
+  try {
+    // TODO validateColorMap for colorMap
 
-  // TODO: Validate colorMap schema for colorMap and every color map in colorMaps
-  // TODO: Inject default values
+    // TODO: Seperate function validateColorMaps
+    // TODO: validateColorMap for every colorMap in colorMaps
+    const colorMapNames = new Set();
+    model.colorMaps.forEach((colorMap) => {
+      if (colorMapNames.has(colorMap.name))
+        throw new Error(
+          "Color map name '" +
+            colorMap.name +
+            "' is not unique on model '" +
+            model.name +
+            "'"
+        );
+      else colorMapNames.add(colorMap.name);
+    });
 
-  //     // Color map names in colorMaps must be unique
-  //     const colorMapNames = new Set();
-  //     this.colorMaps.forEach((colorMap) => {
-  //       if (colorMapNames.has(colorMap.name))
-  //         throw new Error(
-  //           "Color map name '" +
-  //             colorMap.name +
-  //             "' is not unique on model '" +
-  //             this.name +
-  //             "'"
-  //         );
-  //       else colorMapNames.add(colorMap.name);
-  //
+    // Validate coordinates in transferFunction
+    // TODO: Separate function validateTransferFunction
+    // TODO: If no transferFunction?
+    model.transferFunction.forEach((point) => {
+      if (point.x === undefined || point.x < 0 || point.x > 1)
+        throw new Error(
+          `Error: ${point.x} in ${point} out of range. ` +
+            `x coordinate must be between 0 and 1 (inclusive)`
+        );
 
-  //       // Validate coordinates in transferFunction
-  //       this.transferFunction.forEach((point) => {
-  //         if (point.x === undefined || point.x < 0 || point.x > 1)
-  //           throw new Error(
-  //             `Error: ${point.x} in ${point} out of range. ` +
-  //               `x coordinate must be between 0 and 1 (inclusive)`
-  //           );
-
-  //         if (point.y === undefined || point.y < 0 || point.y > 1)
-  //           throw new Error(
-  //             `Error: ${point.y} in ${point} out of range. ` +
-  //               `y coordinate must be between 0 and 1 (inclusive)`
-  //           );
-  //       });
-  //     });
-  //   }
-  // }
+      if (point.y === undefined || point.y < 0 || point.y > 1)
+        throw new Error(
+          `Error: ${point.y} in ${point} out of range. ` +
+            `y coordinate must be between 0 and 1 (inclusive)`
+        );
+    });
+  } catch (error) {
+    return new Error(
+      `Invalid prop '${propFullName}' supplied to '${componentName}'. ` +
+        error.message
+    );
+  }
 };
 
 // Custom validation function for the 'models' prop
-const validateModels = function (props, propName, componentName) {
-  const models = props[propName];
+// const validateModels = function (props, propName, componentName) {
+//   const models = props[propName];
 
-  const modelNames = new Set();
-  for (const [idx, model] of models.entries()) {
-    // The model's name must be unique
-    if (modelNames.has(model.name))
-      return new Error(
-        `Invalid prop '${propName}[${idx}].name' supplied to '${componentName}'. ` +
-          `Name '${model.name}' is not unique in '${propName}'.`
-      );
-    else modelNames.add(model.name);
+//   const modelNames = new Set();
+//   for (const [idx, model] of models.entries()) {
+//     // The model's name must be unique
+//     if (modelNames.has(model.name))
+//       return new Error(
+//         `Invalid prop '${propName}[${idx}].name' supplied to '${componentName}'. ` +
+//           `Name '${model.name}' is not unique in '${propName}'.`
+//       );
+//     else modelNames.add(model.name);
 
-    // PropTypes wants errors to be returned, not thrown
-    try {
-      // model.validate();
-      validateModel(model);
-    } catch (error) {
-      return new Error(
-        `Invalid prop '${propName}[${idx}]' supplied to '${componentName}'. ` +
-          error.message
-      );
-    }
-  }
-  return;
-};
+//     // PropTypes wants errors to be returned, not thrown
+//     try {
+//       // model.validate();
+//       validateModel(model);
+//     } catch (error) {
+//       return new Error(
+//         `Invalid prop '${propName}[${idx}]' supplied to '${componentName}'. ` +
+//           error.message
+//       );
+//     }
+//   }
+//   return;
+// };
 
 // Custom useMemo hook for models
 function useModelsPropMemo(models) {
