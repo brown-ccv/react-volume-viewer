@@ -23,33 +23,6 @@ class ColorMap {
 }
 
 /**
- * (x, y) coordinates for the transfer function.
- * Values must be between 0 and 1
- */
-// class Point {
-//   constructor(x, y) {
-//     this.x = x;
-//     this.y = y;
-//   }
-//   toString() {
-//     return `Point: {x: ${this.x}, y: ${this.y}}`;
-//   }
-//   validate() {
-//     if (this.x < 0 || this.x > 1)
-//       throw new Error(
-//         `Error: Point.x in ${this.toString()} out of range. ` +
-//           `Coordinates must be between 0 and 1 (inclusive)`
-//       );
-
-//     if (this.y < 0 || this.y > 1)
-//       throw new Error(
-//         `Error: Point.y in ${this.toString()} out of range. ` +
-//           `Coordinates must be between 0 and 1 (inclusive)`
-//       );
-//   }
-// }
-
-/**
  * Object containing information about a single model
  *  colorMap: The color map applied to the model.
  *  colorMaps: Array of possible color maps for the model
@@ -135,7 +108,7 @@ class Model {
         );
       else colorMapNames.add(colorMap.name);
 
-      // Validate points along the transferFunction
+      // Validate coordinates in transferFunction
       this.transferFunction.forEach((point) => {
         if (point.x === undefined || point.x < 0 || point.x > 1)
           throw new Error(

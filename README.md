@@ -48,9 +48,9 @@ VolumeViewer.propTypes = {
    *    path: Path to the model
    *    range: Minimum and maximum values of the model's dataset
    *    transferFunction: The transfer function applied to the color map
-   *      transferFunction is an array of Point classes
-   *      Each point in transferFunction must be between (0, 0) and (1,1)
-   *    initTransferFunction: Initial value of transfer function applied to the color map
+   *      transferFunction is an array of {x: [val], y: [val]} coordinates.
+   *      Each coordinate in transferFunction must be between (0, 0) and (1,1)
+   *    initTransferFunction: Initial value of transferFunction passed to the component
    *    useTransferFunction: Flag to apply a transfer function to the model
    *    useColorMap: Flag to apply a color map to the model
    */
