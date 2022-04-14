@@ -3,7 +3,6 @@ import styled from "styled-components";
 import {
   VolumeViewer,
   ColorMap,
-  Point,
   DEFAULT_COLOR_MAPS,
   Model,
 } from "react-volume-viewer";
@@ -38,7 +37,11 @@ function App() {
         max: 33.71,
       },
       path: modelPath,
-      transferFunction: [new Point(0, 0), new Point(0.5, 0.5), new Point(1, 1)],
+      transferFunction: [
+        { x: 0, y: 0 },
+        { x: 0.5, y: 0.5 },
+        { x: 1, y: 1 },
+      ],
       useTransferFunction: useTransferFunction,
       useColorMap: useColorMap,
     }),

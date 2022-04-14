@@ -2,19 +2,6 @@ import grayscale from "../images/grayscale.png";
 import natural from "../images/natural.png";
 import rgb from "../images/rgb.png";
 
-// class Blending {
-//   static None = new Blending("None", 0);
-//   static Add = new Blending("Add", 1);
-
-//   constructor(name, blending) {
-//     this.name = name;
-//     this.blending = blending;
-//   }
-//   toString() {
-//     return `Blending.${this.name}`;
-//   }
-// }
-
 /**
  * Object containing the name and path to a color map image
  * Grayscale, Natural, and Rgb are defaults
@@ -39,28 +26,28 @@ class ColorMap {
  * (x, y) coordinates for the transfer function.
  * Values must be between 0 and 1
  */
-class Point {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-  }
-  toString() {
-    return `Point: {x: ${this.x}, y: ${this.y}}`;
-  }
-  validate() {
-    if (this.x < 0 || this.x > 1)
-      throw new Error(
-        `Error: Point.x in ${this.toString()} out of range. ` +
-          `Coordinates must be between 0 and 1 (inclusive)`
-      );
+// class Point {
+//   constructor(x, y) {
+//     this.x = x;
+//     this.y = y;
+//   }
+//   toString() {
+//     return `Point: {x: ${this.x}, y: ${this.y}}`;
+//   }
+//   validate() {
+//     if (this.x < 0 || this.x > 1)
+//       throw new Error(
+//         `Error: Point.x in ${this.toString()} out of range. ` +
+//           `Coordinates must be between 0 and 1 (inclusive)`
+//       );
 
-    if (this.y < 0 || this.y > 1)
-      throw new Error(
-        `Error: Point.y in ${this.toString()} out of range. ` +
-          `Coordinates must be between 0 and 1 (inclusive)`
-      );
-  }
-}
+//     if (this.y < 0 || this.y > 1)
+//       throw new Error(
+//         `Error: Point.y in ${this.toString()} out of range. ` +
+//           `Coordinates must be between 0 and 1 (inclusive)`
+//       );
+//   }
+// }
 
 /**
  * Object containing information about a single model
@@ -85,7 +72,10 @@ class Model {
     enabled: true,
     intensity: 1,
     range: { min: 0, max: 1, unit: "" },
-    transferFunction: [new Point(0, 0), new Point(1, 1)],
+    transferFunction: [
+      { x: 0, y: 0 },
+      { x: 1, y: 1 },
+    ],
     useTransferFunction: true,
     useColorMap: true,
   });
@@ -121,9 +111,6 @@ class Model {
     return `Model.${this.name}: ${this.path}`;
   }
   validate() {
-    // Validate points along the transferFunction
-    this.transferFunction.forEach((point) => point.validate());
-
     if (!this.colorMaps.includes(this.colorMap))
       throw new Error("Color Map '" + this.colorMap + "' not in colorMaps");
 
@@ -147,8 +134,23 @@ class Model {
             "'"
         );
       else colorMapNames.add(colorMap.name);
+
+      // Validate points along the transferFunction
+      this.transferFunction.forEach((point) => {
+        if (point.x === undefined || point.x < 0 || point.x > 1)
+          throw new Error(
+            `Error: ${point.x} in ${point} out of range. ` +
+              `x coordinate must be between 0 and 1 (inclusive)`
+          );
+
+        if (point.y === undefined || point.y < 0 || point.y > 1)
+          throw new Error(
+            `Error: ${point.y} in ${point} out of range. ` +
+              `y coordinate must be between 0 and 1 (inclusive)`
+          );
+      });
     });
   }
 }
 
-export { ColorMap, Model, Point };
+export { ColorMap, Model };
