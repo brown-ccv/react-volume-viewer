@@ -84,7 +84,7 @@ const COLOR_MAP = PropTypes.exact({
  * arr[0]: Minimum slider value
  * arr[1]: Maximum slider value
  */
- const SLIDER = function (prop, key, componentName, location, propFullName) {
+const SLIDER = function (prop, key, componentName, location, propFullName) {
   const slider = prop[key];
 
   // Array length is exactly 2
@@ -189,12 +189,12 @@ VolumeViewer.propTypes = {
   /** Scale of the dataset in the scene */
   scale: PropTypes.string,
 
-    /* Sliders for control of clipping along the x, y, and z axes */
-    sliders: PropTypes.exact({
-      x: SLIDER,
-      y: SLIDER,
-      z: SLIDER,
-    }),
+  /* Sliders for control of clipping along the x, y, and z axes */
+  sliders: PropTypes.exact({
+    x: SLIDER,
+    y: SLIDER,
+    z: SLIDER,
+  }),
 };
 
 VolumeViewer.defaultProps = {
