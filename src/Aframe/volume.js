@@ -74,7 +74,7 @@ AFRAME.registerComponent("volume", {
     console.log("DIFF", deepDifference(oldData, data));
 
     if (!isEqual(oldData.models, data.models)) {
-      console.log("UPDATE MODELS", isEqual(oldData.models, data.models));
+      // Changes to blending, slices, and spacing not handled yet
       let uniform;
 
       // Asynchronously loop through the data.models array
