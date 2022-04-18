@@ -101,7 +101,6 @@ function getAframeModels(models) {
     /* colorMap.path is either a png encoded string or the path to a png
       png encoded strings begin with data:image/png;64
       Remove ; to parse into aframe correctly (re-injected in model.js)
-      TODO: Do colorMaps need to be a png?
     */
     model.colorMap = {
       name: model.colorMap.name,
@@ -113,7 +112,6 @@ function getAframeModels(models) {
   return JSON.stringify(models);
 }
 
-// TODO: Just use lodash?
 // Recursively find the differences between two objects
 function deepDifference(oldObj, newObj) {
   const changes = (newObj, oldObj) => {

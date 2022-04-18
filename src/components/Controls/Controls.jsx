@@ -70,7 +70,6 @@ const Wrapper = styled(Tabs)`
   display: ${(props) => (props.$visible ? "initial" : "none")};
 `;
 
-// TODO: Cleaner way than just the scrollbar
 const StyledTabList = styled(TabList)`
   overflow: auto;
 `;

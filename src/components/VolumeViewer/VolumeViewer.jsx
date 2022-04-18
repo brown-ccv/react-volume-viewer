@@ -30,7 +30,6 @@ function VolumeViewer({
   }, [newModels]);
 
   // Always initialize to DEFAULT_SLIDERS
-  // TODO: Pass sliders as a prop
   const [sliders, setSliders] = useState(DEFAULT_SLIDERS);
 
   // Changing a components key will remount the entire thing
@@ -145,8 +144,6 @@ VolumeViewer.propTypes = {
 
   /** Array of models loaded into aframe REQUIRED */
   models: PropTypes.arrayOf(MODEL).isRequired,
-
-  // TODO CUSTOM STRING VALIDATION ON position, rotation, scale
 
   /** Position of the dataset in the scene */
   position: PropTypes.string,

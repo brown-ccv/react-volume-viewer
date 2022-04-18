@@ -73,7 +73,6 @@ function AframeScene({ models, position, rotation, scale, sliders }) {
         arcball-camera="initialPosition: 0 0 1;"
       />
 
-      {/* TODO: Replace with better error message */}
       {errors.length && (
         <Error>
           <ul>

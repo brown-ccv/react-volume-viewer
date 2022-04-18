@@ -66,7 +66,6 @@ AFRAME.registerComponent("volume", {
 
     console.log("DIFF", deepDifference(oldData, data));
 
-    // TODO: Only change this.modelsData based on difference between oldData and this.data
     if (!isEqual(oldData.models, data.models)) {
       console.log("UPDATE MODELS", isEqual(oldData.models, data.models));
       let uniform;
@@ -124,8 +123,6 @@ AFRAME.registerComponent("volume", {
 
   tick: function (time, timeDelta) {
     // Position is controlled by controllerObject in VR
-    // TODO: These updates should be event listeners?
-    // TODO: grabbed, triggerDown, and rayCollided are all booleans form event listeners
     if (this.controllerObject && this.scene.is("vr-mode")) {
       const mesh = this.getMesh();
       const triggerDown =
@@ -173,7 +170,6 @@ AFRAME.registerComponent("volume", {
     }
   },
 
-  // TODO: onCollide is called once at runtime and is always true
   onCollide: function (event) {
     this.rayCollided = true;
   },
@@ -325,7 +321,6 @@ AFRAME.registerComponent("volume", {
     });
     console.log("MODELS LOADED", this.uniforms);
 
-    // TODO: Compare difference between oldMaterial, create new one
     // model.enabled does does nothing right now because we always select the first one.
     this.getMesh().material =
       this.uniforms.size > 0
@@ -339,7 +334,7 @@ AFRAME.registerComponent("volume", {
   },
 
   updateMeshClipMatrix: function () {
-    // TODO: This is handled in the vertex-shader?
+    console.log("updateMeshClipMatrix")
     const mesh = this.getMesh();
     const uniforms = mesh.material.uniforms;
 
