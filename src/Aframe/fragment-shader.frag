@@ -4,7 +4,7 @@
 precision mediump float;
 uniform vec3 box_min;       // Clip minimum
 uniform vec3 box_max;       // Clip maximum
-uniform int channel;
+uniform int blending;
 uniform bool clipping;
 uniform mat4 clipPlane;
 uniform float dim;
@@ -121,11 +121,11 @@ void main() {
     
 
         vec4 volumeSample = sampleAs3DTexture(u_data, data_position);
-        if (channel == 1) volumeSample = volumeSample.rrrr;
-        else if (channel == 2) volumeSample = volumeSample.gggg;
-        else if (channel == 3) volumeSample = volumeSample.bbbb;
-        else if (channel == 4) volumeSample = volumeSample.aaaa;
-        else if (channel == 5) volumeSample = volumeSample;
+        if (blending == 1) volumeSample = volumeSample.rrrr;
+        else if (blending == 2) volumeSample = volumeSample.gggg;
+        else if (blending == 3) volumeSample = volumeSample.bbbb;
+        else if (blending == 4) volumeSample = volumeSample.aaaa;
+        else if (blending == 5) volumeSample = volumeSample;
         else { 
             // Dont have an alpha from the datasets, initialize as the max of the 3 channels
             volumeSample.a = max(volumeSample.r, max(volumeSample.g, volumeSample.b));
