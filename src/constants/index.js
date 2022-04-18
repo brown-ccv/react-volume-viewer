@@ -6,7 +6,9 @@ import rgb from "../images/rgb.png";
 import vertexShader from "../Aframe/vertex-shader.vert";
 import fragmentShader from "../Aframe/fragment-shader.frag";
 
-/** ENUM */
+const { BackSide, Vector2, Vector3, Matrix4 } = THREE;
+
+/** ENUM and EXAMPLES */
 
 /**
  * Blending enum exposed to the user
@@ -17,8 +19,6 @@ const Blending = {
   None: 0,
   Add: 1,
 };
-
-/** EXAMPLES */
 
 const COLOR_MAPS = {
   Grayscale: { name: "Grayscale", path: grayscale },
@@ -52,10 +52,6 @@ const DEFAULT_MODEL = {
   useColorMap: true,
 };
 
-/** AFRAME Constants */
-
-const { BackSide, Vector2, Vector3, Matrix4 } = THREE;
-
 const DEFAULT_MATERIAL = {
   uniforms: {
     blending: { value: 0 },
@@ -85,8 +81,8 @@ export {
   DEFAULT_POSITION,
   DEFAULT_ROTATION,
   DEFAULT_SCALE,
-  DEFAULT_MATERIAL,
   SLIDER_RANGE,
   DEFAULT_SLIDERS,
   DEFAULT_MODEL,
+  DEFAULT_MATERIAL,
 };

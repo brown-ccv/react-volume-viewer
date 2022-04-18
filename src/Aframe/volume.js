@@ -69,14 +69,11 @@ AFRAME.registerComponent("volume", {
   },
 
   update: function (oldData) {
-    const { data, usedModels, usedColorMaps } = this; // Extract read-only data
-
+    const { data, usedModels, usedColorMaps } = this;
     console.log("DIFF", deepDifference(oldData, data));
 
+    // Update model uniforms
     if (!isEqual(oldData.models, data.models)) {
-      // Changes to blending, slices, and spacing not handled yet
-      let uniform;
-
       // Asynchronously loop through the data.models array
       // Each element runs serially and this.updateMaterial waits for all of the promises to finish
       Promise.allSettled(
@@ -97,9 +94,11 @@ AFRAME.registerComponent("volume", {
               transferFunction
             );
 
-            // Build and return the uniform
-            uniform = this.buildUniform(model, texture, transferTexture);
-            this.uniforms.set(model.name, uniform);
+            // Build the uniform
+            this.uniforms.set(
+              model.name,
+              this.buildUniform(model, texture, transferTexture)
+            );
           } catch (error) {
             throw new Error("Failed to load model '" + name + "'", {
               cause: error,
@@ -122,10 +121,11 @@ AFRAME.registerComponent("volume", {
       });
     }
 
-    if (!isEqual(oldData.sliders, data.sliders)) {
-      console.log("UPDATE SLIDERS", data.sliders);
-      this.updateClipping();
-    }
+    // Update other uniforms
+    if (!isEqual(oldData.blending, data.blending)) this.updateBlending();
+    if (!isEqual(oldData.slices, data.slices)) this.updateSlices();
+    if (!isEqual(oldData.spacing, data.spacing)) this.updateSpacing();
+    if (!isEqual(oldData.sliders, data.sliders)) this.updateClipping();
   },
 
   tick: function (time, timeDelta) {
@@ -271,8 +271,6 @@ AFRAME.registerComponent("volume", {
   // Build THREE RawShaderMaterial from model and color map
   buildUniform: function (model, texture, transferTexture) {
     const { intensity, useTransferFunction } = model;
-    const { blending, slices, spacing } = this.data;
-
     const uniforms = UniformsUtils.clone(DEFAULT_MATERIAL.uniforms);
 
     // Resize viewport to scene
@@ -281,30 +279,58 @@ AFRAME.registerComponent("volume", {
       this.scene.canvas.height
     );
 
-    // Calculate uniforms for the texture's dimensions and scale
-    const dim = Math.ceil(Math.sqrt(slices));
-    const volumeScale = new Vector3(
-      1.0 / ((texture.image.width / dim) * spacing.x),
-      1.0 / ((texture.image.height / dim) * spacing.y),
-      1.0 / (slices * spacing.z)
-    );
-    uniforms.slices.value = slices;
-    uniforms.dim.value = dim;
-    uniforms.zScale.value = volumeScale.x / volumeScale.z;
-
-    uniforms.blending.value = blending.blending;
+    // Apply model properties
     uniforms.intensity.value = intensity;
-
     uniforms.useLut.value = useTransferFunction;
-
-    // THESE ARE THE BIG ONES
     uniforms.u_data.value = texture; // Model data
     uniforms.u_lut.value = transferTexture; // Color Map + transfer function
 
-    // Sliders are updated separately
-    uniforms.box_min.value = this.getMesh().material.uniforms.box_min.value;
-    uniforms.box_max.value = this.getMesh().material.uniforms.box_max.value;
+    // blending, sliders, slices, and spacing are updated separately
+    const otherUniforms = this.getMesh().material.uniforms;
+    uniforms.blending.value = otherUniforms.blending.value;
+    uniforms.box_min.value = otherUniforms.box_min.value;
+    uniforms.box_max.value = otherUniforms.box_max.value;
+    uniforms.slices.value = otherUniforms.slices.value;
+    uniforms.dim.value = otherUniforms.dim.value;
+    uniforms.zScale.value = otherUniforms.zScale.value;
     return uniforms;
+  },
+
+  updateBlending: function () {
+    const { blending } = this.data;
+    const uniforms = this.getMesh().material.uniforms;
+    uniforms.blending.value = blending.blending;
+  },
+
+  updateSlices: function () {
+    const { slices } = this.data;
+    const uniforms = this.getMesh().material.uniforms;
+
+    uniforms.slices.value = slices;
+    uniforms.dim.value = Math.ceil(Math.sqrt(slices));
+  },
+
+  updateSpacing: function () {
+    const { spacing } = this.data;
+    const uniforms = this.getMesh().material.uniforms;
+    const texture = uniforms.u_data.value; // Image
+    const dim = uniforms.dim.value;
+    const slices = uniforms.slices.value;
+
+    const volumeScale = texture
+      ? // Scale is based on the texture's size
+        new Vector3(
+          1.0 / ((texture.image.width / dim) * spacing.x),
+          1.0 / ((texture.image.height / dim) * spacing.y),
+          1.0 / (slices * spacing.z)
+        )
+      : // Texture hasn't been loaded yet
+        new Vector3(
+          1.0 / ((0 / dim) * spacing.x),
+          1.0 / ((0 / dim) * spacing.y),
+          1.0 / (slices * spacing.z)
+        );
+    uniforms.zScale.value = volumeScale.x / volumeScale.z;
   },
 
   // Update clipping uniforms from sliders (reset if !activateClipPlane)
@@ -338,10 +364,11 @@ AFRAME.registerComponent("volume", {
           })
         : // No models - use default material
           new RawShaderMaterial(DEFAULT_MATERIAL);
+
+    this.updateSpacing(); // Update spacing based on the new material
   },
 
   updateMeshClipMatrix: function () {
-    console.log("updateMeshClipMatrix");
     const mesh = this.getMesh();
     const uniforms = mesh.material.uniforms;
 
