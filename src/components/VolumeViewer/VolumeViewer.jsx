@@ -6,31 +6,51 @@ import Controls from "../Controls";
 import AframeScene from "../AframeScene";
 
 import {
+  Blending,
   DEFAULT_SLIDERS,
   DEFAULT_POSITION,
   DEFAULT_ROTATION,
   DEFAULT_SCALE,
+  DEFAULT_MODEL,
 } from "../../constants";
-import { buildModels, useModelsPropMemo } from "../../utils";
+import {
+  useModelsPropMemo,
+  validateInt,
+  validateModel,
+  validateSlider,
+  validateVec3String,
+} from "../../utils";
 
 function VolumeViewer({
   className,
   style,
+  blending,
   controlsVisible,
   models: modelsProp,
   position,
   rotation,
   scale,
+  slices,
+  spacing,
+  sliders: slidersProp,
 }) {
   // Control the models in state; override on modelsProp change
   const [models, setModels] = useState([]);
   const newModels = useModelsPropMemo(modelsProp);
   useEffect(() => {
-    setModels(buildModels(newModels));
+    // Inject default model
+    setModels(
+      newModels.map((model) => ({
+        ...DEFAULT_MODEL,
+        ...model,
+        initTransferFunction:
+          model.transferFunction ?? DEFAULT_MODEL.transferFunction,
+      }))
+    );
   }, [newModels]);
 
-  // Always initialize to DEFAULT_SLIDERS
-  const [sliders, setSliders] = useState(DEFAULT_SLIDERS);
+  // Sliders apply clipping to the volume as a whole
+  const [sliders, setSliders] = useState(slidersProp);
 
   // Changing a components key will remount the entire thing
   // Because the model's position is handled internally by aframe we need to remount it to reset its position
@@ -39,10 +59,13 @@ function VolumeViewer({
   return (
     <Wrapper key={remountKey} className={className} style={style}>
       <AframeScene
+        blending={blending}
         models={models}
         position={position}
         rotation={rotation}
         scale={scale}
+        slices={slices}
+        spacing={spacing}
         sliders={sliders}
       />
 
@@ -53,7 +76,7 @@ function VolumeViewer({
         setModels={setModels}
         setSliders={setSliders}
         reset={() => {
-          setModels(buildModels(modelsProp));
+          setModels(newModels);
           setSliders(DEFAULT_SLIDERS);
           setRemountKey(Math.random());
         }}
@@ -69,97 +92,55 @@ const Wrapper = styled.div`
   height: 100%;
 `;
 
-/**
- * Object containing the name and path to a color map image
- *  name: Common name of the color map
- *  path: Path to the color map source image
- */
-const COLOR_MAP = PropTypes.exact({
-  name: PropTypes.string,
-  path: PropTypes.string,
-});
-
-/** The model to be displayed and it's related information */
-const MODEL = PropTypes.shape({
-  /**
-   * The current color map applied to the model
-   * The colorMap must be present in the colorMaps array
-   * REQUIRED
-   */
-  colorMap: COLOR_MAP.isRequired,
-
-  /** Array of color maps available in the controls. */
-  colorMaps: PropTypes.arrayOf(COLOR_MAP),
-
-  /** Channel to load data from (R:1, G:2, B:3)*/
-  channel: PropTypes.number,
-
-  /** Short description of the model */
-  description: PropTypes.string,
-
-  /** Flag to display the model */
-  enabled: PropTypes.bool,
-
-  /** Increase/decrease voxels intensity */
-  intensity: PropTypes.number,
-
-  /** Path to the model REQUIRED */
-  path: PropTypes.string.isRequired,
-
-  /** Minimum and maximum values of the model's dataset. */
-  range: PropTypes.shape({
-    min: PropTypes.number,
-    max: PropTypes.number,
-    unit: PropTypes.string,
-  }),
-
-  /** Number of slices used to generate the model */
-  slices: PropTypes.number,
-
-  /** Spacing between the slices of the model */
-  spacing: PropTypes.exact({
-    x: PropTypes.number,
-    y: PropTypes.number,
-    z: PropTypes.number,
-  }),
-
-  /**
-   * The transfer function applied to the color map
-   * Array of 2D points
-   */
-  transferFunction: PropTypes.arrayOf(
-    PropTypes.exact({
-      x: PropTypes.number,
-      y: PropTypes.number,
-    })
-  ),
-
-  /** Whether or not to apply a transfer function to the model */
-  useTransferFunction: PropTypes.bool,
-});
-
 VolumeViewer.propTypes = {
+  /**
+   * Blending enum exposed to the user
+   *  None: Don't apply any blending
+   *  Add: Apply additive blending
+   */
+  blending: PropTypes.oneOf(Object.keys(Blending).map((key) => Blending[key])),
+
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
 
   /** Array of models loaded into aframe REQUIRED */
-  models: PropTypes.arrayOf(MODEL).isRequired,
+  models: PropTypes.arrayOf(validateModel).isRequired,
 
   /** Position of the dataset in the scene */
-  position: PropTypes.string,
+  position: validateVec3String,
 
   /** Position of the dataset in the scene */
-  rotation: PropTypes.string,
+  rotation: validateVec3String,
 
   /** Scale of the dataset in the scene */
-  scale: PropTypes.string,
+  scale: validateVec3String,
+
+  /** Number of slices used to generate the model REQUIRED */
+  slices: validateInt,
+
+  /**
+   * Spacing between the slices of the model across each axis
+   * Each slider is an array of exactly two values between 0 and 1. slider[0] must be <= slider[1]
+   *  slider[0]: Minimum slider value
+   *  slider[1]: Maximum slider value
+   */
+  spacing: validateVec3String,
+
+  /* Sliders for control of clipping along the x, y, and z axes */
+  sliders: PropTypes.exact({
+    x: validateSlider,
+    y: validateSlider,
+    z: validateSlider,
+  }),
 };
 
 VolumeViewer.defaultProps = {
+  blending: Blending.Add,
   controlsVisible: false,
   position: DEFAULT_POSITION,
   rotation: DEFAULT_ROTATION,
   scale: DEFAULT_SCALE,
+  sliders: DEFAULT_SLIDERS,
 };
 
 export default VolumeViewer;

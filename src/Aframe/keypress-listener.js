@@ -1,5 +1,4 @@
-/* globals AFRAME  */
-
+import AFRAME from "aframe";
 /*
   Deactivates clipping (controlled by the sliders) when s is pressed
   Activates clipping when q is pressed

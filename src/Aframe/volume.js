@@ -2,7 +2,11 @@ import AFRAME, { THREE } from "aframe";
 import { isEqual } from "lodash";
 
 import { deepDifference } from "../utils/index.js";
-import { DEFAULT_SLIDERS, DEFAULT_MATERIAL } from "../constants/index.js";
+import {
+  Blending,
+  DEFAULT_SLIDERS,
+  DEFAULT_MATERIAL,
+} from "../constants/index.js";
 
 const {
   UniformsUtils,
@@ -19,7 +23,10 @@ const {
 AFRAME.registerComponent("volume", {
   dependencies: ["keypress-listener"], // Adds component to the entity
   schema: {
+    blending: { parse: JSON.parse, default: Blending.None },
     models: { parse: JSON.parse, default: [] },
+    slices: { type: "int" },
+    spacing: { type: "vec3" },
     sliders: { parse: JSON.parse, default: DEFAULT_SLIDERS },
   },
 
@@ -62,7 +69,7 @@ AFRAME.registerComponent("volume", {
   },
 
   update: function (oldData) {
-    const { data, usedModels, usedColorMaps } = this; // Extra read-only data
+    const { data, usedModels, usedColorMaps } = this; // Extract read-only data
 
     console.log("DIFF", deepDifference(oldData, data));
 
@@ -263,7 +270,8 @@ AFRAME.registerComponent("volume", {
 
   // Build THREE RawShaderMaterial from model and color map
   buildUniform: function (model, texture, transferTexture) {
-    const { channel, intensity, spacing, slices, useTransferFunction } = model;
+    const { intensity, useTransferFunction } = model;
+    const { blending, slices, spacing } = this.data;
 
     const uniforms = UniformsUtils.clone(DEFAULT_MATERIAL.uniforms);
 
@@ -284,8 +292,7 @@ AFRAME.registerComponent("volume", {
     uniforms.dim.value = dim;
     uniforms.zScale.value = volumeScale.x / volumeScale.z;
 
-    // Set uniforms from model object
-    uniforms.channel.value = channel;
+    uniforms.blending.value = blending.blending;
     uniforms.intensity.value = intensity;
 
     uniforms.useLut.value = useTransferFunction;
@@ -334,7 +341,7 @@ AFRAME.registerComponent("volume", {
   },
 
   updateMeshClipMatrix: function () {
-    console.log("updateMeshClipMatrix")
+    console.log("updateMeshClipMatrix");
     const mesh = this.getMesh();
     const uniforms = mesh.material.uniforms;
 

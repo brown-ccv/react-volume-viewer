@@ -3,8 +3,13 @@ import styled from "styled-components";
 import { scaleLinear } from "d3-scale";
 
 import Section from "./Section.jsx";
-import { DECIMALS, CANVAS_PADDING, HOVER_RADIUS } from "../../constants";
 import Title from "./Title.jsx";
+
+/** Constants */
+
+const DECIMALS = 2;
+const CANVAS_PADDING = 10;
+const HOVER_RADIUS = 15;
 
 /** Data Ranges and Transformations **/
 
@@ -20,6 +25,8 @@ const canvasRange = {
 // Transform transferFunction space to canvas space
 const scaleTransferFunctionToCanvasX = scaleLinear();
 const scaleTransferFunctionToCanvasY = scaleLinear();
+
+/** Helper Function */
 
 // Returns the mouse's  position relative to canvas
 function getRelativeMousePos(e) {

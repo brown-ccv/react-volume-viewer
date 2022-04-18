@@ -24,8 +24,8 @@ function EnabledControls({ enabled, modelIdx, setModels }) {
 }
 
 const VisibleImg = styled.img`
-  width: 18px;
-  height: 18px;
+  width: 1.125rem;
+  height: 1.125rem;
 `;
 
 export default EnabledControls;

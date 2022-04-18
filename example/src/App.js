@@ -1,18 +1,13 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { VolumeViewer, ColorMaps } from "react-volume-viewer";
+import { VolumeViewer, COLOR_MAPS } from "react-volume-viewer";
 
 const salt = "./assets/models/summer-high-salt.png";
 const temp = "./assets/models/summer-high-temp.png";
 const haline = { name: "Haline", path: "./assets/colormaps/haline.png" };
 const thermal = { name: "Thermal", path: "./assets/colormaps/thermal.png" };
-const allColorMaps = [
-  haline,
-  thermal,
-  ColorMaps.grayscale,
-  ColorMaps.natural,
-  ColorMaps.rgb,
-];
+
+const allColorMaps = [haline, thermal, ...Object.values(COLOR_MAPS)];
 
 function App() {
   const [colorMap, setColorMap] = useState(haline);
@@ -20,6 +15,7 @@ function App() {
   const [singleColorMap, setSingleColorMap] = useState(false);
 
   const [useTransferFunction, setUseTransferFunction] = useState(true);
+  const [useColorMap, setUseColorMap] = useState(true);
 
   // TEMP - force error
   const [modelPath, setModelPath] = useState(salt);
@@ -37,7 +33,13 @@ function App() {
         max: 33.71,
       },
       path: modelPath,
+      transferFunction: [
+        { x: 0, y: 0 },
+        { x: 0.5, y: 0.5 },
+        { x: 1, y: 1 },
+      ],
       useTransferFunction: useTransferFunction,
+      useColorMap: useColorMap,
     },
     {
       name: "Opposite",
@@ -50,7 +52,8 @@ function App() {
         unit: "°C",
       },
       path: modelPath === salt ? temp : salt,
-      useTransferFunction: useTransferFunction,
+      useTransferFunction: !useTransferFunction,
+      useColorMap: !useColorMap,
     },
   ];
 
@@ -61,6 +64,9 @@ function App() {
       </button>
       <button onClick={() => setUseTransferFunction(!useTransferFunction)}>
         Use Transfer Function
+      </button>
+      <button onClick={() => setUseColorMap(!useColorMap)}>
+        Use Color Map
       </button>
       <button onClick={() => setSingleColorMap(singleColorMap ? false : true)}>
         Single Color Map
@@ -95,6 +101,8 @@ function App() {
       position="0 0 0"
       scale="1 -1 1"
       rotation="-55 0 0"
+      slices={55}
+      spacing="2 2 1"
     />
   );
 
