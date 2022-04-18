@@ -104,7 +104,6 @@ VolumeViewer.propTypes = {
   controlsVisible: PropTypes.bool,
 
   /** Array of models loaded into aframe REQUIRED */
-  // models: validateModels,
   models: PropTypes.arrayOf(validateModel).isRequired,
 
   /** Position of the dataset in the scene */

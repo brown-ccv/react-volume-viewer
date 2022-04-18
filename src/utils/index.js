@@ -1,6 +1,55 @@
 import { useEffect, useRef } from "react";
 import { isEmpty, isEqual, differenceWith, pick } from "lodash";
-import { DEFAULT_MODEL } from "../constants";
+
+/** EXPORTS */
+
+// Custom useMemo hook for models
+function useModelsPropMemo(models) {
+  const previousRef = useRef();
+  const prevModels = previousRef.current;
+
+  // Returns true if models and prevModels are equal
+  const noChange = isEmpty(differenceWith(models, prevModels, isEqual));
+
+  // Update reference to previous value if not the same
+  useEffect(() => {
+    if (!noChange) previousRef.current = models;
+  });
+  return noChange ? prevModels : models;
+}
+
+// Filter model properties needed from aframe
+function getAframeModels(models) {
+  const out = models.map((model) => {
+    // Pick only needed properties
+    const aframeModel = pick(model, [
+      "blending",
+      "colorMap",
+      "enabled",
+      "intensity",
+      "name",
+      "path",
+      "slices",
+      "spacing",
+      "transferFunction",
+      "useTransferFunction",
+      "useColorMap",
+    ]);
+
+    /* colorMap.path is either a png encoded string or the path to a png
+      png encoded strings begin with data:image/png;64
+      Remove ; to parse into aframe correctly (re-injected in model.js)
+      TODO: Do colorMaps need to be a png?
+    */
+    aframeModel.colorMap = {
+      ...model.colorMap,
+      path: model.colorMap.path.replace("data:image/png;", "data:image/png"),
+    };
+
+    return aframeModel;
+  });
+  return JSON.stringify(out.filter((model) => model.enabled));
+}
 
 const validateVec3String = function (props, propName, componentName) {
   const string = props[propName];
@@ -52,9 +101,9 @@ const validateInt = function (props, propName, componentName) {
   }
 };
 
-// Custom validation function for the 'sliders' prop
-function validateSlider(prop, key, componentName, location, propFullName) {
-  const slider = prop[key];
+// Custom validation function for a single slider in the 'sliders' prop
+function validateSlider(sliders, axis, componentName, location, propFullName) {
+  const slider = sliders[axis];
 
   // Array length is exactly 2
   if (slider.length !== 2) {
@@ -83,7 +132,7 @@ function validateSlider(prop, key, componentName, location, propFullName) {
   }
 }
 
-// Custom validation function for a single model
+// Custom validation function for a single model in the 'models' prop
 const validateModel = function (
   models,
   idx,
@@ -105,39 +154,10 @@ const validateModel = function (
   }
 
   try {
-    // TODO validateColorMap for colorMap
-
-    // TODO: Seperate function validateColorMaps
-    // TODO: validateColorMap for every colorMap in colorMaps
-    const colorMapNames = new Set();
-    model.colorMaps.forEach((colorMap) => {
-      if (colorMapNames.has(colorMap.name))
-        throw new Error(
-          "Color map name '" +
-            colorMap.name +
-            "' is not unique on model '" +
-            model.name +
-            "'"
-        );
-      else colorMapNames.add(colorMap.name);
-    });
-
-    // Validate coordinates in transferFunction
-    // TODO: Separate function validateTransferFunction
-    // TODO: If no transferFunction?
-    model.transferFunction.forEach((point) => {
-      if (point.x === undefined || point.x < 0 || point.x > 1)
-        throw new Error(
-          `Error: ${point.x} in ${point} out of range. ` +
-            `x coordinate must be between 0 and 1 (inclusive)`
-        );
-
-      if (point.y === undefined || point.y < 0 || point.y > 1)
-        throw new Error(
-          `Error: ${point.y} in ${point} out of range. ` +
-            `y coordinate must be between 0 and 1 (inclusive)`
-        );
-    });
+    // TODO: Validation changes when !useTransferFunction and !useColorMap
+    validateColorMaps(model.colorMaps, model.name);
+    if ("transferFunction" in model)
+      validateTransferFunction(model.transferFunction);
   } catch (error) {
     return new Error(
       `Invalid prop '${propFullName}' supplied to '${componentName}'. ` +
@@ -146,81 +166,33 @@ const validateModel = function (
   }
 };
 
-// Custom validation function for the 'models' prop
-// const validateModels = function (props, propName, componentName) {
-//   const models = props[propName];
+/** HELPER FUNCTIONS */
 
-//   const modelNames = new Set();
-//   for (const [idx, model] of models.entries()) {
-//     // The model's name must be unique
-//     if (modelNames.has(model.name))
-//       return new Error(
-//         `Invalid prop '${propName}[${idx}].name' supplied to '${componentName}'. ` +
-//           `Name '${model.name}' is not unique in '${propName}'.`
-//       );
-//     else modelNames.add(model.name);
-
-//     // PropTypes wants errors to be returned, not thrown
-//     try {
-//       // model.validate();
-//       validateModel(model);
-//     } catch (error) {
-//       return new Error(
-//         `Invalid prop '${propName}[${idx}]' supplied to '${componentName}'. ` +
-//           error.message
-//       );
-//     }
-//   }
-//   return;
-// };
-
-// Custom useMemo hook for models
-function useModelsPropMemo(models) {
-  // Ref for storing previous models
-  const previousRef = useRef();
-  const prevModels = previousRef.current;
-
-  // Returns true if models and prevModels are equal
-  const noChange = isEmpty(differenceWith(models, prevModels, isEqual));
-
-  // Update reference to previous value if not the same
-  useEffect(() => {
-    if (!noChange) previousRef.current = models;
+function validateColorMaps(colorMaps) {
+  const colorMapNames = new Set();
+  colorMaps.forEach((colorMap) => {
+    // Each color map must have a unique name
+    if (colorMapNames.has(colorMap.name))
+      throw new Error("colorMap name '" + colorMap.name + "' is not unique");
+    else colorMapNames.add(colorMap.name);
   });
-  return noChange ? prevModels : models;
 }
 
-// Filter model properties needed from aframe
-function getAframeModels(models) {
-  const out = models.map((model) => {
-    // Pick only needed properties
-    const aframeModel = pick(model, [
-      "blending",
-      "colorMap",
-      "enabled",
-      "intensity",
-      "name",
-      "path",
-      "slices",
-      "spacing",
-      "transferFunction",
-      "useTransferFunction",
-      "useColorMap",
-    ]);
+// Each coordinate within the transfer function must be between (0,0) and (1,1)
+function validateTransferFunction(transferFunction) {
+  transferFunction.forEach((point) => {
+    if (point.x === undefined || point.x < 0 || point.x > 1)
+      throw new Error(
+        `Error: ${point.x} in ${point} out of range. ` +
+          `x coordinate must be between 0 and 1 (inclusive)`
+      );
 
-    /* colorMap.path is either a png encoded string or the path to a png
-      png encoded strings begin with data:image/png;64
-      Remove ; to parse into aframe correctly (re-injected in model.js)
-      TODO: Do colorMaps need to be a png?
-    */
-    aframeModel.colorMap = {
-      ...model.colorMap,
-      path: model.colorMap.path.replace("data:image/png;", "data:image/png"),
-    };
-
-    return aframeModel;
+    if (point.y === undefined || point.y < 0 || point.y > 1)
+      throw new Error(
+        `Error: ${point.y} in ${point} out of range. ` +
+          `y coordinate must be between 0 and 1 (inclusive)`
+      );
   });
-  return JSON.stringify(out.filter((model) => model.enabled));
 }
 
 export {
