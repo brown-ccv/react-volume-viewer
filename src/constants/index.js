@@ -2,8 +2,6 @@ import grayscale from "../images/grayscale.png";
 import natural from "../images/natural.png";
 import rgb from "../images/rgb.png";
 
-// TODO: Use Typescript to create custom types (Blending, ColorMap, Model, Point)
-
 /** ENUM */
 
 /**

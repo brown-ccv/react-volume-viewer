@@ -39,7 +39,6 @@ function getAframeModels(models) {
     /* colorMap.path is either a png encoded string or the path to a png
       png encoded strings begin with data:image/png;64
       Remove ; to parse into aframe correctly (re-injected in model.js)
-      TODO: Do colorMaps need to be a png?
     */
     aframeModel.colorMap = {
       ...model.colorMap,
@@ -154,7 +153,6 @@ const validateModel = function (
   }
 
   try {
-    // TODO: Validation changes when !useTransferFunction and !useColorMap
     validateColorMaps(model.colorMaps, model.name);
     if ("transferFunction" in model)
       validateTransferFunction(model.transferFunction);

@@ -86,7 +86,6 @@ function AframeScene({
         arcball-camera="initialPosition: 0 0 1;"
       />
 
-      {/* TODO: Replace with better error component */}
       {errors.length && (
         <Error>
           <ul>

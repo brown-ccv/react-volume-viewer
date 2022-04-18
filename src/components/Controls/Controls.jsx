@@ -9,9 +9,6 @@ import ClipControls from "./ClipControls.jsx";
 import EnabledControls from "./EnabledControls.jsx";
 import Section from "./Section.jsx";
 
-// TODO: Add switch for useTransferFunction
-// TODO: Add switch for useColorMap
-// TODO: Should reset button reset an individual model or all of them?
 function Controls({
   controlsVisible,
   models,
@@ -85,7 +82,6 @@ const Wrapper = styled(Tabs)`
   display: ${(props) => (props.$visible ? "initial" : "none")};
 `;
 
-// TODO: Cleaner way than just the scrollbar
 const StyledTabList = styled(TabList)`
   overflow: auto;
   margin: 0px -16px; // Reverts Wrapper padding

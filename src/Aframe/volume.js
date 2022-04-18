@@ -75,9 +75,8 @@ AFRAME.registerComponent("volume", {
   },
 
   update: function (oldData) {
-    const { data, usedModels, usedColorMaps } = this; // Extra read-only data
+    const { data, usedModels, usedColorMaps } = this; // Extract read-only data
 
-    // TODO: Only change based on difference between oldData and this.data
     if (oldData !== data) {
       // Asynchronously loop through the data.models array
       // Each element runs serially and this.buildMesh() waits for all of the promises to finish
@@ -177,7 +176,6 @@ AFRAME.registerComponent("volume", {
     }
   },
 
-  // TODO: onCollide is called once at runtime and is always true
   onCollide: function (event) {
     this.rayCollided = true;
   },
@@ -272,7 +270,6 @@ AFRAME.registerComponent("volume", {
   // Build THREE ShaderMaterial from model and color map
   buildMaterial: function (model, texture, transferTexture) {
     const { intensity, useTransferFunction } = model;
-    // TODO: Need to change these in update function
     const { blending, slices, spacing } = this.data;
 
     const dim = Math.ceil(Math.sqrt(slices));
@@ -329,7 +326,7 @@ AFRAME.registerComponent("volume", {
 
   buildMesh: function (modelsData) {
     this.getMesh().material = modelsData.length
-      ? modelsData[0].material // TODO: Blend all of the model's material into one
+      ? modelsData[0].material
       : new ShaderMaterial(DEFAULT_MATERIAL);
     console.log("All models loaded", modelsData); // TEMP
   },

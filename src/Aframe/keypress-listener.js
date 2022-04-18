@@ -1,9 +1,7 @@
-/* globals AFRAME  */
-
+import AFRAME from "aframe";
 /*
   Deactivates clipping (controlled by the sliders) when s is pressed
   Activates clipping when q is pressed
-  TODO: Add event listener to volume.js directly. Should update material immediately
 */
 AFRAME.registerComponent("keypress-listener", {
   schema: {
