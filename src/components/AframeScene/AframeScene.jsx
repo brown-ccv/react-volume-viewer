@@ -1,87 +1,70 @@
-import React, { memo } from "react";
+import React, { memo, useState, useEffect } from "react";
+import styled from "styled-components";
 import { isEqual } from "lodash";
 
 import "../../Aframe/arcball-camera";
 import "../../Aframe/buttons-check";
-import "../../Aframe/model";
-import "../../Aframe/render-2d-clipplane";
-import "../../Aframe/entity-collider-check";
 import "../../Aframe/collider-check";
+import "../../Aframe/entity-collider-check";
+import "../../Aframe/keypress-listener";
+import "../../Aframe/volume";
 
-import { toAframeString } from "../../utils";
+import { getAframeModels } from "../../utils";
 
-function AframeScene({ models, sliders }) {
+function AframeScene({ models, position, rotation, scale, sliders }) {
+  const [errors, setErrors] = useState([]);
+  useEffect(() => {
+    const handler = (e) => {
+      setErrors(e.detail);
+    };
+
+    document.addEventListener("aframe-error", handler);
+
+    return () => document.removeEventListener("aframe-error", handler);
+  }, []);
+
   return (
     <a-scene id="volumeViewerScene" background="color: black" embedded>
       {/* HAND */}
       <a-entity
-        id="rhand"
+        id="hand"
         raycaster="objects: .clickableMesh"
-        buttons-check={toAframeString({
-          clipPlane: false,
-          grabObject: false,
-        })}
-        collider-check={toAframeString({
-          intersecting: false,
-        })}
+        buttons-check={`gripDown: ${false}; triggerDown: ${false};`}
+        collider-check={`intersecting: ${false};`}
       />
+      <a-entity
+        id="volume-container"
+        position={position}
+        rotation={rotation}
+        scale={scale}
+      >
+        {/* CLICKABLE PLANE FOR MOUSE INTERACTIONS */}
+        <a-plane
+          id="clipplane2D"
+          class="clickable"
+          visible="false"
+          height="1"
+          width="1"
+          material="color: red; side: double; transparent: true; opacity: 0.2"
+        />
 
-      <a-entity id="models">
-        {models.map(
-          (model) =>
-            model.enabled && (
-              <a-entity
-                key={model.name}
-                id={model.name}
-                position={model.position}
-                rotation={model.rotation}
-                scale={model.scale}
-              >
-                <a-entity
-                  // id="clipplane2DListener"
-                  id={`clipplane2DListener-${model.name}`}
-                  render-2d-clipplane={toAframeString({
-                    activateClipPlane: true,
-                    xBounds: sliders.x,
-                    yBounds: sliders.y,
-                    zBounds: sliders.z,
-                  })}
-                />
-
-                {/* CLICKABLE PLANE FOR MOUSE INTERACTIONS */}
-                <a-plane
-                  id={`clipplane2D-${model.name}`}
-                  class="clickable"
-                  visible="false"
-                  height="1"
-                  width="1"
-                  material="color: red; side: double; transparent: true; opacity: 0.2"
-                />
-
-                {/* MODEL */}
-                <a-entity
-                  id={`model-${model.name}`}
-                  class="clickableMesh"
-                  model={toAframeString({
-                    channel: model.channel,
-                    colorMap: JSON.stringify(model.colorMap),
-                    intensity: model.intensity,
-                    name: model.name,
-                    path: model.path,
-                    slices: model.slices,
-                    sliders: JSON.stringify(sliders),
-                    spacing: JSON.stringify(model.spacing),
-                    transferFunction: JSON.stringify(model.transferFunction),
-                    useTransferFunction: model.useTransferFunction,
-                  })}
-                />
-              </a-entity>
-            )
-        )}
+        {/* VOLUME */}
+        <a-entity
+          id="volume"
+          class="clickableMesh"
+          volume={`
+              models: ${getAframeModels(models)};
+              sliders: ${JSON.stringify(sliders)};
+            `}
+        />
       </a-entity>
 
       {/* MOUSE */}
-      <a-entity cursor="rayOrigin:mouse" raycaster="objects: .clickable" />
+      <a-entity
+        id="mouse"
+        cursor="rayOrigin:mouse"
+        raycaster="objects: .clickable"
+      />
 
       {/* CAMERA */}
       <a-entity
@@ -90,8 +73,34 @@ function AframeScene({ models, sliders }) {
         look-controls
         arcball-camera="initialPosition: 0 0 1;"
       />
+
+      {/* TODO: Replace with better error message */}
+      {errors.length && (
+        <Error>
+          <ul>
+            {errors.map((e) => (
+              <li key={e}>
+                {e.message}: &nbsp; {e.cause.message}
+              </li>
+            ))}
+          </ul>
+        </Error>
+      )}
     </a-scene>
   );
 }
+
+const Error = styled.div`
+  background-color: white;
+  position: relative;
+  width: 90%;
+  height: 90%;
+  top: 5%; // (100% - height) / 2
+  margin: auto;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
 export default memo(AframeScene, isEqual);

@@ -20,23 +20,23 @@ function App() {
   const [singleColorMap, setSingleColorMap] = useState(false);
 
   const [useTransferFunction, setUseTransferFunction] = useState(true);
+
+  // TEMP: Force error
   const [modelPath, setModelPath] = useState(salt);
+  // const [modelPath, setModelPath] = useState("model/path");
+  // thermal.path = "thermal/path";
 
   const models = [
     {
       name: "Same",
       colorMap: colorMap,
       ...(!singleColorMap && { colorMaps: allColorMaps }),
-
       enabled: true,
       range: {
         min: 0.05,
         max: 33.71,
       },
       path: modelPath,
-      position: "-0.2 0 0",
-      scale: "1 -1 1",
-      rotation: "-55 0 0",
       useTransferFunction: useTransferFunction,
     },
     {
@@ -50,9 +50,6 @@ function App() {
         unit: "°C",
       },
       path: modelPath === salt ? temp : salt,
-      position: "0.2 0 0",
-      scale: "1 -1 1",
-      rotation: "-55 0 0",
       useTransferFunction: useTransferFunction,
     },
   ];
@@ -92,7 +89,13 @@ function App() {
   );
 
   const VV = (
-    <StyledVolumeViewer controlsVisible={controlsVisible} models={models} />
+    <StyledVolumeViewer
+      controlsVisible={controlsVisible}
+      models={models}
+      position="0 0 0"
+      scale="1 -1 1"
+      rotation="-55 0 0"
+    />
   );
 
   return (

@@ -15,7 +15,7 @@ import Title from "./Title.jsx";
 
 function ColorMapControls({ model, modelIdx, setModels }) {
   return (
-    <Section title="Color Map">
+    <Section>
       <Title>Color Map</Title>
       {"colorMaps" in model ? (
         <StyledListboxInput

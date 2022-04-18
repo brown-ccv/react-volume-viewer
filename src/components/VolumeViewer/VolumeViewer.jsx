@@ -2,10 +2,15 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
-import { DEFAULT_SLIDERS } from "../../constants";
-
 import Controls from "../Controls";
 import AframeScene from "../AframeScene";
+
+import {
+  DEFAULT_SLIDERS,
+  DEFAULT_POSITION,
+  DEFAULT_ROTATION,
+  DEFAULT_SCALE,
+} from "../../constants";
 import { buildModels, useModelsPropMemo } from "../../utils";
 
 function VolumeViewer({
@@ -14,6 +19,9 @@ function VolumeViewer({
   controlsVisible,
   models: modelsProp,
   sliders: slidersProp,
+  position,
+  rotation,
+  scale,
 }) {
   // Control the models in state; override on modelsProp change
   const [models, setModels] = useState([]);
@@ -22,7 +30,6 @@ function VolumeViewer({
     setModels(buildModels(newModels));
   }, [newModels]);
 
-  // Always initialize to slidersProp
   const [sliders, setSliders] = useState(slidersProp);
 
   // Changing a components key will remount the entire thing
@@ -31,7 +38,13 @@ function VolumeViewer({
 
   return (
     <Wrapper key={remountKey} className={className} style={style}>
-      <AframeScene models={models} sliders={sliders} />
+      <AframeScene
+        models={models}
+        position={position}
+        rotation={rotation}
+        scale={scale}
+        sliders={sliders}
+      />
 
       <Controls
         controlsVisible={controlsVisible}
@@ -128,21 +141,12 @@ const MODEL = PropTypes.shape({
   /** Path to the model REQUIRED */
   path: PropTypes.string.isRequired,
 
-  /** Position of the model in the scene */
-  position: PropTypes.string,
-
   /** Minimum and maximum values of the model's dataset. */
   range: PropTypes.shape({
     min: PropTypes.number,
     max: PropTypes.number,
     unit: PropTypes.string,
   }),
-
-  /** Position of the model in the scene */
-  rotation: PropTypes.string,
-
-  /** Scale of the model in the scene */
-  scale: PropTypes.string,
 
   /** Number of slices used to generate the model */
   slices: PropTypes.number,
@@ -176,16 +180,28 @@ VolumeViewer.propTypes = {
   /** Array of models loaded into aframe REQUIRED */
   models: PropTypes.arrayOf(MODEL).isRequired,
 
-  /* Sliders for control of clipping along the x, y, and z axes */
-  sliders: PropTypes.exact({
-    x: SLIDER,
-    y: SLIDER,
-    z: SLIDER,
-  }),
+  /** Position of the dataset in the scene */
+  position: PropTypes.string,
+
+  /** Position of the dataset in the scene */
+  rotation: PropTypes.string,
+
+  /** Scale of the dataset in the scene */
+  scale: PropTypes.string,
+
+    /* Sliders for control of clipping along the x, y, and z axes */
+    sliders: PropTypes.exact({
+      x: SLIDER,
+      y: SLIDER,
+      z: SLIDER,
+    }),
 };
 
 VolumeViewer.defaultProps = {
   controlsVisible: false,
+  position: DEFAULT_POSITION,
+  rotation: DEFAULT_ROTATION,
+  scale: DEFAULT_SCALE,
   sliders: DEFAULT_SLIDERS,
 };
 

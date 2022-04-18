@@ -1,10 +1,9 @@
 import AFRAME from "aframe";
 
-// TODO: Change vars to triggerDown and gripDown
 AFRAME.registerComponent("buttons-check", {
   schema: {
-    clipPlane: { type: "boolean", default: false },
-    grabObject: { type: "boolean", default: false },
+    gripDown: { type: "boolean", default: false },
+    triggerDown: { type: "boolean", default: false },
   },
 
   init: function () {
@@ -26,15 +25,15 @@ AFRAME.registerComponent("buttons-check", {
   },
 
   onGripDown: function (e) {
-    this.data.clipPlane = true;
+    this.data.gripDown = true;
   },
   onGripUp: function (e) {
-    this.data.clipPlane = false;
+    this.data.gripDown = false;
   },
   onTriggerDown: function (e) {
-    this.data.grabObject = true;
+    this.data.triggerDown = true;
   },
   onTriggerUp: function (e) {
-    this.data.grabObject = false;
+    this.data.triggerDown = false;
   },
 });
