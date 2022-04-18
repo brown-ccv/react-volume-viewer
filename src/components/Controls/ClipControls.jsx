@@ -8,7 +8,7 @@ import Title from "./Title.jsx";
 import { SLIDER_RANGE } from "../../constants";
 
 /**
- * Adds a mark at each end and the middle of the slider. 
+ * Adds a mark at each end and the middle of the slider.
  * " " prevents a label from being added below the slider
  */
 const marks = {
