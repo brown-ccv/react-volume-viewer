@@ -348,13 +348,8 @@ AFRAME.registerComponent("volume", {
 
   // Blend model's into a single material and apply it to the model
   updateMaterial: function () {
-    // TEMP: Force error if any modelData is undefined
-    this.uniforms.forEach((value) => {
-      if (value === undefined) throw new Error("Error loading models");
-    });
     console.log("MODELS LOADED", this.uniforms);
 
-    // model.enabled does does nothing right now because we always select the first one.
     this.getMesh().material =
       this.uniforms.size > 0
         ? // TEMP - use first material
