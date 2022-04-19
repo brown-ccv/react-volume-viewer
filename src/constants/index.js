@@ -34,6 +34,7 @@ const DEFAULT_SLIDERS = {
   z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
 };
 const DEFAULT_MODEL = {
+  colorMap: COLOR_MAPS.Grayscale,
   colorMaps: [],
   description: "",
   enabled: true,

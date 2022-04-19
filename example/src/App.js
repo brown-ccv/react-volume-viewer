@@ -17,10 +17,7 @@ function App() {
   const [useTransferFunction, setUseTransferFunction] = useState(true);
   const [useColorMap, setUseColorMap] = useState(true);
 
-  // TEMP: Force error
   const [modelPath, setModelPath] = useState(salt);
-  // const [modelPath, setModelPath] = useState("model/path");
-  // thermal.path = "thermal/path";
 
   const models = [
     {

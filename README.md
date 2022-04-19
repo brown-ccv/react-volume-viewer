@@ -37,38 +37,37 @@ VolumeViewer.propTypes = {
 
   /** Array of models loaded into aframe REQUIRED
    *    colorMap: Object containing the path to the current color image applied to the model. REQUIRED
-   *      name: Common name of the color map
-   *      path: Path to the color map source image
+   *      name: Common name of the color map REQUIRED
+   *      path: Path to the color map source image REQUIRED
    *    colorMaps: Array of possible color maps for the model
    *      colorMap must be present in colorMaps
    *      Each colorMap must have a unique name in colorMaps
    *    description: Short description of the model
    *    enabled: Flag to display the model
    *    intensity: Multiplication factor for voxels intensity
-   *    name: Unique name given to the model
-   *    path: Path to the model
+   *    name: Unique name given to the model REQUIRED
+   *    path: Path to the model REQUIRED
    *    range: Minimum and maximum values of the model's dataset
    *    transferFunction: The transfer function applied to the color map
-   *      transferFunction is an array of {x: <val>, y: <val>} coordinates.
+   *      Array of {x: <val>, y: <val>} coordinates.
    *      Each coordinate in transferFunction must be between (0, 0) and (1,1)
-   *    initTransferFunction: Initial value of transferFunction passed to the component
    *    useTransferFunction: Flag to apply a transfer function to the model
    *    useColorMap: Flag to apply a color map to the model
    */
   models: MODEL,
 
-  /** Position of the dataset in the scene as a "[x] [y] [z]" string
-   *    [x], [y], and [z] must be valid numbers and are space separated
+  /** Position of the dataset in the scene as a "<x> <y> <z>" string
+   *    x, y, and z must be valid numbers and are space separated
    */
   position: PropTypes.string,
 
-  /** Position of the dataset in the scene as a "[x] [y] [z]" string
-   *    [x], [y], and [z] must be valid numbers and are space separated
+  /** Position of the dataset in the scene as a "<x> <y> <z>" string
+   *    x, y, and z must be valid numbers and are space separated
    */
   rotation: PropTypes.string,
 
-  /** Scale of the dataset in the scene as a "[x] [y] [z]" string
-   *    [x], [y], and [z] must be valid numbers and are space separated
+  /** Scale of the dataset in the scene as a "<x> <y> <z>" string
+   *    x, y, and z must be valid numbers and are space separated
    */
   scale: PropTypes.string,
 
@@ -77,14 +76,14 @@ VolumeViewer.propTypes = {
    */
   slices: PropTypes.number.isRequired,
 
-  /** Spacing between the slices of the models a "[x] [y] [z]" string
-   *    [x], [y], and [z] must be valid numbers and are space separated
+  /** Spacing between the slices of the models a "<x> <y> <z>" string REQUIRED
+   *    x, y, and z must be valid numbers and are space separated
    */
   spacing: PropTypes.string.isRequired,
 
   /** 
    * Sliders for control of clipping along the x, y, and z axes 
-   * SLIDER is an array of exactly two values between 0 and 1. slider[0] <= slider[1].
+   * SLIDER is an array of exactly two values between 0 and 1. slider[0] must be <= slider[1].
    *  slider[0]: Minimum slider value
    *  slider[1]: Maximum slider value
    */
