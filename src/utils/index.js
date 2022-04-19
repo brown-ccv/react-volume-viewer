@@ -153,7 +153,7 @@ const validateModel = function (
   }
 
   try {
-    if("colorMaps" in model) validateColorMaps(model.colorMaps, model.name);
+    if ("colorMaps" in model) validateColorMaps(model.colorMaps, model.name);
     if ("transferFunction" in model)
       validateTransferFunction(model.transferFunction);
   } catch (error) {

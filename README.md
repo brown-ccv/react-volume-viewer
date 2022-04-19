@@ -36,7 +36,7 @@ VolumeViewer.propTypes = {
   controlsVisible: PropTypes.bool,
 
   /** Array of models loaded into aframe REQUIRED
-   *    colorMap: Object containing the path to the current color image applied to the model. REQUIRED
+   *    colorMap: Object containing the path to the current color image applied to the model.
    *      name: Common name of the color map REQUIRED
    *      path: Path to the color map source image REQUIRED
    *    colorMaps: Array of possible color maps for the model
@@ -97,7 +97,7 @@ VolumeViewer.propTypes = {
 
 ## Default Props
 
-The `Model.Default` object will be merged with every `model` in the `models` array. Note, however, that there is no default value for `colorMap`, `description`, `name`, or `path`. Each of these is required.
+Default values are provided for props that are not required. The required props are `models`, `slices`, and `spacing`.
 
 ```jsx
 VolumeViewer.defaultProps = {
@@ -114,21 +114,6 @@ VolumeViewer.defaultProps = {
 };
 ```
 
-The default model is merged with every `model` in the `models` array. Note, however, that there is no default value for `colorMap`, `name`, or `path`. Each of these is required.
-
-```js
-  {
-    colorMaps: [],
-    description: "",
-    enabled: true,
-    intensity: 1,
-    range: { min: 0, max: 1, unit: "" },
-    transferFunction: [new Point(0, 0), new Point(1, 1)],
-    useTransferFunction: true,
-    useColorMap: true,
-  }
-```
-
 ## Exports
 
 ### VolumeViewer
@@ -138,75 +123,6 @@ The default model is merged with every `model` in the `models` array. Note, howe
 ## Blending
 
 The `Blending` object is used as an enum for the different algorithms that can be used to blending the models together. `Blending.None` does not apply any blending. `Blending.Add` applies additive blending. Currently only `Blending.None` is implemented.
-
-```js
-const Blending = {
-  None: 0,
-  Add: 1,
-};
-```
-
-### Model
-
-The `Model` class holds all of the properties for a single model. Certain default values are merged automatically in the constructor and the class comes with it's own validation. Note that you can use `Model.Default` when you are building your own `Model` instances.
-
-```js
-class Model {
-  static Default = new Model({
-    colorMaps: [],
-    description: "",
-    enabled: true,
-    intensity: 1,
-    range: { min: 0, max: 1, unit: "" },
-    transferFunction: [new Point(0, 0), new Point(1, 1)],
-    useTransferFunction: true,
-    useColorMap: true,
-  });
-
-  // Merge passed in object with Model.Default
-  constructor(obj) {
-    this.colorMap = obj.colorMap;
-    this.colorMaps = obj.colorMaps ?? Model.Default.colorMaps;
-    this.description = obj.description;
-    this.enabled = obj.enabled ?? Model.Default.enabled;
-    this.intensity = obj.intensity ?? Model.Default.intensity;
-    this.name = obj.name;
-    this.path = obj.path;
-    this.range = obj.range ?? Model.Default.range;
-    this.transferFunction =
-      obj.transferFunction ?? Model.Default.transferFunction;
-    this.initTransferFunction =
-      obj.transferFunction ?? Model.Default.transferFunction;
-    this.useTransferFunction =
-      obj.useTransferFunction ?? Model.Default.useTransferFunction;
-    this.useColorMap = obj.useColorMap ?? Model.Default.useColorMap;
-  }
-  toString() {
-    return `Model.${this.name}: ${this.path}`;
-  }
-  validate() {
-    // Validate points along the transferFunction
-    this.transferFunction.forEach((point) => point.validate());
-
-    if (!this.colorMaps.includes(this.colorMap))
-      throw new Error("Color Map '" + this.colorMap + "' not in colorMaps");
-
-    // Color map names in colorMaps must be unique
-    const colorMapNames = new Set();
-    this.colorMaps.forEach((colorMap) => {
-      if (colorMapNames.has(colorMap.name))
-        throw new Error(
-          "Color map name '" +
-            colorMap.name +
-            "' is not unique on model '" +
-            this.name +
-            "'"
-        );
-      else colorMapNames.add(colorMap.name);
-    });
-  }
-}
-```
 
 ### COLOR_MAPS
 
@@ -224,6 +140,29 @@ const COLOR_MAPS = {
 }
 ```
 
+### DEFAULT_MODEL
+
+The `DEFAULT_MODEL` object holds all of the default properties for a single model.
+
+It will be merged with every `model` in the `models` array. Note, however, that there is no default value for `colorMap`, `name`, or `path`. Each of these properties are required.
+
+```js
+const DEFAULT_MODEL = {
+  colorMap: COLOR_MAPS.Grayscale,
+  colorMaps: [],
+  description: "",
+  enabled: true,
+  intensity: 1,
+  range: { min: 0, max: 1, unit: "" },
+  transferFunction: [
+    { x: 0, y: 0 },
+    { x: 1, y: 1 },
+  ],
+  useTransferFunction: true,
+  useColorMap: true,
+};
+```
+
 ### DEFAULT_SLIDERS
 
 The `DEFAULT_SLIDERS` export is the default value for the `sliders` prop. It will be applied automatically if you do not pass `sliders` into `<VolumeViewer />`.
@@ -236,38 +175,12 @@ const DEFAULT_SLIDERS = {
 };
 ```
 
-### DEFAULT_MODEL
-
-The `DEFAULT_MODEL` object contains default values for some properties of an individual model. These values are automatically merged with each object in the `models` prop passed in if any specific property is not given. Note that the `colorMap`, `name`, and `path` properties are not present as these are required properties.
-
-```js
-const DEFAULT_MODEL = {
-  colorMaps: [],
-  description: "",
-  enabled: true,
-  intensity: 1,
-  range: { min: 0, max: 1, unit: "" },
-  transferFunction: [
-    { x: 0, y: 0 },
-    { x: 1, y: 1 },
-  ],
-  useTransferFunction: true,
-  useColorMap: true,
-}
-```
-
 ## Example
 
 ```jsx
 import React from 'react'
 import styled from 'styled-components'
-import {
-  VolumeViewer,
-  ColorMap,
-  Point,
-  DEFAULT_COLOR_MAPS,
-  Model,
-} from "react-volume-viewer";
+import { VolumeViewer, COLOR_MAPS } from "react-volume-viewer";
 
 import model1 from "./path/to/model.png";
 import model2 from "./path/to/model.png";
@@ -283,24 +196,25 @@ function App() {
     <StyledVolumeViewer
       controlsVisible={controlsVisible}
       models={[
-        new Model({
+        {
           name: "Salt",
           colorMap: haline,
-          colorMaps={[haline, thermal, ...ColorMap.all]}
+          colorMaps={[haline, thermal, COLOR_MAPS.Grayscale]}
           description: "Model visualizing salinity data",
+          path: {model1},
           range: {
             min: 0.05,
             max: 33.71,
           },
           path: model1,
           transferFunction: [new Point(0, 0), new Point(0.5, 0.5), new Point(1, 1)],
-        }),
-        new Model({
+        },
+        {
           name: "Temperature",
-          colorMap: ColorMap.Grayscale,
-          colorMaps={ColorMap.all}
+          colorMaps={...Object.values(COLOR_MAPS)}
           enabled: enabled,
           description: "Model visualizing temperature data",
+          path: {model2},
           range: {
             min: 2.5,
             max: 42,
@@ -308,13 +222,12 @@ function App() {
           },
           useTransferFunction: false,
           useColorMap: false,
-        }),
+        },
       ]}
-      rotation: "-55 0 0"
-      scale: "1 -1 1"
+      rotation="-55 0 0"
+      scale="1 -1 1"
       slices={50}
       spacing="2 2 1"
-          
     />
   )
 }
