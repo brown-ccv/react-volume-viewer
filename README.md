@@ -132,14 +132,6 @@ The `Blending` object is used as an enum for the different algorithms that can b
 <img alt="natural" src="./src/images/natural.png" height="25"/>
 <img alt="rgb" src="./src/images/rgb.png" height="25"/>
 
-```js
-const COLOR_MAPS = {
-  Grayscale: {name: "Grayscale", path: grayscale},
-  Natural: {name: "Natural", path: natural},
-  Rgb: {name: "Rgb", path: rgb},
-}
-```
-
 ### DEFAULT_MODEL
 
 The `DEFAULT_MODEL` object holds all of the default properties for a single model.
@@ -147,7 +139,7 @@ The `DEFAULT_MODEL` object holds all of the default properties for a single mode
 It will be merged with every `model` in the `models` array. Note, however, that there is no default value for `colorMap`, `name`, or `path`. Each of these properties are required.
 
 ```js
-const DEFAULT_MODEL = {
+{
   colorMap: COLOR_MAPS.Grayscale,
   colorMaps: [],
   description: "",
@@ -168,7 +160,7 @@ const DEFAULT_MODEL = {
 The `DEFAULT_SLIDERS` export is the default value for the `sliders` prop. It will be applied automatically if you do not pass `sliders` into `<VolumeViewer />`.
 
 ```js
-const DEFAULT_SLIDERS = {
+{
   x: [0, 1],
   y: [0, 1],
   z: [0, 1],
