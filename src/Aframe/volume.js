@@ -9,7 +9,6 @@ import {
 } from "../constants/index.js";
 
 const {
-  UniformsUtils,
   LinearFilter,
   RGBAFormat,
   RawShaderMaterial,
@@ -34,7 +33,7 @@ AFRAME.registerComponent("volume", {
     this.scene = this.el.sceneEl;
     this.usedModels = new Map(); // Cache models (path: texture)
     this.usedColorMaps = new Map(); // Cache color maps (path: RGB data)
-    this.uniforms = new Map(); // Map each model to it's uniform (name: uniform)
+    this.modelsData = []; // Array of each models associated data
     this.rayCollided = false;
     this.grabbed = false;
 
@@ -70,7 +69,6 @@ AFRAME.registerComponent("volume", {
 
   update: function (oldData) {
     const { data, usedModels, usedColorMaps } = this;
-    console.log("DIFF", deepDifference(oldData, data));
 
     // Update model uniforms
     if (!isEqual(oldData.models, data.models)) {
@@ -78,7 +76,14 @@ AFRAME.registerComponent("volume", {
       // Each element runs serially and this.updateMaterial waits for all of the promises to finish
       Promise.allSettled(
         data.models.map(async (model) => {
-          const { name, path, colorMap, transferFunction } = model;
+          const {
+            name,
+            path,
+            colorMap,
+            transferFunction,
+            intensity,
+            useTransferFunction,
+          } = model;
           try {
             // Load texture from png
             const texture = usedModels.has(path)
@@ -95,10 +100,12 @@ AFRAME.registerComponent("volume", {
             );
 
             // Build the uniform
-            this.uniforms.set(
-              model.name,
-              this.buildUniform(model, texture, transferTexture)
-            );
+            this.modelsData.push({
+              intensity,
+              useTransferFunction,
+              texture,
+              transferTexture,
+            });
           } catch (error) {
             throw new Error("Failed to load model '" + name + "'", {
               cause: error,
@@ -268,34 +275,6 @@ AFRAME.registerComponent("volume", {
     return transferTexture;
   },
 
-  // Build THREE RawShaderMaterial from model and color map
-  buildUniform: function (model, texture, transferTexture) {
-    const { intensity, useTransferFunction } = model;
-    const uniforms = UniformsUtils.clone(DEFAULT_MATERIAL.uniforms);
-
-    // Resize viewport to scene
-    uniforms.viewPort.value = new Vector2(
-      this.scene.canvas.width,
-      this.scene.canvas.height
-    );
-
-    // Apply model properties
-    uniforms.intensity.value = intensity;
-    uniforms.useLut.value = useTransferFunction;
-    uniforms.u_data.value = texture; // Model data
-    uniforms.u_lut.value = transferTexture; // Color Map + transfer function
-
-    // blending, sliders, slices, and spacing are updated separately
-    const otherUniforms = this.getMesh().material.uniforms;
-    uniforms.blending.value = otherUniforms.blending.value;
-    uniforms.box_min.value = otherUniforms.box_min.value;
-    uniforms.box_max.value = otherUniforms.box_max.value;
-    uniforms.slices.value = otherUniforms.slices.value;
-    uniforms.dim.value = otherUniforms.dim.value;
-    uniforms.zScale.value = otherUniforms.zScale.value;
-    return uniforms;
-  },
-
   updateBlending: function () {
     const { blending } = this.data;
     const uniforms = this.getMesh().material.uniforms;
@@ -346,20 +325,10 @@ AFRAME.registerComponent("volume", {
     }
   },
 
-  // Blend model's into a single material and apply it to the model
+  // Pass array of models' data into the shader
   updateMaterial: function () {
-    console.log("MODELS LOADED", this.uniforms);
-
-    this.getMesh().material =
-      this.uniforms.size > 0
-        ? // TEMP - use first material
-          new RawShaderMaterial({
-            ...DEFAULT_MATERIAL,
-            uniforms: this.uniforms.values().next().value,
-          })
-        : // No models - use default material
-          new RawShaderMaterial(DEFAULT_MATERIAL);
-
+    console.log("MODELS LOADED", this.modelsData);
+    this.getMesh().material.uniforms.models.value = this.modelsData[0]
     this.updateSpacing(); // Update spacing based on the new material
   },
 
