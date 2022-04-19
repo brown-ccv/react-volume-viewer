@@ -98,7 +98,7 @@ VolumeViewer.propTypes = {
    *  None: Don't apply any blending
    *  Add: Apply additive blending
    */
-  blending: PropTypes.oneOf(Object.keys(Blending).map((key) => Blending[key])),
+  blending: PropTypes.oneOf(Object.values(Blending)),
 
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,

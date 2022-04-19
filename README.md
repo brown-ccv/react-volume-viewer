@@ -25,17 +25,18 @@ CSS styling for the height must be provided and a custom width can be provided a
 ```jsx
 
 VolumeViewer.propTypes = {
-  /** Blending algorithm to apply between the models
-   *    Blending.None: Don't apply blending
-   *    Blending.Add: Apply additive blending
+  /**
+   * Blending enum exposed to the user
+   *  None: Don't apply any blending
+   *  Add: Apply additive blending
    */
-  blending: PropTypes.instanceOf(Blending),
+  blending: PropTypes.oneOf(Object.values(Blending)),
 
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
 
   /** Array of models loaded into aframe REQUIRED
-   *    colorMap: Object containing the path to the current color image applied to the model.
+   *    colorMap: Object containing the path to the current color image applied to the model. REQUIRED
    *      name: Common name of the color map
    *      path: Path to the color map source image
    *    colorMaps: Array of possible color maps for the model
@@ -48,7 +49,7 @@ VolumeViewer.propTypes = {
    *    path: Path to the model
    *    range: Minimum and maximum values of the model's dataset
    *    transferFunction: The transfer function applied to the color map
-   *      transferFunction is an array of {x: [val], y: [val]} coordinates.
+   *      transferFunction is an array of {x: <val>, y: <val>} coordinates.
    *      Each coordinate in transferFunction must be between (0, 0) and (1,1)
    *    initTransferFunction: Initial value of transferFunction passed to the component
    *    useTransferFunction: Flag to apply a transfer function to the model
@@ -72,7 +73,7 @@ VolumeViewer.propTypes = {
   scale: PropTypes.string,
 
   /** Number of slices used to generate the model REQUIRED 
-   *    slices must be a valid integer
+   *    slices must be a positive integer
    */
   slices: PropTypes.number.isRequired,
 
