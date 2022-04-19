@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import styled from "styled-components";
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from "@reach/tabs";
 import "@reach/tabs/styles.css";
@@ -17,6 +17,20 @@ function Controls({
   setSliders,
   reset,
 }) {
+  // Callback function for changing properties of a specific model
+  const setModel = useCallback(
+    (change, idx) => {
+      setModels((models) => [
+        ...models.slice(0, idx),
+        {
+          ...models[idx],
+          ...change,
+        },
+        ...models.slice(idx + 1),
+      ]);
+    },
+    [setModels]
+  );
   return (
     <Wrapper $visible={controlsVisible}>
       <StyledTabList>
@@ -26,7 +40,7 @@ function Controls({
             <EnabledControls
               enabled={model.enabled}
               modelIdx={idx}
-              setModels={setModels}
+              setModel={setModel}
             />
           </FlexTab>
         ))}
@@ -39,7 +53,7 @@ function Controls({
               <ColorMapControls
                 model={model}
                 modelIdx={idx}
-                setModels={setModels}
+                setModel={setModel}
               />
             )}
 
@@ -48,7 +62,7 @@ function Controls({
                 transferFunction={model.transferFunction}
                 modelIdx={idx}
                 range={model.range}
-                setModels={setModels}
+                setModel={setModel}
               />
             )}
 

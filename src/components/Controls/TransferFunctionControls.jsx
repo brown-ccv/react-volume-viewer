@@ -52,7 +52,7 @@ function TransferFunctionControls({
   transferFunction,
   modelIdx,
   range,
-  setModels,
+  setModel,
 }) {
   const canvasRef = useRef(null);
   const [cursorType, setCursorType] = useState("pointer"); // Cursor type (styled-components)
@@ -122,10 +122,8 @@ function TransferFunctionControls({
       context.fill();
     });
 
-    setModels((models) => [
-      ...models.slice(0, modelIdx),
+    setModel(
       {
-        ...models[modelIdx],
         transferFunction: canvasPoints.map((p) => {
           return {
             x: scaleTransferFunctionToCanvasX.invert(p.x),
@@ -133,9 +131,9 @@ function TransferFunctionControls({
           };
         }),
       },
-      ...models.slice(modelIdx + 1),
-    ]);
-  }, [canvasPoints, modelIdx, pointHovering, pointDragging, setModels]);
+      modelIdx
+    );
+  }, [canvasPoints, modelIdx, pointHovering, pointDragging, setModel]);
 
   /** EVENT LISTENER FUNCTIONS **/
 
