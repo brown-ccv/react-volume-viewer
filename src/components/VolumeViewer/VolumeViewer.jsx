@@ -14,12 +14,12 @@ import {
   DEFAULT_MODEL,
 } from "../../constants";
 import {
-  useModelsPropMemo,
   validateInt,
   validateModel,
   validateSlider,
   validateVec3String,
 } from "../../utils";
+import { useModelsPropMemo } from "../../hooks";
 
 function VolumeViewer({
   className,
@@ -43,8 +43,6 @@ function VolumeViewer({
       newModels.map((model) => ({
         ...DEFAULT_MODEL,
         ...model,
-        initTransferFunction:
-          model.transferFunction ?? DEFAULT_MODEL.transferFunction,
       }))
     );
   }, [newModels]);
@@ -76,7 +74,14 @@ function VolumeViewer({
         setModels={setModels}
         setSliders={setSliders}
         reset={() => {
-          setModels(newModels);
+          setModels(
+            newModels.map((model) => ({
+              ...DEFAULT_MODEL,
+              ...model,
+              // initTransferFunction:
+              //   model.transferFunction ?? DEFAULT_MODEL.transferFunction,
+            }))
+          );
           setSliders(DEFAULT_SLIDERS);
           setRemountKey(Math.random());
         }}

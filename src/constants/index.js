@@ -2,7 +2,7 @@ import grayscale from "../images/grayscale.png";
 import natural from "../images/natural.png";
 import rgb from "../images/rgb.png";
 
-/** ENUM */
+/** EXPORTED CONSTANTS */
 
 /**
  * Blending enum exposed to the user
@@ -13,8 +13,6 @@ const Blending = {
   None: 0,
   Add: 1,
 };
-
-/** EXAMPLES */
 
 const COLOR_MAPS = {
   Grayscale: { name: "Grayscale", path: grayscale },

@@ -1,22 +1,4 @@
-import { useEffect, useRef } from "react";
-import { isEmpty, isEqual, differenceWith, pick } from "lodash";
-
-/** EXPORTS */
-
-// Custom useMemo hook for models
-function useModelsPropMemo(models) {
-  const previousRef = useRef();
-  const prevModels = previousRef.current;
-
-  // Returns true if models and prevModels are equal
-  const noChange = isEmpty(differenceWith(models, prevModels, isEqual));
-
-  // Update reference to previous value if not the same
-  useEffect(() => {
-    if (!noChange) previousRef.current = models;
-  });
-  return noChange ? prevModels : models;
-}
+import { pick } from "lodash";
 
 // Filter model properties needed from aframe
 function getAframeModels(models) {
@@ -192,10 +174,9 @@ function validateTransferFunction(transferFunction) {
 }
 
 export {
+  getAframeModels,
   validateModel,
   validateSlider,
   validateVec3String,
   validateInt,
-  useModelsPropMemo,
-  getAframeModels,
 };
