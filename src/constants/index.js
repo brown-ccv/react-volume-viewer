@@ -63,7 +63,7 @@ const DEFAULT_MATERIAL = {
     intensity: { value: 1.0 },
     slices: { value: 1.0 },
     step_size: { value: 0.01 },
-    models: { value: []},
+    models: { value: [] },
     u_data: { value: null },
     u_lut: { value: null },
     useLut: { value: true },

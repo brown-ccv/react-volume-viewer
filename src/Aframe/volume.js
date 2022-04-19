@@ -1,7 +1,6 @@
 import AFRAME, { THREE } from "aframe";
 import { isEqual } from "lodash";
 
-import { deepDifference } from "../utils/index.js";
 import {
   Blending,
   DEFAULT_SLIDERS,
@@ -328,7 +327,7 @@ AFRAME.registerComponent("volume", {
   // Pass array of models' data into the shader
   updateMaterial: function () {
     console.log("MODELS LOADED", this.modelsData);
-    this.getMesh().material.uniforms.models.value = this.modelsData[0]
+    this.getMesh().material.uniforms.models.value = this.modelsData[0];
     this.updateSpacing(); // Update spacing based on the new material
   },
 
