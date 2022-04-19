@@ -137,7 +137,7 @@ The default model is merged with every `model` in the `models` array. Note, howe
 
 ## Blending
 
-The `Blending` class is used as an enum for the different algorithms that can be used to blending the models together. `Blending.None` does not apply any blending. `Blending.Add` applies additive blending. Currently only `Blending.None` is implemented.
+The `Blending` object is used as an enum for the different algorithms that can be used to blending the models together. `Blending.None` does not apply any blending. `Blending.Add` applies additive blending. Currently only `Blending.None` is implemented.
 
 ```js
 const Blending = {
