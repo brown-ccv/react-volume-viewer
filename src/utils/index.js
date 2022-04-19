@@ -164,8 +164,6 @@ const validateModel = function (
   }
 };
 
-/** HELPER FUNCTIONS */
-
 function validateColorMaps(colorMaps) {
   const colorMapNames = new Set();
   colorMaps.forEach((colorMap) => {
