@@ -7,7 +7,7 @@ function EnabledControls({ enabled, modelIdx, setModels }) {
   return (
     <VisibleImg
       src={enabled ? visible : visibleOff}
-      alt={enabled ? "visible" : "visible off"}
+      alt={enabled ? "visible" : "not visible"}
       onClick={(e) => {
         e.stopPropagation();
         setModels((models) => [
