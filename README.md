@@ -18,7 +18,7 @@ npm install react-volume-viewer
 
 ## Props
 
-The only required props are the model's path, colorMap, and it's minimum and maximum data points. The model's path should be imported into the project and passed in from there - see the [example](#example) project.
+The only required props are the model's path, colorMap, and it's minimum and maximum data points. The model's path should be imported into the project and passed in from there - see the [example project](#example).
 
 CSS styling for the height must be provided and a custom width can be provided as well. The styling can be passed in through classes or inline styles.
 
