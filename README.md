@@ -20,13 +20,13 @@ npm install react-volume-viewer
 
 The only required props are the model's path, colorMap, and it's minimum and maximum data points. The model's path should be imported into the project and passed in from there - see the [example project](#example).
 
-CSS styling for the height must be provided and a custom width can be provided as well. You can define your own class and/or pass inline styles into the `<VolumeViewer />` component to accomplish this.
+CSS styling for the height must be provided, otherwise the height of the component will be 0px.
 
 ```jsx
 
 VolumeViewer.propTypes = {
   /**
-   * Blending enum exposed to the user
+   * Blending enum
    *  None: Don't apply any blending
    *  Add: Apply additive blending
    */
@@ -41,7 +41,7 @@ VolumeViewer.propTypes = {
    *      path: Path to the color map source image REQUIRED
    *    colorMaps: Array of possible color maps for the model
    *      colorMap must be present in colorMaps
-   *      Each colorMap must have a unique name in colorMaps
+   *      Each colorMap in colorMaps must have a unique name
    *    description: Short description of the model
    *    enabled: Flag to display the model
    *    intensity: Multiplication factor for voxels intensity
@@ -141,7 +141,7 @@ The `Blending` object is used as an enum for the different algorithms that can b
 
 The `DEFAULT_MODEL` object holds all of the default properties for a single model.
 
-It will be merged with every `model` in the `models` array. Note, however, that there is no default value for `colorMap`, `name`, or `path`. Each of these properties are required.
+It will be merged with every `model` in the `models` array. Note, however, that there is no default value for `name`, or `path`. Each of these properties are required.
 
 ```js
 {
@@ -212,7 +212,7 @@ function App() {
         },
         {
           name: "Temperature",
-          colorMaps={...Object.values(COLOR_MAPS)}
+          colorMaps={[...Object.values(COLOR_MAPS)]}
           enabled: enabled,
           description: "Model visualizing temperature data",
           path: {model2},
