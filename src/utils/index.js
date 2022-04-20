@@ -225,5 +225,4 @@ export {
   validateSlider,
   validateVec3String,
   validateInt,
-  
 };
