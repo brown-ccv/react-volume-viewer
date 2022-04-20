@@ -208,7 +208,7 @@ function App() {
         },
         {
           name: "Temperature",
-          colorMaps={...Object.values(COLOR_MAPS)}
+          colorMaps={[...Object.values(COLOR_MAPS)]}
           enabled: enabled,
           description: "Model visualizing temperature data",
           path: {model2},
