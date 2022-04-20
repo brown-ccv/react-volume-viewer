@@ -19,10 +19,10 @@ uniform float dim;
 uniform ModelData models;   // Array of models and it's associated data
 uniform float slices;       // Number of slicess in the volumes
 uniform float step_size;    // Ray step size 
-// uniform float intensity;    // TODO: DELETE
-// uniform sampler2D u_data;   // TODO: DELETE
-// uniform sampler2D u_lut;    // TODO: DELETE
-// uniform bool useLut;        // TODO: DELETE
+uniform float intensity;    // TODO: DELETE
+uniform sampler2D u_data;   // TODO: DELETE
+uniform sampler2D u_lut;    // TODO: DELETE
+uniform bool useLut;        // TODO: DELETE
 
 varying vec3 vUV;           // 3D coordinates of the texture (interpolated by rasterizer)
 varying vec3 camPos;
@@ -65,16 +65,17 @@ vec2 intersect_box(vec3 camera, vec3 direction, vec3 box_min, vec3 box_max ) {
     return vec2(tstart, tend);
 }
 
-vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direction, ModelData model) {
+vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direction) {
     vec4 vFragColor = vec4(0);
+
+    // Loop from t_start to t_end by step_size
     float t = t_start;
     for(int i = 0; i < MAX_ITERATIONS; i++) {
         t += step_size;
         if(t >= t_end) break; // Over box_max
     
-
-        vec4 volumeSample = sampleAs3DTexture(model.texture, data_position);
-        // TODO: Apply blending
+        vec4 volumeSample = sampleAs3DTexture(u_data, data_position);
+        volumeSample = volumeSample.rrrr; // TODO: WHY DO I NEED TO DO THIS?
         // if (blending == 1) volumeSample = volumeSample.rrrr;
         // else if (blending == 2) volumeSample = volumeSample.gggg;
         // else if (blending == 3) volumeSample = volumeSample.bbbb;
@@ -87,11 +88,12 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
         // }
 
         // Artificially increase pixel intensity
-        volumeSample.rgb = volumeSample.rgb * model.intensity;
+        volumeSample.rgb = volumeSample.rgb * intensity;
         
         // Look up the density value in the transfer function and return the appropriate color value
-        if(model.useTransferFunction) {
-            volumeSample = texture2D(model.transferTexture, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
+        // This is what actually applies the color texture
+        if(useLut) {
+            volumeSample = texture2D(u_lut, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
         }
 
         // Blending (front to back)
@@ -110,7 +112,7 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
 void main() {
     // Get the 3D texture coordinates for lookup into the volume dataset
     vec3 data_position = vUV;
-    // vec4 vFragColor = vec4(0);
+    vec4 vFragColor = vec4(0);
 
     // Direction the ray is marching in
     vec3 ray_direction = normalize(data_position - camPos);
@@ -124,7 +126,6 @@ void main() {
         We dont want to sample voxels behind the eye if its inside the volume, 
         so keep the starting point at or in front of the eye
     */
-    // if(t_start < 0.0) t_start = max(t_start, 0.0);
     t_start = max(t_start, 0.0);
 
     /*
@@ -164,15 +165,12 @@ void main() {
     // t_start is 0 - this does nothing?
     data_position = data_position + t_start * ray_direction;
 
-    vec4 modelColor = create_model(t_start, t_end, data_position, ray_direction, models);
-    
-    // Loop from t_start to t_end by step_size
+    // // Loop from t_start to t_end by step_size
     // float t = t_start;
     // for(int i = 0; i < MAX_ITERATIONS; i++) {
     //     t += step_size;
     //     if(t >= t_end) break; // Over box_max
     
-
     //     vec4 volumeSample = sampleAs3DTexture(u_data, data_position);
     //     if (blending == 1) volumeSample = volumeSample.rrrr;
     //     else if (blending == 2) volumeSample = volumeSample.gggg;
@@ -204,7 +202,8 @@ void main() {
     //     // Advance point
     //     data_position += ray_direction * step_size;
     // }
-
     // gl_FragColor = vFragColor;
-    gl_FragColor = modelColor;
+
+    vFragColor = create_model(t_start, t_end, data_position, ray_direction);
+    gl_FragColor = vFragColor;
 }

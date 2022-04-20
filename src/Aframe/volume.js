@@ -74,43 +74,44 @@ AFRAME.registerComponent("volume", {
       // Asynchronously loop through the data.models array
       // Each element runs serially and this.updateMaterial waits for all of the promises to finish
       Promise.allSettled(
-        data.models.map(async (model) => {
-          const {
+        data.models.map(
+          async ({
             name,
             path,
             colorMap,
             transferFunction,
             intensity,
             useTransferFunction,
-          } = model;
-          try {
-            // Load texture from png
-            const texture = usedModels.has(path)
-              ? usedModels.get(path)
-              : await this.loadTexture(model.path);
+          }) => {
+            try {
+              // Load texture from png
+              const texture = usedModels.has(path)
+                ? usedModels.get(path)
+                : await this.loadTexture(path);
 
-            // Load THREE DataTexture from color map's png and model.transferFunction
-            const colorData = usedColorMaps.has(colorMap.path)
-              ? usedColorMaps.get(colorMap.path)
-              : await this.loadColorMap(colorMap.path);
-            const transferTexture = this.buildTransferTexture(
-              colorData,
-              transferFunction
-            );
+              // Load THREE DataTexture from color map's png and model.transferFunction
+              const colorData = usedColorMaps.has(colorMap.path)
+                ? usedColorMaps.get(colorMap.path)
+                : await this.loadColorMap(colorMap.path);
+              const transferTexture = this.buildTransferTexture(
+                colorData,
+                transferFunction
+              );
 
-            // Build the uniform
-            this.modelsData.push({
-              intensity,
-              useTransferFunction,
-              texture,
-              transferTexture,
-            });
-          } catch (error) {
-            throw new Error("Failed to load model '" + name + "'", {
-              cause: error,
-            });
+              // Build the uniform
+              this.modelsData.push({
+                intensity,
+                useTransferFunction,
+                texture,
+                transferTexture,
+              });
+            } catch (error) {
+              throw new Error("Failed to load model '" + name + "'", {
+                cause: error,
+              });
+            }
           }
-        })
+        )
       ).then((promises) => {
         const errors = promises
           .filter((p) => p.status === "rejected")
@@ -277,7 +278,8 @@ AFRAME.registerComponent("volume", {
   updateBlending: function () {
     const { blending } = this.data;
     const uniforms = this.getMesh().material.uniforms;
-    uniforms.blending.value = blending.blending;
+    console.log(blending)
+    uniforms.blending.value = blending;
   },
 
   updateSlices: function () {
@@ -327,7 +329,17 @@ AFRAME.registerComponent("volume", {
   // Pass array of models' data into the shader
   updateMaterial: function () {
     console.log("MODELS LOADED", this.modelsData);
-    this.getMesh().material.uniforms.models.value = this.modelsData[0];
+
+    const model = this.modelsData[0];
+    const uniforms = this.getMesh().material.uniforms;
+
+    uniforms.intensity.value = model.intensity;
+    uniforms.u_data.value = model.texture;
+    uniforms.u_lut.value = model.transferTexture;
+    uniforms.useLut.value = model.useTransferFunction;
+
+    uniforms.models.value = this.modelsData[0];
+    console.log(uniforms)
     this.updateSpacing(); // Update spacing based on the new material
   },
 
