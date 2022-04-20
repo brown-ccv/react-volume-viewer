@@ -21,6 +21,7 @@ function AframeScene({
   spacing,
   sliders,
 }) {
+  console.log("AFRAME SCENE");
   const [errors, setErrors] = useState([]);
   useEffect(() => {
     const handler = (e) => {

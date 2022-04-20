@@ -35,18 +35,18 @@ VolumeViewer.propTypes = {
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
 
-  /** Array of models loaded into aframe REQUIRED
+  /** Array of models loaded into aframe (REQUIRED)
    *    colorMap: Object containing the path to the current color image applied to the model.
-   *      name: Common name of the color map REQUIRED
-   *      path: Path to the color map source image REQUIRED
+   *      name: Common name of the color map (REQUIRED)
+   *      path: Path to the color map source image (REQUIRED)
    *    colorMaps: Array of possible color maps for the model
    *      colorMap must be present in colorMaps
    *      Each colorMap in colorMaps must have a unique name
    *    description: Short description of the model
    *    enabled: Flag to display the model
    *    intensity: Multiplication factor for voxels intensity
-   *    name: Unique name given to the model REQUIRED
-   *    path: Path to the model REQUIRED
+   *    name: Unique name given to the model (REQUIRED)
+   *    path: Path to the model (REQUIRED)
    *    range: Minimum and maximum values of the model's dataset
    *    transferFunction: The transfer function applied to the color map
    *      Array of {x: <val>, y: <val>} coordinates.
@@ -71,12 +71,12 @@ VolumeViewer.propTypes = {
    */
   scale: PropTypes.string,
 
-  /** Number of slices used to generate the model REQUIRED 
+  /** Number of slices used to generate the model (REQUIRED) 
    *    slices must be a positive integer
    */
   slices: PropTypes.number.isRequired,
 
-  /** Spacing between the slices of the models a "<x> <y> <z>" string REQUIRED
+  /** Spacing between the slices of the models a "<x> <y> <z>" string (REQUIRED)
    *    x, y, and z must be valid numbers and are space separated
    */
   spacing: PropTypes.string.isRequired,
