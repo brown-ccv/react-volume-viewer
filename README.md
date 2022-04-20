@@ -41,7 +41,7 @@ VolumeViewer.propTypes = {
    *      path: Path to the color map source image REQUIRED
    *    colorMaps: Array of possible color maps for the model
    *      colorMap must be present in colorMaps
-   *      Each colorMap must have a unique name in colorMaps
+   *      Each colorMap in colorMaps must have a unique name
    *    description: Short description of the model
    *    enabled: Flag to display the model
    *    intensity: Multiplication factor for voxels intensity
