@@ -170,7 +170,6 @@ AFRAME.registerComponent("volume", {
 
   onExitVR: function () {
     const mesh = this.getMesh();
-    console.log(mesh);
     if (mesh) {
       mesh.position.copy(new Vector3());
       mesh.rotation.set(0, 0, 0);

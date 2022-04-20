@@ -78,8 +78,6 @@ function VolumeViewer({
             newModels.map((model) => ({
               ...DEFAULT_MODEL,
               ...model,
-              // initTransferFunction:
-              //   model.transferFunction ?? DEFAULT_MODEL.transferFunction,
             }))
           );
           setSliders(DEFAULT_SLIDERS);
