@@ -71,6 +71,8 @@ AFRAME.registerComponent("volume", {
 
     // Update model uniforms
     if (!isEqual(oldData.models, data.models)) {
+      this.modelsData = [];
+
       // Asynchronously loop through the data.models array
       // Each element runs serially and this.updateMaterial waits for all of the promises to finish
       Promise.allSettled(
