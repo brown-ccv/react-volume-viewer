@@ -18,72 +18,72 @@ npm install react-volume-viewer
 
 ## Props
 
-The only required props are the model's path, colorMap, and it's minimum and maximum data points. The model's path should be imported into the project and passed in from there - see the [example](#example) project.
+The only required props are the model's path, colorMap, and it's minimum and maximum data points. The model's path should be imported into the project and passed in from there - see the [example project](#example).
 
-CSS styling for the height must be provided and a custom width can be provided as well. The styling can be passed in through classes or inline styles.
+CSS styling for the height must be provided, otherwise the height of the component will be 0px.
 
 ```jsx
 
 VolumeViewer.propTypes = {
-  /** Blending algorithm to apply between the models
-   *    Blending.None: Don't apply blending
-   *    Blending.Add: Apply additive blending
+  /**
+   * Blending enum
+   *  None: Don't apply any blending
+   *  Add: Apply additive blending
    */
-  blending: PropTypes.instanceOf(Blending),
+  blending: PropTypes.oneOf(Object.values(Blending)),
 
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
 
-  /** Array of models loaded into aframe REQUIRED
+  /** Array of models loaded into aframe (REQUIRED)
    *    colorMap: Object containing the path to the current color image applied to the model.
-   *      name: Common name of the color map
-   *      path: Path to the color map source image
+   *      name: Common name of the color map (REQUIRED)
+   *      path: Path to the color map source image (REQUIRED)
    *    colorMaps: Array of possible color maps for the model
    *      colorMap must be present in colorMaps
-   *      Each colorMap must have a unique name in colorMaps
+   *      Each colorMap in colorMaps must have a unique name
    *    description: Short description of the model
    *    enabled: Flag to display the model
    *    intensity: Multiplication factor for voxels intensity
-   *    name: Unique name given to the model
-   *    path: Path to the model
+   *    name: Unique name given to the model (REQUIRED)
+   *    path: Path to the model (REQUIRED)
    *    range: Minimum and maximum values of the model's dataset
    *    transferFunction: The transfer function applied to the color map
-   *      transferFunction is an array of {x: [val], y: [val]} coordinates.
+   *      Array of {x: <val>, y: <val>} coordinates.
    *      Each coordinate in transferFunction must be between (0, 0) and (1,1)
-   *    initTransferFunction: Initial value of transferFunction passed to the component
    *    useTransferFunction: Flag to apply a transfer function to the model
    *    useColorMap: Flag to apply a color map to the model
    */
   models: MODEL,
 
-  /** Position of the dataset in the scene as a "[x] [y] [z]" string
-   *    [x], [y], and [z] must be valid numbers and are space separated
+  /** Position of the dataset in the scene as a "<x> <y> <z>" string
+   *    x, y, and z must be valid numbers and are space separated
    */
   position: PropTypes.string,
 
-  /** Position of the dataset in the scene as a "[x] [y] [z]" string
-   *    [x], [y], and [z] must be valid numbers and are space separated
+  /** Position of the dataset in the scene as a "<x> <y> <z>" string
+   *    x, y, and z must be valid numbers and are space separated
    */
   rotation: PropTypes.string,
 
-  /** Scale of the dataset in the scene as a "[x] [y] [z]" string
-   *    [x], [y], and [z] must be valid numbers and are space separated
+  /** Scale of the dataset in the scene as a "<x> <y> <z>" string
+   *    x, y, and z must be valid numbers and are space separated
    */
   scale: PropTypes.string,
 
-  /** Number of slices used to generate the model REQUIRED 
-   *    slices must be a valid integer
+  /** Number of slices used to generate the model (REQUIRED) 
+   *    slices must be a positive integer
    */
   slices: PropTypes.number.isRequired,
 
-  /** Spacing between the slices of the models a "[x] [y] [z]" string
-   *    [x], [y], and [z] must be valid numbers and are space separated
+  /** Spacing between the slices of the models a "<x> <y> <z>" string (REQUIRED)
+   *    x, y, and z must be valid numbers and are space separated
    */
   spacing: PropTypes.string.isRequired,
 
   /** 
    * Sliders for control of clipping along the x, y, and z axes 
-   * SLIDER is an array of exactly two values between 0 and 1. slider[0] <= slider[1].
+   * SLIDER is an array of exactly two values between 0 and 1. slider[0] must be <= slider[1].
    *  slider[0]: Minimum slider value
    *  slider[1]: Maximum slider value
    */
@@ -97,7 +97,7 @@ VolumeViewer.propTypes = {
 
 ## Default Props
 
-The `Model.Default` object will be merged with every `model` in the `models` array. Note, however, that there is no default value for `colorMap`, `description`, `name`, or `path`. Each of these is required.
+Default values are provided for props that are not required. The required props are `models`, `slices`, and `spacing`.
 
 ```jsx
 VolumeViewer.defaultProps = {
@@ -114,21 +114,6 @@ VolumeViewer.defaultProps = {
 };
 ```
 
-The default model is merged with every `model` in the `models` array. Note, however, that there is no default value for `colorMap`, `name`, or `path`. Each of these is required.
-
-```js
-  {
-    colorMaps: [],
-    description: "",
-    enabled: true,
-    intensity: 1,
-    range: { min: 0, max: 1, unit: "" },
-    transferFunction: [new Point(0, 0), new Point(1, 1)],
-    useTransferFunction: true,
-    useColorMap: true,
-  }
-```
-
 ## Exports
 
 ### VolumeViewer
@@ -137,111 +122,30 @@ The default model is merged with every `model` in the `models` array. Note, howe
 
 ## Blending
 
-The `Blending` class is used as an enum for the different algorithms that can be used to blending the models together. `Blending.None` does not apply any blending. `Blending.Add` applies additive blending. Currently only `Blending.None` is implemented.
-
-```js
-const Blending = {
-  None: 0,
-  Add: 1,
-};
-```
-
-### Model
-
-The `Model` class holds all of the properties for a single model. Certain default values are merged automatically in the constructor and the class comes with it's own validation. Note that you can use `Model.Default` when you are building your own `Model` instances.
-
-```js
-class Model {
-  static Default = new Model({
-    colorMaps: [],
-    description: "",
-    enabled: true,
-    intensity: 1,
-    range: { min: 0, max: 1, unit: "" },
-    transferFunction: [new Point(0, 0), new Point(1, 1)],
-    useTransferFunction: true,
-    useColorMap: true,
-  });
-
-  // Merge passed in object with Model.Default
-  constructor(obj) {
-    this.colorMap = obj.colorMap;
-    this.colorMaps = obj.colorMaps ?? Model.Default.colorMaps;
-    this.description = obj.description;
-    this.enabled = obj.enabled ?? Model.Default.enabled;
-    this.intensity = obj.intensity ?? Model.Default.intensity;
-    this.name = obj.name;
-    this.path = obj.path;
-    this.range = obj.range ?? Model.Default.range;
-    this.transferFunction =
-      obj.transferFunction ?? Model.Default.transferFunction;
-    this.initTransferFunction =
-      obj.transferFunction ?? Model.Default.transferFunction;
-    this.useTransferFunction =
-      obj.useTransferFunction ?? Model.Default.useTransferFunction;
-    this.useColorMap = obj.useColorMap ?? Model.Default.useColorMap;
-  }
-  toString() {
-    return `Model.${this.name}: ${this.path}`;
-  }
-  validate() {
-    // Validate points along the transferFunction
-    this.transferFunction.forEach((point) => point.validate());
-
-    if (!this.colorMaps.includes(this.colorMap))
-      throw new Error("Color Map '" + this.colorMap + "' not in colorMaps");
-
-    // Color map names in colorMaps must be unique
-    const colorMapNames = new Set();
-    this.colorMaps.forEach((colorMap) => {
-      if (colorMapNames.has(colorMap.name))
-        throw new Error(
-          "Color map name '" +
-            colorMap.name +
-            "' is not unique on model '" +
-            this.name +
-            "'"
-        );
-      else colorMapNames.add(colorMap.name);
-    });
-  }
-}
-```
+The `Blending` object is used as an enum for the different algorithms that can be used to blending the models together. `Blending.None` does not apply any blending. `Blending.Add` applies additive blending. Currently only `Blending.None` is implemented.
 
 ### COLOR_MAPS
 
 `COLOR_MAPS` is an object containing some example colormaps. Any/all of the color maps can be imported into your project and passed into `model.colorMaps` array for any individual model.
 
+`Grayscale`
 <img alt="grayscale" src="./src/images/grayscale.png" height="25"/>
+
+`Natural`
 <img alt="natural" src="./src/images/natural.png" height="25"/>
+
+`Rgb`
 <img alt="rgb" src="./src/images/rgb.png" height="25"/>
-
-```js
-const COLOR_MAPS = {
-  Grayscale: {name: "Grayscale", path: grayscale},
-  Natural: {name: "Natural", path: natural},
-  Rgb: {name: "Rgb", path: rgb},
-}
-```
-
-### DEFAULT_SLIDERS
-
-The `DEFAULT_SLIDERS` export is the default value for the `sliders` prop. It will be applied automatically if you do not pass `sliders` into `<VolumeViewer />`.
-
-```js
-const DEFAULT_SLIDERS = {
-  x: [0, 1],
-  y: [0, 1],
-  z: [0, 1],
-};
-```
 
 ### DEFAULT_MODEL
 
-The `DEFAULT_MODEL` object contains default values for some properties of an individual model. These values are automatically merged with each object in the `models` prop passed in if any specific property is not given. Note that the `colorMap`, `name`, and `path` properties are not present as these are required properties.
+The `DEFAULT_MODEL` object holds all of the default properties for a single model.
+
+It will be merged with every `model` in the `models` array. Note, however, that there is no default value for `name`, or `path`. Each of these properties are required.
 
 ```js
-const DEFAULT_MODEL = {
+{
+  colorMap: COLOR_MAPS.Grayscale,
   colorMaps: [],
   description: "",
   enabled: true,
@@ -253,7 +157,19 @@ const DEFAULT_MODEL = {
   ],
   useTransferFunction: true,
   useColorMap: true,
-}
+};
+```
+
+### DEFAULT_SLIDERS
+
+The `DEFAULT_SLIDERS` export is the default value for the `sliders` prop. It will be applied automatically if you do not pass `sliders` into `<VolumeViewer />`.
+
+```js
+{
+  x: [0, 1],
+  y: [0, 1],
+  z: [0, 1],
+};
 ```
 
 ## Example
@@ -261,13 +177,7 @@ const DEFAULT_MODEL = {
 ```jsx
 import React from 'react'
 import styled from 'styled-components'
-import {
-  VolumeViewer,
-  ColorMap,
-  Point,
-  DEFAULT_COLOR_MAPS,
-  Model,
-} from "react-volume-viewer";
+import { VolumeViewer, COLOR_MAPS } from "react-volume-viewer";
 
 import model1 from "./path/to/model.png";
 import model2 from "./path/to/model.png";
@@ -283,24 +193,29 @@ function App() {
     <StyledVolumeViewer
       controlsVisible={controlsVisible}
       models={[
-        new Model({
+        {
           name: "Salt",
           colorMap: haline,
-          colorMaps={[haline, thermal, ...ColorMap.all]}
+          colorMaps={[haline, thermal, COLOR_MAPS.Grayscale]}
           description: "Model visualizing salinity data",
+          path: {model1},
           range: {
             min: 0.05,
             max: 33.71,
           },
           path: model1,
-          transferFunction: [new Point(0, 0), new Point(0.5, 0.5), new Point(1, 1)],
-        }),
-        new Model({
+          transferFunction: [
+            { x: 0, y: 0 },
+            { x: 0.5, y: 0.5 },
+            { x: 1, y: 1 },
+          ],
+        },
+        {
           name: "Temperature",
-          colorMap: ColorMap.Grayscale,
-          colorMaps={ColorMap.all}
+          colorMaps={[...Object.values(COLOR_MAPS)]}
           enabled: enabled,
           description: "Model visualizing temperature data",
+          path: {model2},
           range: {
             min: 2.5,
             max: 42,
@@ -308,13 +223,12 @@ function App() {
           },
           useTransferFunction: false,
           useColorMap: false,
-        }),
+        },
       ]}
-      rotation: "-55 0 0"
-      scale: "1 -1 1"
+      rotation="-55 0 0"
+      scale="1 -1 1"
       slices={50}
       spacing="2 2 1"
-          
     />
   )
 }

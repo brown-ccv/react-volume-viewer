@@ -45,7 +45,7 @@ function Controls({
 
             {model.useTransferFunction && (
               <TransferFunctionControls
-                initTransferFunction={model.initTransferFunction}
+                transferFunction={model.transferFunction}
                 modelIdx={idx}
                 range={model.range}
                 setModels={setModels}
@@ -97,10 +97,6 @@ const FlexTab = styled(Tab)`
     background-color: initial;
   }
 `;
-
-// const StyledTabPanels = styled(TabPanels)`
-//   padding: 0px 16px; // Section.jsx handles spacing on y axis
-// `;
 
 const Button = styled.button``;
 

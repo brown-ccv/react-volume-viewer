@@ -8,7 +8,7 @@ import fragmentShader from "../Aframe/fragment-shader.frag";
 
 const { BackSide, Vector2, Vector3, Matrix4 } = THREE;
 
-/** ENUM and EXAMPLES */
+/** EXPORTED CONSTANTS */
 
 /**
  * Blending enum exposed to the user
@@ -39,6 +39,7 @@ const DEFAULT_SLIDERS = {
 };
 
 const DEFAULT_MODEL = {
+  colorMap: COLOR_MAPS.Grayscale,
   colorMaps: [],
   description: "",
   enabled: true,

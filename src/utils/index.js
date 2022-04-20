@@ -58,6 +58,24 @@ function getAframeModels(models) {
   return JSON.stringify(models.filter((model) => model.enabled));
 }
 
+// Recursively find the differences between two objects
+function deepDifference(oldObj, newObj) {
+  const changes = (newObj, oldObj) => {
+    let arrayIndexCounter = 0;
+    return transform(newObj, (result, value, key) => {
+      if (!isEqual(value, oldObj[key])) {
+        const resultKey = isArray(oldObj) ? arrayIndexCounter++ : key;
+        result[resultKey] =
+          isObject(value) && isObject(oldObj[key])
+            ? changes(value, oldObj[key])
+            : value;
+      }
+    });
+  };
+
+  return changes(newObj, oldObj);
+}
+
 const validateVec3String = function (props, propName, componentName) {
   const string = props[propName];
 
@@ -100,10 +118,10 @@ const validateInt = function (props, propName, componentName) {
   }
 
   // Value must be an integer
-  if (!Number.isInteger(num)) {
+  if (!(Number.isInteger(num) && num > 0)) {
     return new Error(
       `Invalid prop '${propName}' of type '${typeof num}' ` +
-        `supplied to '${componentName}'. '${num}' is not an integer`
+        `supplied to '${componentName}'. '${num}' is not a positive integer`
     );
   }
 };
@@ -161,7 +179,7 @@ const validateModel = function (
   }
 
   try {
-    validateColorMaps(model.colorMaps, model.name);
+    if ("colorMaps" in model) validateColorMaps(model.colorMaps, model.name);
     if ("transferFunction" in model)
       validateTransferFunction(model.transferFunction);
   } catch (error) {
@@ -171,8 +189,6 @@ const validateModel = function (
     );
   }
 };
-
-/** HELPER FUNCTIONS */
 
 function validateColorMaps(colorMaps) {
   const colorMapNames = new Set();
@@ -201,30 +217,13 @@ function validateTransferFunction(transferFunction) {
   });
 }
 
-// Recursively find the differences between two objects
-function deepDifference(oldObj, newObj) {
-  const changes = (newObj, oldObj) => {
-    let arrayIndexCounter = 0;
-    return transform(newObj, (result, value, key) => {
-      if (!isEqual(value, oldObj[key])) {
-        const resultKey = isArray(oldObj) ? arrayIndexCounter++ : key;
-        result[resultKey] =
-          isObject(value) && isObject(oldObj[key])
-            ? changes(value, oldObj[key])
-            : value;
-      }
-    });
-  };
-
-  return changes(newObj, oldObj);
-}
-
 export {
   useModelsPropMemo,
   getAframeModels,
+  deepDifference,
   validateModel,
   validateSlider,
   validateVec3String,
   validateInt,
-  deepDifference,
+  
 };

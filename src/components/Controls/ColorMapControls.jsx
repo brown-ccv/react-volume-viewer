@@ -17,7 +17,7 @@ function ColorMapControls({ model, modelIdx, setModels }) {
   return (
     <Section>
       <Title>Color Map</Title>
-      {"colorMaps" in model ? (
+      {model.colorMaps.length > 1 ? (
         <StyledListboxInput
           aria-labelledby="ColorMap dropdown"
           value={model.colorMap.name}

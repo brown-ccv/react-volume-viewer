@@ -14,12 +14,12 @@ import {
   DEFAULT_MODEL,
 } from "../../constants";
 import {
-  useModelsPropMemo,
   validateInt,
   validateModel,
   validateSlider,
   validateVec3String,
 } from "../../utils";
+import { useModelsPropMemo } from "../../hooks";
 
 function VolumeViewer({
   className,
@@ -36,17 +36,15 @@ function VolumeViewer({
 }) {
   // Control the models in state; override on modelsProp change
   const [models, setModels] = useState([]);
-  const newModels = useModelsPropMemo(modelsProp);
-  useEffect(() => {
+  const newModels = useModelsPropMemo(
     // Inject default model
-    setModels(
-      newModels.map((model) => ({
-        ...DEFAULT_MODEL,
-        ...model,
-        initTransferFunction:
-          model.transferFunction ?? DEFAULT_MODEL.transferFunction,
-      }))
-    );
+    modelsProp.map((model) => ({
+      ...DEFAULT_MODEL,
+      ...model,
+    }))
+  );
+  useEffect(() => {
+    setModels(newModels);
   }, [newModels]);
 
   // Sliders apply clipping to the volume as a whole
@@ -98,7 +96,7 @@ VolumeViewer.propTypes = {
    *  None: Don't apply any blending
    *  Add: Apply additive blending
    */
-  blending: PropTypes.oneOf(Object.keys(Blending).map((key) => Blending[key])),
+  blending: PropTypes.oneOf(Object.values(Blending)),
 
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
