@@ -141,7 +141,7 @@ The `Blending` object is used as an enum for the different algorithms that can b
 
 The `DEFAULT_MODEL` object holds all of the default properties for a single model.
 
-It will be merged with every `model` in the `models` array. Note, however, that there is no default value for `colorMap`, `name`, or `path`. Each of these properties are required.
+It will be merged with every `model` in the `models` array. Note, however, that there is no default value for `name`, or `path`. Each of these properties are required.
 
 ```js
 {
