@@ -60,13 +60,20 @@ const DEFAULT_MATERIAL = {
     clipping: { value: false },
     clipPlane: { value: new Matrix4() },
     dim: { value: 1.0 },
-    intensity: { value: 1.0 },
-    models: { value: null },
+    // intensity: { value: 1.0 },
+    models: {
+      value: {
+        intensity: 1,
+        useTransferFunction: true,
+        texture: null, // Model data
+        transferTexture: null, // colorMap + transferFunction data
+      },
+    },
     slices: { value: 1.0 },
     step_size: { value: 0.01 },
-    u_data: { value: null },
-    u_lut: { value: null },
-    useLut: { value: true },
+    // u_data: { value: null },
+    // u_lut: { value: null },
+    // useLut: { value: true },
     viewPort: { value: new Vector2() },
     zScale: { value: 1.0 },
   },

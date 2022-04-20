@@ -198,6 +198,10 @@ AFRAME.registerComponent("volume", {
     return this.el.getObject3D("mesh");
   },
 
+  getMaterial: function () {
+    return this.getMesh().material.uniforms;
+  },
+
   // Load THREE Texture from the model's path
   loadTexture: function (modelPath) {
     return new Promise((resolve, reject) => {
@@ -277,14 +281,13 @@ AFRAME.registerComponent("volume", {
 
   updateBlending: function () {
     const { blending } = this.data;
-    const uniforms = this.getMesh().material.uniforms;
-    console.log(blending)
+    const uniforms = this.getMaterial();
     uniforms.blending.value = blending;
   },
 
   updateSlices: function () {
     const { slices } = this.data;
-    const uniforms = this.getMesh().material.uniforms;
+    const uniforms = this.getMaterial();
 
     uniforms.slices.value = slices;
     uniforms.dim.value = Math.ceil(Math.sqrt(slices));
@@ -292,8 +295,9 @@ AFRAME.registerComponent("volume", {
 
   updateSpacing: function () {
     const { spacing } = this.data;
-    const uniforms = this.getMesh().material.uniforms;
-    const texture = uniforms.u_data.value; // Image
+    const uniforms = this.getMaterial();
+
+    const texture = uniforms.models.value.texture; // Image
     const dim = uniforms.dim.value;
     const slices = uniforms.slices.value;
 
@@ -315,7 +319,7 @@ AFRAME.registerComponent("volume", {
 
   // Update clipping uniforms from sliders (reset if !activateClipPlane)
   updateClipping: function () {
-    const uniforms = this.getMesh().material.uniforms;
+    const uniforms = this.getMaterial();
     const { x, y, z } = this.data.sliders;
     if (this.el.getAttribute("keypress-listener").activateClipPlane) {
       uniforms.box_min.value = new Vector3(x[0], y[0], z[0]);
@@ -330,16 +334,7 @@ AFRAME.registerComponent("volume", {
   updateMaterial: function () {
     console.log("MODELS LOADED", this.modelsData);
 
-    const model = this.modelsData[0];
-    const uniforms = this.getMesh().material.uniforms;
-
-    uniforms.intensity.value = model.intensity;
-    uniforms.u_data.value = model.texture;
-    uniforms.u_lut.value = model.transferTexture;
-    uniforms.useLut.value = model.useTransferFunction;
-
-    uniforms.models.value = this.modelsData[0];
-    console.log(uniforms)
+    this.getMaterial().models.value = this.modelsData[0];
     this.updateSpacing(); // Update spacing based on the new material
   },
 

@@ -15,14 +15,10 @@ uniform int blending;
 uniform bool clipping;
 uniform mat4 clipPlane;
 uniform float dim;
-// TODO: Change length of array
+// TODO: Make an array
 uniform ModelData models;   // Array of models and it's associated data
 uniform float slices;       // Number of slicess in the volumes
 uniform float step_size;    // Ray step size 
-uniform float intensity;    // TODO: DELETE
-uniform sampler2D u_data;   // TODO: DELETE
-uniform sampler2D u_lut;    // TODO: DELETE
-uniform bool useLut;        // TODO: DELETE
 
 varying vec3 vUV;           // 3D coordinates of the texture (interpolated by rasterizer)
 varying vec3 camPos;
@@ -44,10 +40,11 @@ vec4 sampleAs3DTexture(sampler2D tex, vec3 tex_coordinates) {
 
     #if LINEAR_FILTER
         // Apply linear interpolation between start and end coordinates
-        vec4 color_start = texture2D(tex, coordinates_start);
-        vec4 color_end = texture2D(tex, coordinates_end);
-        float z_offset = (tex_coordinates.z * slices - z_start);
-        return mix(color_start, color_end, z_offset);
+        return mix(
+            texture2D(tex, coordinates_start),
+            texture2D(tex, coordinates_end),
+            (tex_coordinates.z * slices - z_start) // z offset
+        );
     #else
         return texture2D(tex, coordinates_start);
     #endif
@@ -65,7 +62,7 @@ vec2 intersect_box(vec3 camera, vec3 direction, vec3 box_min, vec3 box_max ) {
     return vec2(tstart, tend);
 }
 
-vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direction) {
+vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direction, ModelData model) {
     vec4 vFragColor = vec4(0);
 
     // Loop from t_start to t_end by step_size
@@ -74,26 +71,18 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
         t += step_size;
         if(t >= t_end) break; // Over box_max
     
-        vec4 volumeSample = sampleAs3DTexture(u_data, data_position);
-        volumeSample = volumeSample.rrrr; // TODO: WHY DO I NEED TO DO THIS?
-        // if (blending == 1) volumeSample = volumeSample.rrrr;
-        // else if (blending == 2) volumeSample = volumeSample.gggg;
-        // else if (blending == 3) volumeSample = volumeSample.bbbb;
-        // else if (blending == 4) volumeSample = volumeSample.aaaa;
-        // else if (blending == 5) volumeSample = volumeSample;
-        // else { 
-        //     // Dont have an alpha from the datasets, initialize as the max of the 3 channels
-        //     volumeSample.a = max(volumeSample.r, max(volumeSample.g, volumeSample.b));
-        //     if(volumeSample.a < 0.25) volumeSample.a = 0.1 * volumeSample.a;
-        // }
+        vec4 volumeSample = sampleAs3DTexture(model.texture, data_position);
+
+        // TODO: WHY DO I NEED TO DO THIS?
+        volumeSample = volumeSample.rrrr;
 
         // Artificially increase pixel intensity
-        volumeSample.rgb = volumeSample.rgb * intensity;
+        volumeSample.rgb = volumeSample.rgb * model.intensity;
         
         // Look up the density value in the transfer function and return the appropriate color value
         // This is what actually applies the color texture
-        if(useLut) {
-            volumeSample = texture2D(u_lut, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
+        if(model.useTransferFunction) {
+            volumeSample = texture2D(model.transferTexture, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
         }
 
         // Blending (front to back)
@@ -165,45 +154,6 @@ void main() {
     // t_start is 0 - this does nothing?
     data_position = data_position + t_start * ray_direction;
 
-    // // Loop from t_start to t_end by step_size
-    // float t = t_start;
-    // for(int i = 0; i < MAX_ITERATIONS; i++) {
-    //     t += step_size;
-    //     if(t >= t_end) break; // Over box_max
-    
-    //     vec4 volumeSample = sampleAs3DTexture(u_data, data_position);
-    //     if (blending == 1) volumeSample = volumeSample.rrrr;
-    //     else if (blending == 2) volumeSample = volumeSample.gggg;
-    //     else if (blending == 3) volumeSample = volumeSample.bbbb;
-    //     else if (blending == 4) volumeSample = volumeSample.aaaa;
-    //     else if (blending == 5) volumeSample = volumeSample;
-    //     else { 
-    //         // Dont have an alpha from the datasets, initialize as the max of the 3 channels
-    //         volumeSample.a = max(volumeSample.r, max(volumeSample.g, volumeSample.b));
-    //         if(volumeSample.a < 0.25) volumeSample.a = 0.1 * volumeSample.a;
-    //     }
-
-    //     // Artificially increase pixel intensity
-    //     volumeSample.rgb = volumeSample.rgb * intensity;
-        
-    //     // Look up the density value in the transfer function and return the appropriate color value
-    //     // This is what actually applies the color texture
-    //     if(useLut) {
-    //         volumeSample = texture2D(u_lut, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
-    //     }
-
-    //     // Blending (front to back)
-    //     vFragColor.rgb += (1.0 - vFragColor.a) * volumeSample.a * volumeSample.rgb;
-    //     vFragColor.a += (1.0 - vFragColor.a) * volumeSample.a;
-
-    //     // Early exit if 95% opacity is reached
-    //     if (vFragColor.a >= 0.95) break;
-
-    //     // Advance point
-    //     data_position += ray_direction * step_size;
-    // }
-    // gl_FragColor = vFragColor;
-
-    vFragColor = create_model(t_start, t_end, data_position, ray_direction);
+    vFragColor = create_model(t_start, t_end, data_position, ray_direction, models);
     gl_FragColor = vFragColor;
 }
