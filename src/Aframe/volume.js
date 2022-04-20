@@ -299,7 +299,7 @@ AFRAME.registerComponent("volume", {
   updateBlending: function () {
     const { blending } = this.data;
     const uniforms = this.getMesh().material.uniforms;
-    uniforms.blending.value = blending.blending;
+    uniforms.blending.value = blending;
   },
 
   updateSlices: function () {
