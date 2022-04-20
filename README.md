@@ -26,7 +26,7 @@ CSS styling for the height must be provided, otherwise the height of the compone
 
 VolumeViewer.propTypes = {
   /**
-   * Blending enum exposed to the user
+   * Blending enum
    *  None: Don't apply any blending
    *  Add: Apply additive blending
    */
