@@ -204,7 +204,11 @@ function App() {
             max: 33.71,
           },
           path: model1,
-          transferFunction: [new Point(0, 0), new Point(0.5, 0.5), new Point(1, 1)],
+          transferFunction: [
+            { x: 0, y: 0 },
+            { x: 0.5, y: 0.5 },
+            { x: 1, y: 1 },
+          ],
         },
         {
           name: "Temperature",
