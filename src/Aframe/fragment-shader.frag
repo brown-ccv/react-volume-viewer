@@ -45,7 +45,7 @@ vec4 sampleAs3DTexture(sampler2D tex, vec3 tex_coordinates) {
 }
 
 // Clip the volume between box_min and box_max
-vec2 intersect_box(vec3 camera, vec3 direction, vec3 box_min, vec3 box_max ) {
+vec2 intersectBox(vec3 camera, vec3 direction, vec3 box_min, vec3 box_max ) {
     vec3 direction_inverse = 1.0 / direction;
     vec3 bmin_direction = (box_min - camera) * direction_inverse;
     vec3 bmax_direction = (box_max - camera) * direction_inverse;
@@ -65,7 +65,7 @@ void main() {
     vec3 ray_direction = normalize(data_position - camPos);
 
     // Get the t values for the intersection with the box
-    vec2 t_hit = intersect_box(camPos, ray_direction, box_min, box_max);
+    vec2 t_hit = intersectBox(camPos, ray_direction, box_min, box_max);
     float t_start = t_hit.x;
     float t_end = t_hit.y;
 
