@@ -182,8 +182,8 @@ import { VolumeViewer, COLOR_MAPS } from "react-volume-viewer";
 import model1 from "./path/to/model.png";
 import model2 from "./path/to/model.png";
 
-const haline = new ColorMap("Haline", "./assets/colormaps/haline.png")
-const thermal = new ColorMap("Thermal", "./assets/colormaps/thermal.png")
+const haline = { name: "Haline", path: "./assets/colormaps/haline.png" };
+const thermal = { name: "Thermal", path: "./assets/colormaps/thermal.png" };
 
 function App() {
   const [controlsVisible, setControlsVisible] = React.useState(true);
