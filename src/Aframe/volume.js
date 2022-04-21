@@ -10,7 +10,6 @@ import {
 const {
   LinearFilter,
   RGBAFormat,
-  RawShaderMaterial,
   Vector2,
   Vector3,
   Matrix4,
@@ -58,12 +57,12 @@ AFRAME.registerComponent("volume", {
     );
 
     // Initialize material
-    const initMaterial = DEFAULT_MATERIAL;
+    const initMaterial = DEFAULT_MATERIAL.clone();
     initMaterial.uniforms.viewPort.value = new Vector2(
       this.scene.canvas.width,
       this.scene.canvas.height
     );
-    this.getMesh().material = new RawShaderMaterial(initMaterial);
+    this.getMesh().material = initMaterial;
   },
 
   update: function (oldData) {
@@ -74,7 +73,7 @@ AFRAME.registerComponent("volume", {
       this.modelsData = [];
 
       // Asynchronously loop through the data.models array
-      // Each element runs serially and this.updateMaterial waits for all of the promises to finish
+      // Each element runs serially and this.updateModels waits for all of the promises to finish
       Promise.allSettled(
         data.models.map(
           async (
@@ -129,7 +128,7 @@ AFRAME.registerComponent("volume", {
               detail: errors,
             })
           );
-        } else this.updateMaterial();
+        } else this.updateModels();
       });
     }
 
@@ -203,7 +202,7 @@ AFRAME.registerComponent("volume", {
     return this.el.getObject3D("mesh");
   },
 
-  getMaterial: function () {
+  getUniforms: function () {
     return this.getMesh().material.uniforms;
   },
 
@@ -286,13 +285,13 @@ AFRAME.registerComponent("volume", {
 
   updateBlending: function () {
     const { blending } = this.data;
-    const uniforms = this.getMaterial();
+    const uniforms = this.getUniforms();
     uniforms.blending.value = blending;
   },
 
   updateSlices: function () {
     const { slices } = this.data;
-    const uniforms = this.getMaterial();
+    const uniforms = this.getUniforms();
 
     uniforms.slices.value = slices;
     uniforms.dim.value = Math.ceil(Math.sqrt(slices));
@@ -300,7 +299,7 @@ AFRAME.registerComponent("volume", {
 
   updateSpacing: function () {
     const { spacing } = this.data;
-    const uniforms = this.getMaterial();
+    const uniforms = this.getUniforms();
 
     const texture = uniforms.models.value.texture; // Image
     const dim = uniforms.dim.value;
@@ -324,7 +323,7 @@ AFRAME.registerComponent("volume", {
 
   // Update clipping uniforms from sliders (reset if !activateClipPlane)
   updateClipping: function () {
-    const uniforms = this.getMaterial();
+    const uniforms = this.getUniforms();
     const { x, y, z } = this.data.sliders;
     if (this.el.getAttribute("keypress-listener").activateClipPlane) {
       uniforms.box_min.value = new Vector3(x[0], y[0], z[0]);
@@ -336,10 +335,13 @@ AFRAME.registerComponent("volume", {
   },
 
   // Pass array of models' data into the shader
-  updateMaterial: function () {
+  updateModels: function () {
     console.log("MODELS LOADED", this.modelsData);
 
-    this.getMaterial().models.value = this.modelsData[0];
+    this.getUniforms().models.value = this.modelsData.length
+      ? this.modelsData[0]
+      : DEFAULT_MATERIAL.clone().uniforms.models.value;
+
     this.updateSpacing(); // Update spacing based on the new material
   },
 

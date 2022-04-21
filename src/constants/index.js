@@ -6,7 +6,7 @@ import rgb from "../images/rgb.png";
 import vertexShader from "../Aframe/vertex-shader.vert";
 import fragmentShader from "../Aframe/fragment-shader.frag";
 
-const { BackSide, Vector2, Vector3, Matrix4 } = THREE;
+const { BackSide, RawShaderMaterial, Vector2, Vector3, Matrix4 } = THREE;
 
 /** EXPORTED CONSTANTS */
 
@@ -53,7 +53,7 @@ const DEFAULT_MODEL = {
   useColorMap: true,
 };
 
-const DEFAULT_MATERIAL = {
+const DEFAULT_MATERIAL = new RawShaderMaterial({
   uniforms: {
     blending: { value: 0 },
     box_max: { value: new Vector3(1, 1, 1) },
@@ -61,20 +61,15 @@ const DEFAULT_MATERIAL = {
     clipping: { value: false },
     clipPlane: { value: new Matrix4() },
     dim: { value: 1.0 },
-    // intensity: { value: 1.0 },
     models: {
       value: {
         intensity: 1,
-        useTransferFunction: true,
         texture: null, // Model data
         transferTexture: null, // colorMap + transferFunction data
       },
     },
     slices: { value: 1.0 },
     step_size: { value: 0.01 },
-    // u_data: { value: null },
-    // u_lut: { value: null },
-    // useLut: { value: true },
     viewPort: { value: new Vector2() },
     zScale: { value: 1.0 },
   },
@@ -82,7 +77,7 @@ const DEFAULT_MATERIAL = {
   fragmentShader: fragmentShader,
   transparent: true,
   side: BackSide, // Shader uses "backface" as its reference point
-};
+});
 
 export {
   Blending,
