@@ -126,7 +126,7 @@ void main() {
         else if (blending == 4) volumeSample = volumeSample.aaaa;
         else if (blending == 5) volumeSample = volumeSample;
         else { 
-            // Dont have an alpha from the datasets, initialize as the max of the 3 channels
+            // Don't have an alpha from the datasets, initialize as the max of the 3 channels
             volumeSample.a = max(volumeSample.r, max(volumeSample.g, volumeSample.b));
             if(volumeSample.a < 0.25) volumeSample.a = 0.1 * volumeSample.a;
         }
