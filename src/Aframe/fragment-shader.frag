@@ -13,7 +13,7 @@ uniform float slices;       // Number of slicess in the volumes
 uniform float step_size;    // Ray step size 
 uniform sampler2D u_data;   // Dataset of the model
 uniform sampler2D u_lut;    // Dataset of the color map and transfer function
-uniform bool use_lut;        // useTransferFunction
+uniform bool use_lut;       // useTransferFunction
 
 varying vec3 vUV;           // 3D coordinates of the texture (interpolated by rasterizer)
 varying vec3 camPos;
@@ -78,7 +78,7 @@ void main() {
     /*
         We don't know if the ray was cast from the back or the front face. To ensure we 
         update data_position and t_hit to reflect a ray from entry point to exit 
-        We're shiftingthe clipping box to [0.0, end - start]
+        We're shifting the clipping box to [0.0, end - start]
         (Note: We only render the back face)
     */
     data_position = camPos + t_start * ray_direction;
@@ -126,7 +126,7 @@ void main() {
         else if (blending == 4) volumeSample = volumeSample.aaaa;
         else if (blending == 5) volumeSample = volumeSample;
         else { 
-            // Dont have an alpha from the datasets, initialize as the max of the 3 channels
+            // Don't have an alpha from the datasets, initialize as the max of the 3 channels
             volumeSample.a = max(volumeSample.r, max(volumeSample.g, volumeSample.b));
             if(volumeSample.a < 0.25) volumeSample.a = 0.1 * volumeSample.a;
         }
@@ -135,7 +135,7 @@ void main() {
         volumeSample.rgb = volumeSample.rgb * intensity;
 
         // This is what actually applies the color texture
-        if(use_lut) {
+        if (use_lut) {
             // Look up the density value in the transfer function and return the appropriate color value
             volumeSample = texture2D(u_lut, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
         }
