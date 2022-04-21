@@ -6,14 +6,14 @@ uniform vec3 box_min;       // Clip minimum
 uniform vec3 box_max;       // Clip maximum
 uniform int blending;
 uniform bool clipping;
-uniform mat4 clipPlane;
+uniform mat4 clip_plane;
 uniform float dim;
 uniform float intensity;    // Artifically scale each pixel intensity
 uniform float slices;        // Number of slicess in the volumes
 uniform float step_size;    // Ray step size 
 uniform sampler2D u_data;   // Dataset of the model
 uniform sampler2D u_lut;    // Dataset of the color map and transfer function
-uniform bool useLut;        // useTransferFunction
+uniform bool use_lut;        // useTransferFunction
 
 varying vec3 vUV;           // 3D coordinates of the texture (interpolated by rasterizer)
 varying vec3 camPos;
@@ -51,9 +51,9 @@ vec2 intersect_box(vec3 camera, vec3 direction, vec3 box_min, vec3 box_max ) {
     vec3 bmax_direction = (box_max - camera) * direction_inverse;
     vec3 tmin = min(bmin_direction, bmax_direction);
     vec3 tmax = max(bmin_direction, bmax_direction);
-    float tstart = max(tmin.x, max(tmin.y, tmin.z));
-    float tend = min(tmax.x, min(tmax.y, tmax.z));
-    return vec2(tstart, tend);
+    float t_start = max(tmin.x, max(tmin.y, tmin.z));
+    float t_end = min(tmax.x, min(tmax.y, tmax.z));
+    return vec2(t_start, t_end);
 }
 
 void main() {
@@ -73,15 +73,14 @@ void main() {
         We dont want to sample voxels behind the eye if its inside the volume, 
         so keep the starting point at or in front of the eye
     */
-    // if(t_start < 0.0) t_start = max(t_start, 0.0);
     t_start = max(t_start, 0.0);
 
     /*
         We don't know if the ray was cast from the back or the front face. To ensure we 
         update data_position and t_hit to reflect a ray from entry point to exit 
+        We're shiftingthe clipping box to [0.0, end - start]
         (Note: We only render the back face)
     */
-    // Shift box to [0.0, end - start]
     data_position = camPos + t_start * ray_direction;
     t_end = t_end - t_start;
     t_start = 0.0;
@@ -89,12 +88,12 @@ void main() {
     // Get t for the clipping plane and overwrite the entry point
     // This only occurs when grabbing volume in VR
     if(clipping) {
-        vec4 p_in = clipPlane * vec4(data_position + t_start * ray_direction, 1);
-        vec4 p_out = clipPlane * vec4(data_position + t_end * ray_direction, 1);
+        vec4 p_in = clip_plane * vec4(data_position + t_start * ray_direction, 1);
+        vec4 p_out = clip_plane * vec4(data_position + t_end * ray_direction, 1);
         if(p_in.y * p_out.y < 0.0 ) {
             // Both points lie on different sides of the plane, need a new clip point
-            vec4 c_pos = clipPlane * vec4(data_position, 1);
-            vec4 c_dir = clipPlane * vec4(ray_direction, 0);
+            vec4 c_pos = clip_plane * vec4(data_position, 1);
+            vec4 c_dir = clip_plane * vec4(ray_direction, 0);
             float t_clip = -c_pos.y / c_dir.y;
     
             // Update either entry or exit based on which is on the clipped side
@@ -136,7 +135,7 @@ void main() {
         volumeSample.rgb = volumeSample.rgb * intensity;
 
         // This is what actually applies the color texture
-        if(useLut) {
+        if(use_lut) {
             // Look up the density value in the transfer function and return the appropriate color value
             volumeSample = texture2D(u_lut, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
         }

@@ -281,7 +281,7 @@ AFRAME.registerComponent("volume", {
 
     // Apply model properties
     uniforms.intensity.value = intensity;
-    uniforms.useLut.value = useTransferFunction;
+    uniforms.use_lut.value = useTransferFunction;
     uniforms.u_data.value = texture; // Model data
     uniforms.u_lut.value = transferTexture; // Color Map + transfer function
 
@@ -381,7 +381,7 @@ AFRAME.registerComponent("volume", {
     clipMatrix.multiplyMatrices(clipMatrix, translationMatrix);
 
     // Update shader uniforms
-    uniforms.clipPlane.value = clipMatrix;
+    uniforms.clip_plane.value = clipMatrix;
     uniforms.clipping.value =
       this.scene.is("vr-mode") &&
       this.controllerObject.el.getAttribute("buttons-check").gripDown &&
