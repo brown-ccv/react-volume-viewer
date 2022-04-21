@@ -36,15 +36,15 @@ function VolumeViewer({
 }) {
   // Control the models in state; override on modelsProp change
   const [models, setModels] = useState([]);
-  const newModels = useModelsPropMemo(modelsProp);
-  useEffect(() => {
+  const newModels = useModelsPropMemo(
     // Inject default model
-    setModels(
-      newModels.map((model) => ({
-        ...DEFAULT_MODEL,
-        ...model,
-      }))
-    );
+    modelsProp.map((model) => ({
+      ...DEFAULT_MODEL,
+      ...model,
+    }))
+  );
+  useEffect(() => {
+    setModels(newModels);
   }, [newModels]);
 
   // Sliders apply clipping to the volume as a whole
@@ -74,12 +74,7 @@ function VolumeViewer({
         setModels={setModels}
         setSliders={setSliders}
         reset={() => {
-          setModels(
-            newModels.map((model) => ({
-              ...DEFAULT_MODEL,
-              ...model,
-            }))
-          );
+          setModels(newModels);
           setSliders(DEFAULT_SLIDERS);
           setRemountKey(Math.random());
         }}

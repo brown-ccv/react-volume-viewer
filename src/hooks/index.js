@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { isEmpty, isEqual, differenceWith } from "lodash";
+import { isEqual } from "lodash";
 
 // Custom useMemo hook for models
 function useModelsPropMemo(models) {
@@ -7,7 +7,7 @@ function useModelsPropMemo(models) {
   const prevModels = previousRef.current;
 
   // Returns true if models and prevModels are equal
-  const noChange = isEmpty(differenceWith(models, prevModels, isEqual));
+  const noChange = isEqual(models, prevModels);
 
   // Update reference to previous value if not the same
   useEffect(() => {
