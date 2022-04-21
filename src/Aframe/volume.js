@@ -70,7 +70,6 @@ AFRAME.registerComponent("volume", {
   update: function (oldData) {
     const { data, usedModels, usedColorMaps } = this;
     const diffObject = deepDifference(oldData, data);
-    console.log(diffObject);
 
     // Update model uniforms
     if ("models" in diffObject) {
@@ -349,8 +348,6 @@ AFRAME.registerComponent("volume", {
 
   // Blend model's into a single material and apply it to the model
   updateMaterial: function () {
-    console.log("MODELS LOADED", this.uniforms);
-
     this.getMesh().material =
       this.uniforms.size > 0
         ? // TEMP - use first material
