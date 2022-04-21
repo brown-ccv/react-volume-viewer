@@ -13,7 +13,7 @@ uniform float slices;       // Number of slicess in the volumes
 uniform float step_size;    // Ray step size 
 uniform sampler2D u_data;   // Dataset of the model
 uniform sampler2D u_lut;    // Dataset of the color map and transfer function
-uniform bool use_lut;        // useTransferFunction
+uniform bool use_lut;       // useTransferFunction
 
 varying vec3 vUV;           // 3D coordinates of the texture (interpolated by rasterizer)
 varying vec3 camPos;
