@@ -9,7 +9,7 @@ uniform bool clipping;
 uniform mat4 clip_plane;
 uniform float dim;
 uniform float intensity;    // Artifically scale each pixel intensity
-uniform float slices;        // Number of slicess in the volumes
+uniform float slices;       // Number of slicess in the volumes
 uniform float step_size;    // Ray step size 
 uniform sampler2D u_data;   // Dataset of the model
 uniform sampler2D u_lut;    // Dataset of the color map and transfer function
