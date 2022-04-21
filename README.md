@@ -39,7 +39,7 @@ VolumeViewer.propTypes = {
    *    colorMap: Object containing the path to the current color image applied to the model.
    *      name: Common name of the color map (REQUIRED)
    *      path: Path to the color map source image (REQUIRED)
-   *    colorMaps: Array of possible color maps for the model
+   *    colorMaps: Array of color maps available to the model (controls dropdown)
    *      colorMap must be present in colorMaps
    *      Each colorMap in colorMaps must have a unique name
    *    description: Short description of the model
