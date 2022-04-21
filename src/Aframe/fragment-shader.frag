@@ -16,6 +16,7 @@ uniform mat4 clipPlane;
 uniform float dim;
 // TODO: Make an array
 uniform ModelData models;   // Array of models and it's associated data
+// uniform ModelData models[10]; // How big should this array be?
 uniform float slices;       // Number of slicess in the volumes
 uniform float step_size;    // Ray step size 
 
