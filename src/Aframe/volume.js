@@ -1,5 +1,4 @@
 import AFRAME, { THREE } from "aframe";
-import { isEqual } from "lodash";
 
 import { deepDifference } from "../utils/index.js";
 import {
@@ -70,9 +69,12 @@ AFRAME.registerComponent("volume", {
 
   update: function (oldData) {
     const { data, usedModels, usedColorMaps } = this;
+    const diffObject = deepDifference(oldData, data);
+    console.log(diffObject);
 
     // Update model uniforms
-    if (!isEqual(oldData.models, data.models)) {
+    if ("models" in diffObject) {
+      this.uniforms = new Map();
       // Asynchronously loop through the data.models array
       // Each element runs serially and this.updateMaterial waits for all of the promises to finish
       Promise.allSettled(
@@ -121,10 +123,10 @@ AFRAME.registerComponent("volume", {
     }
 
     // Update other uniforms
-    if (!isEqual(oldData.blending, data.blending)) this.updateBlending();
-    if (!isEqual(oldData.slices, data.slices)) this.updateSlices();
-    if (!isEqual(oldData.spacing, data.spacing)) this.updateSpacing();
-    if (!isEqual(oldData.sliders, data.sliders)) this.updateClipping();
+    if ("blending" in diffObject) this.updateBlending();
+    if ("slices" in diffObject) this.updateSlices();
+    if ("spacing" in diffObject) this.updateSpacing();
+    if ("sliders" in diffObject) this.updateClipping();
   },
 
   tick: function (time, timeDelta) {
@@ -380,7 +382,7 @@ AFRAME.registerComponent("volume", {
     clipMatrix.multiplyMatrices(clipMatrix, translationMatrix);
 
     // Update shader uniforms
-    uniforms.clip_plane.value = clipMatrix;
+    uniforms.clipPlane.value = clipMatrix;
     uniforms.clipping.value =
       this.scene.is("vr-mode") &&
       this.controllerObject.el.getAttribute("buttons-check").gripDown &&
