@@ -78,7 +78,7 @@ void main() {
     /*
         We don't know if the ray was cast from the back or the front face. To ensure we 
         update data_position and t_hit to reflect a ray from entry point to exit 
-        We're shiftingthe clipping box to [0.0, end - start]
+        We're shifting the clipping box to [0.0, end - start]
         (Note: We only render the back face)
     */
     data_position = camPos + t_start * ray_direction;
