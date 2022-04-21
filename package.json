@@ -27,8 +27,10 @@
   },
   "dependencies": {
     "@reach/listbox": "^0.16.2",
+    "@reach/tabs": "^0.16.4",
     "aframe": "^1.2.0",
     "d3-scale": "^4.0.2",
+    "lodash": "^4.17.21",
     "rc-slider": "^10.0.0"
   },
   "peerDependencies": {

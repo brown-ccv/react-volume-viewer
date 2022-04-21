@@ -2,53 +2,57 @@ import grayscale from "../images/grayscale.png";
 import natural from "../images/natural.png";
 import rgb from "../images/rgb.png";
 
-/** Default Props */
+/** EXPORTED CONSTANTS */
 
-const grayscaleColorMap = { name: "Grayscale", path: grayscale };
-const naturalColorMap = { name: "Natural", path: natural };
-const rgbColorMap = { name: "RGB", path: rgb };
-const ColorMaps = {
-  grayscale: grayscaleColorMap,
-  natural: naturalColorMap,
-  rgb: rgbColorMap,
+/**
+ * Blending enum exposed to the user
+ *  None: Don't apply any blending
+ *  Add: Apply additive blending
+ */
+const Blending = {
+  None: 0,
+  Add: 1,
 };
 
-const DEFAULT_TRANSFER_FUNCTION = [
-  { x: 0, y: 0 },
-  { x: 1, y: 1 },
-];
-
-const DEFAULT_MODEL = {
-  channel: 1,
-  intensity: 1.0,
-  position: "0 0 0",
-  range: { min: 0, max: 1, unit: "" },
-  rotation: "0 0 0",
-  scale: "1 1 1",
-  slices: 55,
-  spacing: { x: 2, y: 2, z: 1 },
-  transferFunction: DEFAULT_TRANSFER_FUNCTION,
-  useTransferFunction: true,
+const COLOR_MAPS = {
+  Grayscale: { name: "Grayscale", path: grayscale },
+  Natural: { name: "Natural", path: natural },
+  Rgb: { name: "Rgb", path: rgb },
 };
 
+/** DEFAULT VALUES */
+
+const DEFAULT_POSITION = "0 0 0";
+const DEFAULT_ROTATION = "0 0 0";
+const DEFAULT_SCALE = "1 1 1";
 const SLIDER_RANGE = { min: 0, max: 1 };
 const DEFAULT_SLIDERS = {
   x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
   y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
   z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
 };
-
-const DECIMALS = 2;
-const CANVAS_PADDING = 10;
-const HOVER_RADIUS = 15;
+const DEFAULT_MODEL = {
+  colorMap: COLOR_MAPS.Grayscale,
+  colorMaps: [],
+  description: "",
+  enabled: true,
+  intensity: 1,
+  range: { min: 0, max: 1, unit: "" },
+  transferFunction: [
+    { x: 0, y: 0 },
+    { x: 1, y: 1 },
+  ],
+  useTransferFunction: true,
+  useColorMap: true,
+};
 
 export {
-  ColorMaps,
-  DEFAULT_MODEL,
-  DEFAULT_TRANSFER_FUNCTION,
+  Blending,
+  COLOR_MAPS,
+  DEFAULT_POSITION,
+  DEFAULT_ROTATION,
+  DEFAULT_SCALE,
   SLIDER_RANGE,
   DEFAULT_SLIDERS,
-  DECIMALS,
-  CANVAS_PADDING,
-  HOVER_RADIUS,
+  DEFAULT_MODEL,
 };

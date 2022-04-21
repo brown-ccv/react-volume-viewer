@@ -2,8 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { scaleLinear } from "d3-scale";
 
-import Section from "../Section";
-import { DECIMALS, CANVAS_PADDING, HOVER_RADIUS } from "../../constants";
+import Section from "./Section.jsx";
+import Title from "./Title.jsx";
+
+/** Constants */
+
+const DECIMALS = 2;
+const CANVAS_PADDING = 10;
+const HOVER_RADIUS = 15;
 
 /** Data Ranges and Transformations **/
 
@@ -19,6 +25,8 @@ const canvasRange = {
 // Transform transferFunction space to canvas space
 const scaleTransferFunctionToCanvasX = scaleLinear();
 const scaleTransferFunctionToCanvasY = scaleLinear();
+
+/** Helper Function */
 
 // Returns the mouse's  position relative to canvas
 function getRelativeMousePos(e) {
@@ -40,7 +48,12 @@ function getRelativeMousePos(e) {
   return position;
 }
 
-function OpacityControls({ initModel, range, setModel }) {
+function TransferFunctionControls({
+  transferFunction,
+  modelIdx,
+  range,
+  setModels,
+}) {
   const canvasRef = useRef(null);
   const [cursorType, setCursorType] = useState("pointer"); // Cursor type (styled-components)
   const [canvasPoints, setCanvasPoints] = useState([]); // Points in canvas space
@@ -64,14 +77,15 @@ function OpacityControls({ initModel, range, setModel }) {
 
     // Initialize canvasPoints
     setCanvasPoints(
-      initModel.transferFunction.map((p) => {
+      transferFunction.map((p) => {
         return {
           x: scaleTransferFunctionToCanvasX(p.x),
           y: scaleTransferFunctionToCanvasY(p.y),
         };
       })
     );
-  }, [initModel]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /** DRAW FUNCTION **/
 
@@ -108,16 +122,20 @@ function OpacityControls({ initModel, range, setModel }) {
       context.fill();
     });
 
-    setModel((model) => ({
-      ...model,
-      transferFunction: canvasPoints.map((p) => {
-        return {
-          x: scaleTransferFunctionToCanvasX.invert(p.x),
-          y: scaleTransferFunctionToCanvasY.invert(p.y),
-        };
-      }),
-    }));
-  }, [canvasPoints, pointHovering, pointDragging, setModel]);
+    setModels((models) => [
+      ...models.slice(0, modelIdx),
+      {
+        ...models[modelIdx],
+        transferFunction: canvasPoints.map((p) => {
+          return {
+            x: scaleTransferFunctionToCanvasX.invert(p.x),
+            y: scaleTransferFunctionToCanvasY.invert(p.y),
+          };
+        }),
+      },
+      ...models.slice(modelIdx + 1),
+    ]);
+  }, [canvasPoints, modelIdx, pointHovering, pointDragging, setModels]);
 
   /** EVENT LISTENER FUNCTIONS **/
 
@@ -200,7 +218,8 @@ function OpacityControls({ initModel, range, setModel }) {
   }
 
   return (
-    <Section title="Transfer Function">
+    <Section>
+      <Title>Transfer Function</Title>
       <OutlinedCanvas
         id="opacityControls"
         ref={canvasRef}
@@ -271,4 +290,4 @@ const HelpText = styled.p`
   font-size: 0.75rem;
 `;
 
-export default OpacityControls;
+export default TransferFunctionControls;

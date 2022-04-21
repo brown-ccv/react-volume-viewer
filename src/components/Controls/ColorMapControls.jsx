@@ -10,22 +10,28 @@ import {
 } from "@reach/listbox";
 import "@reach/listbox/styles.css";
 
-import Section from "../Section";
+import Section from "./Section.jsx";
+import Title from "./Title.jsx";
 
-function ColorMapControls({ colorMaps, model, setModel }) {
+function ColorMapControls({ model, modelIdx, setModels }) {
   return (
-    <Section title="Color Map">
-      {colorMaps.length > 1 ? (
+    <Section>
+      <Title>Color Map</Title>
+      {model.colorMaps.length > 1 ? (
         <StyledListboxInput
           aria-labelledby="ColorMap dropdown"
           value={model.colorMap.name}
           onChange={(newColorMapName) =>
-            setModel((model) => ({
-              ...model,
-              colorMap: colorMaps.find(
-                (colorMap) => newColorMapName === colorMap.name
-              ),
-            }))
+            setModels((models) => [
+              ...models.slice(0, modelIdx),
+              {
+                ...models[modelIdx],
+                colorMap: model.colorMaps.find(
+                  (colorMap) => newColorMapName === colorMap.name
+                ),
+              },
+              ...models.slice(modelIdx + 1),
+            ])
           }
         >
           <ListboxButton>
@@ -39,7 +45,7 @@ function ColorMapControls({ colorMaps, model, setModel }) {
           </ListboxButton>
           <ListboxPopover>
             <ListboxList>
-              {colorMaps.map(({ name, path }) => (
+              {model.colorMaps.map(({ name, path }) => (
                 <StyledListboxOption key={name} value={name}>
                   <OptionText>{name}</OptionText>
                   <OptionImg src={path} alt={name} width="0" height="auto" />

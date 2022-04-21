@@ -1,52 +1,53 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
-
-import {
-  DEFAULT_MODEL,
-  DEFAULT_TRANSFER_FUNCTION,
-  DEFAULT_SLIDERS,
-} from "../../constants";
 
 import Controls from "../Controls";
 import AframeScene from "../AframeScene";
 
-// TODO: Changing model from props will reset the transferFunction.
-// Only want to reset <OpacityControls> when model.transferFunction specifically changes? Use React.memo
+import {
+  Blending,
+  DEFAULT_SLIDERS,
+  DEFAULT_POSITION,
+  DEFAULT_ROTATION,
+  DEFAULT_SCALE,
+  DEFAULT_MODEL,
+} from "../../constants";
+import {
+  validateInt,
+  validateModel,
+  validateSlider,
+  validateVec3String,
+} from "../../utils";
+import { useModelsPropMemo } from "../../hooks";
 
 function VolumeViewer({
   className,
   style,
-  colorMaps,
+  blending,
   controlsVisible,
-  model: modelProp,
+  models: modelsProp,
+  position,
+  rotation,
+  scale,
+  slices,
+  spacing,
   sliders: slidersProp,
 }) {
-  // Get initial values based on prop input. These will update on prop change.
-  const initModel = useMemo(
-    () => ({
+  // Control the models in state; override on modelsProp change
+  const [models, setModels] = useState([]);
+  const newModels = useModelsPropMemo(
+    // Inject default model
+    modelsProp.map((model) => ({
       ...DEFAULT_MODEL,
-      ...modelProp,
-      transferFunction: modelProp.useTransferFunction
-        ? // Inject DEFAULT_TRANSFER_FUNCTION if transferFunction property is not given
-          modelProp.transferFunction ?? DEFAULT_TRANSFER_FUNCTION
-        : // Always use DEFAULT_TRANSFER_FUNCTIOn when !useTransferFunction
-          DEFAULT_TRANSFER_FUNCTION,
-    }),
-    [modelProp]
+      ...model,
+    }))
   );
-
-  // Control the model in state; override on prop change
-  const [model, setModel] = useState(initModel);
   useEffect(() => {
-    if (!colorMaps.includes(initModel.colorMap)) {
-      throw new Error(
-        "Color Map '" + initModel.colorMap + "' not in colorMaps"
-      );
-    }
-    setModel(initModel);
-  }, [initModel, colorMaps]);
+    setModels(newModels);
+  }, [newModels]);
 
+  // Sliders apply clipping to the volume as a whole
   const [sliders, setSliders] = useState(slidersProp);
 
   // Changing a components key will remount the entire thing
@@ -55,23 +56,29 @@ function VolumeViewer({
 
   return (
     <Wrapper key={remountKey} className={className} style={style}>
-      <AframeScene model={model} sliders={sliders} />
+      <AframeScene
+        blending={blending}
+        models={models}
+        position={position}
+        rotation={rotation}
+        scale={scale}
+        slices={slices}
+        spacing={spacing}
+        sliders={sliders}
+      />
 
-      {controlsVisible && (
-        <Controls
-          colorMaps={colorMaps}
-          initModel={initModel}
-          model={model}
-          sliders={sliders}
-          setModel={setModel}
-          setSliders={setSliders}
-          reset={() => {
-            setModel(initModel);
-            setSliders(DEFAULT_SLIDERS);
-            setRemountKey(Math.random());
-          }}
-        />
-      )}
+      <Controls
+        controlsVisible={controlsVisible}
+        models={models}
+        sliders={sliders}
+        setModels={setModels}
+        setSliders={setSliders}
+        reset={() => {
+          setModels(newModels);
+          setSliders(DEFAULT_SLIDERS);
+          setRemountKey(Math.random());
+        }}
+      />
     </Wrapper>
   );
 }
@@ -83,132 +90,54 @@ const Wrapper = styled.div`
   height: 100%;
 `;
 
-/**
- * Object containing the name and path to a color map image
- *  name: Common name of the color map
- *  path: Path to the color map source image
- */
-const COLOR_MAP = PropTypes.exact({
-  name: PropTypes.string,
-  path: PropTypes.string,
-});
-
-/**
- * Array of two values between 0 and 1
- * arr[0]: Minimum slider value
- * arr[1]: Maximum slider value
- */
-const SLIDER = function (prop, key, componentName, location, propFullName) {
-  const slider = prop[key];
-
-  // Array length is exactly 2
-  if (slider.length !== 2) {
-    return new Error(
-      `Invalid prop '${propFullName}' supplied to '${componentName}'. ` +
-        `${propFullName} must be an array of length 2.`
-    );
-  }
-
-  // Minimum slider value must be <= maximum
-  if (slider[0] > slider[1]) {
-    return new Error(
-      `Invalid prop '${propFullName}' supplied to '${componentName}'. ` +
-        `${propFullName}[0] must be <= ${propFullName}[1].`
-    );
-  }
-
-  // Slider values must be between 0 and 1
-  for (let [idx, val] of slider.entries()) {
-    if (val < 0 || val > 1) {
-      return new Error(
-        `Invalid prop '${propFullName}' supplied to '${componentName}'. ` +
-          `slider[${idx}] must be between 0 and 1 (inclusive)`
-      );
-    }
-  }
-};
-
 VolumeViewer.propTypes = {
   /**
-   * Array of color maps available in the controls.
-   *  name: Common name of the color map
-   *  path: Path to the color map src
+   * Blending enum exposed to the user
+   *  None: Don't apply any blending
+   *  Add: Apply additive blending
    */
-  colorMaps: PropTypes.arrayOf(COLOR_MAP),
+  blending: PropTypes.oneOf(Object.values(Blending)),
 
   /** Whether or not the controls can be seen */
   controlsVisible: PropTypes.bool,
 
-  /** The model to be displayed and it's related information */
-  model: PropTypes.shape({
-    /**
-     * The current color map applied to the model
-     * The colorMap must be present in the colorMaps array
-     * REQUIRED
-     */
-    colorMap: COLOR_MAP.isRequired,
+  /** Array of models loaded into aframe REQUIRED */
+  models: PropTypes.arrayOf(validateModel).isRequired,
 
-    /** Channel to load data from (R:1, G:2, B:3)*/
-    channel: PropTypes.number,
+  /** Position of the dataset in the scene */
+  position: validateVec3String,
 
-    /** Increase/decrease voxels intensity */
-    intensity: PropTypes.number,
+  /** Position of the dataset in the scene */
+  rotation: validateVec3String,
 
-    /** Path to the model REQUIRED */
-    path: PropTypes.string.isRequired,
+  /** Scale of the dataset in the scene */
+  scale: validateVec3String,
 
-    /** Position of the model in the scene */
-    position: PropTypes.string,
+  /** Number of slices used to generate the model REQUIRED */
+  slices: validateInt,
 
-    /** Minimum and maximum values of the model's dataset. Min and max values are required */
-    range: PropTypes.shape({
-      min: PropTypes.number.isRequired,
-      max: PropTypes.number.isRequired,
-      unit: PropTypes.string,
-    }),
-
-    /** Position of the model in the scene */
-    rotation: PropTypes.string,
-
-    /** Scale of the model in the scene */
-    scale: PropTypes.string,
-
-    /** Number of slices used to generate the model */
-    slices: PropTypes.number,
-
-    /** Spacing between the slices of the model */
-    spacing: PropTypes.exact({
-      x: PropTypes.number,
-      y: PropTypes.number,
-      z: PropTypes.number,
-    }),
-
-    /**
-     * The transfer function applied to the color map
-     * Array of 2D points
-     */
-    transferFunction: PropTypes.arrayOf(
-      PropTypes.exact({
-        x: PropTypes.number,
-        y: PropTypes.number,
-      })
-    ),
-
-    /** Whether or not to apply a transfer function to the model */
-    useTransferFunction: PropTypes.bool,
-  }).isRequired,
+  /**
+   * Spacing between the slices of the model across each axis
+   * Each slider is an array of exactly two values between 0 and 1. slider[0] must be <= slider[1]
+   *  slider[0]: Minimum slider value
+   *  slider[1]: Maximum slider value
+   */
+  spacing: validateVec3String,
 
   /* Sliders for control of clipping along the x, y, and z axes */
   sliders: PropTypes.exact({
-    x: SLIDER,
-    y: SLIDER,
-    z: SLIDER,
+    x: validateSlider,
+    y: validateSlider,
+    z: validateSlider,
   }),
 };
 
 VolumeViewer.defaultProps = {
-  colorMaps: [],
+  blending: Blending.Add,
   controlsVisible: false,
+  position: DEFAULT_POSITION,
+  rotation: DEFAULT_ROTATION,
+  scale: DEFAULT_SCALE,
   sliders: DEFAULT_SLIDERS,
 };
 

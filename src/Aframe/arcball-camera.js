@@ -1,7 +1,7 @@
-/* globals AFRAME THREE*/
+import AFRAME, { THREE } from "aframe";
 import "./arcball-controller.js";
 
-const bind = AFRAME.utils.bind;
+const { Vector3, Matrix4, TrackballControls } = THREE;
 
 AFRAME.registerComponent("arcball-camera", {
   dependencies: ["camera"],
@@ -13,12 +13,13 @@ AFRAME.registerComponent("arcball-camera", {
   init: function () {
     const el = this.el;
 
-    this.oldPosition = new THREE.Vector3();
-    this.oldMatrix = new THREE.Matrix4();
-    this.meshObjectHandler = document.getElementById("volumeCube").object3D;
+    this.oldPosition = new Vector3();
+    this.oldMatrix = new Matrix4();
+    this.meshObjectHandler =
+      document.getElementById("volume-container").object3D;
 
     // Create controls
-    this.controls = new THREE.TrackballControls(
+    this.controls = new TrackballControls(
       el.getObject3D("camera"),
       el.sceneEl.renderer.domElement
     );
@@ -27,8 +28,8 @@ AFRAME.registerComponent("arcball-camera", {
     this.controls.panSpeed = 0.8;
 
     // Bind functions and add event listeners
-    this.onEnterVR = bind(this.onEnterVR, this);
-    this.onExitVR = bind(this.onExitVR, this);
+    this.onEnterVR = AFRAME.utils.bind(this.onEnterVR, this);
+    this.onExitVR = AFRAME.utils.bind(this.onExitVR, this);
     el.sceneEl.addEventListener("enter-vr", this.onEnterVR);
     el.sceneEl.addEventListener("exit-vr", this.onExitVR);
 

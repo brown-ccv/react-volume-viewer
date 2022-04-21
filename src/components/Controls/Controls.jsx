@@ -1,52 +1,101 @@
 import React from "react";
 import styled from "styled-components";
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from "@reach/tabs";
+import "@reach/tabs/styles.css";
 
-import ColorMapControls from "../ColorMapControls";
-import OpacityControls from "../OpacityControls";
-import ClipControls from "../ClipControls";
+import ColorMapControls from "./ColorMapControls.jsx";
+import TransferFunctionControls from "./TransferFunctionControls.jsx";
+import ClipControls from "./ClipControls.jsx";
+import EnabledControls from "./EnabledControls.jsx";
+import Section from "./Section.jsx";
 
 function Controls({
-  colorMaps,
-  initModel,
-  model,
+  controlsVisible,
+  models,
   sliders,
-  setModel,
+  setModels,
   setSliders,
   reset,
 }) {
   return (
-    <Wrapper>
-      <ColorMapControls
-        colorMaps={colorMaps}
-        model={model}
-        setModel={setModel}
-      />
+    <Wrapper $visible={controlsVisible}>
+      <StyledTabList>
+        {models.map((model, idx) => (
+          <FlexTab key={model.name} onClick={(e) => e.preventDefault()}>
+            {model.name}
+            <EnabledControls
+              enabled={model.enabled}
+              modelIdx={idx}
+              setModels={setModels}
+            />
+          </FlexTab>
+        ))}
+      </StyledTabList>
 
-      {model.useTransferFunction && (
-        <OpacityControls
-          initModel={initModel}
-          range={model.range}
-          setModel={setModel}
-        />
-      )}
-      <Button onClick={reset}> Reset </Button>
+      <TabPanels>
+        {models.map((model, idx) => (
+          <TabPanel key={model.name}>
+            {model.useColorMap && (
+              <ColorMapControls
+                model={model}
+                modelIdx={idx}
+                setModels={setModels}
+              />
+            )}
+
+            {model.useTransferFunction && (
+              <TransferFunctionControls
+                transferFunction={model.transferFunction}
+                modelIdx={idx}
+                range={model.range}
+                setModels={setModels}
+              />
+            )}
+
+            <Section>
+              <Button onClick={reset}> Reset </Button>
+            </Section>
+          </TabPanel>
+        ))}
+      </TabPanels>
+
+      <Section>
+        <hr />
+      </Section>
 
       <ClipControls sliders={sliders} setSliders={setSliders} />
     </Wrapper>
   );
 }
 
-const Wrapper = styled.div`
+const Wrapper = styled(Tabs)`
   background-color: white;
   position: absolute;
   box-sizing: border-box;
-  padding: 0px 16px; // Section component handles spacing on y axis
   width: 320px;
   left: 8px;
   top: 8px;
   height: fit-content;
   max-height: calc(100% - 16px); // Leaves 8px to the bottom of the AframeScene
+  padding: 0px 16px;
   overflow: auto;
+  display: ${(props) => (props.$visible ? "initial" : "none")};
+`;
+
+const StyledTabList = styled(TabList)`
+  overflow: auto;
+  margin: 0px -16px; // Reverts Wrapper padding
+`;
+
+const FlexTab = styled(Tab)`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  // Prevent default button click animation
+  &:active {
+    background-color: initial;
+  }
 `;
 
 const Button = styled.button``;
