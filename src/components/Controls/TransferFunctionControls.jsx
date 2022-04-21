@@ -49,7 +49,7 @@ function getRelativeMousePos(e) {
 }
 
 function TransferFunctionControls({
-  initTransferFunction,
+  transferFunction,
   modelIdx,
   range,
   setModels,
@@ -77,14 +77,15 @@ function TransferFunctionControls({
 
     // Initialize canvasPoints
     setCanvasPoints(
-      initTransferFunction.map((p) => {
+      transferFunction.map((p) => {
         return {
           x: scaleTransferFunctionToCanvasX(p.x),
           y: scaleTransferFunctionToCanvasY(p.y),
         };
       })
     );
-  }, [initTransferFunction]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /** DRAW FUNCTION **/
 
