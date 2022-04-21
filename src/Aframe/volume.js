@@ -117,7 +117,10 @@ AFRAME.registerComponent("volume", {
               detail: errors,
             })
           );
-        } else this.updateMaterial();
+        } else {
+          this.updateMaterial();
+          this.updateSpacing(); // Update spacing based on the new material
+        }
       });
     }
 
@@ -313,24 +316,18 @@ AFRAME.registerComponent("volume", {
   updateSpacing: function () {
     const { spacing } = this.data;
     const uniforms = this.getMesh().material.uniforms;
-    const texture = uniforms.u_data.value; // Image
     const dim = uniforms.dim.value;
     const slices = uniforms.slices.value;
+    const texture = uniforms.u_data.value; // Image
 
-    const volumeScale = texture
-      ? // Scale is based on the texture's size
-        new Vector3(
-          1.0 / ((texture.image.width / dim) * spacing.x),
-          1.0 / ((texture.image.height / dim) * spacing.y),
-          1.0 / (slices * spacing.z)
-        )
-      : // Texture hasn't been loaded yet
-        new Vector3(
-          1.0 / ((0 / dim) * spacing.x),
-          1.0 / ((0 / dim) * spacing.y),
-          1.0 / (slices * spacing.z)
-        );
-    uniforms.zScale.value = volumeScale.x / volumeScale.z;
+    if (texture) {
+      const volumeScale = new Vector3(
+        1.0 / ((texture.image.width / dim) * spacing.x),
+        1.0 / ((texture.image.height / dim) * spacing.y),
+        1.0 / (slices * spacing.z)
+      );
+      uniforms.zScale.value = volumeScale.x / volumeScale.z;
+    }
   },
 
   // Update clipping uniforms from sliders (reset if !activateClipPlane)
@@ -357,8 +354,6 @@ AFRAME.registerComponent("volume", {
           })
         : // No models - use default material
           new RawShaderMaterial(DEFAULT_MATERIAL);
-
-    this.updateSpacing(); // Update spacing based on the new material
   },
 
   updateMeshClipMatrix: function () {
