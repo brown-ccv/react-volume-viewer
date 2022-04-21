@@ -70,7 +70,6 @@ AFRAME.registerComponent("volume", {
 
   update: function (oldData) {
     const { data, usedModels, usedColorMaps } = this;
-    console.log("DIFF", deepDifference(oldData, data));
 
     // Update model uniforms
     if (!isEqual(oldData.models, data.models)) {
