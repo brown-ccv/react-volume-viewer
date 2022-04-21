@@ -77,14 +77,17 @@ AFRAME.registerComponent("volume", {
       // Each element runs serially and this.updateMaterial waits for all of the promises to finish
       Promise.allSettled(
         data.models.map(
-          async ({
-            name,
-            path,
-            colorMap,
-            transferFunction,
-            intensity,
-            useTransferFunction,
-          }) => {
+          async (
+            {
+              name,
+              path,
+              colorMap,
+              transferFunction,
+              intensity,
+              useTransferFunction,
+            },
+            idx
+          ) => {
             try {
               // Load texture from png
               const texture = usedModels.has(path)
@@ -100,13 +103,13 @@ AFRAME.registerComponent("volume", {
                 transferFunction
               );
 
-              // Build the uniform
-              this.modelsData.push({
+              // Build the uniform (idx ensures order is maintained)
+              this.modelsData[idx] = {
                 intensity,
                 useTransferFunction,
                 texture,
                 transferTexture,
-              });
+              };
             } catch (error) {
               throw new Error("Failed to load model '" + name + "'", {
                 cause: error,

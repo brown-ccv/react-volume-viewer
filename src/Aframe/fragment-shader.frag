@@ -4,7 +4,6 @@ precision mediump float;
 
 struct ModelData {
     float intensity;
-    bool useTransferFunction;
     sampler2D texture; // Model data
     sampler2D transferTexture; // colorMap + transferFunction data
 };
@@ -62,8 +61,9 @@ vec2 intersect_box(vec3 camera, vec3 direction, vec3 box_min, vec3 box_max ) {
     return vec2(tstart, tend);
 }
 
+// Starting from the entry point, march the ray through the volume and sample it
 vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direction, ModelData model) {
-    vec4 vFragColor = vec4(0);
+    vec4 vFragColor = vec4(0, 0, 0, 0);
 
     // Loop from t_start to t_end by step_size
     float t = t_start;
@@ -80,11 +80,8 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
         // Artificially increase pixel intensity
         volumeSample.rgb = volumeSample.rgb * model.intensity;
         
-        // Look up the density value in the transfer function and return the appropriate color value
-        // This is what actually applies the color texture
-        if(model.useTransferFunction) {
-            volumeSample = texture2D(model.transferTexture, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
-        }
+        // Apply color map / transfer function
+        volumeSample = texture2D(model.transferTexture, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
 
         // Blending (front to back)
         vFragColor.rgb += (1.0 - vFragColor.a) * volumeSample.a * volumeSample.rgb;
@@ -121,15 +118,15 @@ void main() {
     /*
         We don't know if the ray was cast from the back or the front face. To ensure we 
         update data_position and t_hit to reflect a ray from entry point to exit 
+        We're shifting the clipping box to [0.0, end - start]
         (Note: We only render the back face)
     */
-    // Shift box to [0.0, end - start]
     data_position = camPos + t_start * ray_direction;
     t_end = t_end - t_start;
     t_start = 0.0;
 
     // Get t for the clipping plane and overwrite the entry point
-    // This only occurs when grabbing volume in VR
+    // This only occurs when grabbing volume in a VR headset
     if(clipping) {
         vec4 p_in = clipPlane * vec4(data_position + t_start * ray_direction, 1);
         vec4 p_out = clipPlane * vec4(data_position + t_end * ray_direction, 1);
@@ -151,7 +148,6 @@ void main() {
         }
     }
 
-    // Starting from the entry point, march the ray through the volume and sample it
     // t_start is 0 - this does nothing?
     data_position = data_position + t_start * ray_direction;
 
