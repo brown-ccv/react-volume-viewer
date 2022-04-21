@@ -135,7 +135,7 @@ void main() {
         volumeSample.rgb = volumeSample.rgb * intensity;
 
         // This is what actually applies the color texture
-        if(use_lut) {
+        if (use_lut) {
             // Look up the density value in the transfer function and return the appropriate color value
             volumeSample = texture2D(u_lut, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
         }
