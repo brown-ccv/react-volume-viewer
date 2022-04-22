@@ -18,6 +18,13 @@ uniform bool use_lut;       // useTransferFunction
 varying vec3 vUV;           // 3D coordinates of the texture (interpolated by rasterizer)
 varying vec3 camPos;
 
+/**
+    Shader code for the VR Volume Viewer
+    t_:             Translation vector
+    p_:             Position vector
+    gl_FragColor:   Final output color at the given point
+*/
+
 // Sample model texture as 3D object
 vec4 sampleAs3DTexture(sampler2D tex, vec3 tex_coordinates) {
     float z_start = floor(tex_coordinates.z / (1.0 / slices));
