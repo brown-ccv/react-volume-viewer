@@ -347,7 +347,7 @@ AFRAME.registerComponent("volume", {
   updateMaterial: function () {
     this.getMesh().material =
       this.uniforms.size > 0
-        ? // TEMP - use first material
+        ? // TEMP - use first material (GH issue #68)
           new RawShaderMaterial({
             ...DEFAULT_MATERIAL,
             uniforms: this.uniforms.values().next().value,
