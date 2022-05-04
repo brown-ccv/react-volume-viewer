@@ -121,13 +121,8 @@ void main() {
     // t_start is 0 - this does nothing?
     data_position = data_position + t_start * ray_direction;
 
-    // Loop from t_start to t_end by step_size
-    float t = t_start;
-    for(int i = 0; i < MAX_ITERATIONS; i++) {
-        t += step_size;
-        if(t >= t_end) break; // Over box_max
-    
-
+    // Loop through the volume
+    for(float i = t_start; i < t_end; i += step_size) {    
         vec4 volumeSample = sampleAs3DTexture(u_data, data_position);
         if (blending == 1) volumeSample = volumeSample.rrrr;
         else if (blending == 2) volumeSample = volumeSample.gggg;
