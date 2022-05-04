@@ -8,20 +8,21 @@ struct ModelData {
     sampler2D transferTexture; // colorMap + transferFunction data
 };
 
+varying vec3 vUV;      // Coordinates of the texture
+varying vec3 camPos;   // Coordinates of the camera
+
 uniform vec3 box_min;       // Clip minimum
 uniform vec3 box_max;       // Clip maximum
 uniform int blending;
 uniform bool clipping;
 uniform mat4 clip_plane;
 uniform float dim;
-// TODO: Make an array
-uniform ModelData models;   // Array of models and it's associated data
-// uniform ModelData models[10]; // How big should this array be?
 uniform float slices;       // Number of slicess in the volumes
 uniform float step_size;    // Ray step size 
 
-varying vec3 vUV;           // 3D coordinates of the texture (interpolated by rasterizer)
-varying vec3 camPos;
+// TODO: Make an array
+uniform ModelData models;   // Data associated with a model
+// uniform ModelData models[8];
 
 /**
     Shader code for the VR Volume Viewer
@@ -31,18 +32,18 @@ varying vec3 camPos;
 */
 
 // Sample model texture as 3D object
-vec4 sampleAs3DTexture(sampler2D tex, vec3 tex_coordinates) {
-    float z_start = floor(tex_coordinates.z / (1.0 / slices));
+vec4 sampleAs3DTexture(sampler2D tex, vec3 coordinates) {
+    float z_start = floor(coordinates.z / (1.0 / slices));
     float z_end = min(z_start + 1.0, slices - 1.0);
-    vec2 position_start = vec2(mod(z_start, dim), dim - floor(z_start / dim) - 1.0);
-    vec2 position_end = vec2(mod(z_end, dim), dim - floor(z_end / dim) - 1.0);
+    vec2 p_start = vec2(mod(z_start, dim), dim - floor(z_start / dim) - 1.0);
+    vec2 p_end = vec2(mod(z_end, dim), dim - floor(z_end / dim) - 1.0);
     vec2 coordinates_start = vec2(
-        tex_coordinates.x / dim + position_start.x / dim, 
-        tex_coordinates.y / dim + position_start.y / dim
+        coordinates.x / dim + p_start.x / dim, 
+        coordinates.y / dim + p_start.y / dim
     );
     vec2 coordinates_end = vec2(
-        tex_coordinates.x / dim + position_end.x / dim,
-        tex_coordinates.y / dim + position_end.y / dim
+        coordinates.x / dim + p_end.x / dim,
+        coordinates.y / dim + p_end.y / dim
     );
 
     #if LINEAR_FILTER
@@ -50,7 +51,7 @@ vec4 sampleAs3DTexture(sampler2D tex, vec3 tex_coordinates) {
         return mix(
             texture2D(tex, coordinates_start),
             texture2D(tex, coordinates_end),
-            (tex_coordinates.z * slices - z_start) // z offset
+            (coordinates.z * slices - z_start) // z offset
         );
     #else
         return texture2D(tex, coordinates_start);
@@ -58,7 +59,7 @@ vec4 sampleAs3DTexture(sampler2D tex, vec3 tex_coordinates) {
 }
 
 // Clip the volume between box_min and box_max
-vec2 intersectBox(vec3 camera, vec3 direction, vec3 box_min, vec3 box_max ) {
+vec2 hitBox(vec3 camera, vec3 direction, vec3 box_min, vec3 box_max ) {
     vec3 direction_inverse = 1.0 / direction;
     vec3 bmin_direction = (box_min - camera) * direction_inverse;
     vec3 bmax_direction = (box_max - camera) * direction_inverse;
@@ -113,7 +114,7 @@ void main() {
     vec3 ray_direction = normalize(data_position - camPos);
 
     // Get the t values for the intersection with the box
-    vec2 t_hit = intersectBox(camPos, ray_direction, box_min, box_max);
+    vec2 t_hit = hitBox(camPos, ray_direction, box_min, box_max);
     float t_start = t_hit.x;
     float t_end = t_hit.y;
 
