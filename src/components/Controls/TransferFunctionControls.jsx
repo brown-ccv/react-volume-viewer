@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { memo, useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { scaleLinear } from "d3-scale";
 
@@ -50,9 +50,8 @@ function getRelativeMousePos(e) {
 
 function TransferFunctionControls({
   transferFunction,
-  modelIdx,
   range,
-  setModel,
+  setTransferFunction,
 }) {
   const canvasRef = useRef(null);
   const [cursorType, setCursorType] = useState("pointer"); // Cursor type (styled-components)
@@ -122,18 +121,16 @@ function TransferFunctionControls({
       context.fill();
     });
 
-    setModel(
-      {
-        transferFunction: canvasPoints.map((p) => {
-          return {
-            x: scaleTransferFunctionToCanvasX.invert(p.x),
-            y: scaleTransferFunctionToCanvasY.invert(p.y),
-          };
-        }),
-      },
-      modelIdx
+    setTransferFunction(
+      canvasPoints.map((p) => {
+        return {
+          x: scaleTransferFunctionToCanvasX.invert(p.x),
+          y: scaleTransferFunctionToCanvasY.invert(p.y),
+        };
+      })
     );
-  }, [canvasPoints, modelIdx, pointHovering, pointDragging, setModel]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canvasPoints, pointHovering, pointDragging]);
 
   /** EVENT LISTENER FUNCTIONS **/
 
@@ -288,4 +285,4 @@ const HelpText = styled.p`
   font-size: 0.75rem;
 `;
 
-export default TransferFunctionControls;
+export default memo(TransferFunctionControls);

@@ -13,7 +13,7 @@ import "@reach/listbox/styles.css";
 import Section from "./Section.jsx";
 import Title from "./Title.jsx";
 
-function ColorMapControls({ model, modelIdx, setModel }) {
+function ColorMapControls({ model, setColorMap }) {
   return (
     <Section>
       <Title>Color Map</Title>
@@ -22,13 +22,10 @@ function ColorMapControls({ model, modelIdx, setModel }) {
           aria-labelledby="ColorMap dropdown"
           value={model.colorMap.name}
           onChange={(newColorMapName) =>
-            setModel(
-              {
-                colorMap: model.colorMaps.find(
-                  (colorMap) => newColorMapName === colorMap.name
-                ),
-              },
-              modelIdx
+            setColorMap(
+              model.colorMaps.find(
+                (colorMap) => newColorMapName === colorMap.name
+              )
             )
           }
         >

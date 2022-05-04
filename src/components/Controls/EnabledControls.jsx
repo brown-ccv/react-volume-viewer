@@ -3,14 +3,14 @@ import visible from "../../images/visible.svg";
 import visibleOff from "../../images/visible_off.svg";
 import styled from "styled-components";
 
-function EnabledControls({ enabled, modelIdx, setModel }) {
+function EnabledControls({ enabled, setEnabled }) {
   return (
     <VisibleImg
       src={enabled ? visible : visibleOff}
       alt={enabled ? "visible" : "not visible"}
       onClick={(e) => {
         e.stopPropagation();
-        setModel({ enabled: !enabled }, modelIdx);
+        setEnabled(!enabled);
       }}
     />
   );

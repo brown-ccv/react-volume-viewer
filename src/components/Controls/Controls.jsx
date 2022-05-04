@@ -31,6 +31,7 @@ function Controls({
     },
     [setModels]
   );
+
   return (
     <Wrapper $visible={controlsVisible}>
       <StyledTabList>
@@ -39,8 +40,7 @@ function Controls({
             {model.name}
             <EnabledControls
               enabled={model.enabled}
-              modelIdx={idx}
-              setModel={setModel}
+              setEnabled={(enabled) => setModel({ enabled }, idx)}
             />
           </FlexTab>
         ))}
@@ -52,17 +52,17 @@ function Controls({
             {model.useColorMap && (
               <ColorMapControls
                 model={model}
-                modelIdx={idx}
-                setModel={setModel}
+                setColorMap={(colorMap) => setModel({ colorMap }, idx)}
               />
             )}
 
             {model.useTransferFunction && (
               <TransferFunctionControls
                 transferFunction={model.transferFunction}
-                modelIdx={idx}
                 range={model.range}
-                setModel={setModel}
+                setTransferFunction={(transferFunction) =>
+                  setModel({ transferFunction }, idx)
+                }
               />
             )}
 
