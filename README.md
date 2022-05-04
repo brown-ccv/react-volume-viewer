@@ -18,9 +18,9 @@ npm install react-volume-viewer
 
 ## Props
 
-The only required props are the model's path, colorMap, and it's minimum and maximum data points. The model's path should be imported into the project and passed in from there - see the [example project](#example).
+The only required props are the model's path, name, and its minimum and maximum data points. The model's path should be imported into the project and passed in from there - see the [example project](#example).
 
-CSS styling for the height must be provided, otherwise the height of the component will be 0px.
+CSS styling for the height must be provided, otherwise the height of the component will be 0px. This can be accomplished with `styled-components` if desired.
 
 ```jsx
 
@@ -39,7 +39,7 @@ VolumeViewer.propTypes = {
    *    colorMap: Object containing the path to the current color image applied to the model.
    *      name: Common name of the color map (REQUIRED)
    *      path: Path to the color map source image (REQUIRED)
-   *    colorMaps: Array of possible color maps for the model
+   *    colorMaps: Array of color maps available to the model (controls dropdown)
    *      colorMap must be present in colorMaps
    *      Each colorMap in colorMaps must have a unique name
    *    description: Short description of the model
@@ -182,8 +182,8 @@ import { VolumeViewer, COLOR_MAPS } from "react-volume-viewer";
 import model1 from "./path/to/model.png";
 import model2 from "./path/to/model.png";
 
-const haline = new ColorMap("Haline", "./assets/colormaps/haline.png")
-const thermal = new ColorMap("Thermal", "./assets/colormaps/thermal.png")
+const haline = { name: "Haline", path: "./assets/colormaps/haline.png" };
+const thermal = { name: "Thermal", path: "./assets/colormaps/thermal.png" };
 
 function App() {
   const [controlsVisible, setControlsVisible] = React.useState(true);

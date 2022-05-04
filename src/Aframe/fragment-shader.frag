@@ -12,7 +12,7 @@ uniform vec3 box_min;       // Clip minimum
 uniform vec3 box_max;       // Clip maximum
 uniform int blending;
 uniform bool clipping;
-uniform mat4 clipPlane;
+uniform mat4 clip_plane;
 uniform float dim;
 // TODO: Make an array
 uniform ModelData models;   // Array of models and it's associated data
@@ -22,6 +22,13 @@ uniform float step_size;    // Ray step size
 
 varying vec3 vUV;           // 3D coordinates of the texture (interpolated by rasterizer)
 varying vec3 camPos;
+
+/**
+    Shader code for the VR Volume Viewer
+    t_:             Translation vector
+    p_:             Position vector
+    gl_FragColor:   Final output color at the given point
+*/
 
 // Sample model texture as 3D object
 vec4 sampleAs3DTexture(sampler2D tex, vec3 tex_coordinates) {
@@ -51,15 +58,15 @@ vec4 sampleAs3DTexture(sampler2D tex, vec3 tex_coordinates) {
 }
 
 // Clip the volume between box_min and box_max
-vec2 intersect_box(vec3 camera, vec3 direction, vec3 box_min, vec3 box_max ) {
+vec2 intersectBox(vec3 camera, vec3 direction, vec3 box_min, vec3 box_max ) {
     vec3 direction_inverse = 1.0 / direction;
     vec3 bmin_direction = (box_min - camera) * direction_inverse;
     vec3 bmax_direction = (box_max - camera) * direction_inverse;
     vec3 tmin = min(bmin_direction, bmax_direction);
     vec3 tmax = max(bmin_direction, bmax_direction);
-    float tstart = max(tmin.x, max(tmin.y, tmin.z));
-    float tend = min(tmax.x, min(tmax.y, tmax.z));
-    return vec2(tstart, tend);
+    float t_start = max(tmin.x, max(tmin.y, tmin.z));
+    float t_end = min(tmax.x, min(tmax.y, tmax.z));
+    return vec2(t_start, t_end);
 }
 
 // Starting from the entry point, march the ray through the volume and sample it
@@ -106,7 +113,7 @@ void main() {
     vec3 ray_direction = normalize(data_position - camPos);
 
     // Get the t values for the intersection with the box
-    vec2 t_hit = intersect_box(camPos, ray_direction, box_min, box_max);
+    vec2 t_hit = intersectBox(camPos, ray_direction, box_min, box_max);
     float t_start = t_hit.x;
     float t_end = t_hit.y;
 
@@ -129,12 +136,12 @@ void main() {
     // Get t for the clipping plane and overwrite the entry point
     // This only occurs when grabbing volume in a VR headset
     if(clipping) {
-        vec4 p_in = clipPlane * vec4(data_position + t_start * ray_direction, 1);
-        vec4 p_out = clipPlane * vec4(data_position + t_end * ray_direction, 1);
+        vec4 p_in = clip_plane * vec4(data_position + t_start * ray_direction, 1);
+        vec4 p_out = clip_plane * vec4(data_position + t_end * ray_direction, 1);
         if(p_in.y * p_out.y < 0.0 ) {
             // Both points lie on different sides of the plane, need a new clip point
-            vec4 c_pos = clipPlane * vec4(data_position, 1);
-            vec4 c_dir = clipPlane * vec4(ray_direction, 0);
+            vec4 c_pos = clip_plane * vec4(data_position, 1);
+            vec4 c_dir = clip_plane * vec4(ray_direction, 0);
             float t_clip = -c_pos.y / c_dir.y;
     
             // Update either entry or exit based on which is on the clipped side

@@ -1,11 +1,11 @@
 import AFRAME, { THREE } from "aframe";
-import { isEqual } from "lodash";
 
 import {
   Blending,
   DEFAULT_SLIDERS,
   DEFAULT_MATERIAL,
 } from "../constants/index.js";
+import { deepDifference } from "../utils/index";
 
 const {
   LinearFilter,
@@ -69,7 +69,9 @@ AFRAME.registerComponent("volume", {
     const { data, usedModels, usedColorMaps } = this;
 
     // Update model uniforms
-    if (!isEqual(oldData.models, data.models)) {
+    const diffObject = deepDifference(oldData, data);
+    // if (!isEqual(oldData.models, data.models)) {
+    if ("models" in diffObject) {
       this.modelsData = [];
 
       // Asynchronously loop through the data.models array
@@ -133,10 +135,10 @@ AFRAME.registerComponent("volume", {
     }
 
     // Update other uniforms
-    if (!isEqual(oldData.blending, data.blending)) this.updateBlending();
-    if (!isEqual(oldData.slices, data.slices)) this.updateSlices();
-    if (!isEqual(oldData.spacing, data.spacing)) this.updateSpacing();
-    if (!isEqual(oldData.sliders, data.sliders)) this.updateClipping();
+    if ("blending" in diffObject) this.updateBlending();
+    if ("slices" in diffObject) this.updateSlices();
+    if ("spacing" in diffObject) this.updateSpacing();
+    if ("sliders" in diffObject) this.updateClipping();
   },
 
   tick: function (time, timeDelta) {
@@ -305,20 +307,14 @@ AFRAME.registerComponent("volume", {
     const dim = uniforms.dim.value;
     const slices = uniforms.slices.value;
 
-    const volumeScale = texture
-      ? // Scale is based on the texture's size
-        new Vector3(
-          1.0 / ((texture.image.width / dim) * spacing.x),
-          1.0 / ((texture.image.height / dim) * spacing.y),
-          1.0 / (slices * spacing.z)
-        )
-      : // Texture hasn't been loaded yet
-        new Vector3(
-          1.0 / ((0 / dim) * spacing.x),
-          1.0 / ((0 / dim) * spacing.y),
-          1.0 / (slices * spacing.z)
-        );
-    uniforms.zScale.value = volumeScale.x / volumeScale.z;
+    if (texture) {
+      const volumeScale = new Vector3(
+        1.0 / ((texture.image.width / dim) * spacing.x),
+        1.0 / ((texture.image.height / dim) * spacing.y),
+        1.0 / (slices * spacing.z)
+      );
+      uniforms.zScale.value = volumeScale.x / volumeScale.z;
+    }
   },
 
   // Update clipping uniforms from sliders (reset if !activateClipPlane)
