@@ -1,4 +1,4 @@
-#version 300 es
+# version 300 es
 precision mediump float;
 
 #define LINEAR_FILTER 1
@@ -10,8 +10,8 @@ out vec4 fragColor; // Final output color
 
 uniform vec3 box_min;       // Clip minimum
 uniform vec3 box_max;       // Clip maximum
-uniform int blending;
-uniform bool clipping;
+uniform int blending;       // Blending algorithm to apply
+uniform bool clipping;      
 uniform mat4 clip_plane;
 uniform float dim;
 uniform float intensity;    // Artifically scale each pixel intensity
