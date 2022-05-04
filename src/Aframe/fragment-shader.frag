@@ -31,15 +31,15 @@ uniform bool use_lut;       // useTransferFunction
 vec4 sampleAs3DTexture(sampler2D tex, vec3 tex_coordinates) {
     float z_start = floor(tex_coordinates.z / (1.0 / slices));
     float z_end = min(z_start + 1.0, slices - 1.0);
-    vec2 position_start = vec2(mod(z_start, dim), dim - floor(z_start / dim) - 1.0);
-    vec2 position_end = vec2(mod(z_end, dim), dim - floor(z_end / dim) - 1.0);
+    vec2 p_start = vec2(mod(z_start, dim), dim - floor(z_start / dim) - 1.0);
+    vec2 p_end = vec2(mod(z_end, dim), dim - floor(z_end / dim) - 1.0);
     vec2 coordinates_start = vec2(
-        tex_coordinates.x / dim + position_start.x / dim, 
-        tex_coordinates.y / dim + position_start.y / dim
+        tex_coordinates.x / dim + p_start.x / dim, 
+        tex_coordinates.y / dim + p_start.y / dim
     );
     vec2 coordinates_end = vec2(
-        tex_coordinates.x / dim + position_end.x / dim,
-        tex_coordinates.y / dim + position_end.y / dim
+        tex_coordinates.x / dim + p_end.x / dim,
+        tex_coordinates.y / dim + p_end.y / dim
     );
 
     #if LINEAR_FILTER
