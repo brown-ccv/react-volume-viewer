@@ -1,5 +1,4 @@
 import AFRAME, { THREE } from "aframe";
-import { isEqual } from "lodash";
 
 import { deepDifference } from "../utils/index.js";
 import {
@@ -70,10 +69,11 @@ AFRAME.registerComponent("volume", {
 
   update: function (oldData) {
     const { data, usedModels, usedColorMaps } = this;
-    console.log("DIFF", deepDifference(oldData, data));
+    const diffObject = deepDifference(oldData, data);
 
     // Update model uniforms
-    if (!isEqual(oldData.models, data.models)) {
+    if ("models" in diffObject) {
+      this.uniforms = new Map();
       // Asynchronously loop through the data.models array
       // Each element runs serially and this.updateMaterial waits for all of the promises to finish
       Promise.allSettled(
@@ -117,15 +117,18 @@ AFRAME.registerComponent("volume", {
               detail: errors,
             })
           );
-        } else this.updateMaterial();
+        } else {
+          this.updateMaterial();
+          this.updateSpacing(); // Update spacing based on the new material
+        }
       });
     }
 
     // Update other uniforms
-    if (!isEqual(oldData.blending, data.blending)) this.updateBlending();
-    if (!isEqual(oldData.slices, data.slices)) this.updateSlices();
-    if (!isEqual(oldData.spacing, data.spacing)) this.updateSpacing();
-    if (!isEqual(oldData.sliders, data.sliders)) this.updateClipping();
+    if ("blending" in diffObject) this.updateBlending();
+    if ("slices" in diffObject) this.updateSlices();
+    if ("spacing" in diffObject) this.updateSpacing();
+    if ("sliders" in diffObject) this.updateClipping();
   },
 
   tick: function (time, timeDelta) {
@@ -281,7 +284,7 @@ AFRAME.registerComponent("volume", {
 
     // Apply model properties
     uniforms.intensity.value = intensity;
-    uniforms.useLut.value = useTransferFunction;
+    uniforms.use_lut.value = useTransferFunction;
     uniforms.u_data.value = texture; // Model data
     uniforms.u_lut.value = transferTexture; // Color Map + transfer function
 
@@ -313,24 +316,18 @@ AFRAME.registerComponent("volume", {
   updateSpacing: function () {
     const { spacing } = this.data;
     const uniforms = this.getMesh().material.uniforms;
-    const texture = uniforms.u_data.value; // Image
     const dim = uniforms.dim.value;
     const slices = uniforms.slices.value;
+    const texture = uniforms.u_data.value; // Image
 
-    const volumeScale = texture
-      ? // Scale is based on the texture's size
-        new Vector3(
-          1.0 / ((texture.image.width / dim) * spacing.x),
-          1.0 / ((texture.image.height / dim) * spacing.y),
-          1.0 / (slices * spacing.z)
-        )
-      : // Texture hasn't been loaded yet
-        new Vector3(
-          1.0 / ((0 / dim) * spacing.x),
-          1.0 / ((0 / dim) * spacing.y),
-          1.0 / (slices * spacing.z)
-        );
-    uniforms.zScale.value = volumeScale.x / volumeScale.z;
+    if (texture) {
+      const volumeScale = new Vector3(
+        1.0 / ((texture.image.width / dim) * spacing.x),
+        1.0 / ((texture.image.height / dim) * spacing.y),
+        1.0 / (slices * spacing.z)
+      );
+      uniforms.zScale.value = volumeScale.x / volumeScale.z;
+    }
   },
 
   // Update clipping uniforms from sliders (reset if !activateClipPlane)
@@ -348,19 +345,15 @@ AFRAME.registerComponent("volume", {
 
   // Blend model's into a single material and apply it to the model
   updateMaterial: function () {
-    console.log("MODELS LOADED", this.uniforms);
-
     this.getMesh().material =
       this.uniforms.size > 0
-        ? // TEMP - use first material
+        ? // TEMP - use first material (GH issue #68)
           new RawShaderMaterial({
             ...DEFAULT_MATERIAL,
             uniforms: this.uniforms.values().next().value,
           })
         : // No models - use default material
           new RawShaderMaterial(DEFAULT_MATERIAL);
-
-    this.updateSpacing(); // Update spacing based on the new material
   },
 
   updateMeshClipMatrix: function () {

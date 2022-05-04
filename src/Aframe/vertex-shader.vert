@@ -73,7 +73,6 @@ mat4 getInverse(mat4 m) {
 }
 
 void main() {
-    // clip space = modelViewMatrix * zScale * projectionMatrix
     // clip space = position * scale * translation
     mat4 MV_scaled = scale(modelViewMatrix, vec3(1, 1, zScale));
     mat4 MVP = projectionMatrix * MV_scaled; 
