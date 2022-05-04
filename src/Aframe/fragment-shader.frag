@@ -2,7 +2,6 @@
 precision mediump float;
 
 #define LINEAR_FILTER 1
-#define MAX_ITERATIONS 1000
 
 in vec3 vUV;        // Coordinates of the texture
 in vec3 camPos;     // Coordinates of the camera
