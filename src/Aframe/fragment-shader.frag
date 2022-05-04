@@ -1,7 +1,13 @@
+#version 300 es
+precision mediump float;
+
 #define LINEAR_FILTER 1
 #define MAX_ITERATIONS 1000
 
-precision mediump float;
+in vec3 vUV;        // Coordinates of the texture
+in vec3 camPos;     // Coordinates of the camera
+out vec4 fragColor; // Final output color 
+
 uniform vec3 box_min;       // Clip minimum
 uniform vec3 box_max;       // Clip maximum
 uniform int blending;
@@ -15,14 +21,10 @@ uniform sampler2D u_data;   // Dataset of the model
 uniform sampler2D u_lut;    // Dataset of the color map and transfer function
 uniform bool use_lut;       // useTransferFunction
 
-varying vec3 vUV;           // 3D coordinates of the texture (interpolated by rasterizer)
-varying vec3 camPos;
-
 /**
     Shader code for the VR Volume Viewer
-    t_:             Translation vector
-    p_:             Position vector
-    gl_FragColor:   Final output color at the given point
+    t_:     Translation vector
+    p_:     Position vector
 */
 
 // Sample model texture as 3D object
@@ -42,12 +44,12 @@ vec4 sampleAs3DTexture(sampler2D tex, vec3 tex_coordinates) {
 
     #if LINEAR_FILTER
         // Apply linear interpolation between start and end coordinates
-        vec4 color_start = texture2D(tex, coordinates_start);
-        vec4 color_end = texture2D(tex, coordinates_end);
+        vec4 color_start = texture(tex, coordinates_start);
+        vec4 color_end = texture(tex, coordinates_end);
         float z_offset = (tex_coordinates.z * slices - z_start);
         return mix(color_start, color_end, z_offset);
     #else
-        return texture2D(tex, coordinates_start);
+        return texture(tex, coordinates_start);
     #endif
 }
 
@@ -144,7 +146,7 @@ void main() {
         // This is what actually applies the color texture
         if (use_lut) {
             // Look up the density value in the transfer function and return the appropriate color value
-            volumeSample = texture2D(u_lut, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
+            volumeSample = texture(u_lut, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
         }
 
         // Blending (front to back)
@@ -157,6 +159,5 @@ void main() {
         // Advance point
         data_position += ray_direction * step_size;
     }
-
-    gl_FragColor = vFragColor;
+    fragColor = vFragColor;
 }
