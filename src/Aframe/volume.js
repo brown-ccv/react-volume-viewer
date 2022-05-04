@@ -291,8 +291,8 @@ AFRAME.registerComponent("volume", {
     // blending, sliders, slices, and spacing are updated separately
     const otherUniforms = this.getMesh().material.uniforms;
     uniforms.blending.value = otherUniforms.blending.value;
-    uniforms.box_min.value = otherUniforms.box_min.value;
-    uniforms.box_max.value = otherUniforms.box_max.value;
+    uniforms.clip_min.value = otherUniforms.clip_min.value;
+    uniforms.clip_max.value = otherUniforms.clip_max.value;
     uniforms.slices.value = otherUniforms.slices.value;
     uniforms.dim.value = otherUniforms.dim.value;
     uniforms.zScale.value = otherUniforms.zScale.value;
@@ -335,11 +335,11 @@ AFRAME.registerComponent("volume", {
     const uniforms = this.getMesh().material.uniforms;
     const { x, y, z } = this.data.sliders;
     if (this.el.getAttribute("keypress-listener").activateClipPlane) {
-      uniforms.box_min.value = new Vector3(x[0], y[0], z[0]);
-      uniforms.box_max.value = new Vector3(x[1], y[1], z[1]);
+      uniforms.clip_min.value = new Vector3(x[0], y[0], z[0]);
+      uniforms.clip_max.value = new Vector3(x[1], y[1], z[1]);
     } else {
-      uniforms.box_min.value = new Vector3(0, 0, 0);
-      uniforms.box_max.value = new Vector3(1, 1, 1);
+      uniforms.clip_min.value = new Vector3(0, 0, 0);
+      uniforms.clip_max.value = new Vector3(1, 1, 1);
     }
   },
 

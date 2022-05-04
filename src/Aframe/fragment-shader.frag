@@ -2,8 +2,8 @@
 #define MAX_ITERATIONS 1000
 
 precision mediump float;
-uniform vec3 box_min;       // Clip minimum
-uniform vec3 box_max;       // Clip maximum
+uniform vec3 clip_min;       // Clip minimum
+uniform vec3 clip_max;       // Clip maximum
 uniform int blending;
 uniform bool clipping;
 uniform mat4 clip_plane;
@@ -51,11 +51,11 @@ vec4 sampleAs3DTexture(sampler2D tex, vec3 tex_coordinates) {
     #endif
 }
 
-// Clip the volume between box_min and box_max
-vec2 intersectBox(vec3 camera, vec3 direction, vec3 box_min, vec3 box_max ) {
+// Clip the volume between clip_min and clip_max
+vec2 intersectBox(vec3 camera, vec3 direction, vec3 clip_min, vec3 clip_max ) {
     vec3 direction_inverse = 1.0 / direction;
-    vec3 bmin_direction = (box_min - camera) * direction_inverse;
-    vec3 bmax_direction = (box_max - camera) * direction_inverse;
+    vec3 bmin_direction = (clip_min - camera) * direction_inverse;
+    vec3 bmax_direction = (clip_max - camera) * direction_inverse;
     vec3 tmin = min(bmin_direction, bmax_direction);
     vec3 tmax = max(bmin_direction, bmax_direction);
     float t_start = max(tmin.x, max(tmin.y, tmin.z));
@@ -71,8 +71,8 @@ void main() {
     // Direction the ray is marching in
     vec3 ray_direction = normalize(data_position - camPos);
 
-    // Get the t values for the intersection with the box
-    vec2 t_hit = intersectBox(camPos, ray_direction, box_min, box_max);
+    // Get the t values for the intersection with the clipping values
+    vec2 t_hit = intersectBox(camPos, ray_direction, clip_min, clip_max);
     float t_start = t_hit.x;
     float t_end = t_hit.y;
 
@@ -123,7 +123,7 @@ void main() {
     float t = t_start;
     for(int i = 0; i < MAX_ITERATIONS; i++) {
         t += step_size;
-        if(t >= t_end) break; // Over box_max
+        if(t >= t_end) break; // Over clip_max
     
 
         vec4 volumeSample = sampleAs3DTexture(u_data, data_position);
