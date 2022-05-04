@@ -1,6 +1,12 @@
+import { THREE } from "aframe";
+
 import grayscale from "../images/grayscale.png";
 import natural from "../images/natural.png";
 import rgb from "../images/rgb.png";
+import vertexShader from "../Aframe/vertex-shader.vert";
+import fragmentShader from "../Aframe/fragment-shader.frag";
+
+const { BackSide, Vector2, Vector3, Matrix4 } = THREE;
 
 /** EXPORTED CONSTANTS */
 
@@ -31,6 +37,7 @@ const DEFAULT_SLIDERS = {
   y: [SLIDER_RANGE.min, SLIDER_RANGE.max],
   z: [SLIDER_RANGE.min, SLIDER_RANGE.max],
 };
+
 const DEFAULT_MODEL = {
   colorMap: COLOR_MAPS.Grayscale,
   colorMaps: [],
@@ -46,6 +53,29 @@ const DEFAULT_MODEL = {
   useColorMap: true,
 };
 
+const DEFAULT_MATERIAL = {
+  uniforms: {
+    blending: { value: 0 },
+    box_max: { value: new Vector3(1, 1, 1) },
+    box_min: { value: new Vector3() },
+    clipping: { value: false },
+    clip_plane: { value: new Matrix4() },
+    dim: { value: 1.0 },
+    intensity: { value: 1.0 },
+    slices: { value: 1.0 },
+    step_size: { value: 0.01 },
+    u_data: { value: null },
+    u_lut: { value: null },
+    use_lut: { value: true },
+    viewPort: { value: new Vector2() },
+    zScale: { value: 1.0 },
+  },
+  vertexShader: vertexShader,
+  fragmentShader: fragmentShader,
+  transparent: true,
+  side: BackSide, // Shader uses "backface" as its reference point
+};
+
 export {
   Blending,
   COLOR_MAPS,
@@ -55,4 +85,5 @@ export {
   SLIDER_RANGE,
   DEFAULT_SLIDERS,
   DEFAULT_MODEL,
+  DEFAULT_MATERIAL,
 };

@@ -1,8 +1,10 @@
-import { pick } from "lodash";
+import { isEqual, pick, isArray, isObject, transform } from "lodash";
+
+/** EXPORTS */
 
 // Filter model properties needed from aframe
 function getAframeModels(models) {
-  const out = models.map((model) => {
+  const aframeModels = models.map((model) => {
     // Pick only needed properties
     const aframeModel = pick(model, [
       "blending",
@@ -29,10 +31,29 @@ function getAframeModels(models) {
 
     return aframeModel;
   });
-  return JSON.stringify(out.filter((model) => model.enabled));
+  return JSON.stringify(aframeModels.filter((model) => model.enabled));
 }
 
-const validateVec3String = function (props, propName, componentName) {
+// Recursively find the differences between two objects
+// https://davidwells.io/snippets/get-difference-between-two-objects-javascript
+function deepDifference(oldObj, newObj) {
+  const changes = (newObj, oldObj) => {
+    let arrayIndexCounter = 0;
+    return transform(newObj, (result, value, key) => {
+      if (!isEqual(value, oldObj[key])) {
+        const resultKey = isArray(oldObj) ? arrayIndexCounter++ : key;
+        result[resultKey] =
+          isObject(value) && isObject(oldObj[key])
+            ? changes(value, oldObj[key])
+            : value;
+      }
+    });
+  };
+
+  return changes(newObj, oldObj);
+}
+
+function validateVec3String(props, propName, componentName) {
   const string = props[propName];
 
   // spacing is a required prop
@@ -60,9 +81,9 @@ const validateVec3String = function (props, propName, componentName) {
       );
     }
   }
-};
+}
 
-const validateInt = function (props, propName, componentName) {
+function validateInt(props, propName, componentName) {
   const num = props[propName];
 
   // slices is a required prop
@@ -80,7 +101,7 @@ const validateInt = function (props, propName, componentName) {
         `supplied to '${componentName}'. '${num}' is not a positive integer`
     );
   }
-};
+}
 
 // Custom validation function for a single slider in the 'sliders' prop
 function validateSlider(sliders, axis, componentName, location, propFullName) {
@@ -114,13 +135,7 @@ function validateSlider(sliders, axis, componentName, location, propFullName) {
 }
 
 // Custom validation function for a single model in the 'models' prop
-const validateModel = function (
-  models,
-  idx,
-  componentName,
-  location,
-  propFullName
-) {
+function validateModel(models, idx, componentName, location, propFullName) {
   const model = models[idx];
 
   // Each model must have a unique name
@@ -129,7 +144,7 @@ const validateModel = function (
     if (modelNames.has(model.name))
       return new Error(
         `Invalid prop '${propFullName}' supplied to '${componentName}'. ` +
-          `Name '${model.name}' is not unique in '${models}'.`
+          `Name '${model.name}' is not unique in 'models'.`
       );
     else modelNames.add(model.name);
   }
@@ -144,7 +159,7 @@ const validateModel = function (
         error.message
     );
   }
-};
+}
 
 function validateColorMaps(colorMaps) {
   const colorMapNames = new Set();
@@ -175,6 +190,7 @@ function validateTransferFunction(transferFunction) {
 
 export {
   getAframeModels,
+  deepDifference,
   validateModel,
   validateSlider,
   validateVec3String,

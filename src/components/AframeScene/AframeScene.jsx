@@ -28,7 +28,6 @@ function AframeScene({
     };
 
     document.addEventListener("aframe-error", handler);
-
     return () => document.removeEventListener("aframe-error", handler);
   }, []);
 
@@ -58,7 +57,7 @@ function AframeScene({
         />
 
         {/* VOLUME */}
-        <a-entity
+        <a-box
           id="volume"
           class="clickableMesh"
           volume={`
