@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import styled from "styled-components";
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from "@reach/tabs";
 import "@reach/tabs/styles.css";
@@ -17,6 +17,46 @@ function Controls({
   setSliders,
   reset,
 }) {
+  // Callback function for changing properties of a specific model
+  const setModel = useCallback(
+    (change, idx) => {
+      setModels((models) => [
+        ...models.slice(0, idx),
+        {
+          ...models[idx],
+          ...change,
+        },
+        ...models.slice(idx + 1),
+      ]);
+    },
+    [setModels]
+  );
+
+  const panels = models.map((model, idx) => (
+    <TabPanel key={model.name}>
+      {model.useColorMap && (
+        <ColorMapControls
+          model={model}
+          setColorMap={(colorMap) => setModel({ colorMap }, idx)}
+        />
+      )}
+
+      {model.useTransferFunction && (
+        <TransferFunctionControls
+          transferFunction={model.transferFunction}
+          range={model.range}
+          setTransferFunction={(transferFunction) =>
+            setModel({ transferFunction }, idx)
+          }
+        />
+      )}
+
+      <Section>
+        <Button onClick={reset}> Reset </Button>
+      </Section>
+    </TabPanel>
+  ))
+
   return (
     <Wrapper $visible={controlsVisible}>
       <StyledTabList>
@@ -25,38 +65,14 @@ function Controls({
             {model.name}
             <EnabledControls
               enabled={model.enabled}
-              modelIdx={idx}
-              setModels={setModels}
+              setEnabled={(enabled) => setModel({ enabled }, idx)}
             />
           </FlexTab>
         ))}
       </StyledTabList>
 
       <TabPanels>
-        {models.map((model, idx) => (
-          <TabPanel key={model.name}>
-            {model.useColorMap && (
-              <ColorMapControls
-                model={model}
-                modelIdx={idx}
-                setModels={setModels}
-              />
-            )}
-
-            {model.useTransferFunction && (
-              <TransferFunctionControls
-                transferFunction={model.transferFunction}
-                modelIdx={idx}
-                range={model.range}
-                setModels={setModels}
-              />
-            )}
-
-            <Section>
-              <Button onClick={reset}> Reset </Button>
-            </Section>
-          </TabPanel>
-        ))}
+        {panels}
       </TabPanels>
 
       <Section>
