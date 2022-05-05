@@ -1,4 +1,3 @@
-#define LINEAR_FILTER 1
 #define MAX_ITERATIONS 1000
 
 precision mediump float;
@@ -40,15 +39,12 @@ vec4 sampleAs3DTexture(sampler2D tex, vec3 tex_coordinates) {
         tex_coordinates.y / dim + position_end.y / dim
     );
 
-    #if LINEAR_FILTER
-        // Apply linear interpolation between start and end coordinates
-        vec4 color_start = texture2D(tex, coordinates_start);
-        vec4 color_end = texture2D(tex, coordinates_end);
-        float z_offset = (tex_coordinates.z * slices - z_start);
-        return mix(color_start, color_end, z_offset);
-    #else
-        return texture2D(tex, coordinates_start);
-    #endif
+    // Apply linear interpolation between start and end coordinates
+    return mix (
+        texture2D(tex, coordinates_start),
+        texture2D(tex, coordinates_end),
+        (tex_coordinates.z * slices - z_start)
+    );
 }
 
 // Clip the volume between box_min and box_max
