@@ -1,8 +1,6 @@
 # version 300 es
 precision mediump float;
 
-#define LINEAR_FILTER 1
-
 in vec3 vUV;        // Coordinates of the texture
 in vec3 camPos;     // Coordinates of the camera
 out vec4 fragColor; // Final output color 
@@ -41,15 +39,12 @@ vec4 sampleAs3DTexture(sampler2D tex, vec3 tex_coordinates) {
         tex_coordinates.y / dim + p_end.y / dim
     );
 
-    #if LINEAR_FILTER
-        // Apply linear interpolation between start and end coordinates
-        vec4 color_start = texture(tex, coordinates_start);
-        vec4 color_end = texture(tex, coordinates_end);
-        float z_offset = (tex_coordinates.z * slices - z_start);
-        return mix(color_start, color_end, z_offset);
-    #else
-        return texture(tex, coordinates_start);
-    #endif
+    // Apply linear interpolation between start and end coordinates
+    return mix (
+        texture(tex, coordinates_start),
+        texture(tex, coordinates_end),
+        (tex_coordinates.z * slices - z_start)
+    );
 }
 
 // Clip the volume between box_min and box_max
