@@ -32,6 +32,31 @@ function Controls({
     [setModels]
   );
 
+  const panels = models.map((model, idx) => (
+    <TabPanel key={model.name}>
+      {model.useColorMap && (
+        <ColorMapControls
+          model={model}
+          setColorMap={(colorMap) => setModel({ colorMap }, idx)}
+        />
+      )}
+
+      {model.useTransferFunction && (
+        <TransferFunctionControls
+          transferFunction={model.transferFunction}
+          range={model.range}
+          setTransferFunction={(transferFunction) =>
+            setModel({ transferFunction }, idx)
+          }
+        />
+      )}
+
+      <Section>
+        <Button onClick={reset}> Reset </Button>
+      </Section>
+    </TabPanel>
+  ))
+
   return (
     <Wrapper $visible={controlsVisible}>
       <StyledTabList>
@@ -47,30 +72,7 @@ function Controls({
       </StyledTabList>
 
       <TabPanels>
-        {models.map((model, idx) => (
-          <TabPanel key={model.name}>
-            {model.useColorMap && (
-              <ColorMapControls
-                model={model}
-                setColorMap={(colorMap) => setModel({ colorMap }, idx)}
-              />
-            )}
-
-            {model.useTransferFunction && (
-              <TransferFunctionControls
-                transferFunction={model.transferFunction}
-                range={model.range}
-                setTransferFunction={(transferFunction) =>
-                  setModel({ transferFunction }, idx)
-                }
-              />
-            )}
-
-            <Section>
-              <Button onClick={reset}> Reset </Button>
-            </Section>
-          </TabPanel>
-        ))}
+        {panels}
       </TabPanels>
 
       <Section>

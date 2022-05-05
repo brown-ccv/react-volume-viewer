@@ -129,7 +129,7 @@ function TransferFunctionControls({
         };
       })
     );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canvasPoints, pointHovering, pointDragging]);
 
   /** EVENT LISTENER FUNCTIONS **/
