@@ -1,10 +1,4 @@
-import {
-  isEqual,
-  pick,
-  isArray,
-  isObject,
-  transform,
-} from "lodash";
+import { isEqual, pick, isArray, isObject, transform } from "lodash";
 
 /** EXPORTS */
 
