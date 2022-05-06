@@ -1,11 +1,13 @@
-uniform float zScale;
-varying  vec3 vUV;      // 3D texture coordinates for texture lookup in the fragment shader
-varying  vec3 camPos;   // Position of the camera
+#version 300 es
 
-// WebGl Variables
-uniform mat4 modelViewMatrix;   // Position of model
-uniform mat4 projectionMatrix;  // Convert world space to clip space
-attribute vec3 position;
+in vec3 position;   // Position vector of the vertex (WebGL)
+out vec3 vUV;       // Coordinates of the texture
+out vec3 camPos;    // Coordinates of the camera
+
+uniform float zScale;
+uniform mat4 modelViewMatrix;   // world -> camera space transformation matrix (WebGL) 
+uniform mat4 projectionMatrix;  // camera -> clip space transformation matrix (WebGL)
+
 
 mat4 scale(mat4 m, vec3 v) {
     mat4 Result;
