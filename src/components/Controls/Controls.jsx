@@ -55,7 +55,7 @@ function Controls({
         <Button onClick={reset}> Reset </Button>
       </Section>
     </TabPanel>
-  ))
+  ));
 
   return (
     <Wrapper $visible={controlsVisible}>
@@ -71,9 +71,7 @@ function Controls({
         ))}
       </StyledTabList>
 
-      <TabPanels>
-        {panels}
-      </TabPanels>
+      <TabPanels>{panels}</TabPanels>
 
       <Section>
         <hr />

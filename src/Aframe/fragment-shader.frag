@@ -1,10 +1,15 @@
-#define MAX_ITERATIONS 1000
-
+# version 300 es
 precision mediump float;
+
+
+in vec3 vUV;        // Coordinates of the texture
+in vec3 camPos;     // Coordinates of the camera
+out vec4 fragColor; // Final output color 
+
 uniform vec3 clip_min;       // Clip minimum
 uniform vec3 clip_max;       // Clip maximum
 uniform int blending;
-uniform bool clipping;
+uniform bool clipping;     
 uniform mat4 clip_plane;
 uniform float dim;
 uniform float intensity;    // Artifically scale each pixel intensity
@@ -14,35 +19,31 @@ uniform sampler2D u_data;   // Dataset of the model
 uniform sampler2D u_lut;    // Dataset of the color map and transfer function
 uniform bool use_lut;       // useTransferFunction
 
-varying vec3 vUV;           // 3D coordinates of the texture (interpolated by rasterizer)
-varying vec3 camPos;
-
 /**
     Shader code for the VR Volume Viewer
-    t_:             Translation vector
-    p_:             Position vector
-    gl_FragColor:   Final output color at the given point
+    t_:     Translation vector
+    p_:     Position vector
 */
 
 // Sample model texture as 3D object
 vec4 sampleAs3DTexture(sampler2D tex, vec3 tex_coordinates) {
     float z_start = floor(tex_coordinates.z / (1.0 / slices));
     float z_end = min(z_start + 1.0, slices - 1.0);
-    vec2 position_start = vec2(mod(z_start, dim), dim - floor(z_start / dim) - 1.0);
-    vec2 position_end = vec2(mod(z_end, dim), dim - floor(z_end / dim) - 1.0);
+    vec2 p_start = vec2(mod(z_start, dim), dim - floor(z_start / dim) - 1.0);
+    vec2 p_end = vec2(mod(z_end, dim), dim - floor(z_end / dim) - 1.0);
     vec2 coordinates_start = vec2(
-        tex_coordinates.x / dim + position_start.x / dim, 
-        tex_coordinates.y / dim + position_start.y / dim
+        tex_coordinates.x / dim + p_start.x / dim, 
+        tex_coordinates.y / dim + p_start.y / dim
     );
     vec2 coordinates_end = vec2(
-        tex_coordinates.x / dim + position_end.x / dim,
-        tex_coordinates.y / dim + position_end.y / dim
+        tex_coordinates.x / dim + p_end.x / dim,
+        tex_coordinates.y / dim + p_end.y / dim
     );
 
     // Apply linear interpolation between start and end coordinates
     return mix (
-        texture2D(tex, coordinates_start),
-        texture2D(tex, coordinates_end),
+        texture(tex, coordinates_start),
+        texture(tex, coordinates_end),
         (tex_coordinates.z * slices - z_start)
     );
 }
@@ -115,13 +116,8 @@ void main() {
     // t_start is 0 - this does nothing?
     data_position = data_position + t_start * ray_direction;
 
-    // Loop from t_start to t_end by step_size
-    float t = t_start;
-    for(int i = 0; i < MAX_ITERATIONS; i++) {
-        t += step_size;
-        if(t >= t_end) break; // Over clip_max
-    
-
+    // Loop through the volume
+    for(float i = t_start; i < t_end; i += step_size) {    
         vec4 volumeSample = sampleAs3DTexture(u_data, data_position);
         if (blending == 1) volumeSample = volumeSample.rrrr;
         else if (blending == 2) volumeSample = volumeSample.gggg;
@@ -140,7 +136,7 @@ void main() {
         // This is what actually applies the color texture
         if (use_lut) {
             // Look up the density value in the transfer function and return the appropriate color value
-            volumeSample = texture2D(u_lut, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
+            volumeSample = texture(u_lut, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
         }
 
         // Blending (front to back)
@@ -153,6 +149,5 @@ void main() {
         // Advance point
         data_position += ray_direction * step_size;
     }
-
-    gl_FragColor = vFragColor;
+    fragColor = vFragColor;
 }
