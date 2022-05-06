@@ -1,10 +1,12 @@
-varying vec3 vUV;      // Coordinates of the texture
-varying vec3 camPos;   // Coordinates of the camera
+#version 300 es
 
-attribute vec3 position;
-uniform mat4 modelViewMatrix;   // Position of model in world space (WebGL)
-uniform mat4 projectionMatrix;  // Position of model in clip space (WebGL)
+in vec3 position;   // Position vector of the vertex (WebGL)
+out vec3 vUV;       // Coordinates of the texture
+out vec3 camPos;    // Coordinates of the camera
+
 uniform float zScale;
+uniform mat4 modelViewMatrix;   // world -> camera space transformation matrix (WebGL) 
+uniform mat4 projectionMatrix;  // camera -> clip space transformation matrix (WebGL)
 
 
 mat4 scale(mat4 m, vec3 v) {

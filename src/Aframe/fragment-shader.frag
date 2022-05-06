@@ -1,4 +1,4 @@
-#define MAX_ITERATIONS 1000
+# version 300 es
 precision mediump float;
 
 struct ModelData {
@@ -7,13 +7,14 @@ struct ModelData {
     sampler2D transferTexture; // colorMap + transferFunction data
 };
 
-varying vec3 vUV;      // Coordinates of the texture
-varying vec3 camPos;   // Coordinates of the camera
+in vec3 vUV;        // Coordinates of the texture
+in vec3 camPos;     // Coordinates of the camera
+out vec4 fragColor; // Final output color 
 
 uniform vec3 box_min;       // Clip minimum
 uniform vec3 box_max;       // Clip maximum
-uniform int blending;
-uniform bool clipping;
+uniform int blending;       // Blending algorithm to apply
+uniform bool clipping;      
 uniform mat4 clip_plane;
 uniform float dim;
 uniform float slices;       // Number of slicess in the volumes
@@ -25,9 +26,8 @@ uniform ModelData models;   // Data associated with a model
 
 /**
     Shader code for the VR Volume Viewer
-    t_:             Translation vector
-    p_:             Position vector
-    gl_FragColor:   Final output color at the given point
+    t_:     Translation vector
+    p_:     Position vector
 */
 
 // Sample model texture as 3D object
@@ -47,8 +47,8 @@ vec4 sampleAs3DTexture(sampler2D tex, vec3 coordinates) {
 
     // Apply linear interpolation between start and end coordinates
     return mix (
-        texture2D(tex, coordinates_start),
-        texture2D(tex, coordinates_end),
+        texture(tex, coordinates_start),
+        texture(tex, coordinates_end),
         (coordinates.z * slices - z_start)
     );
 }
