@@ -1,12 +1,6 @@
 # version 300 es
 precision mediump float;
 
-struct ModelData {
-    float intensity;
-    sampler2D texture; // Model data
-    sampler2D transferTexture; // colorMap + transferFunction data
-};
-
 in vec3 vUV;        // Coordinates of the texture
 in vec3 camPos;     // Coordinates of the camera
 out vec4 fragColor; // Final output color 
@@ -17,12 +11,12 @@ uniform int blending;       // Blending algorithm to apply
 uniform bool clipping;      
 uniform mat4 clip_plane;
 uniform float dim;
+uniform float intensity;
 uniform float slices;       // Number of slicess in the volumes
-uniform float step_size;    // Ray step size 
+uniform float step_size;    // Ray step size
 
-// TODO: Make an array
-uniform ModelData models;   // Data associated with a model
-// uniform ModelData models[8];
+uniform sampler2D model_texture;    // Texture of the model
+uniform sampler2D transfer_texture; // Texture of the colorMap/transferFunction
 
 /**
     Shader code for the VR Volume Viewer
@@ -66,26 +60,22 @@ vec2 hitBox(vec3 camera, vec3 direction, vec3 box_min, vec3 box_max ) {
 }
 
 // Starting from the entry point, march the ray through the volume and sample it
-vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direction, ModelData model) {
+vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direction) {
     vec4 vFragColor = vec4(0, 0, 0, 0);
 
     // Loop from t_start to t_end by step_size
-    float t = t_start;
-    for(int i = 0; i < MAX_ITERATIONS; i++) {
-        t += step_size;
-        if(t >= t_end) break; // Over box_max
-    
-        vec4 volumeSample = sampleAs3DTexture(model.texture, data_position);
+    for(float t = t_start; t < t_end; t += step_size) {
+        vec4 volumeSample = sampleAs3DTexture(model_texture, data_position);
 
         // Initialize alpha as the max between the 3 channels
         // volumeSample .r .g and .b are all the same exact values. Don't know what .a is supposed to be
         volumeSample.a = max(volumeSample.r, max(volumeSample.g, volumeSample.b));
 
         // Artificially increase pixel intensity
-        volumeSample.rgb = volumeSample.rgb * model.intensity;
+        volumeSample.rgb = volumeSample.rgb * intensity;
         
         // Apply color map / transfer function
-        volumeSample = texture2D(model.transferTexture, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
+        volumeSample = texture(transfer_texture, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
 
         // Blending (front to back)
         vFragColor.rgb += (1.0 - vFragColor.a) * volumeSample.a * volumeSample.rgb;
@@ -151,10 +141,7 @@ void main() {
             if(p_in.y > 0.0) discard;
         }
     }
-
-    // t_start is 0 - this does nothing?
     data_position = data_position + t_start * ray_direction;
 
-    vFragColor = create_model(t_start, t_end, data_position, ray_direction, models);
-    gl_FragColor = vFragColor;
+    fragColor = create_model(t_start, t_end, data_position, ray_direction);;
 }

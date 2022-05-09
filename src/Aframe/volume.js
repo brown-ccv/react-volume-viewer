@@ -303,7 +303,7 @@ AFRAME.registerComponent("volume", {
     const { spacing } = this.data;
     const uniforms = this.getUniforms();
 
-    const texture = uniforms.models.value.texture; // Image
+    const texture = uniforms.model_texture.value;
     const dim = uniforms.dim.value;
     const slices = uniforms.slices.value;
 
@@ -334,9 +334,19 @@ AFRAME.registerComponent("volume", {
   updateModels: function () {
     console.log("MODELS LOADED", this.modelsData);
 
-    this.getUniforms().models.value = this.modelsData.length
-      ? this.modelsData[0]
-      : DEFAULT_MATERIAL.clone().uniforms.models.value;
+    const uniforms = this.getUniforms();
+    console.log(uniforms)
+    if (this.modelsData.length) {
+      const modelData = this.modelsData[0];
+      uniforms.intensity.value = modelData.intensity;
+      uniforms.model_texture.value = modelData.texture;
+      uniforms.transfer_texture.value = modelData.transferTexture;
+    } else {
+      const defaultUniforms = DEFAULT_MATERIAL.clone().uniforms;
+      uniforms.intensity.value = defaultUniforms.intensity.value;
+      uniforms.model_texture.value = defaultUniforms.model_texture.value;
+      uniforms.transfer_texture.value = defaultUniforms.transfer_texture.value;
+    }
 
     this.updateSpacing(); // Update spacing based on the new material
   },

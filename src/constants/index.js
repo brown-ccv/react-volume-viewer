@@ -61,15 +61,11 @@ const DEFAULT_MATERIAL = new RawShaderMaterial({
     clipping: { value: false },
     clip_plane: { value: new Matrix4() },
     dim: { value: 1.0 },
-    models: {
-      value: {
-        intensity: 1,
-        texture: null, // Model data
-        transferTexture: null, // colorMap + transferFunction data
-      },
-    },
+    intensity: {value: 1.0},
+    model_texture: {value: null},
     slices: { value: 1.0 },
     step_size: { value: 0.01 },
+    transfer_texture: {value: null},
     viewPort: { value: new Vector2() },
     zScale: { value: 1.0 },
   },
