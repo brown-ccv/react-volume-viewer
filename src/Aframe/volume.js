@@ -335,7 +335,6 @@ AFRAME.registerComponent("volume", {
     console.log("MODELS LOADED", this.modelsData);
 
     const uniforms = this.getUniforms();
-    console.log(uniforms)
     if (this.modelsData.length) {
       const modelData = this.modelsData[0];
       uniforms.intensity.value = modelData.intensity;
