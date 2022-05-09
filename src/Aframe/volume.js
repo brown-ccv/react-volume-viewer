@@ -322,11 +322,11 @@ AFRAME.registerComponent("volume", {
     const uniforms = this.getUniforms();
     const { x, y, z } = this.data.sliders;
     if (this.el.getAttribute("keypress-listener").activateClipPlane) {
-      uniforms.box_min.value = new Vector3(x[0], y[0], z[0]);
-      uniforms.box_max.value = new Vector3(x[1], y[1], z[1]);
+      uniforms.clip_min.value = new Vector3(x[0], y[0], z[0]);
+      uniforms.clip_max.value = new Vector3(x[1], y[1], z[1]);
     } else {
-      uniforms.box_min.value = new Vector3(0, 0, 0);
-      uniforms.box_max.value = new Vector3(1, 1, 1);
+      uniforms.clip_min.value = new Vector3(0, 0, 0);
+      uniforms.clip_max.value = new Vector3(1, 1, 1);
     }
   },
 
