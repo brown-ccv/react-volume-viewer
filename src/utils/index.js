@@ -1,4 +1,4 @@
-import { isEqual, pick, isArray, isObject, transform } from "lodash";
+import { isEqual, pick, isArray, isObject, transform, partition } from "lodash";
 
 /** EXPORTS */
 
@@ -50,6 +50,15 @@ function deepDifference(oldObj, newObj) {
   };
 
   return changes(newObj, oldObj);
+}
+
+// Partition an array of promises based on errors
+function partitionPromises(promises) {
+  const partitioned = partition(promises, ["status", "fulfilled"]);
+  return [
+    partitioned[0].map((p) => p.value),
+    partitioned[1].map((p) => p.reason),
+  ];
 }
 
 const validateVec3String = function (props, propName, componentName) {
@@ -190,6 +199,7 @@ function validateTransferFunction(transferFunction) {
 export {
   getAframeModels,
   deepDifference,
+  partitionPromises,
   validateModel,
   validateSlider,
   validateVec3String,

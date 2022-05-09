@@ -5,7 +5,7 @@ import {
   DEFAULT_SLIDERS,
   DEFAULT_MATERIAL,
 } from "../constants/index.js";
-import { deepDifference } from "../utils/index";
+import { deepDifference, partitionPromises } from "../utils/index";
 
 const {
   LinearFilter,
@@ -31,7 +31,6 @@ AFRAME.registerComponent("volume", {
     this.scene = this.el.sceneEl;
     this.usedModels = new Map(); // Cache models (path: texture)
     this.usedColorMaps = new Map(); // Cache color maps (path: RGB data)
-    this.modelsData = []; // Array of each models associated data
     this.rayCollided = false;
     this.grabbed = false;
 
@@ -71,8 +70,6 @@ AFRAME.registerComponent("volume", {
     // Update model uniforms
     const diffObject = deepDifference(oldData, data);
     if ("models" in diffObject) {
-      this.modelsData = [];
-
       // Asynchronously loop through the data.models array
       // Each element runs serially and this.updateModels waits for all of the promises to finish
       Promise.allSettled(
@@ -104,7 +101,7 @@ AFRAME.registerComponent("volume", {
               );
 
               // Build the uniform (idx ensures order is maintained)
-              this.modelsData[idx] = {
+              return {
                 intensity,
                 useTransferFunction,
                 texture,
@@ -118,9 +115,7 @@ AFRAME.registerComponent("volume", {
           }
         )
       ).then((promises) => {
-        const errors = promises
-          .filter((p) => p.status === "rejected")
-          .map((p) => p.reason);
+        const [models, errors] = partitionPromises(promises);
 
         if (errors.length) {
           // Bubble errors up to AframeScene
@@ -129,7 +124,7 @@ AFRAME.registerComponent("volume", {
               detail: errors,
             })
           );
-        } else this.updateModels();
+        } else this.updateModels(models);
       });
     }
 
@@ -330,12 +325,12 @@ AFRAME.registerComponent("volume", {
   },
 
   // Pass array of models' data into the shader
-  updateModels: function () {
-    console.log("MODELS LOADED", this.modelsData);
+  updateModels: function (modelsData) {
+    console.log("MODELS LOADED", modelsData);
 
     const uniforms = this.getUniforms();
-    if (this.modelsData.length) {
-      const modelData = this.modelsData[0];
+    if (modelsData.length) {
+      const modelData = modelsData[0];
       uniforms.intensity.value = modelData.intensity;
       uniforms.model_texture.value = modelData.texture;
       uniforms.transfer_texture.value = modelData.transferTexture;
