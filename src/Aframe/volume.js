@@ -70,7 +70,6 @@ AFRAME.registerComponent("volume", {
 
     // Update model uniforms
     const diffObject = deepDifference(oldData, data);
-    // if (!isEqual(oldData.models, data.models)) {
     if ("models" in diffObject) {
       this.modelsData = [];
 
