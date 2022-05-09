@@ -56,8 +56,8 @@ const DEFAULT_MODEL = {
 const DEFAULT_MATERIAL = {
   uniforms: {
     blending: { value: 0 },
-    box_max: { value: new Vector3(1, 1, 1) },
-    box_min: { value: new Vector3() },
+    clip_max: { value: new Vector3(1, 1, 1) },
+    clip_min: { value: new Vector3() },
     clipping: { value: false },
     clip_plane: { value: new Matrix4() },
     dim: { value: 1.0 },
