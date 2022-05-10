@@ -50,8 +50,7 @@ function deepDifference(oldObj, newObj) {
   return changes(newObj, oldObj);
 }
 
-// const validateVec3String = function (props, propName, componentName) {
-const validateVec3String = (props, propName, componentName) => {
+function validateVec3String(props, propName, componentName) {
   const string = props[propName];
 
   // spacing is a required prop
@@ -79,7 +78,7 @@ const validateVec3String = (props, propName, componentName) => {
       );
     }
   }
-};
+}
 
 function validateInt(props, propName, componentName) {
   const num = props[propName];
