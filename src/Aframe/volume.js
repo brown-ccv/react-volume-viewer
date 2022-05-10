@@ -279,9 +279,7 @@ AFRAME.registerComponent("volume", {
   },
 
   updateBlending: function () {
-    const { blending } = this.data;
-    const uniforms = this.getUniforms();
-    uniforms.blending.value = blending;
+    this.getUniforms().blending.value = this.data.blending;
   },
 
   updateSlices: function () {
@@ -295,7 +293,6 @@ AFRAME.registerComponent("volume", {
   updateSpacing: function () {
     const { spacing } = this.data;
     const uniforms = this.getUniforms();
-
     const modelTexture = uniforms.model_texture.value;
     const dim = uniforms.dim.value;
     const slices = uniforms.slices.value;
