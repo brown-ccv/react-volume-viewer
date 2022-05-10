@@ -13,7 +13,7 @@ uniform bool apply_vr_clip;
 uniform mat4 vr_clip_matrix;
 uniform float dim;
 uniform float intensity;
-uniform float slices;       // Number of slicess in the volumes
+uniform float slices;       // Number of slices in the volumes
 uniform float step_size;    // Ray step size
 
 uniform sampler2D model_texture;    // Texture of the model
