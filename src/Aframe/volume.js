@@ -13,6 +13,7 @@ const {
   Vector2,
   Vector3,
   Matrix4,
+  ImageLoader,
   TextureLoader,
   DataTexture,
 } = THREE;
@@ -204,19 +205,88 @@ AFRAME.registerComponent("volume", {
   // Load THREE Texture from the model's path
   loadModelTexture: function (modelPath) {
     return new Promise((resolve, reject) => {
-      new TextureLoader().load(
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      new ImageLoader().load(
         modelPath,
-        (modelTexture) => {
+        (image) => {
+          const { width, height } = image;
+
+          // Draw image and extrapolate RGB data
+          ctx.drawImage(image, 0, 0);
+          const data = ctx.getImageData(0, 0, width, height).data;
+
+          console.log(data);
+
+          // TEMP
+          const used = new Set();
+          data.forEach((pixel) => {
+            if (!used.has(pixel)) used.add(pixel);
+          });
+          console.log(used);
+
+          // Create DataTexture from the rgba data
+          const modelTexture = new DataTexture(
+            data,
+            width,
+            height,
+            THREE.RGBFormat
+          );
           modelTexture.minFilter = modelTexture.magFilter = LinearFilter;
           modelTexture.unpackAlignment = 1;
           modelTexture.needsUpdate = true;
 
           this.usedModels.set(modelPath, modelTexture);
+          console.log("TEXTURE", modelTexture);
           resolve(modelTexture);
         },
         () => {},
         () => reject(new Error("Invalid model path: " + modelPath))
       );
+
+      // new THREE.FileLoader().setResponseType("arraybuffer").load(
+      //   modelPath,
+      //   (image) => {
+      //     console.log(image)
+      //     image = new Uint8Array(image)
+      //     console.log(image);
+      //     // TEMP
+      //     const used = new Set();
+      //     image.forEach((pixel) => {
+      //       if (!used.has(pixel)) used.add(pixel);
+      //     });
+      //     console.log(used);
+
+      //     // Create DataTexture from the rgba data
+      //     // const modelTexture = new DataTexture(data, width, height);
+      //     const modelTexture = new DataTexture(image)
+      //     modelTexture.minFilter = modelTexture.magFilter = LinearFilter;
+      //     modelTexture.unpackAlignment = 1;
+      //     modelTexture.needsUpdate = true;
+
+      //     this.usedModels.set(modelPath, modelTexture);
+      //     console.log("TEXTURE", modelTexture);
+      //     resolve(modelTexture);
+
+      //   },
+      //   () => {},
+      //   () => reject(new Error("Invalid model path: " + modelPath))
+      // );
+
+      //   new TextureLoader().load(
+      //     modelPath,
+      //     (modelTexture) => {
+      //       modelTexture.minFilter = modelTexture.magFilter = LinearFilter;
+      //       modelTexture.unpackAlignment = 1;
+      //       modelTexture.needsUpdate = true;
+
+      //       this.usedModels.set(modelPath, modelTexture);
+      //       console.log(modelTexture)
+      //       resolve(modelTexture);
+      //     },
+      //     () => {},
+      //     () => reject(new Error("Invalid model path: " + modelPath))
+      //   );
     });
   },
 

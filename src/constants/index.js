@@ -71,7 +71,7 @@ const DEFAULT_MATERIAL = new RawShaderMaterial({
   },
   vertexShader: vertexShader,
   fragmentShader: fragmentShader,
-  transparent: true,
+  // transparent: true,
   side: BackSide, // Shader uses "backface" as its reference point
 });
 
