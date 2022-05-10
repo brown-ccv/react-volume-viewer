@@ -9,8 +9,8 @@ out vec4 fragColor; // Final output color
 uniform vec3 clip_min;       // Clip minimum
 uniform vec3 clip_max;       // Clip maximum
 uniform int blending;
-uniform bool clipping;     
-uniform mat4 clip_plane;
+uniform bool apply_vr_clip; 
+uniform mat4 vr_clip_matrix;
 uniform float dim;
 uniform float intensity;
 uniform float slices;       // Number of slicess in the volumes
@@ -122,13 +122,13 @@ void main() {
 
     // Get t for the clipping plane and overwrite the entry point
     // This only occurs when grabbing volume in a VR headset
-    if(clipping) {
-        vec4 p_in = clip_plane * vec4(data_position + t_start * ray_direction, 1);
-        vec4 p_out = clip_plane * vec4(data_position + t_end * ray_direction, 1);
+    if(apply_vr_clip) {
+        vec4 p_in = vr_clip_matrix * vec4(data_position + t_start * ray_direction, 1);
+        vec4 p_out = vr_clip_matrix * vec4(data_position + t_end * ray_direction, 1);
         if(p_in.y * p_out.y < 0.0 ) {
             // Both points lie on different sides of the plane, need a new clip point
-            vec4 c_pos = clip_plane * vec4(data_position, 1);
-            vec4 c_dir = clip_plane * vec4(ray_direction, 0);
+            vec4 c_pos = vr_clip_matrix * vec4(data_position, 1);
+            vec4 c_dir = vr_clip_matrix * vec4(ray_direction, 0);
             float t_clip = -c_pos.y / c_dir.y;
     
             // Update either entry or exit based on which is on the clipped side

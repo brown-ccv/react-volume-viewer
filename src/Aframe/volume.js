@@ -367,8 +367,8 @@ AFRAME.registerComponent("volume", {
     clipMatrix.multiplyMatrices(clipMatrix, translationMatrix);
 
     // Update shader uniforms
-    uniforms.clipPlane.value = clipMatrix;
-    uniforms.clipping.value =
+    uniforms.vr_clip_matrix.value = clipMatrix;
+    uniforms.apply_vr_clip.value =
       this.scene.is("vr-mode") &&
       this.controllerObject.el.getAttribute("buttons-check").gripDown &&
       !this.grabbed;
