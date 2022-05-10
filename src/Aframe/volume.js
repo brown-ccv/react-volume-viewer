@@ -87,9 +87,9 @@ AFRAME.registerComponent("volume", {
           ) => {
             try {
               // Load texture from png
-              const texture = usedModels.has(path)
+              const modelTexture = usedModels.has(path)
                 ? usedModels.get(path)
-                : await this.loadTexture(path);
+                : await this.loadModelTexture(path);
 
               // Load THREE DataTexture from color map's png and model.transferFunction
               const colorData = usedColorMaps.has(colorMap.path)
@@ -100,11 +100,10 @@ AFRAME.registerComponent("volume", {
                 transferFunction
               );
 
-              // Build the uniform (idx ensures order is maintained)
               return {
                 intensity,
                 useTransferFunction,
-                texture,
+                modelTexture,
                 transferTexture,
               };
             } catch (error) {
@@ -203,17 +202,17 @@ AFRAME.registerComponent("volume", {
   },
 
   // Load THREE Texture from the model's path
-  loadTexture: function (modelPath) {
+  loadModelTexture: function (modelPath) {
     return new Promise((resolve, reject) => {
       new TextureLoader().load(
         modelPath,
-        (texture) => {
-          texture.minFilter = texture.magFilter = LinearFilter;
-          texture.unpackAlignment = 1;
-          texture.needsUpdate = true;
+        (modelTexture) => {
+          modelTexture.minFilter = modelTexture.magFilter = LinearFilter;
+          modelTexture.unpackAlignment = 1;
+          modelTexture.needsUpdate = true;
 
-          this.usedModels.set(modelPath, texture);
-          resolve(texture);
+          this.usedModels.set(modelPath, modelTexture);
+          resolve(modelTexture);
         },
         () => {},
         () => reject(new Error("Invalid model path: " + modelPath))
@@ -297,14 +296,14 @@ AFRAME.registerComponent("volume", {
     const { spacing } = this.data;
     const uniforms = this.getUniforms();
 
-    const texture = uniforms.model_texture.value;
+    const modelTexture = uniforms.model_texture.value;
     const dim = uniforms.dim.value;
     const slices = uniforms.slices.value;
 
-    if (texture) {
+    if (modelTexture) {
       const volumeScale = new Vector3(
-        1.0 / ((texture.image.width / dim) * spacing.x),
-        1.0 / ((texture.image.height / dim) * spacing.y),
+        1.0 / ((modelTexture.image.width / dim) * spacing.x),
+        1.0 / ((modelTexture.image.height / dim) * spacing.y),
         1.0 / (slices * spacing.z)
       );
       uniforms.zScale.value = volumeScale.x / volumeScale.z;
@@ -326,13 +325,11 @@ AFRAME.registerComponent("volume", {
 
   // Pass array of models' data into the shader
   updateModels: function (modelsData) {
-    console.log("MODELS LOADED", modelsData);
-
     const uniforms = this.getUniforms();
     if (modelsData.length) {
       const modelData = modelsData[0];
       uniforms.intensity.value = modelData.intensity;
-      uniforms.model_texture.value = modelData.texture;
+      uniforms.model_texture.value = modelData.modelTexture;
       uniforms.transfer_texture.value = modelData.transferTexture;
     } else {
       const defaultUniforms = DEFAULT_MATERIAL.clone().uniforms;
