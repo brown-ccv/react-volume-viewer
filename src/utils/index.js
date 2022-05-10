@@ -5,7 +5,6 @@ import { isEqual, pick, isArray, isObject, transform } from "lodash";
 // Filter model properties needed from aframe
 function getAframeModels(models) {
   const aframeModels = models.map((model) => {
-    console.log(model)
     // Pick only needed properties
     const aframeModel = pick(model, [
       "colorMap",
@@ -51,7 +50,8 @@ function deepDifference(oldObj, newObj) {
   return changes(newObj, oldObj);
 }
 
-const validateVec3String = function (props, propName, componentName) {
+// const validateVec3String = function (props, propName, componentName) {
+const validateVec3String = (props, propName, componentName) => {
   const string = props[propName];
 
   // spacing is a required prop

@@ -331,8 +331,6 @@ AFRAME.registerComponent("volume", {
 
   // Pass array of models' data into the shader
   updateModels: function () {
-    console.log("MODELS LOADED", this.modelsData);
-
     const uniforms = this.getUniforms();
     if (this.modelsData.length) {
       const modelData = this.modelsData[0];
