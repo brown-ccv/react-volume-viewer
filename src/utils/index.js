@@ -5,16 +5,14 @@ import { isEqual, pick, isArray, isObject, transform } from "lodash";
 // Filter model properties needed from aframe
 function getAframeModels(models) {
   const aframeModels = models.map((model) => {
+    console.log(model)
     // Pick only needed properties
     const aframeModel = pick(model, [
-      "blending",
       "colorMap",
       "enabled",
       "intensity",
       "name",
       "path",
-      "slices",
-      "spacing",
       "transferFunction",
       "useTransferFunction",
       "useColorMap",
