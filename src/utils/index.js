@@ -35,6 +35,7 @@ function getAframeModels(models) {
 }
 
 // Recursively find the differences between two objects
+// https://davidwells.io/snippets/get-difference-between-two-objects-javascript
 function deepDifference(oldObj, newObj) {
   const changes = (newObj, oldObj) => {
     let arrayIndexCounter = 0;
