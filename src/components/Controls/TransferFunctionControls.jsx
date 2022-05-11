@@ -104,7 +104,7 @@ function TransferFunctionControls({
 
     // Draw lines
     context.beginPath();
-    context.strokeStyle = "rgba(128, 128, 128, 0.8)";
+    context.strokeStyle = "rgb(55, 55, 55)";
     context.lineWidth = 2;
     canvasPoints.forEach((point) => {
       context.lineTo(point.x, point.y);
@@ -114,10 +114,14 @@ function TransferFunctionControls({
     // Draw points
     canvasPoints.forEach((point) => {
       context.beginPath();
+      // context.fillStyle =
+      //   pointHovering === point
+      //     ? "rgba(255, 255, 85, 1)"
+      //     : "rgba(255, 170, 0, 1)";
       context.fillStyle =
-        pointHovering === point
-          ? "rgba(255, 255, 85, 1)"
-          : "rgba(255, 170, 0, 1)";
+      pointHovering === point
+        ? "rgb(255, 255, 85)"
+        : "rgb(255, 170, 0)";
       context.arc(point.x, point.y, 5, 0, 2 * Math.PI);
       context.fill();
     });
