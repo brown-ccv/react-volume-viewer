@@ -124,7 +124,6 @@ AFRAME.registerComponent("volume", {
             })
           );
         } else this.updateModels();
-        console.log("UPDATE", Object.keys(THREE.Cache.files).length);
       });
     }
 
@@ -233,7 +232,6 @@ AFRAME.registerComponent("volume", {
       new THREE.ImageLoader().load(
         colorMapPath,
         (image) => {
-          // const canvas = document.createElement("canvas");
           const ctx = document.createElement("canvas").getContext("2d");
 
           // Draw image and extrapolate RGB data
