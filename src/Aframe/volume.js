@@ -63,6 +63,8 @@ AFRAME.registerComponent("volume", {
       this.scene.canvas.height
     );
     this.getMesh().material = initMaterial;
+
+    console.log("INIT", Object.keys(THREE.Cache.files).length);
   },
 
   update: function (oldData) {
@@ -130,6 +132,7 @@ AFRAME.registerComponent("volume", {
             })
           );
         } else this.updateModels();
+        console.log("UPDATE", Object.keys(THREE.Cache.files).length);
       });
     }
 
@@ -237,21 +240,39 @@ AFRAME.registerComponent("volume", {
         ? colorMapPath.substring(0, 14) + ";" + colorMapPath.substring(14)
         : colorMapPath;
 
-      // Create canvas to load image on
-      const img = document.createElement("img");
-      img.src = colorMapPath;
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      img.onload = () => {
-        // Draw image and extrapolate RGB data
-        ctx.drawImage(img, 0, 0);
-        const colorData = ctx.getImageData(0, 0, img.width, 1).data;
-        this.usedColorMaps.set(colorMapPath, colorData);
-        resolve(colorData);
-      };
-      img.onerror = () => {
-        reject(new Error("Invalid colorMap path: " + colorMapPath));
-      };
+      new THREE.ImageLoader().load(
+        colorMapPath,
+        (image) => {
+          // const canvas = document.createElement("canvas");
+          const ctx = document.createElement("canvas").getContext("2d");
+
+          // Draw image and extrapolate RGB data
+          ctx.drawImage(image, 0, 0);
+          const colorData = ctx.getImageData(0, 0, image.width, 1).data;
+          this.usedColorMaps.set(colorMapPath, colorData);
+          resolve(colorData);
+        },
+        () => {},
+        () => {
+          reject(new Error("Invalid colorMap path: " + colorMapPath));
+        }
+      );
+
+      // // Create canvas to load image on
+      // const img = document.createElement("img");
+      // img.src = colorMapPath;
+      // const canvas = document.createElement("canvas");
+      // const ctx = canvas.getContext("2d");
+      // img.onload = () => {
+      //   // Draw image and extrapolate RGB data
+      //   ctx.drawImage(img, 0, 0);
+      //   const colorData = ctx.getImageData(0, 0, img.width, 1).data;
+      //   this.usedColorMaps.set(colorMapPath, colorData);
+      //   resolve(colorData);
+      // };
+      // img.onerror = () => {
+      //   reject(new Error("Invalid colorMap path: " + colorMapPath));
+      // };
     });
   },
 
