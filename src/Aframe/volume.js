@@ -136,8 +136,11 @@ AFRAME.registerComponent("volume", {
 
   updateModels: function () {
     this.modelsData = [];
-    const { models } = this.data;
-    const { usedModels, usedColorMaps } = this;
+    const {
+      data: { models },
+      usedModels,
+      usedColorMaps,
+    } = this;
 
     // Asynchronously loop through the data.models array
     // Each element runs serially and this.updateModels waits for all of the promises to finish
