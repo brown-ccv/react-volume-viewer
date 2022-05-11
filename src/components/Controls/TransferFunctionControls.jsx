@@ -114,15 +114,15 @@ function TransferFunctionControls({
     // Draw points
     canvasPoints.forEach((point) => {
       context.beginPath();
-      // context.fillStyle =
-      //   pointHovering === point
-      //     ? "rgba(255, 255, 85, 1)"
-      //     : "rgba(255, 170, 0, 1)";
-      context.fillStyle =
-      pointHovering === point
-        ? "rgb(255, 255, 85)"
-        : "rgb(255, 170, 0)";
-      context.arc(point.x, point.y, 5, 0, 2 * Math.PI);
+      // TODo: Match the blue of the sliders
+      context.fillStyle = "rgb(255, 170, 0)";
+      context.arc(
+        point.x,
+        point.y,
+        pointHovering === point ? 8 : 5,
+        0,
+        2 * Math.PI
+      );
       context.fill();
     });
 
