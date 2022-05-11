@@ -74,17 +74,14 @@ AFRAME.registerComponent("volume", {
       // Each element runs serially and this.updateModels waits for all of the promises to finish
       Promise.allSettled(
         data.models.map(
-          async (
-            {
-              name,
-              path,
-              colorMap,
-              transferFunction,
-              intensity,
-              useTransferFunction,
-            },
-            idx
-          ) => {
+          async ({
+            name,
+            path,
+            colorMap,
+            transferFunction,
+            intensity,
+            useTransferFunction,
+          }) => {
             try {
               // Load texture from png
               const texture = usedModels.has(path)
