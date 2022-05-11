@@ -16,6 +16,8 @@ const {
   ImageLoader,
   TextureLoader,
   DataTexture,
+  DataArrayTexture,
+  DataTexture2DArray
 } = THREE;
 
 AFRAME.registerComponent("volume", {
@@ -207,59 +209,37 @@ AFRAME.registerComponent("volume", {
     return new Promise((resolve, reject) => {
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
-      new ImageLoader().load(
-        modelPath,
-        (image) => {
-          const { width, height } = image;
-
-          // Draw image and extrapolate RGB data
-          ctx.drawImage(image, 0, 0);
-          const data = ctx.getImageData(0, 0, width, height).data;
-
-          console.log(data);
-
-          // TEMP
-          const used = new Set();
-          data.forEach((pixel) => {
-            if (!used.has(pixel)) used.add(pixel);
-          });
-          console.log(used);
-
-          // Create DataTexture from the rgba data
-          const modelTexture = new DataTexture(
-            data,
-            width,
-            height,
-            THREE.RGBFormat
-          );
-          modelTexture.minFilter = modelTexture.magFilter = LinearFilter;
-          modelTexture.unpackAlignment = 1;
-          modelTexture.needsUpdate = true;
-
-          this.usedModels.set(modelPath, modelTexture);
-          console.log("TEXTURE", modelTexture);
-          resolve(modelTexture);
-        },
-        () => {},
-        () => reject(new Error("Invalid model path: " + modelPath))
-      );
-
-      // new THREE.FileLoader().setResponseType("arraybuffer").load(
+      // new ImageLoader().load(
       //   modelPath,
       //   (image) => {
-      //     console.log(image)
-      //     image = new Uint8Array(image)
-      //     console.log(image);
+      //     const { width, height } = image;
+
+      //     // Draw image and extrapolate RGB data
+      //     //ctx.drawImage(image, 0, 0);
+      //     //const data = ctx.getImageData(0, 0, width, height).data;
+
+      //     //console.log(data);
+
       //     // TEMP
-      //     const used = new Set();
-      //     image.forEach((pixel) => {
-      //       if (!used.has(pixel)) used.add(pixel);
-      //     });
-      //     console.log(used);
+      //     // const used = new Set();
+      //     // data.forEach((pixel) => {
+      //     //   if (!used.has(pixel)) used.add(pixel);
+      //     // });
+      //     // console.log(used);
 
       //     // Create DataTexture from the rgba data
-      //     // const modelTexture = new DataTexture(data, width, height);
-      //     const modelTexture = new DataTexture(image)
+      //     // const modelTexture = new DataTexture(
+      //     //   data,
+      //     //   width,
+      //     //   height,
+      //     //   THREE.RGBFormat
+      //     // );
+      //     const modelTexture = new DataArrayTexture(
+      //       image,
+      //       width,
+      //       height,
+      //       1
+      //     );
       //     modelTexture.minFilter = modelTexture.magFilter = LinearFilter;
       //     modelTexture.unpackAlignment = 1;
       //     modelTexture.needsUpdate = true;
@@ -267,11 +247,39 @@ AFRAME.registerComponent("volume", {
       //     this.usedModels.set(modelPath, modelTexture);
       //     console.log("TEXTURE", modelTexture);
       //     resolve(modelTexture);
-
       //   },
       //   () => {},
       //   () => reject(new Error("Invalid model path: " + modelPath))
       // );
+
+      new THREE.FileLoader().setResponseType("arraybuffer").load(
+        modelPath,
+        (data) => {
+          // console.log(image)
+          // image = new Uint8Array(image)
+          // console.log(image);
+          // TEMP
+          // const used = new Set();
+          // image.forEach((pixel) => {
+          //   if (!used.has(pixel)) used.add(pixel);
+          // });
+          // console.log(used);
+
+          // Create DataTexture from the rgba data
+          // const modelTexture = new DataTexture(data, width, height);
+          const modelTexture = new DataTexture2DArray( data, 2000, 2200, 1 );
+          modelTexture.minFilter = modelTexture.magFilter = LinearFilter;
+          modelTexture.unpackAlignment = 1;
+          modelTexture.needsUpdate = true;
+
+          this.usedModels.set(modelPath, modelTexture);
+          console.log("TEXTURE", modelTexture);
+          resolve(modelTexture);
+
+        },
+        () => {},
+        () => reject(new Error("Invalid model path: " + modelPath))
+      );
 
       //   new TextureLoader().load(
       //     modelPath,

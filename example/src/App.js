@@ -38,20 +38,6 @@ function App() {
       useTransferFunction: useTransferFunction,
       useColorMap: useColorMap,
     },
-    {
-      name: "Opposite",
-      colorMap: colorMap === haline ? thermal : haline,
-      ...(!singleColorMap && { colorMaps: [haline, thermal] }),
-      enabled: true,
-      range: {
-        min: 0.05,
-        max: 33.71,
-        unit: "°C",
-      },
-      path: modelPath === salt ? temp : salt,
-      useTransferFunction: !useTransferFunction,
-      useColorMap: !useColorMap,
-    },
   ];
 
   const Buttons = (

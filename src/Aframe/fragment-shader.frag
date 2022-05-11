@@ -1,6 +1,6 @@
 # version 300 es
 precision mediump float;
-
+precision highp sampler2DArray;
 
 in vec3 vUV;        // Coordinates of the texture
 in vec3 camPos;     // Coordinates of the camera
@@ -16,7 +16,8 @@ uniform float intensity;
 uniform float slices;       // Number of slices in the volumes
 uniform float step_size;    // Ray step size
 
-uniform sampler2D model_texture;    // Texture of the model
+//uniform sampler2D model_texture;    // Texture of the model
+uniform sampler2DArray model_texture;
 uniform sampler2D transfer_texture; // Texture of the colorMap/transferFunction
 
 /**
@@ -26,7 +27,7 @@ uniform sampler2D transfer_texture; // Texture of the colorMap/transferFunction
 */
 
 // Sample model texture as 3D object
-vec4 sampleAs3DTexture(sampler2D tex, vec3 coordinates) {
+vec4 sampleAs3DTexture(sampler2DArray tex, int depth,vec3 coordinates) {
     float z_start = floor(coordinates.z / (1.0 / slices));
     float z_end = min(z_start + 1.0, slices - 1.0);
     vec2 p_start = vec2(mod(z_start, dim), dim - floor(z_start / dim) - 1.0);
@@ -42,8 +43,8 @@ vec4 sampleAs3DTexture(sampler2D tex, vec3 coordinates) {
 
     // Apply linear interpolation between start and end coordinates
     return mix (
-        texture(tex, coordinates_start),
-        texture(tex, coordinates_end),
+        texture(tex, vec3( coordinates_start, depth )),
+        texture(tex, vec3( coordinates_end, depth )),
         (coordinates.z * slices - z_start)
     );
 }
@@ -66,7 +67,7 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
 
     // Loop from t_start to t_end by step_size
     for(float t = t_start; t < t_end; t += step_size) {
-        vec4 volumeSample = sampleAs3DTexture(model_texture, data_position);
+        vec4 volumeSample = sampleAs3DTexture(model_texture, 0, data_position);
 
         // Initialize alpha as the max between the 3 channels
         // volumeSample .r .g and .b are all the same exact values. Don't know what .a is supposed to be
