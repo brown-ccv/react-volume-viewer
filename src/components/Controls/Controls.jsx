@@ -45,6 +45,7 @@ function Controls({
         <TransferFunctionControls
           transferFunction={model.transferFunction}
           range={model.range}
+          colorMapPath={model.colorMap.path}
           setTransferFunction={(transferFunction) =>
             setModel({ transferFunction }, idx)
           }

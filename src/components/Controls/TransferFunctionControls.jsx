@@ -51,6 +51,7 @@ function getRelativeMousePos(e) {
 function TransferFunctionControls({
   transferFunction,
   range,
+  colorMapPath,
   setTransferFunction,
 }) {
   const canvasRef = useRef(null);
@@ -215,17 +216,20 @@ function TransferFunctionControls({
   return (
     <Section>
       <Title>Transfer Function</Title>
-      <OutlinedCanvas
-        id="opacityControls"
-        ref={canvasRef}
-        cursor={cursorType}
-        onMouseMove={pointDragging ? dragPoint : checkHovering}
-        onMouseDown={checkDragging}
-        onDoubleClick={addPoint}
-        onContextMenu={removePoint}
-        onMouseUp={releasePoint}
-        onMouseLeave={leaveCanvas}
-      />
+      <CanvasContainer cursor={cursorType}>
+        <CanvasBackground src={colorMapPath} />
+        <Canvas
+          id="opacityControls"
+          ref={canvasRef}
+          cursor={cursorType}
+          onMouseMove={pointDragging ? dragPoint : checkHovering}
+          onMouseDown={checkDragging}
+          onDoubleClick={addPoint}
+          onContextMenu={removePoint}
+          onMouseUp={releasePoint}
+          onMouseLeave={leaveCanvas}
+        />
+      </CanvasContainer>
 
       <Labels>
         <LeftLabel>
@@ -249,9 +253,27 @@ function TransferFunctionControls({
   );
 }
 
-const OutlinedCanvas = styled.canvas`
-  width: 100%;
+const CanvasContainer = styled.div`
+  position: relative;
   outline: 1px solid;
+  /* cursor: ${(props) => props.cursor}; */
+`;
+
+const CanvasBackground = styled.div`
+  background-image: url(${(props) => props.src});
+  background-size: contain;
+  opacity: 0.3;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  bottom: 0px;
+  right: 0px;
+`;
+
+const Canvas = styled.canvas`
+  position: relative;
+  display: block;
+  width: 100%;
   cursor: ${(props) => props.cursor};
 `;
 
