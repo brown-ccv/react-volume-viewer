@@ -66,74 +66,9 @@ AFRAME.registerComponent("volume", {
   },
 
   update: function (oldData) {
-    const { data, usedModels, usedColorMaps } = this;
+    const diffObject = deepDifference(oldData, this.data);
 
-    // Update model uniforms
-    const diffObject = deepDifference(oldData, data);
-    if ("models" in diffObject) {
-      this.modelsData = [];
-
-      // Asynchronously loop through the data.models array
-      // Each element runs serially and this.updateModels waits for all of the promises to finish
-      Promise.allSettled(
-        data.models.map(
-          async (
-            {
-              name,
-              path,
-              colorMap,
-              transferFunction,
-              intensity,
-              useTransferFunction,
-            },
-            idx
-          ) => {
-            try {
-              // Load texture from png
-              const texture = usedModels.has(path)
-                ? usedModels.get(path)
-                : await this.loadTexture(path);
-
-              // Load THREE DataTexture from color map's png and model.transferFunction
-              const colorData = usedColorMaps.has(colorMap.path)
-                ? usedColorMaps.get(colorMap.path)
-                : await this.loadColorMap(colorMap.path);
-              const transferTexture = this.buildTransferTexture(
-                colorData,
-                transferFunction
-              );
-
-              // Build the uniform (idx ensures order is maintained)
-              this.modelsData[idx] = {
-                intensity,
-                useTransferFunction,
-                texture,
-                transferTexture,
-              };
-            } catch (error) {
-              throw new Error("Failed to load model '" + name + "'", {
-                cause: error,
-              });
-            }
-          }
-        )
-      ).then((promises) => {
-        const errors = promises
-          .filter((p) => p.status === "rejected")
-          .map((p) => p.reason);
-
-        if (errors.length) {
-          // Bubble errors up to AframeScene
-          document.dispatchEvent(
-            new CustomEvent("aframe-error", {
-              detail: errors,
-            })
-          );
-        } else this.updateModels();
-      });
-    }
-
-    // Update other uniforms
+    if ("models" in diffObject) this.updateModels();
     if ("blending" in diffObject) this.updateBlending();
     if ("slices" in diffObject) this.updateSlices();
     if ("spacing" in diffObject) this.updateSpacing();
@@ -199,6 +134,88 @@ AFRAME.registerComponent("volume", {
 
   /** UPDATE FUNCTIONS */
 
+  updateModels: function () {
+    this.modelsData = [];
+    const { models } = this.data;
+    const { usedModels, usedColorMaps } = this;
+
+    // Asynchronously loop through the data.models array
+    // Each element runs serially and this.updateModels waits for all of the promises to finish
+    Promise.allSettled(
+      models.map(
+        async (
+          {
+            name,
+            path,
+            colorMap,
+            transferFunction,
+            intensity,
+            useTransferFunction,
+          },
+          idx
+        ) => {
+          try {
+            // Load texture from png
+            const texture = usedModels.has(path)
+              ? usedModels.get(path)
+              : await this.loadTexture(path);
+
+            // Load THREE DataTexture from color map's png and model.transferFunction
+            const colorData = usedColorMaps.has(colorMap.path)
+              ? usedColorMaps.get(colorMap.path)
+              : await this.loadColorMap(colorMap.path);
+            const transferTexture = this.buildTransferTexture(
+              colorData,
+              transferFunction
+            );
+
+            // Build the uniform (idx ensures order is maintained)
+            this.modelsData[idx] = {
+              intensity,
+              useTransferFunction,
+              texture,
+              transferTexture,
+            };
+          } catch (error) {
+            throw new Error("Failed to load model '" + name + "'", {
+              cause: error,
+            });
+          }
+        }
+      )
+    ).then((promises) => {
+      const errors = promises
+        .filter((p) => p.status === "rejected")
+        .map((p) => p.reason);
+
+      if (errors.length) {
+        // Bubble errors up to AframeScene
+        document.dispatchEvent(
+          new CustomEvent("aframe-error", {
+            detail: errors,
+          })
+        );
+      } else {
+        // Update uniforms
+        const uniforms = this.getUniforms();
+        if (this.modelsData.length) {
+          const modelData = this.modelsData[0];
+          uniforms.intensity.value = modelData.intensity;
+          uniforms.model_texture.value = modelData.texture;
+          uniforms.transfer_texture.value = modelData.transferTexture;
+        } else {
+          const defaultUniforms = DEFAULT_MATERIAL.clone().uniforms;
+          uniforms.intensity.value = defaultUniforms.intensity.value;
+          uniforms.model_texture.value = defaultUniforms.model_texture.value;
+          uniforms.transfer_texture.value =
+            defaultUniforms.transfer_texture.value;
+        }
+
+        this.updateSpacing(); // Update spacing based on the new material
+      }
+    });
+  },
+
   updateBlending: function () {
     const { blending } = this.data;
     const uniforms = this.getUniforms();
@@ -233,8 +250,8 @@ AFRAME.registerComponent("volume", {
 
   // Update clipping uniforms from sliders (reset if !activateClipPlane)
   updateClipping: function () {
-    const uniforms = this.getUniforms();
     const { x, y, z } = this.data.sliders;
+    const uniforms = this.getUniforms();
     if (this.el.getAttribute("keypress-listener").activateClipPlane) {
       uniforms.clip_min.value = new Vector3(x[0], y[0], z[0]);
       uniforms.clip_max.value = new Vector3(x[1], y[1], z[1]);
@@ -244,48 +261,30 @@ AFRAME.registerComponent("volume", {
     }
   },
 
-    // Pass array of models' data into the shader
-    updateModels: function () {
-      const uniforms = this.getUniforms();
-      if (this.modelsData.length) {
-        const modelData = this.modelsData[0];
-        uniforms.intensity.value = modelData.intensity;
-        uniforms.model_texture.value = modelData.texture;
-        uniforms.transfer_texture.value = modelData.transferTexture;
-      } else {
-        const defaultUniforms = DEFAULT_MATERIAL.clone().uniforms;
-        uniforms.intensity.value = defaultUniforms.intensity.value;
-        uniforms.model_texture.value = defaultUniforms.model_texture.value;
-        uniforms.transfer_texture.value = defaultUniforms.transfer_texture.value;
-      }
-  
-      this.updateSpacing(); // Update spacing based on the new material
-    },
-  
-    updateMeshClipMatrix: function () {
-      const mesh = this.getMesh();
-      const uniforms = mesh.material.uniforms;
-  
-      const volumeMatrix = mesh.matrixWorld;
-      const scaleMatrix = new Matrix4().makeScale(1, 1, uniforms.zScale.value);
-      const translationMatrix = new Matrix4().makeTranslation(-0.5, -0.5, -0.5);
-      const inverseControllerMatrix = new Matrix4()
-        .copy(this.controllerObject.matrixWorld)
-        .invert();
-  
-      // clipMatrix = controller_inverse * volume * scale * translation
-      const clipMatrix = inverseControllerMatrix;
-      clipMatrix.multiplyMatrices(clipMatrix, volumeMatrix);
-      clipMatrix.multiplyMatrices(clipMatrix, scaleMatrix);
-      clipMatrix.multiplyMatrices(clipMatrix, translationMatrix);
-  
-      // Update shader uniforms
-      uniforms.vr_clip_matrix.value = clipMatrix;
-      uniforms.apply_vr_clip.value =
-        this.scene.is("vr-mode") &&
-        this.controllerObject.el.getAttribute("buttons-check").gripDown &&
-        !this.grabbed;
-    },
+  updateMeshClipMatrix: function () {
+    const mesh = this.getMesh();
+    const uniforms = mesh.material.uniforms;
+
+    const volumeMatrix = mesh.matrixWorld;
+    const scaleMatrix = new Matrix4().makeScale(1, 1, uniforms.zScale.value);
+    const translationMatrix = new Matrix4().makeTranslation(-0.5, -0.5, -0.5);
+    const inverseControllerMatrix = new Matrix4()
+      .copy(this.controllerObject.matrixWorld)
+      .invert();
+
+    // clipMatrix = controller_inverse * volume * scale * translation
+    const clipMatrix = inverseControllerMatrix;
+    clipMatrix.multiplyMatrices(clipMatrix, volumeMatrix);
+    clipMatrix.multiplyMatrices(clipMatrix, scaleMatrix);
+    clipMatrix.multiplyMatrices(clipMatrix, translationMatrix);
+
+    // Update shader uniforms
+    uniforms.vr_clip_matrix.value = clipMatrix;
+    uniforms.apply_vr_clip.value =
+      this.scene.is("vr-mode") &&
+      this.controllerObject.el.getAttribute("buttons-check").gripDown &&
+      !this.grabbed;
+  },
 
   /** HELPER FUNCTIONS */
 
