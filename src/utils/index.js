@@ -3,18 +3,15 @@ import { isEqual, pick, isArray, isObject, transform, partition } from "lodash";
 /** EXPORTS */
 
 // Filter model properties needed from aframe
-function getAframeModels(models) {
+const getAframeModels = (models) => {
   const aframeModels = models.map((model) => {
     // Pick only needed properties
     const aframeModel = pick(model, [
-      "blending",
       "colorMap",
       "enabled",
       "intensity",
       "name",
       "path",
-      "slices",
-      "spacing",
       "transferFunction",
       "useTransferFunction",
       "useColorMap",
@@ -32,10 +29,11 @@ function getAframeModels(models) {
     return aframeModel;
   });
   return JSON.stringify(aframeModels.filter((model) => model.enabled));
-}
+};
 
 // Recursively find the differences between two objects
-function deepDifference(oldObj, newObj) {
+// https://davidwells.io/snippets/get-difference-between-two-objects-javascript
+const deepDifference = (oldObj, newObj) => {
   const changes = (newObj, oldObj) => {
     let arrayIndexCounter = 0;
     return transform(newObj, (result, value, key) => {
@@ -50,18 +48,18 @@ function deepDifference(oldObj, newObj) {
   };
 
   return changes(newObj, oldObj);
-}
+};
 
 // Partition an array of promises based on errors
-function partitionPromises(promises) {
+const partitionPromises = (promises) => {
   const partitioned = partition(promises, ["status", "fulfilled"]);
   return [
     partitioned[0].map((p) => p.value),
     partitioned[1].map((p) => p.reason),
   ];
-}
+};
 
-const validateVec3String = function (props, propName, componentName) {
+const validateVec3String = (props, propName, componentName) => {
   const string = props[propName];
 
   // spacing is a required prop
@@ -91,7 +89,7 @@ const validateVec3String = function (props, propName, componentName) {
   }
 };
 
-function validateInt(props, propName, componentName) {
+const validateInt = (props, propName, componentName) => {
   const num = props[propName];
 
   // slices is a required prop
@@ -109,10 +107,16 @@ function validateInt(props, propName, componentName) {
         `supplied to '${componentName}'. '${num}' is not a positive integer`
     );
   }
-}
+};
 
 // Custom validation function for a single slider in the 'sliders' prop
-function validateSlider(sliders, axis, componentName, location, propFullName) {
+const validateSlider = (
+  sliders,
+  axis,
+  componentName,
+  location,
+  propFullName
+) => {
   const slider = sliders[axis];
 
   // Array length is exactly 2
@@ -140,10 +144,10 @@ function validateSlider(sliders, axis, componentName, location, propFullName) {
       );
     }
   }
-}
+};
 
 // Custom validation function for a single model in the 'models' prop
-function validateModel(models, idx, componentName, location, propFullName) {
+const validateModel = (models, idx, componentName, location, propFullName) => {
   const model = models[idx];
 
   // Each model must have a unique name
@@ -167,9 +171,9 @@ function validateModel(models, idx, componentName, location, propFullName) {
         error.message
     );
   }
-}
+};
 
-function validateColorMaps(colorMaps) {
+const validateColorMaps = (colorMaps) => {
   const colorMapNames = new Set();
   colorMaps.forEach((colorMap) => {
     // Each color map must have a unique name
@@ -177,10 +181,10 @@ function validateColorMaps(colorMaps) {
       throw new Error("colorMap name '" + colorMap.name + "' is not unique");
     else colorMapNames.add(colorMap.name);
   });
-}
+};
 
 // Each coordinate within the transfer function must be between (0,0) and (1,1)
-function validateTransferFunction(transferFunction) {
+const validateTransferFunction = (transferFunction) => {
   transferFunction.forEach((point) => {
     if (point.x === undefined || point.x < 0 || point.x > 1)
       throw new Error(
@@ -194,7 +198,7 @@ function validateTransferFunction(transferFunction) {
           `y coordinate must be between 0 and 1 (inclusive)`
       );
   });
-}
+};
 
 export {
   getAframeModels,
