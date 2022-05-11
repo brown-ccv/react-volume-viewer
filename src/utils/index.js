@@ -57,7 +57,7 @@ const partitionPromises = (promises) => {
     partitioned[0].map((p) => p.value),
     partitioned[1].map((p) => p.reason),
   ];
-}
+};
 
 const validateVec3String = (props, propName, componentName) => {
   const string = props[propName];
