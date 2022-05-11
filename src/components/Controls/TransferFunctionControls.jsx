@@ -96,26 +96,26 @@ function TransferFunctionControls({
 
     // Draw midpoint tick on the axis
     context.beginPath();
-    context.strokeStyle = "rgba(0, 0, 0, 1)";
+    context.strokeStyle = "rgb(0, 0, 0)";
     context.lineWidth = 1;
     context.moveTo(canvas.width / 2, canvas.height);
     context.lineTo(canvas.width / 2, canvas.height - CANVAS_PADDING);
     context.stroke();
 
-    // Draw lines
-    context.beginPath();
-    context.strokeStyle = "rgb(55, 55, 55)";
+    // Draw transfer function
+    context.fillStyle = "rgb(233, 233, 233)";
+    context.strokeStyle = "rgb(45, 183, 245)";
     context.lineWidth = 2;
-    canvasPoints.forEach((point) => {
-      context.lineTo(point.x, point.y);
-    });
+
+    // Lines
+    context.beginPath();
+    canvasPoints.forEach((point) => context.lineTo(point.x, point.y));
     context.stroke();
 
-    // Draw points
+    // Points
+    context.beginPath();
     canvasPoints.forEach((point) => {
-      context.beginPath();
-      // TODo: Match the blue of the sliders
-      context.fillStyle = "rgb(255, 170, 0)";
+      context.moveTo(point.x, point.y);
       context.arc(
         point.x,
         point.y,
@@ -123,8 +123,9 @@ function TransferFunctionControls({
         0,
         2 * Math.PI
       );
-      context.fill();
     });
+    context.stroke();
+    context.fill();
 
     setTransferFunction(
       canvasPoints.map((p) => {
