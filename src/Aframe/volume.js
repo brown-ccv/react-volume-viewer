@@ -29,8 +29,6 @@ AFRAME.registerComponent("volume", {
 
   init: function () {
     this.scene = this.el.sceneEl;
-    this.usedModels = new Map(); // Cache models (path: texture)
-    this.usedColorMaps = new Map(); // Cache color maps (path: RGB data)
     this.modelsData = []; // Array of each models associated data
     this.rayCollided = false;
     this.grabbed = false;
@@ -63,12 +61,10 @@ AFRAME.registerComponent("volume", {
       this.scene.canvas.height
     );
     this.getMesh().material = initMaterial;
-
-    console.log("INIT", Object.keys(THREE.Cache.files).length);
   },
 
   update: function (oldData) {
-    const { data, usedModels, usedColorMaps } = this;
+    const { data } = this;
 
     // Update model uniforms
     const diffObject = deepDifference(oldData, data);
@@ -92,14 +88,10 @@ AFRAME.registerComponent("volume", {
           ) => {
             try {
               // Load texture from png
-              const texture = usedModels.has(path)
-                ? usedModels.get(path)
-                : await this.loadTexture(path);
+              const texture = await this.loadTexture(path);
 
               // Load THREE DataTexture from color map's png and model.transferFunction
-              const colorData = usedColorMaps.has(colorMap.path)
-                ? usedColorMaps.get(colorMap.path)
-                : await this.loadColorMap(colorMap.path);
+              const colorData = await this.loadColorMap(colorMap.path);
               const transferTexture = this.buildTransferTexture(
                 colorData,
                 transferFunction
@@ -219,8 +211,6 @@ AFRAME.registerComponent("volume", {
           texture.minFilter = texture.magFilter = LinearFilter;
           texture.unpackAlignment = 1;
           texture.needsUpdate = true;
-
-          this.usedModels.set(modelPath, texture);
           resolve(texture);
         },
         () => {},
@@ -249,7 +239,6 @@ AFRAME.registerComponent("volume", {
           // Draw image and extrapolate RGB data
           ctx.drawImage(image, 0, 0);
           const colorData = ctx.getImageData(0, 0, image.width, 1).data;
-          this.usedColorMaps.set(colorMapPath, colorData);
           resolve(colorData);
         },
         () => {},
@@ -257,22 +246,6 @@ AFRAME.registerComponent("volume", {
           reject(new Error("Invalid colorMap path: " + colorMapPath));
         }
       );
-
-      // // Create canvas to load image on
-      // const img = document.createElement("img");
-      // img.src = colorMapPath;
-      // const canvas = document.createElement("canvas");
-      // const ctx = canvas.getContext("2d");
-      // img.onload = () => {
-      //   // Draw image and extrapolate RGB data
-      //   ctx.drawImage(img, 0, 0);
-      //   const colorData = ctx.getImageData(0, 0, img.width, 1).data;
-      //   this.usedColorMaps.set(colorMapPath, colorData);
-      //   resolve(colorData);
-      // };
-      // img.onerror = () => {
-      //   reject(new Error("Invalid colorMap path: " + colorMapPath));
-      // };
     });
   },
 
