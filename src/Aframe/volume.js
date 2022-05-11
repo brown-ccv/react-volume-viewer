@@ -1,17 +1,15 @@
 import AFRAME, { THREE } from "aframe";
 
-import { deepDifference } from "../utils/index.js";
 import {
   Blending,
   DEFAULT_SLIDERS,
   DEFAULT_MATERIAL,
 } from "../constants/index.js";
+import { deepDifference } from "../utils/index";
 
 const {
-  UniformsUtils,
   LinearFilter,
   RGBAFormat,
-  RawShaderMaterial,
   Vector2,
   Vector3,
   Matrix4,
@@ -33,7 +31,7 @@ AFRAME.registerComponent("volume", {
     this.scene = this.el.sceneEl;
     this.usedModels = new Map(); // Cache models (path: texture)
     this.usedColorMaps = new Map(); // Cache color maps (path: RGB data)
-    this.uniforms = new Map(); // Map each model to it's uniform (name: uniform)
+    this.modelsData = []; // Array of each models associated data
     this.rayCollided = false;
     this.grabbed = false;
 
@@ -59,52 +57,66 @@ AFRAME.registerComponent("volume", {
     );
 
     // Initialize material
-    const initMaterial = DEFAULT_MATERIAL;
+    const initMaterial = DEFAULT_MATERIAL.clone();
     initMaterial.uniforms.viewPort.value = new Vector2(
       this.scene.canvas.width,
       this.scene.canvas.height
     );
-    this.getMesh().material = new RawShaderMaterial(initMaterial);
+    this.getMesh().material = initMaterial;
   },
 
   update: function (oldData) {
     const { data, usedModels, usedColorMaps } = this;
-    const diffObject = deepDifference(oldData, data);
 
     // Update model uniforms
+    const diffObject = deepDifference(oldData, data);
     if ("models" in diffObject) {
-      this.uniforms = new Map();
+      this.modelsData = [];
+
       // Asynchronously loop through the data.models array
-      // Each element runs serially and this.updateMaterial waits for all of the promises to finish
+      // Each element runs serially and this.updateModels waits for all of the promises to finish
       Promise.allSettled(
-        data.models.map(async (model) => {
-          const { name, path, colorMap, transferFunction } = model;
-          try {
-            // Load texture from png
-            const texture = usedModels.has(path)
-              ? usedModels.get(path)
-              : await this.loadTexture(model.path);
+        data.models.map(
+          async (
+            {
+              name,
+              path,
+              colorMap,
+              transferFunction,
+              intensity,
+              useTransferFunction,
+            },
+            idx
+          ) => {
+            try {
+              // Load texture from png
+              const texture = usedModels.has(path)
+                ? usedModels.get(path)
+                : await this.loadTexture(path);
 
-            // Load THREE DataTexture from color map's png and model.transferFunction
-            const colorData = usedColorMaps.has(colorMap.path)
-              ? usedColorMaps.get(colorMap.path)
-              : await this.loadColorMap(colorMap.path);
-            const transferTexture = this.buildTransferTexture(
-              colorData,
-              transferFunction
-            );
+              // Load THREE DataTexture from color map's png and model.transferFunction
+              const colorData = usedColorMaps.has(colorMap.path)
+                ? usedColorMaps.get(colorMap.path)
+                : await this.loadColorMap(colorMap.path);
+              const transferTexture = this.buildTransferTexture(
+                colorData,
+                transferFunction
+              );
 
-            // Build the uniform
-            this.uniforms.set(
-              model.name,
-              this.buildUniform(model, texture, transferTexture)
-            );
-          } catch (error) {
-            throw new Error("Failed to load model '" + name + "'", {
-              cause: error,
-            });
+              // Build the uniform (idx ensures order is maintained)
+              this.modelsData[idx] = {
+                intensity,
+                useTransferFunction,
+                texture,
+                transferTexture,
+              };
+            } catch (error) {
+              throw new Error("Failed to load model '" + name + "'", {
+                cause: error,
+              });
+            }
           }
-        })
+        )
       ).then((promises) => {
         const errors = promises
           .filter((p) => p.status === "rejected")
@@ -117,10 +129,7 @@ AFRAME.registerComponent("volume", {
               detail: errors,
             })
           );
-        } else {
-          this.updateMaterial();
-          this.updateSpacing(); // Update spacing based on the new material
-        }
+        } else this.updateModels();
       });
     }
 
@@ -192,6 +201,10 @@ AFRAME.registerComponent("volume", {
 
   getMesh: function () {
     return this.el.getObject3D("mesh");
+  },
+
+  getUniforms: function () {
+    return this.getMesh().material.uniforms;
   },
 
   // Load THREE Texture from the model's path
@@ -271,43 +284,15 @@ AFRAME.registerComponent("volume", {
     return transferTexture;
   },
 
-  // Build THREE RawShaderMaterial from model and color map
-  buildUniform: function (model, texture, transferTexture) {
-    const { intensity, useTransferFunction } = model;
-    const uniforms = UniformsUtils.clone(DEFAULT_MATERIAL.uniforms);
-
-    // Resize viewport to scene
-    uniforms.viewPort.value = new Vector2(
-      this.scene.canvas.width,
-      this.scene.canvas.height
-    );
-
-    // Apply model properties
-    uniforms.intensity.value = intensity;
-    uniforms.use_lut.value = useTransferFunction;
-    uniforms.u_data.value = texture; // Model data
-    uniforms.u_lut.value = transferTexture; // Color Map + transfer function
-
-    // blending, sliders, slices, and spacing are updated separately
-    const otherUniforms = this.getMesh().material.uniforms;
-    uniforms.blending.value = otherUniforms.blending.value;
-    uniforms.clip_min.value = otherUniforms.clip_min.value;
-    uniforms.clip_max.value = otherUniforms.clip_max.value;
-    uniforms.slices.value = otherUniforms.slices.value;
-    uniforms.dim.value = otherUniforms.dim.value;
-    uniforms.zScale.value = otherUniforms.zScale.value;
-    return uniforms;
-  },
-
   updateBlending: function () {
     const { blending } = this.data;
-    const uniforms = this.getMesh().material.uniforms;
+    const uniforms = this.getUniforms();
     uniforms.blending.value = blending;
   },
 
   updateSlices: function () {
     const { slices } = this.data;
-    const uniforms = this.getMesh().material.uniforms;
+    const uniforms = this.getUniforms();
 
     uniforms.slices.value = slices;
     uniforms.dim.value = Math.ceil(Math.sqrt(slices));
@@ -315,10 +300,11 @@ AFRAME.registerComponent("volume", {
 
   updateSpacing: function () {
     const { spacing } = this.data;
-    const uniforms = this.getMesh().material.uniforms;
+    const uniforms = this.getUniforms();
+
+    const texture = uniforms.model_texture.value;
     const dim = uniforms.dim.value;
     const slices = uniforms.slices.value;
-    const texture = uniforms.u_data.value; // Image
 
     if (texture) {
       const volumeScale = new Vector3(
@@ -332,7 +318,7 @@ AFRAME.registerComponent("volume", {
 
   // Update clipping uniforms from sliders (reset if !activateClipPlane)
   updateClipping: function () {
-    const uniforms = this.getMesh().material.uniforms;
+    const uniforms = this.getUniforms();
     const { x, y, z } = this.data.sliders;
     if (this.el.getAttribute("keypress-listener").activateClipPlane) {
       uniforms.clip_min.value = new Vector3(x[0], y[0], z[0]);
@@ -343,17 +329,22 @@ AFRAME.registerComponent("volume", {
     }
   },
 
-  // Blend model's into a single material and apply it to the model
-  updateMaterial: function () {
-    this.getMesh().material =
-      this.uniforms.size > 0
-        ? // TEMP - use first material (GH issue #68)
-          new RawShaderMaterial({
-            ...DEFAULT_MATERIAL,
-            uniforms: this.uniforms.values().next().value,
-          })
-        : // No models - use default material
-          new RawShaderMaterial(DEFAULT_MATERIAL);
+  // Pass array of models' data into the shader
+  updateModels: function () {
+    const uniforms = this.getUniforms();
+    if (this.modelsData.length) {
+      const modelData = this.modelsData[0];
+      uniforms.intensity.value = modelData.intensity;
+      uniforms.model_texture.value = modelData.texture;
+      uniforms.transfer_texture.value = modelData.transferTexture;
+    } else {
+      const defaultUniforms = DEFAULT_MATERIAL.clone().uniforms;
+      uniforms.intensity.value = defaultUniforms.intensity.value;
+      uniforms.model_texture.value = defaultUniforms.model_texture.value;
+      uniforms.transfer_texture.value = defaultUniforms.transfer_texture.value;
+    }
+
+    this.updateSpacing(); // Update spacing based on the new material
   },
 
   updateMeshClipMatrix: function () {
@@ -374,8 +365,8 @@ AFRAME.registerComponent("volume", {
     clipMatrix.multiplyMatrices(clipMatrix, translationMatrix);
 
     // Update shader uniforms
-    uniforms.clipPlane.value = clipMatrix;
-    uniforms.clipping.value =
+    uniforms.vr_clip_matrix.value = clipMatrix;
+    uniforms.apply_vr_clip.value =
       this.scene.is("vr-mode") &&
       this.controllerObject.el.getAttribute("buttons-check").gripDown &&
       !this.grabbed;

@@ -9,15 +9,15 @@ out vec4 fragColor; // Final output color
 uniform vec3 clip_min;       // Clip minimum
 uniform vec3 clip_max;       // Clip maximum
 uniform int blending;
-uniform bool clipping;     
-uniform mat4 clip_plane;
+uniform bool apply_vr_clip; 
+uniform mat4 vr_clip_matrix;
 uniform float dim;
-uniform float intensity;    // Artifically scale each pixel intensity
-uniform float slices;       // Number of slicess in the volumes
-uniform float step_size;    // Ray step size 
-uniform sampler2D u_data;   // Dataset of the model
-uniform sampler2D u_lut;    // Dataset of the color map and transfer function
-uniform bool use_lut;       // useTransferFunction
+uniform float intensity;
+uniform float slices;       // Number of slices in the volumes
+uniform float step_size;    // Ray step size
+
+uniform sampler2D model_texture;    // Texture of the model
+uniform sampler2D transfer_texture; // Texture of the colorMap/transferFunction
 
 /**
     Shader code for the VR Volume Viewer
@@ -26,25 +26,25 @@ uniform bool use_lut;       // useTransferFunction
 */
 
 // Sample model texture as 3D object
-vec4 sampleAs3DTexture(sampler2D tex, vec3 tex_coordinates) {
-    float z_start = floor(tex_coordinates.z / (1.0 / slices));
+vec4 sampleAs3DTexture(sampler2D tex, vec3 coordinates) {
+    float z_start = floor(coordinates.z / (1.0 / slices));
     float z_end = min(z_start + 1.0, slices - 1.0);
     vec2 p_start = vec2(mod(z_start, dim), dim - floor(z_start / dim) - 1.0);
     vec2 p_end = vec2(mod(z_end, dim), dim - floor(z_end / dim) - 1.0);
     vec2 coordinates_start = vec2(
-        tex_coordinates.x / dim + p_start.x / dim, 
-        tex_coordinates.y / dim + p_start.y / dim
+        coordinates.x / dim + p_start.x / dim, 
+        coordinates.y / dim + p_start.y / dim
     );
     vec2 coordinates_end = vec2(
-        tex_coordinates.x / dim + p_end.x / dim,
-        tex_coordinates.y / dim + p_end.y / dim
+        coordinates.x / dim + p_end.x / dim,
+        coordinates.y / dim + p_end.y / dim
     );
 
     // Apply linear interpolation between start and end coordinates
     return mix (
         texture(tex, coordinates_start),
         texture(tex, coordinates_end),
-        (tex_coordinates.z * slices - z_start)
+        (coordinates.z * slices - z_start)
     );
 }
 
@@ -58,6 +58,37 @@ vec2 intersectBox(vec3 camera, vec3 direction, vec3 clip_min, vec3 clip_max ) {
     float t_start = max(tmin.x, max(tmin.y, tmin.z));
     float t_end = min(tmax.x, min(tmax.y, tmax.z));
     return vec2(t_start, t_end);
+}
+
+// Starting from the entry point, march the ray through the volume and sample it
+vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direction) {
+    vec4 vFragColor = vec4(0, 0, 0, 0);
+
+    // Loop from t_start to t_end by step_size
+    for(float t = t_start; t < t_end; t += step_size) {
+        vec4 volumeSample = sampleAs3DTexture(model_texture, data_position);
+
+        // Initialize alpha as the max between the 3 channels
+        // volumeSample .r .g and .b are all the same exact values. Don't know what .a is supposed to be
+        volumeSample.a = max(volumeSample.r, max(volumeSample.g, volumeSample.b));
+
+        // Artificially increase pixel intensity
+        volumeSample.rgb = volumeSample.rgb * intensity;
+        
+        // Apply color map / transfer function
+        volumeSample = texture(transfer_texture, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
+
+        // Blending (front to back)
+        vFragColor.rgb += (1.0 - vFragColor.a) * volumeSample.a * volumeSample.rgb;
+        vFragColor.a += (1.0 - vFragColor.a) * volumeSample.a;
+
+        // Early exit if 95% opacity is reached
+        if (vFragColor.a >= 0.95) break;
+
+        // Advance point
+        data_position += ray_direction * step_size;
+    }
+    return vFragColor;
 }
 
 void main() {
@@ -90,14 +121,14 @@ void main() {
     t_start = 0.0;
 
     // Get t for the clipping plane and overwrite the entry point
-    // This only occurs when grabbing volume in VR
-    if(clipping) {
-        vec4 p_in = clip_plane * vec4(data_position + t_start * ray_direction, 1);
-        vec4 p_out = clip_plane * vec4(data_position + t_end * ray_direction, 1);
+    // This only occurs when grabbing volume in a VR headset
+    if(apply_vr_clip) {
+        vec4 p_in = vr_clip_matrix * vec4(data_position + t_start * ray_direction, 1);
+        vec4 p_out = vr_clip_matrix * vec4(data_position + t_end * ray_direction, 1);
         if(p_in.y * p_out.y < 0.0 ) {
             // Both points lie on different sides of the plane, need a new clip point
-            vec4 c_pos = clip_plane * vec4(data_position, 1);
-            vec4 c_dir = clip_plane * vec4(ray_direction, 0);
+            vec4 c_pos = vr_clip_matrix * vec4(data_position, 1);
+            vec4 c_dir = vr_clip_matrix * vec4(ray_direction, 0);
             float t_clip = -c_pos.y / c_dir.y;
     
             // Update either entry or exit based on which is on the clipped side
@@ -111,43 +142,7 @@ void main() {
             if(p_in.y > 0.0) discard;
         }
     }
-
-    // Starting from the entry point, march the ray through the volume and sample it
-    // t_start is 0 - this does nothing?
     data_position = data_position + t_start * ray_direction;
 
-    // Loop through the volume
-    for(float i = t_start; i < t_end; i += step_size) {    
-        vec4 volumeSample = sampleAs3DTexture(u_data, data_position);
-        if (blending == 1) volumeSample = volumeSample.rrrr;
-        else if (blending == 2) volumeSample = volumeSample.gggg;
-        else if (blending == 3) volumeSample = volumeSample.bbbb;
-        else if (blending == 4) volumeSample = volumeSample.aaaa;
-        else if (blending == 5) volumeSample = volumeSample;
-        else { 
-            // Don't have an alpha from the datasets, initialize as the max of the 3 channels
-            volumeSample.a = max(volumeSample.r, max(volumeSample.g, volumeSample.b));
-            if(volumeSample.a < 0.25) volumeSample.a = 0.1 * volumeSample.a;
-        }
-
-        // Artificially increase pixel intensity
-        volumeSample.rgb = volumeSample.rgb * intensity;
-
-        // This is what actually applies the color texture
-        if (use_lut) {
-            // Look up the density value in the transfer function and return the appropriate color value
-            volumeSample = texture(u_lut, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
-        }
-
-        // Blending (front to back)
-        vFragColor.rgb += (1.0 - vFragColor.a) * volumeSample.a * volumeSample.rgb;
-        vFragColor.a += (1.0 - vFragColor.a) * volumeSample.a;
-
-        // Early exit if 95% opacity is reached
-        if (vFragColor.a >= 0.95) break;
-
-        // Advance point
-        data_position += ray_direction * step_size;
-    }
-    fragColor = vFragColor;
+    fragColor = create_model(t_start, t_end, data_position, ray_direction);;
 }
