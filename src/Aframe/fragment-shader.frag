@@ -71,7 +71,7 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
         // Initialize alpha as the max between the 3 channels
         // volumeSample .r .g and .b are all the same exact values. Don't know what .a is supposed to be
         volumeSample.a = max(volumeSample.r, max(volumeSample.g, volumeSample.b));
-        if(volumeSample.a < 0.25) volumeSample.a = 0.1 * volumeSample.a;
+        if(volumeSample.a < 0.25) volumeSample.a *= 0.1;
         
         // Apply color map / transfer function
         volumeSample = texture(transfer_texture, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
