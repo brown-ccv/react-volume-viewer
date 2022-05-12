@@ -77,7 +77,7 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
         volumeSample = texture(transfer_texture, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
 
         // Artificially increase pixel intensity
-        volumeSample.rgb = volumeSample.rgb * intensity;
+        volumeSample.rgb *= intensity;
         
         // Blending (front to back)
         vFragColor.rgb += (1.0 - vFragColor.a) * volumeSample.a * volumeSample.rgb;
