@@ -112,7 +112,7 @@ AFRAME.registerComponent("volume", {
           }
         )
       ).then((promises) => {
-        const [models, errors] = partitionPromises(promises);
+        const { values: models, errors } = partitionPromises(promises);
 
         if (errors.length) {
           // Bubble errors up to AframeScene
