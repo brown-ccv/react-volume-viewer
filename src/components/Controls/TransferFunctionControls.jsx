@@ -51,6 +51,7 @@ function getRelativeMousePos(e) {
 function TransferFunctionControls({
   transferFunction,
   range,
+  colorMapPath,
   setTransferFunction,
 }) {
   const canvasRef = useRef(null);
@@ -95,31 +96,36 @@ function TransferFunctionControls({
 
     // Draw midpoint tick on the axis
     context.beginPath();
-    context.strokeStyle = "rgba(0, 0, 0, 1)";
+    context.strokeStyle = "rgb(0, 0, 0)";
     context.lineWidth = 1;
     context.moveTo(canvas.width / 2, canvas.height);
     context.lineTo(canvas.width / 2, canvas.height - CANVAS_PADDING);
     context.stroke();
 
-    // Draw lines
-    context.beginPath();
-    context.strokeStyle = "rgba(128, 128, 128, 0.8)";
+    // Draw transfer function
+    context.fillStyle = "rgb(233, 233, 233)";
+    context.strokeStyle = "rgb(45, 183, 245)";
     context.lineWidth = 2;
-    canvasPoints.forEach((point) => {
-      context.lineTo(point.x, point.y);
-    });
+
+    // Lines
+    context.beginPath();
+    canvasPoints.forEach((point) => context.lineTo(point.x, point.y));
     context.stroke();
 
-    // Draw points
+    // Points
+    context.beginPath();
     canvasPoints.forEach((point) => {
-      context.beginPath();
-      context.fillStyle =
-        pointHovering === point
-          ? "rgba(255, 255, 85, 1)"
-          : "rgba(255, 170, 0, 1)";
-      context.arc(point.x, point.y, 5, 0, 2 * Math.PI);
-      context.fill();
+      context.moveTo(point.x, point.y);
+      context.arc(
+        point.x,
+        point.y,
+        pointHovering === point ? 8 : 5,
+        0,
+        2 * Math.PI
+      );
     });
+    context.stroke();
+    context.fill();
 
     setTransferFunction(
       canvasPoints.map((p) => {
@@ -215,17 +221,20 @@ function TransferFunctionControls({
   return (
     <Section>
       <Title>Transfer Function</Title>
-      <OutlinedCanvas
-        id="opacityControls"
-        ref={canvasRef}
-        cursor={cursorType}
-        onMouseMove={pointDragging ? dragPoint : checkHovering}
-        onMouseDown={checkDragging}
-        onDoubleClick={addPoint}
-        onContextMenu={removePoint}
-        onMouseUp={releasePoint}
-        onMouseLeave={leaveCanvas}
-      />
+      <CanvasContainer cursor={cursorType}>
+        <CanvasBackground src={colorMapPath} />
+        <Canvas
+          id="opacityControls"
+          ref={canvasRef}
+          cursor={cursorType}
+          onMouseMove={pointDragging ? dragPoint : checkHovering}
+          onMouseDown={checkDragging}
+          onDoubleClick={addPoint}
+          onContextMenu={removePoint}
+          onMouseUp={releasePoint}
+          onMouseLeave={leaveCanvas}
+        />
+      </CanvasContainer>
 
       <Labels>
         <LeftLabel>
@@ -249,9 +258,26 @@ function TransferFunctionControls({
   );
 }
 
-const OutlinedCanvas = styled.canvas`
-  width: 100%;
+const CanvasContainer = styled.div`
+  position: relative;
   outline: 1px solid;
+`;
+
+const CanvasBackground = styled.div`
+  background-image: url(${(props) => props.src});
+  background-size: contain;
+  opacity: 0.3;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  bottom: 0px;
+  right: 0px;
+`;
+
+const Canvas = styled.canvas`
+  position: relative;
+  display: block;
+  width: 100%;
   cursor: ${(props) => props.cursor};
 `;
 
