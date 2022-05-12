@@ -261,7 +261,6 @@ function TransferFunctionControls({
 const CanvasContainer = styled.div`
   position: relative;
   outline: 1px solid;
-  /* cursor: ${(props) => props.cursor}; */
 `;
 
 const CanvasBackground = styled.div`
