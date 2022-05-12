@@ -5,7 +5,7 @@ import {
   DEFAULT_SLIDERS,
   DEFAULT_MATERIAL,
 } from "../constants/index.js";
-import { deepDifference } from "../utils/index";
+import { deepDifference, partitionPromises } from "../utils/index";
 
 const {
   LinearFilter,
@@ -29,7 +29,6 @@ AFRAME.registerComponent("volume", {
 
   init: function () {
     this.scene = this.el.sceneEl;
-    this.modelsData = []; // Array of each models associated data
     this.rayCollided = false;
     this.grabbed = false;
 
@@ -133,7 +132,6 @@ AFRAME.registerComponent("volume", {
   /** UPDATE FUNCTIONS */
 
   updateModels: function () {
-    this.modelsData = [];
     const { models } = this.data;
 
     // Asynchronously loop through the data.models array
@@ -162,8 +160,7 @@ AFRAME.registerComponent("volume", {
               transferFunction
             );
 
-            // Build the uniform (idx ensures order is maintained)
-            this.modelsData[idx] = {
+            return {
               intensity,
               useTransferFunction,
               texture,
@@ -177,9 +174,7 @@ AFRAME.registerComponent("volume", {
         }
       )
     ).then((promises) => {
-      const errors = promises
-        .filter((p) => p.status === "rejected")
-        .map((p) => p.reason);
+      const { values: models, errors } = partitionPromises(promises);
 
       if (errors.length) {
         // Bubble errors up to AframeScene
@@ -190,9 +185,10 @@ AFRAME.registerComponent("volume", {
         );
       } else {
         // Update uniforms
+        // TEMP: Only use first model (TODO: #68)
         const uniforms = this.getUniforms();
-        if (this.modelsData.length) {
-          const modelData = this.modelsData[0];
+        if (models.length) {
+          const modelData = models[0];
           uniforms.intensity.value = modelData.intensity;
           uniforms.model_texture.value = modelData.texture;
           uniforms.transfer_texture.value = modelData.transferTexture;

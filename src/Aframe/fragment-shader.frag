@@ -71,13 +71,14 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
         // Initialize alpha as the max between the 3 channels
         // volumeSample .r .g and .b are all the same exact values. Don't know what .a is supposed to be
         volumeSample.a = max(volumeSample.r, max(volumeSample.g, volumeSample.b));
-
-        // Artificially increase pixel intensity
-        volumeSample.rgb = volumeSample.rgb * intensity;
+        if(volumeSample.a < 0.25) volumeSample.a *= 0.1;
         
         // Apply color map / transfer function
         volumeSample = texture(transfer_texture, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
 
+        // Artificially increase pixel intensity
+        volumeSample.rgb *= intensity;
+        
         // Blending (front to back)
         vFragColor.rgb += (1.0 - vFragColor.a) * volumeSample.a * volumeSample.rgb;
         vFragColor.a += (1.0 - vFragColor.a) * volumeSample.a;
