@@ -5,7 +5,7 @@ import {
   DEFAULT_SLIDERS,
   DEFAULT_MATERIAL,
 } from "../constants/index.js";
-import { deepDifference } from "../utils/index";
+import { deepDifference, partitionPromises } from "../utils/index";
 
 const {
   LinearFilter,
@@ -29,9 +29,6 @@ AFRAME.registerComponent("volume", {
 
   init: function () {
     this.scene = this.el.sceneEl;
-    this.usedModels = new Map(); // Cache models (path: texture)
-    this.usedColorMaps = new Map(); // Cache color maps (path: RGB data)
-    this.modelsData = []; // Array of each models associated data
     this.rayCollided = false;
     this.grabbed = false;
 
@@ -66,74 +63,9 @@ AFRAME.registerComponent("volume", {
   },
 
   update: function (oldData) {
-    const { data, usedModels, usedColorMaps } = this;
+    const diffObject = deepDifference(oldData, this.data);
 
-    // Update model uniforms
-    const diffObject = deepDifference(oldData, data);
-    if ("models" in diffObject) {
-      this.modelsData = [];
-
-      // Asynchronously loop through the data.models array
-      // Each element runs serially and this.updateModels waits for all of the promises to finish
-      Promise.allSettled(
-        data.models.map(
-          async (
-            {
-              name,
-              path,
-              colorMap,
-              transferFunction,
-              intensity,
-              useTransferFunction,
-            },
-            idx
-          ) => {
-            try {
-              // Load texture from png
-              const texture = usedModels.has(path)
-                ? usedModels.get(path)
-                : await this.loadTexture(path);
-
-              // Load THREE DataTexture from color map's png and model.transferFunction
-              const colorData = usedColorMaps.has(colorMap.path)
-                ? usedColorMaps.get(colorMap.path)
-                : await this.loadColorMap(colorMap.path);
-              const transferTexture = this.buildTransferTexture(
-                colorData,
-                transferFunction
-              );
-
-              // Build the uniform (idx ensures order is maintained)
-              this.modelsData[idx] = {
-                intensity,
-                useTransferFunction,
-                texture,
-                transferTexture,
-              };
-            } catch (error) {
-              throw new Error("Failed to load model '" + name + "'", {
-                cause: error,
-              });
-            }
-          }
-        )
-      ).then((promises) => {
-        const errors = promises
-          .filter((p) => p.status === "rejected")
-          .map((p) => p.reason);
-
-        if (errors.length) {
-          // Bubble errors up to AframeScene
-          document.dispatchEvent(
-            new CustomEvent("aframe-error", {
-              detail: errors,
-            })
-          );
-        } else this.updateModels();
-      });
-    }
-
-    // Update other uniforms
+    if ("models" in diffObject) this.updateModels();
     if ("blending" in diffObject) this.updateBlending();
     if ("slices" in diffObject) this.updateSlices();
     if ("spacing" in diffObject) this.updateSpacing();
@@ -197,91 +129,80 @@ AFRAME.registerComponent("volume", {
     this.rayCollided = false;
   },
 
-  /** HELPER FUNCTIONS */
+  /** UPDATE FUNCTIONS */
 
-  getMesh: function () {
-    return this.el.getObject3D("mesh");
-  },
+  updateModels: function () {
+    const { models } = this.data;
 
-  getUniforms: function () {
-    return this.getMesh().material.uniforms;
-  },
+    // Asynchronously loop through the data.models array
+    // Each element runs serially and this.updateModels waits for all of the promises to finish
+    Promise.allSettled(
+      models.map(
+        async (
+          {
+            name,
+            path,
+            colorMap,
+            transferFunction,
+            intensity,
+            useTransferFunction,
+          },
+          idx
+        ) => {
+          try {
+            // Load texture from png
+            const texture = await this.loadTexture(path);
 
-  // Load THREE Texture from the model's path
-  loadTexture: function (modelPath) {
-    return new Promise((resolve, reject) => {
-      new TextureLoader().load(
-        modelPath,
-        (texture) => {
-          texture.minFilter = texture.magFilter = LinearFilter;
-          texture.unpackAlignment = 1;
-          texture.needsUpdate = true;
+            // Load THREE DataTexture from color map's png and model.transferFunction
+            const colorData = await this.loadColorMap(colorMap.path);
+            const transferTexture = this.buildTransferTexture(
+              colorData,
+              transferFunction
+            );
 
-          this.usedModels.set(modelPath, texture);
-          resolve(texture);
-        },
-        () => {},
-        () => reject(new Error("Invalid model path: " + modelPath))
-      );
-    });
-  },
+            return {
+              intensity,
+              useTransferFunction,
+              texture,
+              transferTexture,
+            };
+          } catch (error) {
+            throw new Error("Failed to load model '" + name + "'", {
+              cause: error,
+            });
+          }
+        }
+      )
+    ).then((promises) => {
+      const { values: models, errors } = partitionPromises(promises);
 
-  // Load color map data (RGB)
-  loadColorMap: function (colorMapPath) {
-    return new Promise((resolve, reject) => {
-      /*  colorMapPath is either a png encoded string or the path to a png
-        png encoded strings begin with data:image/png;64
-        Add ; that was removed to parse into aframe correctly
-      */
-      colorMapPath = colorMapPath.startsWith("data:image/png")
-        ? colorMapPath.substring(0, 14) + ";" + colorMapPath.substring(14)
-        : colorMapPath;
+      if (errors.length) {
+        // Bubble errors up to AframeScene
+        document.dispatchEvent(
+          new CustomEvent("aframe-error", {
+            detail: errors,
+          })
+        );
+      } else {
+        // Update uniforms
+        // TEMP: Only use first model (TODO: #68)
+        const uniforms = this.getUniforms();
+        if (models.length) {
+          const modelData = models[0];
+          uniforms.intensity.value = modelData.intensity;
+          uniforms.model_texture.value = modelData.texture;
+          uniforms.transfer_texture.value = modelData.transferTexture;
+        } else {
+          const defaultUniforms = DEFAULT_MATERIAL.clone().uniforms;
+          uniforms.intensity.value = defaultUniforms.intensity.value;
+          uniforms.model_texture.value = defaultUniforms.model_texture.value;
+          uniforms.transfer_texture.value =
+            defaultUniforms.transfer_texture.value;
+        }
 
-      // Create canvas to load image on
-      const img = document.createElement("img");
-      img.src = colorMapPath;
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      img.onload = () => {
-        // Draw image and extrapolate RGB data
-        ctx.drawImage(img, 0, 0);
-        const colorData = ctx.getImageData(0, 0, img.width, 1).data;
-        this.usedColorMaps.set(colorMapPath, colorData);
-        resolve(colorData);
-      };
-      img.onerror = () => {
-        reject(new Error("Invalid colorMap path: " + colorMapPath));
-      };
-    });
-  },
-
-  // Create a THREE DataTexture from the RGB and A data
-  buildTransferTexture: function (colorData, transferFunction) {
-    // Load alpha data from transfer function
-    const alphaData = [];
-    for (let i = 0; i < transferFunction.length - 1; i++) {
-      const start = transferFunction[i];
-      const end = transferFunction[i + 1];
-      const deltaX = end.x * 255 - start.x * 255;
-
-      // Linear interpolation between points
-      const alphaStart = start.y * 255;
-      const alphaEnd = end.y * 255;
-      for (let j = 1 / deltaX; j < 1; j += 1 / deltaX) {
-        alphaData.push(alphaStart * (1 - j) + alphaEnd * j);
+        this.updateSpacing(); // Update spacing based on the new material
       }
-    }
-
-    // Combine RGB and A data
-    const rgbaData = new Uint8Array(4 * 256);
-    for (let i = 0; i < 256; i++) {
-      for (let j = 0; j < 3; j++) rgbaData[i * 4 + j] = colorData[i * 4 + j];
-      rgbaData[i * 4 + 3] = alphaData[i];
-    }
-
-    const transferTexture = new DataTexture(rgbaData, 256, 1, RGBAFormat);
-    transferTexture.needsUpdate = true;
-    return transferTexture;
+    });
   },
 
   updateBlending: function () {
@@ -318,8 +239,8 @@ AFRAME.registerComponent("volume", {
 
   // Update clipping uniforms from sliders (reset if !activateClipPlane)
   updateClipping: function () {
-    const uniforms = this.getUniforms();
     const { x, y, z } = this.data.sliders;
+    const uniforms = this.getUniforms();
     if (this.el.getAttribute("keypress-listener").activateClipPlane) {
       uniforms.clip_min.value = new Vector3(x[0], y[0], z[0]);
       uniforms.clip_max.value = new Vector3(x[1], y[1], z[1]);
@@ -327,24 +248,6 @@ AFRAME.registerComponent("volume", {
       uniforms.clip_min.value = new Vector3(0, 0, 0);
       uniforms.clip_max.value = new Vector3(1, 1, 1);
     }
-  },
-
-  // Pass array of models' data into the shader
-  updateModels: function () {
-    const uniforms = this.getUniforms();
-    if (this.modelsData.length) {
-      const modelData = this.modelsData[0];
-      uniforms.intensity.value = modelData.intensity;
-      uniforms.model_texture.value = modelData.texture;
-      uniforms.transfer_texture.value = modelData.transferTexture;
-    } else {
-      const defaultUniforms = DEFAULT_MATERIAL.clone().uniforms;
-      uniforms.intensity.value = defaultUniforms.intensity.value;
-      uniforms.model_texture.value = defaultUniforms.model_texture.value;
-      uniforms.transfer_texture.value = defaultUniforms.transfer_texture.value;
-    }
-
-    this.updateSpacing(); // Update spacing based on the new material
   },
 
   updateMeshClipMatrix: function () {
@@ -370,5 +273,90 @@ AFRAME.registerComponent("volume", {
       this.scene.is("vr-mode") &&
       this.controllerObject.el.getAttribute("buttons-check").gripDown &&
       !this.grabbed;
+  },
+
+  /** HELPER FUNCTIONS */
+
+  getMesh: function () {
+    return this.el.getObject3D("mesh");
+  },
+
+  getUniforms: function () {
+    return this.getMesh().material.uniforms;
+  },
+
+  // Load THREE Texture from the model's path
+  loadTexture: function (modelPath) {
+    return new Promise((resolve, reject) => {
+      new TextureLoader().load(
+        modelPath,
+        (texture) => {
+          texture.minFilter = texture.magFilter = LinearFilter;
+          texture.unpackAlignment = 1;
+          texture.needsUpdate = true;
+          resolve(texture);
+        },
+        () => {},
+        () => reject(new Error("Invalid model path: " + modelPath))
+      );
+    });
+  },
+
+  // Load color map data (RGB)
+  loadColorMap: function (colorMapPath) {
+    return new Promise((resolve, reject) => {
+      /*  colorMapPath is either a png encoded string or the path to a png
+        png encoded strings begin with data:image/png;64
+        Add ; that was removed to parse into aframe correctly
+      */
+      colorMapPath = colorMapPath.startsWith("data:image/png")
+        ? colorMapPath.substring(0, 14) + ";" + colorMapPath.substring(14)
+        : colorMapPath;
+
+      new THREE.ImageLoader().load(
+        colorMapPath,
+        (image) => {
+          const ctx = document.createElement("canvas").getContext("2d");
+
+          // Draw image and extrapolate RGB data
+          ctx.drawImage(image, 0, 0);
+          const colorData = ctx.getImageData(0, 0, image.width, 1).data;
+          resolve(colorData);
+        },
+        () => {},
+        () => {
+          reject(new Error("Invalid colorMap path: " + colorMapPath));
+        }
+      );
+    });
+  },
+
+  // Create a THREE DataTexture from the RGB and A data
+  buildTransferTexture: function (colorData, transferFunction) {
+    // Load alpha data from transfer function
+    const alphaData = [];
+    for (let i = 0; i < transferFunction.length - 1; i++) {
+      const start = transferFunction[i];
+      const end = transferFunction[i + 1];
+      const deltaX = end.x * 255 - start.x * 255;
+
+      // Linear interpolation between points
+      const alphaStart = start.y * 255;
+      const alphaEnd = end.y * 255;
+      for (let j = 1 / deltaX; j < 1; j += 1 / deltaX) {
+        alphaData.push(alphaStart * (1 - j) + alphaEnd * j);
+      }
+    }
+
+    // Combine RGB and A data
+    const rgbaData = new Uint8Array(4 * 256);
+    for (let i = 0; i < 256; i++) {
+      for (let j = 0; j < 3; j++) rgbaData[i * 4 + j] = colorData[i * 4 + j];
+      rgbaData[i * 4 + 3] = alphaData[i];
+    }
+
+    const transferTexture = new DataTexture(rgbaData, 256, 1, RGBAFormat);
+    transferTexture.needsUpdate = true;
+    return transferTexture;
   },
 });
