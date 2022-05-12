@@ -53,10 +53,10 @@ const deepDifference = (oldObj, newObj) => {
 // Partition an array of promises based on errors
 const partitionPromises = (promises) => {
   const partitioned = partition(promises, ["status", "fulfilled"]);
-  return [
-    partitioned[0].map((p) => p.value),
-    partitioned[1].map((p) => p.reason),
-  ];
+  return {
+    values: partitioned[0].map((p) => p.value),
+    errors: partitioned[1].map((p) => p.reason),
+  };
 };
 
 const validateVec3String = (props, propName, componentName) => {
