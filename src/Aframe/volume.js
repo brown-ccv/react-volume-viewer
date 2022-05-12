@@ -134,11 +134,7 @@ AFRAME.registerComponent("volume", {
 
   updateModels: function () {
     this.modelsData = [];
-    const {
-      data: { models },
-      usedModels,
-      usedColorMaps,
-    } = this;
+    const { models } = this.data;
 
     // Asynchronously loop through the data.models array
     // Each element runs serially and this.updateModels waits for all of the promises to finish
@@ -157,14 +153,10 @@ AFRAME.registerComponent("volume", {
         ) => {
           try {
             // Load texture from png
-            const texture = usedModels.has(path)
-              ? usedModels.get(path)
-              : await this.loadTexture(path);
+            const texture = await this.loadTexture(path);
 
             // Load THREE DataTexture from color map's png and model.transferFunction
-            const colorData = usedColorMaps.has(colorMap.path)
-              ? usedColorMaps.get(colorMap.path)
-              : await this.loadColorMap(colorMap.path);
+            const colorData = await this.loadColorMap(colorMap.path);
             const transferTexture = this.buildTransferTexture(
               colorData,
               transferFunction
