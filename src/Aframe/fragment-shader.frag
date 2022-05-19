@@ -23,7 +23,7 @@ uniform float intensity;
 uniform float slices;       // Number of slices in the volumes
 uniform float step_size;    // Ray step size
 
-uniform VolumeModel volume_model[2];
+uniform VolumeModel volume_models[2];
 uniform sampler2D model_texture0;    // Texture of the model
 uniform sampler2D model_texture1;
 uniform sampler2D model_texture2;
@@ -83,7 +83,7 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
 
     // Loop from t_start to t_end by step_size
     for(float t = t_start; t < t_end; t += step_size) {
-        vec4 volumeSample = sampleAs3DTexture(volume_model[0].model_texture, 0, data_position);
+        vec4 volumeSample = sampleAs3DTexture(volume_models[0].model_texture, 0, data_position);
 
         // Initialize alpha as the max between the 3 channels
         // volumeSample .r .g and .b are all the same exact values. Don't know what .a is supposed to be
@@ -91,7 +91,7 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
         if(volumeSample.a < 0.25) volumeSample.a = 0.1 * volumeSample.a;
         
         // Apply color map / transfer function
-        volumeSample = texture(volume_model[0].transfer_texture, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
+        volumeSample = texture(volume_models[0].transfer_texture, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
 
         // Artificially increase pixel intensity
         volumeSample.rgb = volumeSample.rgb * intensity;

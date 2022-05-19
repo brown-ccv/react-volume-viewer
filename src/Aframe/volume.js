@@ -366,7 +366,7 @@ AFRAME.registerComponent("volume", {
     const { spacing } = this.data;
     const uniforms = this.getUniforms();
     //const modelTexture = uniforms["model_texture0"].value;
-    const modelTexture = uniforms.volume_model.value.model_texture;
+    const modelTexture = uniforms.volume_models.value[0].model_texture;
     const dim = uniforms.dim.value;
     const slices = uniforms.slices.value;
 
@@ -401,17 +401,17 @@ AFRAME.registerComponent("volume", {
     //     map
     //   });
       const modelData = modelsData[0];
-      uniforms.volume_model.value[0].intensity = modelData.intensity;
-      uniforms.volume_model.value[0].model_texture = modelData.modelTexture;
+      uniforms.volume_models.value[0].intensity = modelData.intensity;
+      uniforms.volume_models.value[0].model_texture = modelData.modelTexture;
       //uniforms["model_texture0"].value = modelData.modelTexture;
-      uniforms.volume_model.value[0].transfer_texture = modelData.transferTexture;
+      uniforms.volume_models.value[0].transfer_texture = modelData.transferTexture;
       //uniforms.transfer_texture.value =modelData.transferTexture;
     } else {
       const defaultUniforms = DEFAULT_MATERIAL.clone().uniforms;
-      uniforms.volume_model.intensity.value = defaultUniforms.intensity.value;
+      uniforms.volume_models.value[0].intensity.value = defaultUniforms.intensity.value;
       //uniforms["model_texture0"].value = defaultUniforms.model_texture.value;
-      uniforms.volume_model.model_texture.value = defaultUniforms.model_texture.value;
-      uniforms.volume_model.transfer_texture.value = defaultUniforms.transfer_texture.value;
+      uniforms.volume_models.value[0].model_texture.value = defaultUniforms.model_texture.value;
+      uniforms.volume_models.value[0].transfer_texture.value = defaultUniforms.transfer_texture.value;
     }
 
     this.updateSpacing(); // Update spacing based on the new material

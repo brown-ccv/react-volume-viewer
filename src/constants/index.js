@@ -76,7 +76,7 @@ const DEFAULT_MATERIAL = new RawShaderMaterial({
     model_texture0: { value: null },
     model_texture1: { value: null },
     model_texture2: { value: null },
-    volume_model: { value: [entry1,entry2] },
+    volume_models: { value: [entry1,entry2] },
     slices: { value: 1.0 },
     step_size: { value: 0.01 },
     transfer_texture: { value: null },
