@@ -207,9 +207,6 @@ AFRAME.registerComponent("volume", {
   // Load THREE Texture from the model's path
   loadModelTexture: function (modelPath) {
     return new Promise((resolve, reject) => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-
       new TextureLoader().load(
         modelPath,
         (modelTexture) => {
