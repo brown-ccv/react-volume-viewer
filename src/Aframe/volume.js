@@ -17,7 +17,7 @@ const {
   TextureLoader,
   DataTexture,
   DataArrayTexture,
-  DataTexture2DArray
+  DataTexture2DArray,
 } = THREE;
 
 AFRAME.registerComponent("volume", {
@@ -209,86 +209,20 @@ AFRAME.registerComponent("volume", {
     return new Promise((resolve, reject) => {
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
-      // new ImageLoader().load(
-      //   modelPath,
-      //   (image) => {
-      //     const { width, height } = image;
 
-      //     // //Draw image and extrapolate RGB data
-      //     // ctx.drawImage(image, 0, 0);
-      //     // const data = ctx.getImageData(0, 0, width, height).data;
+      new TextureLoader().load(
+        modelPath,
+        (modelTexture) => {
+          modelTexture.minFilter = modelTexture.magFilter = LinearFilter;
+          modelTexture.unpackAlignment = 1;
+          modelTexture.needsUpdate = true;
 
-      //     // console.log(data);
-
-      //     // TEMP
-      //     // const used = new Set();
-      //     // data.forEach((pixel) => {
-      //     //   if (!used.has(pixel)) used.add(pixel);
-      //     // });
-      //     // console.log(used);
-
-      //     //Create DataTexture from the rgba data
-      //     const modelTexture = new DataTexture(
-      //       data,
-      //       width,
-      //       height,
-      //       THREE.RGBFormat
-      //     );
-      //     // const modelTexture = new DataArrayTexture(
-      //     //   image,
-      //     //   width,
-      //     //   height,
-      //     //   1
-      //     // );
-      //     modelTexture.minFilter = modelTexture.magFilter = LinearFilter;
-      //     modelTexture.unpackAlignment = 1;
-      //     modelTexture.needsUpdate = true;
-
-      //     this.usedModels.set(modelPath, modelTexture);
-      //     console.log("TEXTURE", modelTexture);
-      //     resolve(modelTexture);
-      //   },
-      //   () => {},
-      //   () => reject(new Error("Invalid model path: " + modelPath))
-      // );
-
-      // new THREE.FileLoader().setResponseType("arraybuffer").load(
-      //   modelPath,
-      //   (data) => {
-          
-      //     var array = new Uint8Array(data);
-      //     const modelTexture = new DataTexture2DArray( array, 2000, 2200, 1 );
-      //     modelTexture.minFilter = modelTexture.magFilter = LinearFilter;
-      //     modelTexture.unpackAlignment = 1;
-      //     modelTexture.format = THREE.RedFormat;
-      //     //modelTexture.format = THREE.RGBAFormat;
-      //     modelTexture.type = THREE.UnsignedByteType;
-      //     modelTexture.needsUpdate = true;
-      
-
-      //     this.usedModels.set(modelPath, modelTexture);
-      //     console.log("TEXTURE", modelTexture);
-      //     resolve(modelTexture);
-
-      //   },
-      //   () => {},
-      //   () => reject(new Error("Invalid model path: " + modelPath))
-      // );
-
-        new TextureLoader().load(
-          modelPath,
-          (modelTexture) => {
-            modelTexture.minFilter = modelTexture.magFilter = LinearFilter;
-            modelTexture.unpackAlignment = 1;
-            modelTexture.needsUpdate = true;
-
-            this.usedModels.set(modelPath, modelTexture);
-            console.log(modelTexture)
-            resolve(modelTexture);
-          },
-          () => {},
-          () => reject(new Error("Invalid model path: " + modelPath))
-        );
+          this.usedModels.set(modelPath, modelTexture);
+          resolve(modelTexture);
+        },
+        () => {},
+        () => reject(new Error("Invalid model path: " + modelPath))
+      );
     });
   },
 
@@ -397,21 +331,25 @@ AFRAME.registerComponent("volume", {
   updateModels: function (modelsData) {
     const uniforms = this.getUniforms();
     if (modelsData.length) {
-      modelsData.map((element,index) => {
+      modelsData.map((element, index) => {
         const modelData = modelsData[index];
         uniforms.volume_models.value[index].intensity = modelData.intensity;
-        uniforms.volume_models.value[index].model_texture = modelData.modelTexture;
+        uniforms.volume_models.value[index].model_texture =
+          modelData.modelTexture;
         //uniforms["model_texture0"].value = modelData.modelTexture;
-        uniforms.volume_models.value[index].transfer_texture = modelData.transferTexture;
+        uniforms.volume_models.value[index].transfer_texture =
+          modelData.transferTexture;
         //uniforms.transfer_texture.value =modelData.transferTexture;
-       });
-      
+      });
     } else {
       const defaultUniforms = DEFAULT_MATERIAL.clone().uniforms;
-      uniforms.volume_models.value[0].intensity.value = defaultUniforms.intensity.value;
+      uniforms.volume_models.value[0].intensity.value =
+        defaultUniforms.intensity.value;
       //uniforms["model_texture0"].value = defaultUniforms.model_texture.value;
-      uniforms.volume_models.value[0].model_texture.value = defaultUniforms.model_texture.value;
-      uniforms.volume_models.value[0].transfer_texture.value = defaultUniforms.transfer_texture.value;
+      uniforms.volume_models.value[0].model_texture.value =
+        defaultUniforms.model_texture.value;
+      uniforms.volume_models.value[0].transfer_texture.value =
+        defaultUniforms.transfer_texture.value;
     }
 
     this.updateSpacing(); // Update spacing based on the new material

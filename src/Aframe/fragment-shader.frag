@@ -3,9 +3,9 @@ precision mediump float;
 precision highp sampler2DArray;
 
 struct VolumeModel {
- sampler2D model_texture;
- float intensity;
- sampler2D transfer_texture;
+    sampler2D model_texture;
+    float intensity;
+    sampler2D transfer_texture;
 };
 
 
@@ -19,16 +19,10 @@ uniform int blending;
 uniform bool apply_vr_clip; 
 uniform mat4 vr_clip_matrix;
 uniform float dim;
-uniform float intensity;
 uniform float slices;       // Number of slices in the volumes
 uniform float step_size;    // Ray step size
 
 uniform VolumeModel volume_models[2];
-uniform sampler2D model_texture0;    // Texture of the model
-uniform sampler2D model_texture1;
-uniform sampler2D model_texture2;
-//uniform sampler2DArray model_texture;
-uniform sampler2D transfer_texture; // Texture of the colorMap/transferFunction
 
 /**
     Shader code for the VR Volume Viewer
@@ -57,12 +51,6 @@ vec4 sampleAs3DTexture(sampler2D tex, int depth,vec3 coordinates) {
         texture(tex, vec2( coordinates_end)),
         (coordinates.z * slices - z_start)
     );
-
-    // return mix (
-    //     texture(tex, vec3( coordinates_start, 0.000 )),
-    //     texture(tex, vec3( coordinates_end, 0.000)),
-    //     (coordinates.z * slices - z_start)
-    // );
 }
 
 // Clip the volume between clip_min and clip_max
@@ -93,10 +81,9 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
         float alpha1 = max(volumeSample1.r, max(volumeSample1.g, volumeSample1.b));
         float alpha2 = max(volumeSample2.r, max(volumeSample2.g, volumeSample2.b));
 
-        //vec4 volumeSample = mix(volumeSample1,volumeSample2,alpha1);
-        //vec4 volumeSample = mix(volumeSample1,volumeSample2,(alpha1+alpha2)/2.0);
+        // Mix volumes by max of their alpha values
         vec4 volumeSample = mix(volumeSample1,volumeSample2,max(alpha1,alpha2));
-        //vec4 volumeSample = volumeSample2;
+        
         volumeSample.a = max(volumeSample.r, max(volumeSample.g, volumeSample.b));
         if(volumeSample.a < 0.25) volumeSample.a = 0.1 * volumeSample.a;
         
@@ -104,7 +91,8 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
         volumeSample = texture(volume_models[0].transfer_texture, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
 
         // Artificially increase pixel intensity
-        volumeSample.rgb = volumeSample.rgb * intensity;
+        // TODO: Multiple indivudal textures before mixing them
+        volumeSample.rgb = volumeSample.rgb * volume_models[0].intensity;
         
         // Blending (front to back)
         vFragColor.rgb += (1.0 - vFragColor.a) * volumeSample.a * volumeSample.rgb;

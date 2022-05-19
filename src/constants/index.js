@@ -53,15 +53,10 @@ const DEFAULT_MODEL = {
   useColorMap: true,
 };
 
-const entry1 = {
-	model_texture: null,
+const DEFAULT_MODEL_STRUCT = {
+  model_texture: null,
   intensity: 1.0,
-  transfer_texture: null
-};
-const entry2 = {
-	model_texture: null,
-  intensity: 1.0,
-  transfer_texture: null
+  transfer_texture: null,
 };
 
 const DEFAULT_MATERIAL = new RawShaderMaterial({
@@ -72,20 +67,16 @@ const DEFAULT_MATERIAL = new RawShaderMaterial({
     apply_vr_clip: { value: false },
     vr_clip_matrix: { value: new Matrix4() },
     dim: { value: 1.0 },
-    intensity: { value: 1.0 },
-    model_texture0: { value: null },
-    model_texture1: { value: null },
-    model_texture2: { value: null },
-    volume_models: { value: [entry1,entry2] },
+    // TODO: Initialize as just one
+    volume_models: { value: [DEFAULT_MODEL_STRUCT, DEFAULT_MODEL_STRUCT] },
     slices: { value: 1.0 },
     step_size: { value: 0.01 },
-    transfer_texture: { value: null },
     viewPort: { value: new Vector2() },
     zScale: { value: 1.0 },
   },
   vertexShader: vertexShader,
   fragmentShader: fragmentShader,
-  // transparent: true,
+  transparent: true,
   side: BackSide, // Shader uses "backface" as its reference point
 });
 

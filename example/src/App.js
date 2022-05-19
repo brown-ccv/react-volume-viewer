@@ -21,7 +21,7 @@ function App() {
 
   const models = [
     {
-      name: "Same",
+      name: "One",
       colorMap: colorMap,
       ...(!singleColorMap && { colorMaps: allColorMaps }),
       enabled: true,
@@ -39,7 +39,7 @@ function App() {
       useColorMap: useColorMap,
     },
     {
-      name: "Same2",
+      name: "Two",
       colorMap: colorMap,
       ...(!singleColorMap && { colorMaps: allColorMaps }),
       enabled: true,
