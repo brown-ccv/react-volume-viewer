@@ -397,15 +397,15 @@ AFRAME.registerComponent("volume", {
   updateModels: function (modelsData) {
     const uniforms = this.getUniforms();
     if (modelsData.length) {
-    //   modelsData.array.forEach(element => {
-    //     map
-    //   });
-      const modelData = modelsData[0];
-      uniforms.volume_models.value[0].intensity = modelData.intensity;
-      uniforms.volume_models.value[0].model_texture = modelData.modelTexture;
-      //uniforms["model_texture0"].value = modelData.modelTexture;
-      uniforms.volume_models.value[0].transfer_texture = modelData.transferTexture;
-      //uniforms.transfer_texture.value =modelData.transferTexture;
+      modelsData.map((element,index) => {
+        const modelData = modelsData[index];
+        uniforms.volume_models.value[index].intensity = modelData.intensity;
+        uniforms.volume_models.value[index].model_texture = modelData.modelTexture;
+        //uniforms["model_texture0"].value = modelData.modelTexture;
+        uniforms.volume_models.value[index].transfer_texture = modelData.transferTexture;
+        //uniforms.transfer_texture.value =modelData.transferTexture;
+       });
+      
     } else {
       const defaultUniforms = DEFAULT_MATERIAL.clone().uniforms;
       uniforms.volume_models.value[0].intensity.value = defaultUniforms.intensity.value;
