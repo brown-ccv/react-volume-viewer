@@ -13,11 +13,8 @@ const {
   Vector2,
   Vector3,
   Matrix4,
-  ImageLoader,
   TextureLoader,
   DataTexture,
-  DataArrayTexture,
-  DataTexture2DArray,
 } = THREE;
 
 AFRAME.registerComponent("volume", {
@@ -296,7 +293,8 @@ AFRAME.registerComponent("volume", {
   updateSpacing: function () {
     const { spacing } = this.data;
     const uniforms = this.getUniforms();
-    //const modelTexture = uniforms["model_texture0"].value;
+
+    // TODO: Don't just use first one, assert same size?
     const modelTexture = uniforms.volume_models.value[0].model_texture;
     const dim = uniforms.dim.value;
     const slices = uniforms.slices.value;
@@ -328,21 +326,18 @@ AFRAME.registerComponent("volume", {
   updateModels: function (modelsData) {
     const uniforms = this.getUniforms();
     if (modelsData.length) {
-      modelsData.map((element, index) => {
-        const modelData = modelsData[index];
+      // TODO: Why do I have to update the uniforms like this?
+      modelsData.forEach((modelData, index) => {
         uniforms.volume_models.value[index].intensity = modelData.intensity;
         uniforms.volume_models.value[index].model_texture =
           modelData.modelTexture;
-        //uniforms["model_texture0"].value = modelData.modelTexture;
         uniforms.volume_models.value[index].transfer_texture =
           modelData.transferTexture;
-        //uniforms.transfer_texture.value =modelData.transferTexture;
       });
     } else {
+      // TODO: FIX EMPTY ARRAY
       const defaultUniforms = DEFAULT_MATERIAL.clone().uniforms;
-      uniforms.volume_models.value[0].intensity.value =
-        defaultUniforms.intensity.value;
-      //uniforms["model_texture0"].value = defaultUniforms.model_texture.value;
+      uniforms.volume_models.value = defaultUniforms.value
       uniforms.volume_models.value[0].model_texture.value =
         defaultUniforms.model_texture.value;
       uniforms.volume_models.value[0].transfer_texture.value =
