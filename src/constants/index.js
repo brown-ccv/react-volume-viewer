@@ -53,6 +53,17 @@ const DEFAULT_MODEL = {
   useColorMap: true,
 };
 
+const entry1 = {
+	model_texture: null,
+  intensity: 1.0,
+  transfer_texture: null
+};
+const entry2 = {
+	model_texture: null,
+  intensity: 1.0,
+  transfer_texture: null
+};
+
 const DEFAULT_MATERIAL = new RawShaderMaterial({
   uniforms: {
     blending: { value: 0 },
@@ -62,7 +73,10 @@ const DEFAULT_MATERIAL = new RawShaderMaterial({
     vr_clip_matrix: { value: new Matrix4() },
     dim: { value: 1.0 },
     intensity: { value: 1.0 },
-    model_texture: { value: null },
+    model_texture0: { value: null },
+    model_texture1: { value: null },
+    model_texture2: { value: null },
+    volume_model: { value: [entry1,entry2] },
     slices: { value: 1.0 },
     step_size: { value: 0.01 },
     transfer_texture: { value: null },

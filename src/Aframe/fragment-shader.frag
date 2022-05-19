@@ -2,6 +2,13 @@
 precision mediump float;
 precision highp sampler2DArray;
 
+struct VolumeModel {
+ sampler2D model_texture;
+ float intensity;
+ sampler2D transfer_texture;
+};
+
+
 in vec3 vUV;        // Coordinates of the texture
 in vec3 camPos;     // Coordinates of the camera
 out vec4 fragColor; // Final output color 
@@ -16,8 +23,11 @@ uniform float intensity;
 uniform float slices;       // Number of slices in the volumes
 uniform float step_size;    // Ray step size
 
-//uniform sampler2D model_texture;    // Texture of the model
-uniform sampler2DArray model_texture;
+uniform VolumeModel volume_model[2];
+uniform sampler2D model_texture0;    // Texture of the model
+uniform sampler2D model_texture1;
+uniform sampler2D model_texture2;
+//uniform sampler2DArray model_texture;
 uniform sampler2D transfer_texture; // Texture of the colorMap/transferFunction
 
 /**
@@ -27,7 +37,7 @@ uniform sampler2D transfer_texture; // Texture of the colorMap/transferFunction
 */
 
 // Sample model texture as 3D object
-vec4 sampleAs3DTexture(sampler2DArray tex, int depth,vec3 coordinates) {
+vec4 sampleAs3DTexture(sampler2D tex, int depth,vec3 coordinates) {
     float z_start = floor(coordinates.z / (1.0 / slices));
     float z_end = min(z_start + 1.0, slices - 1.0);
     vec2 p_start = vec2(mod(z_start, dim), dim - floor(z_start / dim) - 1.0);
@@ -43,10 +53,16 @@ vec4 sampleAs3DTexture(sampler2DArray tex, int depth,vec3 coordinates) {
 
     // Apply linear interpolation between start and end coordinates
     return mix (
-        texture(tex, vec3( coordinates_start, depth )),
-        texture(tex, vec3( coordinates_end, depth )),
+        texture(tex, vec2( coordinates_start )),
+        texture(tex, vec2( coordinates_end)),
         (coordinates.z * slices - z_start)
     );
+
+    // return mix (
+    //     texture(tex, vec3( coordinates_start, 0.000 )),
+    //     texture(tex, vec3( coordinates_end, 0.000)),
+    //     (coordinates.z * slices - z_start)
+    // );
 }
 
 // Clip the volume between clip_min and clip_max
@@ -67,7 +83,7 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
 
     // Loop from t_start to t_end by step_size
     for(float t = t_start; t < t_end; t += step_size) {
-        vec4 volumeSample = sampleAs3DTexture(model_texture, 0, data_position);
+        vec4 volumeSample = sampleAs3DTexture(volume_model[0].model_texture, 0, data_position);
 
         // Initialize alpha as the max between the 3 channels
         // volumeSample .r .g and .b are all the same exact values. Don't know what .a is supposed to be
@@ -75,7 +91,7 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
         if(volumeSample.a < 0.25) volumeSample.a = 0.1 * volumeSample.a;
         
         // Apply color map / transfer function
-        volumeSample = texture(transfer_texture, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
+        volumeSample = texture(volume_model[0].transfer_texture, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
 
         // Artificially increase pixel intensity
         volumeSample.rgb = volumeSample.rgb * intensity;

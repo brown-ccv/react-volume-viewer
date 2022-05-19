@@ -29,7 +29,25 @@ function App() {
         min: 0.05,
         max: 33.71,
       },
-      path: modelPath,
+      path: salt,
+      transferFunction: [
+        { x: 0, y: 0 },
+        { x: 0.5, y: 0.5 },
+        { x: 1, y: 1 },
+      ],
+      useTransferFunction: useTransferFunction,
+      useColorMap: useColorMap,
+    },
+    {
+      name: "Same2",
+      colorMap: colorMap,
+      ...(!singleColorMap && { colorMaps: allColorMaps }),
+      enabled: true,
+      range: {
+        min: 0.05,
+        max: 33.71,
+      },
+      path: temp,
       transferFunction: [
         { x: 0, y: 0 },
         { x: 0.5, y: 0.5 },

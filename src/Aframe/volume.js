@@ -214,11 +214,11 @@ AFRAME.registerComponent("volume", {
       //   (image) => {
       //     const { width, height } = image;
 
-      //     // Draw image and extrapolate RGB data
-      //     //ctx.drawImage(image, 0, 0);
-      //     //const data = ctx.getImageData(0, 0, width, height).data;
+      //     // //Draw image and extrapolate RGB data
+      //     // ctx.drawImage(image, 0, 0);
+      //     // const data = ctx.getImageData(0, 0, width, height).data;
 
-      //     //console.log(data);
+      //     // console.log(data);
 
       //     // TEMP
       //     // const used = new Set();
@@ -227,19 +227,19 @@ AFRAME.registerComponent("volume", {
       //     // });
       //     // console.log(used);
 
-      //     // Create DataTexture from the rgba data
-      //     // const modelTexture = new DataTexture(
-      //     //   data,
-      //     //   width,
-      //     //   height,
-      //     //   THREE.RGBFormat
-      //     // );
-      //     const modelTexture = new DataArrayTexture(
-      //       image,
+      //     //Create DataTexture from the rgba data
+      //     const modelTexture = new DataTexture(
+      //       data,
       //       width,
       //       height,
-      //       1
+      //       THREE.RGBFormat
       //     );
+      //     // const modelTexture = new DataArrayTexture(
+      //     //   image,
+      //     //   width,
+      //     //   height,
+      //     //   1
+      //     // );
       //     modelTexture.minFilter = modelTexture.magFilter = LinearFilter;
       //     modelTexture.unpackAlignment = 1;
       //     modelTexture.needsUpdate = true;
@@ -252,49 +252,43 @@ AFRAME.registerComponent("volume", {
       //   () => reject(new Error("Invalid model path: " + modelPath))
       // );
 
-      new THREE.FileLoader().setResponseType("arraybuffer").load(
-        modelPath,
-        (data) => {
-          // console.log(image)
-          // image = new Uint8Array(image)
-          // console.log(image);
-          // TEMP
-          // const used = new Set();
-          // image.forEach((pixel) => {
-          //   if (!used.has(pixel)) used.add(pixel);
-          // });
-          // console.log(used);
+      // new THREE.FileLoader().setResponseType("arraybuffer").load(
+      //   modelPath,
+      //   (data) => {
+          
+      //     var array = new Uint8Array(data);
+      //     const modelTexture = new DataTexture2DArray( array, 2000, 2200, 1 );
+      //     modelTexture.minFilter = modelTexture.magFilter = LinearFilter;
+      //     modelTexture.unpackAlignment = 1;
+      //     modelTexture.format = THREE.RedFormat;
+      //     //modelTexture.format = THREE.RGBAFormat;
+      //     modelTexture.type = THREE.UnsignedByteType;
+      //     modelTexture.needsUpdate = true;
+      
 
-          // Create DataTexture from the rgba data
-          // const modelTexture = new DataTexture(data, width, height);
-          const modelTexture = new DataTexture2DArray( data, 2000, 2200, 1 );
-          modelTexture.minFilter = modelTexture.magFilter = LinearFilter;
-          modelTexture.unpackAlignment = 1;
-          modelTexture.needsUpdate = true;
+      //     this.usedModels.set(modelPath, modelTexture);
+      //     console.log("TEXTURE", modelTexture);
+      //     resolve(modelTexture);
 
-          this.usedModels.set(modelPath, modelTexture);
-          console.log("TEXTURE", modelTexture);
-          resolve(modelTexture);
+      //   },
+      //   () => {},
+      //   () => reject(new Error("Invalid model path: " + modelPath))
+      // );
 
-        },
-        () => {},
-        () => reject(new Error("Invalid model path: " + modelPath))
-      );
+        new TextureLoader().load(
+          modelPath,
+          (modelTexture) => {
+            modelTexture.minFilter = modelTexture.magFilter = LinearFilter;
+            modelTexture.unpackAlignment = 1;
+            modelTexture.needsUpdate = true;
 
-      //   new TextureLoader().load(
-      //     modelPath,
-      //     (modelTexture) => {
-      //       modelTexture.minFilter = modelTexture.magFilter = LinearFilter;
-      //       modelTexture.unpackAlignment = 1;
-      //       modelTexture.needsUpdate = true;
-
-      //       this.usedModels.set(modelPath, modelTexture);
-      //       console.log(modelTexture)
-      //       resolve(modelTexture);
-      //     },
-      //     () => {},
-      //     () => reject(new Error("Invalid model path: " + modelPath))
-      //   );
+            this.usedModels.set(modelPath, modelTexture);
+            console.log(modelTexture)
+            resolve(modelTexture);
+          },
+          () => {},
+          () => reject(new Error("Invalid model path: " + modelPath))
+        );
     });
   },
 
@@ -371,7 +365,8 @@ AFRAME.registerComponent("volume", {
   updateSpacing: function () {
     const { spacing } = this.data;
     const uniforms = this.getUniforms();
-    const modelTexture = uniforms.model_texture.value;
+    //const modelTexture = uniforms["model_texture0"].value;
+    const modelTexture = uniforms.volume_model.value.model_texture;
     const dim = uniforms.dim.value;
     const slices = uniforms.slices.value;
 
@@ -402,15 +397,21 @@ AFRAME.registerComponent("volume", {
   updateModels: function (modelsData) {
     const uniforms = this.getUniforms();
     if (modelsData.length) {
+    //   modelsData.array.forEach(element => {
+    //     map
+    //   });
       const modelData = modelsData[0];
-      uniforms.intensity.value = modelData.intensity;
-      uniforms.model_texture.value = modelData.modelTexture;
-      uniforms.transfer_texture.value = modelData.transferTexture;
+      uniforms.volume_model.value[0].intensity = modelData.intensity;
+      uniforms.volume_model.value[0].model_texture = modelData.modelTexture;
+      //uniforms["model_texture0"].value = modelData.modelTexture;
+      uniforms.volume_model.value[0].transfer_texture = modelData.transferTexture;
+      //uniforms.transfer_texture.value =modelData.transferTexture;
     } else {
       const defaultUniforms = DEFAULT_MATERIAL.clone().uniforms;
-      uniforms.intensity.value = defaultUniforms.intensity.value;
-      uniforms.model_texture.value = defaultUniforms.model_texture.value;
-      uniforms.transfer_texture.value = defaultUniforms.transfer_texture.value;
+      uniforms.volume_model.intensity.value = defaultUniforms.intensity.value;
+      //uniforms["model_texture0"].value = defaultUniforms.model_texture.value;
+      uniforms.volume_model.model_texture.value = defaultUniforms.model_texture.value;
+      uniforms.volume_model.transfer_texture.value = defaultUniforms.transfer_texture.value;
     }
 
     this.updateSpacing(); // Update spacing based on the new material
