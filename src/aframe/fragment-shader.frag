@@ -71,26 +71,36 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
 
     // Loop from t_start to t_end by step_size
     for(float t = t_start; t < t_end; t += step_size) {
+        // Sample each model and apply intensity
+        // Initialize each alpha
+        // Mix models (this is blending - currently max)
+        // Initialize alpha of mixed model (?)
+        // Sample each colorMap
+        // Mix colorMaps (currently max)
 
         // TEMP: Always only 2 samples 
         // TODO: Multiple blending types
+
+
+        // Sample model
         vec4 volumeSample1 = sampleAs3DTexture(
             model_structs[0].model_texture, data_position
         );
+        // Artifically multiply color intensity
         volumeSample1.rgb *= model_structs[0].intensity;
         // Initialize alpha as the max between the 3 channels
         float alpha1 = max(volumeSample1.r, max(volumeSample1.g, volumeSample1.b));
 
-
+        // Sample model
         vec4 volumeSample2 = sampleAs3DTexture(
             model_structs[1].model_texture, data_position
         );
+        // Artifically multiply color intensity
         volumeSample2.rgb *= model_structs[1].intensity;
         // Initialize alpha as the max between the 3 channels
         float alpha2 = max(volumeSample2.r, max(volumeSample2.g, volumeSample2.b));
 
         // Mix volumes by max of their alpha values
-        // TODO: Other blending types
         vec4 volumeSample = mix(
             volumeSample1, volumeSample2, max(alpha1, alpha2)
         );
