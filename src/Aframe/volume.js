@@ -180,17 +180,7 @@ AFRAME.registerComponent("volume", {
     // Each element runs serially and this.updateModelsUniforms waits for all of the promises to finish
     Promise.allSettled(
       this.data.models.map(
-        async (
-          {
-            name,
-            path,
-            colorMap,
-            transferFunction,
-            intensity,
-            useTransferFunction,
-          },
-          idx
-        ) => {
+        async ({ name, path, colorMap, transferFunction, intensity }, idx) => {
           try {
             // Load texture from png
             const modelTexture = await this.loadModelTexture(path);
@@ -204,7 +194,6 @@ AFRAME.registerComponent("volume", {
 
             return {
               intensity,
-              useTransferFunction,
               modelTexture,
               transferTexture,
             };
@@ -216,7 +205,7 @@ AFRAME.registerComponent("volume", {
         }
       )
     ).then((promises) => {
-      const [models, errors] = partitionPromises(promises);
+      const { values: models, errors } = partitionPromises(promises);
 
       if (errors.length) {
         // Bubble errors up to AframeScene
@@ -315,20 +304,21 @@ AFRAME.registerComponent("volume", {
         ? colorMapPath.substring(0, 14) + ";" + colorMapPath.substring(14)
         : colorMapPath;
 
-      // Create canvas to load image on
-      const img = document.createElement("img");
-      img.src = colorMapPath;
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      img.onload = () => {
-        // Draw image and extrapolate RGB data
-        ctx.drawImage(img, 0, 0);
-        const colorData = ctx.getImageData(0, 0, img.width, 1).data;
-        resolve(colorData);
-      };
-      img.onerror = () => {
-        reject(new Error("Invalid colorMap path: " + colorMapPath));
-      };
+      new THREE.ImageLoader().load(
+        colorMapPath,
+        (image) => {
+          const ctx = document.createElement("canvas").getContext("2d");
+
+          // Draw image and extrapolate RGB data
+          ctx.drawImage(image, 0, 0);
+          const colorData = ctx.getImageData(0, 0, image.width, 1).data;
+          resolve(colorData);
+        },
+        () => {},
+        () => {
+          reject(new Error("Invalid colorMap path: " + colorMapPath));
+        }
+      );
     });
   },
 

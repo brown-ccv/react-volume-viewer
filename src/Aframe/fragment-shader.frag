@@ -95,7 +95,7 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
         
         
         volumeSample.a = max(volumeSample.r, max(volumeSample.g, volumeSample.b));
-        if(volumeSample.a < 0.25) volumeSample.a = 0.1 * volumeSample.a;
+        if(volumeSample.a < 0.25) volumeSample.a *= 0.1;
         
         // Apply color map / transfer function
         volumeSample = texture(
