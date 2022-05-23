@@ -83,46 +83,48 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
 
 
         // Sample model
-        vec4 volumeSample1 = sampleAs3DTexture(
+        vec4 model1_sample = sampleAs3DTexture(
             model_structs[0].model_texture, data_position
         );
         // Artifically multiply color intensity
-        volumeSample1.rgb *= model_structs[0].intensity;
+        model1_sample.rgb *= model_structs[0].intensity;
         // Initialize alpha as the max between the 3 channels
-        float alpha1 = max(volumeSample1.r, max(volumeSample1.g, volumeSample1.b));
+        float alpha1 = max(model1_sample.r, max(model1_sample.g, model1_sample.b));
 
         // Sample model
-        vec4 volumeSample2 = sampleAs3DTexture(
+        vec4 model2_sample = sampleAs3DTexture(
             model_structs[1].model_texture, data_position
         );
         // Artifically multiply color intensity
-        volumeSample2.rgb *= model_structs[1].intensity;
+        model2_sample.rgb *= model_structs[1].intensity;
         // Initialize alpha as the max between the 3 channels
-        float alpha2 = max(volumeSample2.r, max(volumeSample2.g, volumeSample2.b));
+        float alpha2 = max(model2_sample.r, max(model2_sample.g, model2_sample.b));
 
         // Mix volumes by max of their alpha values
-        vec4 volumeSample = mix(
-            volumeSample1, volumeSample2, max(alpha1, alpha2)
+        vec4 volume_sample = mix(
+            model1_sample, model2_sample, max(alpha1, alpha2)
         );
         
         // Initialize alpha as the max between the 3 channels
-        volumeSample.a = max(volumeSample.r, max(volumeSample.g, volumeSample.b));
-        if(volumeSample.a < 0.25) volumeSample.a *= 0.1;
+        volume_sample.a = max(volume_sample.r, max(volume_sample.g, volume_sample.b));
+        if(volume_sample.a < 0.25) volume_sample.a *= 0.1;
 
         // Apply color map / transfer function
         vec4 cm1 = texture(
             model_structs[0].transfer_texture, 
-            vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5)
+            vec2(clamp(volume_sample.a, 0.0, 1.0), 0.5)
         );
         vec4 cm2 = texture(
             model_structs[1].transfer_texture, 
-            vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5)
+            vec2(clamp(volume_sample.a, 0.0, 1.0), 0.5)
         );
-        volumeSample = mix(cm1, cm2, max(alpha1, alpha2));
+        volume_sample = mix(cm1, cm2, max(alpha1, alpha2));
+
+        // THIS WILL STAY THE SAME:
         
         // Blending (front to back)
-        vFragColor.rgb += (1.0 - vFragColor.a) * volumeSample.a * volumeSample.rgb;
-        vFragColor.a += (1.0 - vFragColor.a) * volumeSample.a;
+        vFragColor.rgb += (1.0 - vFragColor.a) * volume_sample.a * volume_sample.rgb;
+        vFragColor.a += (1.0 - vFragColor.a) * volume_sample.a;
 
         // Early exit if 95% opacity is reached
         if (vFragColor.a >= 0.95) break;
