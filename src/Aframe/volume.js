@@ -71,7 +71,7 @@ AFRAME.registerComponent("volume", {
     const diffObject = deepDifference(oldData, data);
     if ("models" in diffObject) {
       // Asynchronously loop through the data.models array
-      // Each element runs serially and this.updateModels waits for all of the promises to finish
+      // Each element runs serially and this.updateModelsUniforms waits for all of the promises to finish
       Promise.allSettled(
         data.models.map(
           async (
@@ -123,7 +123,7 @@ AFRAME.registerComponent("volume", {
               detail: errors,
             })
           );
-        } else this.updateModels(models);
+        } else this.updateModelsUniforms(models);
       });
     }
 
@@ -323,7 +323,7 @@ AFRAME.registerComponent("volume", {
   },
 
   // Pass array of models' data into the shader
-  updateModels: function (modelsData) {
+  updateModelsUniforms: function (modelsData) {
     const uniforms = this.getUniforms();
     if (modelsData.length) {
       // TODO: Why do I have to update the uniforms like this?
@@ -337,7 +337,7 @@ AFRAME.registerComponent("volume", {
     } else {
       // TODO: FIX EMPTY ARRAY
       const defaultUniforms = DEFAULT_MATERIAL.clone().uniforms;
-      uniforms.volume_models.value = defaultUniforms.value
+      uniforms.volume_models.value = defaultUniforms.value;
       uniforms.volume_models.value[0].model_texture.value =
         defaultUniforms.model_texture.value;
       uniforms.volume_models.value[0].transfer_texture.value =
