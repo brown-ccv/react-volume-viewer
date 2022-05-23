@@ -205,7 +205,7 @@ AFRAME.registerComponent("volume", {
         }
       )
     ).then((promises) => {
-      const { values: models, errors } = partitionPromises(promises);
+      const { values: modelStructs, errors } = partitionPromises(promises);
 
       if (errors.length) {
         // Bubble errors up to AframeScene
@@ -216,14 +216,15 @@ AFRAME.registerComponent("volume", {
         );
       } else {
         const uniforms = this.getUniforms();
-        if (models.length) {
+        if (modelStructs.length) {
           // TODO: Why do I have to update the uniforms like this?
-          models.forEach((modelData, index) => {
-            uniforms.volume_models.value[index].intensity = modelData.intensity;
+          modelStructs.forEach((modelStruct, index) => {
+            uniforms.volume_models.value[index].intensity =
+              modelStruct.intensity;
             uniforms.volume_models.value[index].model_texture =
-              modelData.modelTexture;
+              modelStruct.modelTexture;
             uniforms.volume_models.value[index].transfer_texture =
-              modelData.transferTexture;
+              modelStruct.transferTexture;
           });
         } else {
           // TODO: FIX EMPTY ARRAY

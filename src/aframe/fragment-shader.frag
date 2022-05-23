@@ -2,7 +2,7 @@
 precision mediump float;
 precision highp sampler2DArray;
 
-struct VolumeModel {
+struct ModelStruct {
     sampler2D model_texture;
     float intensity;
     sampler2D transfer_texture;
@@ -22,7 +22,7 @@ uniform float dim;
 uniform float slices;       // Number of slices in the volumes
 uniform float step_size;    // Ray step size
 
-uniform VolumeModel volume_models[2];
+uniform ModelStruct volume_models[2];
 
 /**
     Shader code for the VR Volume Viewer
