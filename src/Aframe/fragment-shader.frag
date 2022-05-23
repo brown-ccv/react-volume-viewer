@@ -92,7 +92,7 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
 
         // Artificially increase pixel intensity
         // TODO: Multiple indivudal textures before mixing them
-        volumeSample.rgb = volumeSample.rgb * volume_models[0].intensity;
+        volumeSample.rgb *= volume_models[0].intensity;
         
         // Blending (front to back)
         vFragColor.rgb += (1.0 - vFragColor.a) * volumeSample.a * volumeSample.rgb;
