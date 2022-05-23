@@ -1,12 +1,4 @@
-import {
-  isEqual,
-  pick,
-  isArray,
-  isObject,
-  transform,
-  partition,
-  cloneDeep,
-} from "lodash";
+import { isEqual, pick, isArray, isObject, transform, partition } from "lodash";
 
 /** EXPORTS */
 
@@ -39,7 +31,7 @@ const getAframeModels = (models) => {
   return JSON.stringify(aframeModels.filter((model) => model.enabled));
 };
 
-// Recursively find the differences between two objects
+// Recursively find the differences between two objects/arrays
 // https://davidwells.io/snippets/get-difference-between-two-objects-javascript
 const deepDifference = (oldObj, newObj) => {
   const changes = (newObj, oldObj) => {
@@ -58,9 +50,9 @@ const deepDifference = (oldObj, newObj) => {
   return changes(newObj, oldObj);
 };
 
+// Recursively clones an object/array
 const deepCopy = (obj) => {
-  // return cloneDeep(obj);
-  return JSON.parse(JSON.stringify(obj))
+  return JSON.parse(JSON.stringify(obj));
 };
 
 // Partition an array of promises based on errors
