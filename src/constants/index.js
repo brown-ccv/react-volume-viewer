@@ -3,8 +3,8 @@ import { THREE } from "aframe";
 import grayscale from "../images/grayscale.png";
 import natural from "../images/natural.png";
 import rgb from "../images/rgb.png";
-import vertexShader from "../Aframe/vertex-shader.vert";
-import fragmentShader from "../Aframe/fragment-shader.frag";
+import vertexShader from "../aframe/vertex-shader.vert";
+import fragmentShader from "../aframe/fragment-shader.frag";
 
 const { BackSide, RawShaderMaterial, Vector2, Vector3, Matrix4 } = THREE;
 
@@ -54,8 +54,8 @@ const DEFAULT_MODEL = {
 };
 
 const DEFAULT_MODEL_STRUCT = {
-  model_texture: null,
   intensity: 1.0,
+  model_texture: null,
   transfer_texture: null,
 };
 
