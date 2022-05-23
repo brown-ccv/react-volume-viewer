@@ -227,34 +227,30 @@ AFRAME.registerComponent("volume", {
             detail: errors,
           })
         );
-      } else this.updateModelsUniforms(models);
+      } else {
+        const uniforms = this.getUniforms();
+        if (models.length) {
+          // TODO: Why do I have to update the uniforms like this?
+          models.forEach((modelData, index) => {
+            uniforms.volume_models.value[index].intensity = modelData.intensity;
+            uniforms.volume_models.value[index].model_texture =
+              modelData.modelTexture;
+            uniforms.volume_models.value[index].transfer_texture =
+              modelData.transferTexture;
+          });
+        } else {
+          // TODO: FIX EMPTY ARRAY
+          const defaultUniforms = DEFAULT_MATERIAL.clone().uniforms;
+          uniforms.volume_models.value = defaultUniforms.value;
+          uniforms.volume_models.value[0].model_texture.value =
+            defaultUniforms.model_texture.value;
+          uniforms.volume_models.value[0].transfer_texture.value =
+            defaultUniforms.transfer_texture.value;
+        }
+
+        this.updateSpacing(); // Update spacing based on the new material
+      }
     });
-  },
-
-  // Pass array of models' data into the shader
-  updateModelsUniforms: function (modelsData) {
-    const uniforms = this.getUniforms();
-    console.log(modelsData);
-    if (modelsData.length) {
-      // TODO: Why do I have to update the uniforms like this?
-      modelsData.forEach((modelData, index) => {
-        uniforms.volume_models.value[index].intensity = modelData.intensity;
-        uniforms.volume_models.value[index].model_texture =
-          modelData.modelTexture;
-        uniforms.volume_models.value[index].transfer_texture =
-          modelData.transferTexture;
-      });
-    } else {
-      // TODO: FIX EMPTY ARRAY
-      const defaultUniforms = DEFAULT_MATERIAL.clone().uniforms;
-      uniforms.volume_models.value = defaultUniforms.value;
-      uniforms.volume_models.value[0].model_texture.value =
-        defaultUniforms.model_texture.value;
-      uniforms.volume_models.value[0].transfer_texture.value =
-        defaultUniforms.transfer_texture.value;
-    }
-
-    this.updateSpacing(); // Update spacing based on the new material
   },
 
   updateMeshClipMatrix: function () {
