@@ -26,8 +26,7 @@ struct ModelStruct {
     sampler2D model_texture;
     sampler2D transfer_texture;
 };
-// TODO: Array of 4 possible
-// TODO: Discard null structs from mixing
+#define MAX_MODELS 4
 uniform ModelStruct model_structs[2];
 
 // Sample model texture as 3D object
@@ -80,6 +79,28 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
 
         // TEMP: Always only 2 samples 
         // TODO: Multiple blending types
+        // TODO: When array is of length 0
+
+        // vec4 v_sample;
+        // #pragma unroll_loop_start
+        // for(int i = 0; i < MAX_MODELS; i++) {
+        //     // Sample model
+        //     vec4 model_sample = sampleAs3DTexture(
+        //         model_structs[0].model_texture, data_position
+        //     );
+            
+        //     // Artifically multiply color intensity
+        //     model_sample.rgb *= model_structs[0].intensity;
+
+        //     // Initialize alpha as the max between the 3 channels
+        //     float alpha = max(
+        //         model_sample.r, 
+        //         max(model_sample.g, model_sample.b)
+        //     );
+
+        //     // v_sample = mix(model_sample, v_sample, max(alpha, v_sample.a));
+        // }
+        // #pragma unroll_loop_end
 
 
         // Sample model
@@ -88,7 +109,7 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
         );
         // Artifically multiply color intensity
         model1_sample.rgb *= model_structs[0].intensity;
-        // Initialize alpha as the max between the 3 channels
+        // Initialize alpha as the max between the 3 channels (Change with blending?)
         float alpha1 = max(model1_sample.r, max(model1_sample.g, model1_sample.b));
 
         // Sample model
@@ -97,15 +118,15 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
         );
         // Artifically multiply color intensity
         model2_sample.rgb *= model_structs[1].intensity;
-        // Initialize alpha as the max between the 3 channels
+        // Initialize alpha as the max between the 3 channels (Change with blending?)
         float alpha2 = max(model2_sample.r, max(model2_sample.g, model2_sample.b));
 
-        // Mix volumes by max of their alpha values
+        // Mix volumes by max of their alpha values (Change with blending?)
         vec4 volume_sample = mix(
             model1_sample, model2_sample, max(alpha1, alpha2)
         );
         
-        // Initialize alpha as the max between the 3 channels
+        // Initialize alpha as the max between the 3 channels (Change with blending?)
         volume_sample.a = max(volume_sample.r, max(volume_sample.g, volume_sample.b));
         if(volume_sample.a < 0.25) volume_sample.a *= 0.1;
 
@@ -118,11 +139,8 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
             model_structs[1].transfer_texture, 
             vec2(clamp(volume_sample.a, 0.0, 1.0), 0.5)
         );
+        // (Change with blending?)
         volume_sample = mix(cm1, cm2, max(alpha1, alpha2));
-
-        // Initialize alpha as the max between the 3 channels
-        volume_sample.a = max(volume_sample.r, max(volume_sample.g, volume_sample.b));
-        if(volume_sample.a < 0.25) volume_sample.a *= 0.1;
 
         // THIS WILL STAY THE SAME:
         
