@@ -1,4 +1,12 @@
-import { isEqual, pick, isArray, isObject, transform, partition } from "lodash";
+import {
+  isEqual,
+  pick,
+  isArray,
+  isObject,
+  transform,
+  partition,
+  cloneDeep,
+} from "lodash";
 
 /** EXPORTS */
 
@@ -48,6 +56,10 @@ const deepDifference = (oldObj, newObj) => {
   };
 
   return changes(newObj, oldObj);
+};
+
+const deepCopy = (obj) => {
+  return cloneDeep(obj);
 };
 
 // Partition an array of promises based on errors
@@ -203,6 +215,7 @@ const validateTransferFunction = (transferFunction) => {
 export {
   getAframeModels,
   deepDifference,
+  deepCopy,
   partitionPromises,
   validateModel,
   validateSlider,

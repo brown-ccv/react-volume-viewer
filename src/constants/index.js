@@ -5,6 +5,7 @@ import natural from "../images/natural.png";
 import rgb from "../images/rgb.png";
 import vertexShader from "../aframe/vertex-shader.vert";
 import fragmentShader from "../aframe/fragment-shader.frag";
+import { deepCopy } from "../utils";
 
 const { BackSide, RawShaderMaterial, Vector2, Vector3, Matrix4 } = THREE;
 
@@ -59,10 +60,6 @@ const DEFAULT_MODEL_STRUCT = {
   transfer_texture: null,
 };
 
-const TEST = JSON.parse(
-  JSON.stringify([DEFAULT_MODEL_STRUCT, DEFAULT_MODEL_STRUCT])
-);
-
 const DEFAULT_MATERIAL = new RawShaderMaterial({
   uniforms: {
     blending: { value: 0 },
@@ -71,11 +68,8 @@ const DEFAULT_MATERIAL = new RawShaderMaterial({
     apply_vr_clip: { value: false },
     vr_clip_matrix: { value: new Matrix4() },
     dim: { value: 1.0 },
-    // model_structs: {
-    //   value: JSON.parse(JSON.stringify([DEFAULT_MODEL_STRUCT, DEFAULT_MODEL_STRUCT])),
-    // },
     model_structs: {
-      value: TEST,
+      value: deepCopy([DEFAULT_MODEL_STRUCT, DEFAULT_MODEL_STRUCT]),
     },
     slices: { value: 1.0 },
     step_size: { value: 0.01 },

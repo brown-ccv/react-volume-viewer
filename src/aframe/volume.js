@@ -6,7 +6,7 @@ import {
   DEFAULT_MATERIAL,
   DEFAULT_MODEL_STRUCT,
 } from "../constants/index.js";
-import { deepDifference, partitionPromises } from "../utils/index";
+import { deepCopy, deepDifference, partitionPromises } from "../utils/index";
 
 const {
   LinearFilter,
@@ -16,7 +16,6 @@ const {
   Matrix4,
   TextureLoader,
   DataTexture,
-  Uniform,
 } = THREE;
 
 AFRAME.registerComponent("volume", {
@@ -220,8 +219,6 @@ AFRAME.registerComponent("volume", {
         const uniforms = this.getUniforms();
         if (modelStructs.length) {
           // TODO: Why do I have to update the uniforms like this?
-          // Arrays are shared between uniforms but I can't update the whole uniform at the same time?
-
           modelStructs.forEach(
             ({ intensity, modelTexture, transferTexture }, idx) => {
               uniforms.model_structs.value[idx].intensity = intensity;
@@ -231,9 +228,10 @@ AFRAME.registerComponent("volume", {
             }
           );
         } else {
-          uniforms.model_structs.value = JSON.parse(
-            JSON.stringify([DEFAULT_MODEL_STRUCT, DEFAULT_MODEL_STRUCT])
-          );
+          uniforms.model_structs.value = deepCopy([
+            DEFAULT_MODEL_STRUCT,
+            DEFAULT_MODEL_STRUCT,
+          ]);
         }
         this.updateSpacing(); // Update spacing based on the new material
       }
