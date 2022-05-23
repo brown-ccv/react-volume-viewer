@@ -4,6 +4,7 @@ import {
   Blending,
   DEFAULT_SLIDERS,
   DEFAULT_MATERIAL,
+  DEFAULT_MODEL_STRUCT,
 } from "../constants/index.js";
 import { deepDifference, partitionPromises } from "../utils/index";
 
@@ -15,6 +16,7 @@ const {
   Matrix4,
   TextureLoader,
   DataTexture,
+  Uniform,
 } = THREE;
 
 AFRAME.registerComponent("volume", {
@@ -148,7 +150,7 @@ AFRAME.registerComponent("volume", {
     const uniforms = this.getUniforms();
 
     // TODO: Don't just use first one, assert same size?
-    const modelTexture = uniforms.volume_models.value[0].model_texture;
+    const modelTexture = uniforms.model_structs.value[0].model_texture;
     const dim = uniforms.dim.value;
     const slices = uniforms.slices.value;
 
@@ -218,24 +220,21 @@ AFRAME.registerComponent("volume", {
         const uniforms = this.getUniforms();
         if (modelStructs.length) {
           // TODO: Why do I have to update the uniforms like this?
-          modelStructs.forEach((modelStruct, index) => {
-            uniforms.volume_models.value[index].intensity =
-              modelStruct.intensity;
-            uniforms.volume_models.value[index].model_texture =
-              modelStruct.modelTexture;
-            uniforms.volume_models.value[index].transfer_texture =
-              modelStruct.transferTexture;
-          });
-        } else {
-          // TODO: FIX EMPTY ARRAY
-          const defaultUniforms = DEFAULT_MATERIAL.clone().uniforms;
-          uniforms.volume_models.value = defaultUniforms.value;
-          uniforms.volume_models.value[0].model_texture.value =
-            defaultUniforms.model_texture.value;
-          uniforms.volume_models.value[0].transfer_texture.value =
-            defaultUniforms.transfer_texture.value;
-        }
+          // Arrays are shared between uniforms but I can't update the whole uniform at the same time?
 
+          modelStructs.forEach(
+            ({ intensity, modelTexture, transferTexture }, idx) => {
+              uniforms.model_structs.value[idx].intensity = intensity;
+              uniforms.model_structs.value[idx].model_texture = modelTexture;
+              uniforms.model_structs.value[idx].transfer_texture =
+                transferTexture;
+            }
+          );
+        } else {
+          uniforms.model_structs.value = JSON.parse(
+            JSON.stringify([DEFAULT_MODEL_STRUCT, DEFAULT_MODEL_STRUCT])
+          );
+        }
         this.updateSpacing(); // Update spacing based on the new material
       }
     });

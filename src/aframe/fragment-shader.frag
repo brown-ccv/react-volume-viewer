@@ -2,12 +2,11 @@
 precision mediump float;
 precision highp sampler2DArray;
 
-struct ModelStruct {
-    sampler2D model_texture;
-    float intensity;
-    sampler2D transfer_texture;
-};
-
+/**
+    Shader code for the VR Volume Viewer
+    t_:     Translation vector
+    p_:     Position vector
+*/
 
 in vec3 vUV;        // Coordinates of the texture
 in vec3 camPos;     // Coordinates of the camera
@@ -22,13 +21,14 @@ uniform float dim;
 uniform float slices;       // Number of slices in the volumes
 uniform float step_size;    // Ray step size
 
+struct ModelStruct {
+    float intensity;
+    sampler2D model_texture;
+    sampler2D transfer_texture;
+};
+// TODO: Array of 4 possible
+// TODO: Discard null structs from mixing
 uniform ModelStruct model_structs[2];
-
-/**
-    Shader code for the VR Volume Viewer
-    t_:     Translation vector
-    p_:     Position vector
-*/
 
 // Sample model texture as 3D object
 vec4 sampleAs3DTexture(sampler2D tex, vec3 coordinates) {

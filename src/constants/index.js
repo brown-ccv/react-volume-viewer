@@ -59,6 +59,10 @@ const DEFAULT_MODEL_STRUCT = {
   transfer_texture: null,
 };
 
+const TEST = JSON.parse(
+  JSON.stringify([DEFAULT_MODEL_STRUCT, DEFAULT_MODEL_STRUCT])
+);
+
 const DEFAULT_MATERIAL = new RawShaderMaterial({
   uniforms: {
     blending: { value: 0 },
@@ -67,8 +71,12 @@ const DEFAULT_MATERIAL = new RawShaderMaterial({
     apply_vr_clip: { value: false },
     vr_clip_matrix: { value: new Matrix4() },
     dim: { value: 1.0 },
-    // TODO: Initialize as just one
-    volume_models: { value: [DEFAULT_MODEL_STRUCT, DEFAULT_MODEL_STRUCT] },
+    // model_structs: {
+    //   value: JSON.parse(JSON.stringify([DEFAULT_MODEL_STRUCT, DEFAULT_MODEL_STRUCT])),
+    // },
+    model_structs: {
+      value: TEST,
+    },
     slices: { value: 1.0 },
     step_size: { value: 0.01 },
     viewPort: { value: new Vector2() },
@@ -90,4 +98,5 @@ export {
   DEFAULT_SLIDERS,
   DEFAULT_MODEL,
   DEFAULT_MATERIAL,
+  DEFAULT_MODEL_STRUCT,
 };
