@@ -59,7 +59,8 @@ const deepDifference = (oldObj, newObj) => {
 };
 
 const deepCopy = (obj) => {
-  return cloneDeep(obj);
+  // return cloneDeep(obj);
+  return JSON.parse(JSON.stringify(obj))
 };
 
 // Partition an array of promises based on errors

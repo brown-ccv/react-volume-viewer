@@ -98,13 +98,17 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
         // Initialize alpha as the max between the 3 channels
         volumeSample.a = max(volumeSample.r, max(volumeSample.g, volumeSample.b));
         if(volumeSample.a < 0.25) volumeSample.a *= 0.1;
-        
+
         // Apply color map / transfer function
-        // TODO: Mix colorMap too
-        volumeSample = texture(
+        vec4 cm1 = texture(
             model_structs[0].transfer_texture, 
             vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5)
         );
+        vec4 cm2 = texture(
+            model_structs[1].transfer_texture, 
+            vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5)
+        );
+        volumeSample = mix(cm1, cm2, max(alpha1, alpha2));
         
         // Blending (front to back)
         vFragColor.rgb += (1.0 - vFragColor.a) * volumeSample.a * volumeSample.rgb;
