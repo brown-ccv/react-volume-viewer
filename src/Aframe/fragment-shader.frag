@@ -71,24 +71,37 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
 
     // Loop from t_start to t_end by step_size
     for(float t = t_start; t < t_end; t += step_size) {
-        vec4 volumeSample1 = sampleAs3DTexture(volume_models[0].model_texture, 0, data_position);
-        vec4 volumeSample2 = sampleAs3DTexture(volume_models[1].model_texture, 0, data_position);
+        vec4 volumeSample1 = sampleAs3DTexture(
+            volume_models[0].model_texture, 0, data_position
+        );
+        vec4 volumeSample2 = sampleAs3DTexture(
+            volume_models[1].model_texture, 0, data_position
+        );
 
 
         // Initialize alpha as the max between the 3 channels
-        // volumeSample .r .g and .b are all the same exact values. Don't know what .a is supposed to be
+        // TODO: Multiple blending types
         //volumeSample.a = max(volumeSample.r, max(volumeSample.g, volumeSample.b));
         float alpha1 = max(volumeSample1.r, max(volumeSample1.g, volumeSample1.b));
         float alpha2 = max(volumeSample2.r, max(volumeSample2.g, volumeSample2.b));
 
         // Mix volumes by max of their alpha values
-        vec4 volumeSample = mix(volumeSample1,volumeSample2,max(alpha1,alpha2));
+        // vec4 volumeSample = mix(
+        //     volumeSample1, volumeSample2, max(alpha1, alpha2)
+        // );
+        vec4 volumeSample = mix(
+            volumeSample1, volumeSample2, min(alpha1, alpha2)
+        );
+        
         
         volumeSample.a = max(volumeSample.r, max(volumeSample.g, volumeSample.b));
         if(volumeSample.a < 0.25) volumeSample.a = 0.1 * volumeSample.a;
         
         // Apply color map / transfer function
-        volumeSample = texture(volume_models[0].transfer_texture, vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5));
+        volumeSample = texture(
+            volume_models[0].transfer_texture, 
+            vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5)
+        );
 
         // Artificially increase pixel intensity
         // TODO: Multiple indivudal textures before mixing them

@@ -29,8 +29,6 @@ AFRAME.registerComponent("volume", {
 
   init: function () {
     this.scene = this.el.sceneEl;
-    this.usedModels = new Map(); // Cache models (path: texture)
-    this.usedColorMaps = new Map(); // Cache color maps (path: RGB data)
     this.rayCollided = false;
     this.grabbed = false;
 
@@ -298,7 +296,6 @@ AFRAME.registerComponent("volume", {
           modelTexture.unpackAlignment = 1;
           modelTexture.needsUpdate = true;
 
-          this.usedModels.set(modelPath, modelTexture);
           resolve(modelTexture);
         },
         () => {},
@@ -327,7 +324,6 @@ AFRAME.registerComponent("volume", {
         // Draw image and extrapolate RGB data
         ctx.drawImage(img, 0, 0);
         const colorData = ctx.getImageData(0, 0, img.width, 1).data;
-        this.usedColorMaps.set(colorMapPath, colorData);
         resolve(colorData);
       };
       img.onerror = () => {
