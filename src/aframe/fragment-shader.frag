@@ -120,6 +120,10 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
         );
         volume_sample = mix(cm1, cm2, max(alpha1, alpha2));
 
+        // Initialize alpha as the max between the 3 channels
+        volume_sample.a = max(volume_sample.r, max(volume_sample.g, volume_sample.b));
+        if(volume_sample.a < 0.25) volume_sample.a *= 0.1;
+
         // THIS WILL STAY THE SAME:
         
         // Blending (front to back)
