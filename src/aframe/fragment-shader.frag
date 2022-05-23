@@ -22,7 +22,7 @@ uniform float dim;
 uniform float slices;       // Number of slices in the volumes
 uniform float step_size;    // Ray step size
 
-uniform ModelStruct volume_models[2];
+uniform ModelStruct model_structs[2];
 
 /**
     Shader code for the VR Volume Viewer
@@ -75,17 +75,17 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
         // TEMP: Always only 2 samples 
         // TODO: Multiple blending types
         vec4 volumeSample1 = sampleAs3DTexture(
-            volume_models[0].model_texture, data_position
+            model_structs[0].model_texture, data_position
         );
-        volumeSample1.rgb *= volume_models[0].intensity;
+        volumeSample1.rgb *= model_structs[0].intensity;
         // Initialize alpha as the max between the 3 channels
         float alpha1 = max(volumeSample1.r, max(volumeSample1.g, volumeSample1.b));
 
 
         vec4 volumeSample2 = sampleAs3DTexture(
-            volume_models[1].model_texture, data_position
+            model_structs[1].model_texture, data_position
         );
-        volumeSample2.rgb *= volume_models[1].intensity;
+        volumeSample2.rgb *= model_structs[1].intensity;
         // Initialize alpha as the max between the 3 channels
         float alpha2 = max(volumeSample2.r, max(volumeSample2.g, volumeSample2.b));
 
@@ -102,7 +102,7 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
         // Apply color map / transfer function
         // TODO: Mix colorMap too
         volumeSample = texture(
-            volume_models[0].transfer_texture, 
+            model_structs[0].transfer_texture, 
             vec2(clamp(volumeSample.a, 0.0, 1.0), 0.5)
         );
         
