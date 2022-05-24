@@ -100,7 +100,7 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
                 model_sample.r, 
                 max(model_sample.g, model_sample.b)
             );
-            if(alpha < 0.25) alpha *= 0.1;
+            // if(alpha < 0.25) alpha *= 0.1;
 
             // Sample transfer texture
             model_transfer= texture(
@@ -113,11 +113,14 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
             // Mix in model_sample and then model_transfer
             v_sample = mix(model_sample, v_sample, max(alpha, v_sample.a));
 
-            // Initialize alpha as the max between the 3 channels (Change with blending?)
+            // Set alpha as the max between the 3 channels (Change with blending?)
             v_sample.a = max(v_sample.r, max(v_sample.g, v_sample.b));
             if(v_sample.a < 0.25) v_sample.a *= 0.1;
 
-            v_transfer = mix(model_transfer, v_sample, max(alpha, v_sample.a));
+            v_transfer = mix(model_transfer, v_transfer, max(alpha, v_transfer.a));
+
+            // How to blend the final output model and transfer?
+            v_sample = mix(v_sample, v_transfer, max(v_sample.a, v_transfer.a));
         }
         #pragma unroll_loop_end
         vec4 volume_sample = v_sample;
