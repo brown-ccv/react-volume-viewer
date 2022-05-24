@@ -26,8 +26,10 @@ struct ModelStruct {
     sampler2D model_texture;
     sampler2D transfer_texture;
 };
-#define MAX_MODELS 4
-uniform ModelStruct model_structs[2];
+#define MAX_MODELS 2 // Should be 4
+uniform ModelStruct model_structs[MAX_MODELS];
+
+// TODO: Create coordinates_start and coordinates_end only once (seperate function)
 
 // Sample model texture as 3D object
 vec4 sampleAs3DTexture(sampler2D tex, vec3 coordinates) {
@@ -81,28 +83,46 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
         // TODO: Multiple blending types
         // TODO: When array is of length 0
 
-        // vec4 v_sample;
-        // #pragma unroll_loop_start
-        // for(int i = 0; i < MAX_MODELS; i++) {
-        //     // Sample model
-        //     vec4 model_sample = sampleAs3DTexture(
-        //         model_structs[0].model_texture, data_position
-        //     );
+        vec4 v_sample, v_transfer, model_sample, model_transfer;
+        float alpha;
+        #pragma unroll_loop_start
+        for(int i = 0; i < 2; i++) {
+            // Sample model texture
+            model_sample = sampleAs3DTexture(
+                model_structs[i].model_texture, data_position
+            );
             
-        //     // Artifically multiply color intensity
-        //     model_sample.rgb *= model_structs[0].intensity;
+            // Artifically multiply color intensity
+            model_sample.rgb *= model_structs[i].intensity;
 
-        //     // Initialize alpha as the max between the 3 channels
-        //     float alpha = max(
-        //         model_sample.r, 
-        //         max(model_sample.g, model_sample.b)
-        //     );
+            // Initialize alpha as the max between the 3 channels (Change with blending?)
+            alpha = max(
+                model_sample.r, 
+                max(model_sample.g, model_sample.b)
+            );
+            if(alpha < 0.25) alpha *= 0.1;
 
-        //     // v_sample = mix(model_sample, v_sample, max(alpha, v_sample.a));
-        // }
-        // #pragma unroll_loop_end
+            // Sample transfer texture
+            model_transfer= texture(
+                model_structs[i].transfer_texture, 
+                vec2(clamp(alpha, 0.0, 1.0), 0.5)
+            );
 
+            // TODO: BLEND THE COLOR MAP AND MODEL SEPERATELY, ONLY DO FINALY BLENDING LATER
 
+            // Mix in model_sample and then model_transfer
+            v_sample = mix(model_sample, v_sample, max(alpha, v_sample.a));
+
+            // Initialize alpha as the max between the 3 channels (Change with blending?)
+            v_sample.a = max(v_sample.r, max(v_sample.g, v_sample.b));
+            if(v_sample.a < 0.25) v_sample.a *= 0.1;
+
+            v_transfer = mix(model_transfer, v_sample, max(alpha, v_sample.a));
+        }
+        #pragma unroll_loop_end
+        vec4 volume_sample = v_sample;
+
+        /*
         // Sample model
         vec4 model1_sample = sampleAs3DTexture(
             model_structs[0].model_texture, data_position
@@ -141,6 +161,8 @@ vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direc
         );
         // (Change with blending?)
         volume_sample = mix(cm1, cm2, max(alpha1, alpha2));
+        */
+
 
         // THIS WILL STAY THE SAME:
         

@@ -69,7 +69,12 @@ const DEFAULT_MATERIAL = new RawShaderMaterial({
     vr_clip_matrix: { value: new Matrix4() },
     dim: { value: 1.0 },
     model_structs: {
-      value: deepCopy([DEFAULT_MODEL_STRUCT, DEFAULT_MODEL_STRUCT]),
+      value: deepCopy([
+        DEFAULT_MODEL_STRUCT,
+        DEFAULT_MODEL_STRUCT,
+        // DEFAULT_MODEL_STRUCT,
+        // DEFAULT_MODEL_STRUCT,
+      ]),
     },
     slices: { value: 1.0 },
     step_size: { value: 0.01 },
