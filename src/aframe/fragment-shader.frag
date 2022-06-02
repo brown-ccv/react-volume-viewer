@@ -1,6 +1,6 @@
 # version 300 es
 precision mediump float;
-precision highp sampler2DArray;
+precision highp sampler2D;
 
 /**
     Shader code for the VR Volume Viewer
@@ -12,14 +12,14 @@ in vec3 vUV;        // Coordinates of the texture
 in vec3 camPos;     // Coordinates of the camera
 out vec4 fragColor; // Final output color 
 
-uniform vec3 clip_min;       // Clip minimum
-uniform vec3 clip_max;       // Clip maximum
+uniform vec3 clip_min;
+uniform vec3 clip_max;
 uniform int blending;
 uniform bool apply_vr_clip; 
 uniform mat4 vr_clip_matrix;
 uniform float dim;
-uniform float slices;       // Number of slices in the volumes
-uniform float step_size;    // Ray step size
+uniform float slices;
+uniform float step_size;
 
 #define MAX_MODELS 4
 struct ModelStruct {
@@ -45,6 +45,7 @@ vec2 intersectBox(vec3 camera, vec3 direction, vec3 clip_min, vec3 clip_max ) {
 // TODO: Create coordinates_start and coordinates_end only once (seperate function)
 // Sample model texture as 3D object
 vec4 sampleAs3DTexture(sampler2D tex, vec3 coordinates) {
+    // TODO: Pull out of sampleAs3DTexture into sample model
     float z_start = floor(coordinates.z / (1.0 / slices));
     float z_end = min(z_start + 1.0, slices - 1.0);
     vec2 p_start = vec2(mod(z_start, dim), dim - floor(z_start / dim) - 1.0);
@@ -68,9 +69,7 @@ vec4 sampleAs3DTexture(sampler2D tex, vec3 coordinates) {
 
 vec4 sample_model(ModelStruct model, vec3 data_position) {
     // Sample model
-    vec4 model_sample = sampleAs3DTexture(
-        model.model_texture, data_position
-    );
+    vec4 model_sample = sampleAs3DTexture(model.model_texture, data_position);
 
     // Initialize alpha as the max between the 3 channels (Change with blending?)
     model_sample.a = max(model_sample.r, max(model_sample.g, model_sample.b));

@@ -14,7 +14,8 @@ const { BackSide, RawShaderMaterial, Vector2, Vector3, Matrix4 } = THREE;
 /**
  * Blending enum exposed to the user
  *  None: Don't apply any blending
- *  Add: Apply additive blending
+ *  TODO Max: Take maximum value when blending
+ *  Add: Add values when blending
  */
 const Blending = {
   None: 0,
@@ -32,6 +33,7 @@ const COLOR_MAPS = {
 const DEFAULT_POSITION = "0 0 0";
 const DEFAULT_ROTATION = "0 0 0";
 const DEFAULT_SCALE = "1 1 1";
+
 const SLIDER_RANGE = { min: 0, max: 1 };
 const DEFAULT_SLIDERS = {
   x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
@@ -54,10 +56,7 @@ const DEFAULT_MODEL = {
   useColorMap: true,
 };
 
-const DEFAULT_MODEL_STRUCT = {
-  use: false,
-};
-
+const DEFAULT_MODEL_STRUCT = { use: false };
 const DEFAULT_MATERIAL = new RawShaderMaterial({
   uniforms: {
     blending: { value: 0 },
