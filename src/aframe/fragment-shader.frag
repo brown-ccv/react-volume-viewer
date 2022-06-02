@@ -91,40 +91,23 @@ vec4 sample_model(ModelStruct model, vec3 data_position) {
 vec4 create_volume(float t_start, float t_end, vec3 data_position, vec3 ray_direction) {
     vec4 vFragColor = vec4(0);
     vec4 model_sample, volume_sample;
+    float mix_factor;
     for(float t = t_start; t < t_end; t += step_size) {
         // TODO: Calculate positions here (sampleAsTexture3D)
         
         if(model_structs[0].use) {
-            // Sample model 1
+            // Sample first model and mix in the others
             volume_sample = sample_model(model_structs[0], data_position);
-
-            // Mixin model two
-            if(model_structs[1].use) {
-                model_sample = sample_model(model_structs[1], data_position);
-                volume_sample = mix(
-                    volume_sample, 
-                    model_sample,
-                    max(volume_sample.a, model_sample.a)
-                );
+            #pragma unroll_loop_start
+            for(int i = 1; i < 4; i++) {
+                // TODO: Change mix function based on BLENDING
+                mix_factor = max(volume_sample.a, model_sample.a);
+                if(model_structs[i].use) {
+                    model_sample = sample_model(model_structs[i], data_position);
+                    volume_sample = mix(volume_sample, model_sample, mix_factor);
+                }
             }
-            // Mixin model three
-            if(model_structs[2].use) {
-                model_sample = sample_model(model_structs[2], data_position);
-                volume_sample = mix(
-                    volume_sample, 
-                    model_sample,
-                    max(volume_sample.a, model_sample.a)
-                );
-            }
-            // Mixin model four
-            if(model_structs[3].use) {
-                model_sample = sample_model(model_structs[3], data_position);
-                volume_sample = mix(
-                    volume_sample, 
-                    model_sample,
-                    max(volume_sample.a, model_sample.a)
-                );
-            }
+            #pragma unroll_loop_end
         } else return vFragColor; // array is "empty", leave transparent
 
         // Blending (front to back)
