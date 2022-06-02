@@ -40,7 +40,7 @@ function App() {
     },
     {
       name: "Two",
-      colorMap: colorMap,
+      colorMap: colorMap === haline ? thermal : haline,
       ...(!singleColorMap && { colorMaps: allColorMaps }),
       enabled: true,
       range: {
