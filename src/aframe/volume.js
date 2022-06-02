@@ -132,6 +132,7 @@ AFRAME.registerComponent("volume", {
   /** UPDATE FUNCTIONS */
 
   updateBlending: function () {
+    console.log("BLENDING", this.data.blending);
     this.getUniforms().blending.value = this.data.blending;
   },
 

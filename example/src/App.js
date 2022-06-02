@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { VolumeViewer, COLOR_MAPS } from "react-volume-viewer";
+import { VolumeViewer, COLOR_MAPS, Blending } from "react-volume-viewer";
 
 const salt = "./assets/models/summer-high-salt.png";
 const temp = "./assets/models/summer-high-temp.png";
@@ -98,6 +98,7 @@ function App() {
   const VV = (
     <StyledVolumeViewer
       controlsVisible={controlsVisible}
+      blending={Blending.Max}
       models={models}
       position="0 0 0"
       scale="1 -1 1"

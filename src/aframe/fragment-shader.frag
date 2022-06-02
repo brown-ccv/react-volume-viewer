@@ -2,25 +2,6 @@
 precision mediump float;
 precision highp sampler2D;
 
-/**
-    Shader code for the VR Volume Viewer
-    t_:     Translation vector
-    p_:     Position vector
-*/
-
-in vec3 vUV;        // Coordinates of the texture
-in vec3 camPos;     // Coordinates of the camera
-out vec4 fragColor; // Final output color 
-
-uniform vec3 clip_min;
-uniform vec3 clip_max;
-uniform int blending;
-uniform bool apply_vr_clip; 
-uniform mat4 vr_clip_matrix;
-uniform float dim;
-uniform float slices;
-uniform float step_size;
-
 #define MAX_MODELS 4
 struct ModelStruct {
     bool use;
@@ -28,7 +9,26 @@ struct ModelStruct {
     sampler2D model_texture;
     sampler2D transfer_texture;
 };
+
+in vec3 vUV;        // Coordinates of the texture
+in vec3 camPos;     // Coordinates of the camera
+out vec4 fragColor; // Final output color 
+
+uniform bool apply_vr_clip;
+uniform int blending;
+uniform vec3 clip_min;
+uniform vec3 clip_max;
+uniform float dim;
 uniform ModelStruct model_structs[MAX_MODELS];
+uniform float slices;
+uniform float step_size;
+uniform mat4 vr_clip_matrix;
+
+/**
+    Shader code for the VR Volume Viewer
+    t_:     Translation vector
+    p_:     Position vector
+*/
 
 // Clip the volume between clip_min and clip_max
 vec2 intersectBox(vec3 camera, vec3 direction, vec3 clip_min, vec3 clip_max ) {
@@ -42,10 +42,8 @@ vec2 intersectBox(vec3 camera, vec3 direction, vec3 clip_min, vec3 clip_max ) {
     return vec2(t_start, t_end);
 }
 
-// TODO: Create coordinates_start and coordinates_end only once (seperate function)
 // Sample model texture as 3D object
 vec4 sampleAs3DTexture(sampler2D tex, vec3 coordinates) {
-    // TODO: Pull out of sampleAs3DTexture into sample model
     float z_start = floor(coordinates.z / (1.0 / slices));
     float z_end = min(z_start + 1.0, slices - 1.0);
     vec2 p_start = vec2(mod(z_start, dim), dim - floor(z_start / dim) - 1.0);
@@ -68,10 +66,8 @@ vec4 sampleAs3DTexture(sampler2D tex, vec3 coordinates) {
 }
 
 vec4 sample_model(ModelStruct model, vec3 data_position) {
-    // Sample model
+    // Sample model, alpha is initialized as the max of the 3 channels
     vec4 model_sample = sampleAs3DTexture(model.model_texture, data_position);
-
-    // Initialize alpha as the max between the 3 channels (Change with blending?)
     model_sample.a = max(model_sample.r, max(model_sample.g, model_sample.b));
     if(model_sample.a < 0.25) model_sample.a *= 0.1;
 
@@ -81,7 +77,7 @@ vec4 sample_model(ModelStruct model, vec3 data_position) {
         vec2(clamp(model_sample.a, 0.0, 1.0), 0.5)
     );
 
-    // Artificially increase pixel intensity and return
+    // Artificially increase pixel intensity
     model_sample.rgb *= model.intensity;
     return model_sample;
 }
@@ -141,28 +137,29 @@ void main() {
     // Starting from the entry point, march the ray through the volume and sample it
     vec4 vFragColor = vec4(0);
     vec4 model_sample, volume_sample;
-    float mix_factor;
+    float mix_factor = 0.5;
     for(float t = t_start; t < t_end; t += step_size) {
-        // TODO: Calculate positions here (sampleAsTexture3D)
-
-        
-        
         if(model_structs[0].use) {
-            // Sample first model and mix in the others
             volume_sample = sample_model(model_structs[0], data_position);
 
-            // TODO: BLending.None -> just use first model
-            
-            #pragma unroll_loop_start
-            for(int i = 1; i < 4; i++) {
-                // TODO: Change mix function based on BLENDING
-                mix_factor = max(volume_sample.a, model_sample.a);
-                if(model_structs[i].use) {
-                    model_sample = sample_model(model_structs[i], data_position);
-                    volume_sample = mix(volume_sample, model_sample, mix_factor);
+            // Blending.None -> just use first model
+            if(blending != 0) {
+                #pragma unroll_loop_start
+                for(int i = 1; i < 4; i++) {
+                    if(model_structs[i].use) {
+                        if(blending == 1) { // Blending.Max
+                            mix_factor = max(volume_sample.a, model_sample.a);
+                        } 
+                        else if(blending == 2) {} // TODO: Blending.Add
+                        else if (blending == 3) {} // TODO: Blending.Multiply
+
+                        // Sample model and mix in to volume
+                        model_sample = sample_model(model_structs[i], data_position);
+                        volume_sample = mix(volume_sample, model_sample, mix_factor);
+                    }
                 }
+                #pragma unroll_loop_end
             }
-            #pragma unroll_loop_end
         } else break; // array is "empty", leave transparent
 
         // Blending (front to back)

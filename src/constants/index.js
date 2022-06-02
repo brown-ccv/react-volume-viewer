@@ -53,11 +53,10 @@ const DEFAULT_MODEL = {
 const DEFAULT_MODEL_STRUCT = { use: false };
 const DEFAULT_MATERIAL = new RawShaderMaterial({
   uniforms: {
+    apply_vr_clip: { value: false },
     blending: { value: 0 },
     clip_max: { value: new Vector3(1, 1, 1) },
     clip_min: { value: new Vector3() },
-    apply_vr_clip: { value: false },
-    vr_clip_matrix: { value: new Matrix4() },
     dim: { value: 1.0 },
     model_structs: {
       value: deepCopy(new Array(4).fill(DEFAULT_MODEL_STRUCT)),
@@ -65,6 +64,7 @@ const DEFAULT_MATERIAL = new RawShaderMaterial({
     slices: { value: 1.0 },
     step_size: { value: 0.01 },
     viewPort: { value: new Vector2() },
+    vr_clip_matrix: { value: new Matrix4() },
     zScale: { value: 1.0 },
   },
   vertexShader: vertexShader,

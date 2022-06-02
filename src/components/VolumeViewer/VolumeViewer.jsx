@@ -93,7 +93,7 @@ const Wrapper = styled.div`
 VolumeViewer.propTypes = {
   /**
    * Blending enum exposed to the user
-   *  None: Don't apply any blending
+   *  None: Don't apply any blending - always display first model
    *  Max: Take maximum value when blending
    */
   blending: PropTypes.oneOf(Object.values(Blending)),
