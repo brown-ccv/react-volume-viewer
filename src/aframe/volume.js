@@ -148,11 +148,11 @@ AFRAME.registerComponent("volume", {
     const { spacing } = this.data;
     const uniforms = this.getUniforms();
 
-    // TODO: Don't just use first one, assert same size?
-    const modelTexture = uniforms.model_structs.value[0].model_texture;
     const dim = uniforms.dim.value;
     const slices = uniforms.slices.value;
 
+    // TODO: Don't just use first one, assert same size?
+    const modelTexture = uniforms.model_structs.value[0].model_texture;
     if (modelTexture) {
       const volumeScale = new Vector3(
         1.0 / ((modelTexture.image.width / dim) * spacing.x),
@@ -219,19 +219,21 @@ AFRAME.registerComponent("volume", {
         const uniforms = this.getUniforms();
         if (modelStructs.length) {
           // TODO: Why do I have to update the uniforms like this?
+          // TODO: Loop over length 4, check if in modelStructs
           modelStructs.forEach(
             ({ intensity, modelTexture, transferTexture }, idx) => {
+              uniforms.model_structs.value[idx].use = true;
               uniforms.model_structs.value[idx].intensity = intensity;
               uniforms.model_structs.value[idx].model_texture = modelTexture;
               uniforms.model_structs.value[idx].transfer_texture =
                 transferTexture;
             }
           );
+          console.log("MODELS", uniforms.model_structs.value);
         } else {
-          uniforms.model_structs.value = deepCopy([
-            DEFAULT_MODEL_STRUCT,
-            DEFAULT_MODEL_STRUCT,
-          ]);
+          uniforms.model_structs.value = deepCopy(
+            new Array(4).fill(DEFAULT_MODEL_STRUCT)
+          );
         }
         this.updateSpacing(); // Update spacing based on the new material
       }

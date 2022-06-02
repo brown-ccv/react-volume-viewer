@@ -21,16 +21,28 @@ uniform float dim;
 uniform float slices;       // Number of slices in the volumes
 uniform float step_size;    // Ray step size
 
+#define MAX_MODELS 4
 struct ModelStruct {
+    bool use;
     float intensity;
     sampler2D model_texture;
     sampler2D transfer_texture;
 };
-#define MAX_MODELS 2 // Should be 4
 uniform ModelStruct model_structs[MAX_MODELS];
 
-// TODO: Create coordinates_start and coordinates_end only once (seperate function)
+// Clip the volume between clip_min and clip_max
+vec2 intersectBox(vec3 camera, vec3 direction, vec3 clip_min, vec3 clip_max ) {
+    vec3 direction_inverse = 1.0 / direction;
+    vec3 bmin_direction = (clip_min - camera) * direction_inverse;
+    vec3 bmax_direction = (clip_max - camera) * direction_inverse;
+    vec3 tmin = min(bmin_direction, bmax_direction);
+    vec3 tmax = max(bmin_direction, bmax_direction);
+    float t_start = max(tmin.x, max(tmin.y, tmin.z));
+    float t_end = min(tmax.x, min(tmax.y, tmax.z));
+    return vec2(t_start, t_end);
+}
 
+// TODO: Create coordinates_start and coordinates_end only once (seperate function)
 // Sample model texture as 3D object
 vec4 sampleAs3DTexture(sampler2D tex, vec3 coordinates) {
     float z_start = floor(coordinates.z / (1.0 / slices));
@@ -54,121 +66,67 @@ vec4 sampleAs3DTexture(sampler2D tex, vec3 coordinates) {
     );
 }
 
-// Clip the volume between clip_min and clip_max
-vec2 intersectBox(vec3 camera, vec3 direction, vec3 clip_min, vec3 clip_max ) {
-    vec3 direction_inverse = 1.0 / direction;
-    vec3 bmin_direction = (clip_min - camera) * direction_inverse;
-    vec3 bmax_direction = (clip_max - camera) * direction_inverse;
-    vec3 tmin = min(bmin_direction, bmax_direction);
-    vec3 tmax = max(bmin_direction, bmax_direction);
-    float t_start = max(tmin.x, max(tmin.y, tmin.z));
-    float t_end = min(tmax.x, min(tmax.y, tmax.z));
-    return vec2(t_start, t_end);
+vec4 sample_model(ModelStruct model, vec3 data_position) {
+    // Sample model
+    vec4 model_sample = sampleAs3DTexture(
+        model.model_texture, data_position
+    );
+
+    // Initialize alpha as the max between the 3 channels (Change with blending?)
+    model_sample.a = max(model_sample.r, max(model_sample.g, model_sample.b));
+    if(model_sample.a < 0.25) model_sample.a *= 0.1;
+
+    // Sample transfer texture
+    model_sample = texture(
+        model.transfer_texture, 
+        vec2(clamp(model_sample.a, 0.0, 1.0), 0.5)
+    );
+
+    // Artificially increase pixel intensity and return
+    model_sample.rgb *= model.intensity;
+    return model_sample;
 }
 
 // Starting from the entry point, march the ray through the volume and sample it
-vec4 create_model(float t_start, float t_end, vec3 data_position, vec3 ray_direction) {
-    vec4 vFragColor = vec4(0, 0, 0, 0);
-
-    // Loop from t_start to t_end by step_size
+vec4 create_volume(float t_start, float t_end, vec3 data_position, vec3 ray_direction) {
+    vec4 vFragColor = vec4(0);
+    vec4 model_sample, volume_sample;
     for(float t = t_start; t < t_end; t += step_size) {
-        // Sample each model and apply intensity
-        // Initialize each alpha
-        // Mix models (this is blending - currently max)
-        // Initialize alpha of mixed model (?)
-        // Sample each colorMap
-        // Mix colorMaps (currently max)
-
-        // TEMP: Always only 2 samples 
-        // TODO: Multiple blending types
-        // TODO: When array is of length 0
-
-        vec4 v_sample, v_transfer, model_sample, model_transfer;
-        float alpha;
-        #pragma unroll_loop_start
-        for(int i = 0; i < 2; i++) {
-            // Sample model texture
-            model_sample = sampleAs3DTexture(
-                model_structs[i].model_texture, data_position
-            );
-            
-            // Artifically multiply color intensity
-            model_sample.rgb *= model_structs[i].intensity;
-
-            // Initialize alpha as the max between the 3 channels (Change with blending?)
-            alpha = max(
-                model_sample.r, 
-                max(model_sample.g, model_sample.b)
-            );
-            // if(alpha < 0.25) alpha *= 0.1;
-
-            // Sample transfer texture
-            model_transfer= texture(
-                model_structs[i].transfer_texture, 
-                vec2(clamp(alpha, 0.0, 1.0), 0.5)
-            );
-
-            // TODO: BLEND THE COLOR MAP AND MODEL SEPERATELY, ONLY DO FINALY BLENDING LATER
-
-            // Mix in model_sample and then model_transfer
-            v_sample = mix(model_sample, v_sample, max(alpha, v_sample.a));
-
-            // Set alpha as the max between the 3 channels (Change with blending?)
-            v_sample.a = max(v_sample.r, max(v_sample.g, v_sample.b));
-            if(v_sample.a < 0.25) v_sample.a *= 0.1;
-
-            v_transfer = mix(model_transfer, v_transfer, max(alpha, v_transfer.a));
-
-            // How to blend the final output model and transfer?
-            v_sample = mix(v_sample, v_transfer, max(v_sample.a, v_transfer.a));
-        }
-        #pragma unroll_loop_end
-        vec4 volume_sample = v_sample;
-
-        /*
-        // Sample model
-        vec4 model1_sample = sampleAs3DTexture(
-            model_structs[0].model_texture, data_position
-        );
-        // Artifically multiply color intensity
-        model1_sample.rgb *= model_structs[0].intensity;
-        // Initialize alpha as the max between the 3 channels (Change with blending?)
-        float alpha1 = max(model1_sample.r, max(model1_sample.g, model1_sample.b));
-
-        // Sample model
-        vec4 model2_sample = sampleAs3DTexture(
-            model_structs[1].model_texture, data_position
-        );
-        // Artifically multiply color intensity
-        model2_sample.rgb *= model_structs[1].intensity;
-        // Initialize alpha as the max between the 3 channels (Change with blending?)
-        float alpha2 = max(model2_sample.r, max(model2_sample.g, model2_sample.b));
-
-        // Mix volumes by max of their alpha values (Change with blending?)
-        vec4 volume_sample = mix(
-            model1_sample, model2_sample, max(alpha1, alpha2)
-        );
+        // TODO: Calculate positions here (sampleAsTexture3D)
         
-        // Initialize alpha as the max between the 3 channels (Change with blending?)
-        volume_sample.a = max(volume_sample.r, max(volume_sample.g, volume_sample.b));
-        if(volume_sample.a < 0.25) volume_sample.a *= 0.1;
+        if(model_structs[0].use) {
+            // Sample model 1
+            volume_sample = sample_model(model_structs[0], data_position);
 
-        // Apply color map / transfer function
-        vec4 cm1 = texture(
-            model_structs[0].transfer_texture, 
-            vec2(clamp(volume_sample.a, 0.0, 1.0), 0.5)
-        );
-        vec4 cm2 = texture(
-            model_structs[1].transfer_texture, 
-            vec2(clamp(volume_sample.a, 0.0, 1.0), 0.5)
-        );
-        // (Change with blending?)
-        volume_sample = mix(cm1, cm2, max(alpha1, alpha2));
-        */
+            // Mixin model two
+            if(model_structs[1].use) {
+                model_sample = sample_model(model_structs[1], data_position);
+                volume_sample = mix(
+                    volume_sample, 
+                    model_sample,
+                    max(volume_sample.a, model_sample.a)
+                );
+            }
+            // Mixin model three
+            if(model_structs[2].use) {
+                model_sample = sample_model(model_structs[2], data_position);
+                volume_sample = mix(
+                    volume_sample, 
+                    model_sample,
+                    max(volume_sample.a, model_sample.a)
+                );
+            }
+            // Mixin model four
+            if(model_structs[3].use) {
+                model_sample = sample_model(model_structs[3], data_position);
+                volume_sample = mix(
+                    volume_sample, 
+                    model_sample,
+                    max(volume_sample.a, model_sample.a)
+                );
+            }
+        } else return vFragColor; // array is "empty", leave transparent
 
-
-        // THIS WILL STAY THE SAME:
-        
         // Blending (front to back)
         vFragColor.rgb += (1.0 - vFragColor.a) * volume_sample.a * volume_sample.rgb;
         vFragColor.a += (1.0 - vFragColor.a) * volume_sample.a;
@@ -204,7 +162,7 @@ void main() {
         We don't know if the ray was cast from the back or the front face. To ensure we 
         update data_position and t_hit to reflect a ray from entry point to exit 
         We're shifting the clipping box to [0.0, end - start]
-        (Note: We only render the back face)
+        (Note: We only recreate_modelnder the back face)
     */
     data_position = camPos + t_start * ray_direction;
     t_end = t_end - t_start;
@@ -234,5 +192,5 @@ void main() {
     }
     data_position = data_position + t_start * ray_direction;
 
-    fragColor = create_model(t_start, t_end, data_position, ray_direction);
+    fragColor = create_volume(t_start, t_end, data_position, ray_direction);
 }
