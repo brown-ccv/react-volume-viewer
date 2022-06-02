@@ -132,7 +132,6 @@ AFRAME.registerComponent("volume", {
   /** UPDATE FUNCTIONS */
 
   updateBlending: function () {
-    console.log("BLENDING", this.data.blending);
     this.getUniforms().blending.value = this.data.blending;
   },
 
@@ -147,12 +146,10 @@ AFRAME.registerComponent("volume", {
   updateSpacing: function () {
     const { spacing } = this.data;
     const uniforms = this.getUniforms();
-
     const dim = uniforms.dim.value;
     const slices = uniforms.slices.value;
-
-    // TODO: Don't just use first one, assert same size?
     const modelTexture = uniforms.model_structs.value[0].model_texture;
+    
     if (modelTexture) {
       const volumeScale = new Vector3(
         1.0 / ((modelTexture.image.width / dim) * spacing.x),

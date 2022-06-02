@@ -150,8 +150,8 @@ void main() {
                         if(blending == 1) { // Blending.Max
                             mix_factor = max(volume_sample.a, model_sample.a);
                         } 
-                        else if(blending == 2) {} // TODO: Blending.Add
-                        else if (blending == 3) {} // TODO: Blending.Multiply
+                        else if(blending == 2) {} // Blending.Add
+                        else if (blending == 3) {} // Blending.Multiply
 
                         // Sample model and mix in to volume
                         model_sample = sample_model(model_structs[i], data_position);
