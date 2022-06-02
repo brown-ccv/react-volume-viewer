@@ -86,42 +86,6 @@ vec4 sample_model(ModelStruct model, vec3 data_position) {
     return model_sample;
 }
 
-// Starting from the entry point, march the ray through the volume and sample it
-vec4 create_volume(float t_start, float t_end, vec3 data_position, vec3 ray_direction) {
-    vec4 vFragColor = vec4(0);
-    vec4 model_sample, volume_sample;
-    float mix_factor;
-    for(float t = t_start; t < t_end; t += step_size) {
-        // TODO: Calculate positions here (sampleAsTexture3D)
-        
-        if(model_structs[0].use) {
-            // Sample first model and mix in the others
-            volume_sample = sample_model(model_structs[0], data_position);
-            #pragma unroll_loop_start
-            for(int i = 1; i < 4; i++) {
-                // TODO: Change mix function based on BLENDING
-                mix_factor = max(volume_sample.a, model_sample.a);
-                if(model_structs[i].use) {
-                    model_sample = sample_model(model_structs[i], data_position);
-                    volume_sample = mix(volume_sample, model_sample, mix_factor);
-                }
-            }
-            #pragma unroll_loop_end
-        } else return vFragColor; // array is "empty", leave transparent
-
-        // Blending (front to back)
-        vFragColor.rgb += (1.0 - vFragColor.a) * volume_sample.a * volume_sample.rgb;
-        vFragColor.a += (1.0 - vFragColor.a) * volume_sample.a;
-
-        // Early exit if 95% opacity is reached
-        if (vFragColor.a >= 0.95) break;
-
-        // Advance point
-        data_position += ray_direction * step_size;
-    }
-    return vFragColor;
-}
-
 void main() {
     // Get the 3D texture coordinates for lookup into the volume dataset
     vec3 data_position = vUV;
@@ -174,5 +138,37 @@ void main() {
     }
     data_position = data_position + t_start * ray_direction;
 
-    fragColor = create_volume(t_start, t_end, data_position, ray_direction);
+    // Starting from the entry point, march the ray through the volume and sample it
+    vec4 vFragColor = vec4(0);
+    vec4 model_sample, volume_sample;
+    float mix_factor;
+    for(float t = t_start; t < t_end; t += step_size) {
+        // TODO: Calculate positions here (sampleAsTexture3D)
+        
+        if(model_structs[0].use) {
+            // Sample first model and mix in the others
+            volume_sample = sample_model(model_structs[0], data_position);
+            #pragma unroll_loop_start
+            for(int i = 1; i < 4; i++) {
+                // TODO: Change mix function based on BLENDING
+                mix_factor = max(volume_sample.a, model_sample.a);
+                if(model_structs[i].use) {
+                    model_sample = sample_model(model_structs[i], data_position);
+                    volume_sample = mix(volume_sample, model_sample, mix_factor);
+                }
+            }
+            #pragma unroll_loop_end
+        } else break; // array is "empty", leave transparent
+
+        // Blending (front to back)
+        vFragColor.rgb += (1.0 - vFragColor.a) * volume_sample.a * volume_sample.rgb;
+        vFragColor.a += (1.0 - vFragColor.a) * volume_sample.a;
+
+        // Early exit if 95% opacity is reached
+        if (vFragColor.a >= 0.95) break;
+
+        // Advance point
+        data_position += ray_direction * step_size;
+    }
+    fragColor = vFragColor;
 }
