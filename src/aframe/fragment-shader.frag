@@ -144,10 +144,15 @@ void main() {
     float mix_factor;
     for(float t = t_start; t < t_end; t += step_size) {
         // TODO: Calculate positions here (sampleAsTexture3D)
+
+        
         
         if(model_structs[0].use) {
             // Sample first model and mix in the others
             volume_sample = sample_model(model_structs[0], data_position);
+
+            // TODO: BLending.None -> just use first model
+            
             #pragma unroll_loop_start
             for(int i = 1; i < 4; i++) {
                 // TODO: Change mix function based on BLENDING

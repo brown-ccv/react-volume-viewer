@@ -94,7 +94,7 @@ VolumeViewer.propTypes = {
   /**
    * Blending enum exposed to the user
    *  None: Don't apply any blending
-   *  Add: Apply additive blending
+   *  Max: Take maximum value when blending
    */
   blending: PropTypes.oneOf(Object.values(Blending)),
 
@@ -133,7 +133,7 @@ VolumeViewer.propTypes = {
 };
 
 VolumeViewer.defaultProps = {
-  blending: Blending.Add,
+  blending: Blending.None,
   controlsVisible: false,
   position: DEFAULT_POSITION,
   rotation: DEFAULT_ROTATION,

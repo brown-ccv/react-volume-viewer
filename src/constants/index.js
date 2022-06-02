@@ -11,15 +11,9 @@ const { BackSide, RawShaderMaterial, Vector2, Vector3, Matrix4 } = THREE;
 
 /** EXPORTED CONSTANTS */
 
-/**
- * Blending enum exposed to the user
- *  None: Don't apply any blending
- *  TODO Max: Take maximum value when blending
- *  Add: Add values when blending
- */
 const Blending = {
   None: 0,
-  Add: 1,
+  Max: 1,
 };
 
 const COLOR_MAPS = {

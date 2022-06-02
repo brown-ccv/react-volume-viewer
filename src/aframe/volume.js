@@ -4,9 +4,8 @@ import {
   Blending,
   DEFAULT_SLIDERS,
   DEFAULT_MATERIAL,
-  DEFAULT_MODEL_STRUCT,
 } from "../constants/index.js";
-import { deepCopy, deepDifference, partitionPromises } from "../utils/index";
+import { deepDifference, partitionPromises } from "../utils/index";
 
 const {
   LinearFilter,
@@ -16,7 +15,6 @@ const {
   Matrix4,
   TextureLoader,
   DataTexture,
-  Uniform,
 } = THREE;
 
 AFRAME.registerComponent("volume", {
