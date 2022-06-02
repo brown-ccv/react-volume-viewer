@@ -16,6 +16,7 @@ const {
   Matrix4,
   TextureLoader,
   DataTexture,
+  Uniform,
 } = THREE;
 
 AFRAME.registerComponent("volume", {
@@ -181,7 +182,7 @@ AFRAME.registerComponent("volume", {
     // Each element runs serially and this.updateModelsUniforms waits for all of the promises to finish
     Promise.allSettled(
       this.data.models.map(
-        async ({ name, path, colorMap, transferFunction, intensity }, idx) => {
+        async ({ name, path, colorMap, transferFunction, intensity }) => {
           try {
             // Load texture from png
             const modelTexture = await this.loadModelTexture(path);
@@ -208,35 +209,28 @@ AFRAME.registerComponent("volume", {
     ).then((promises) => {
       const { values: modelStructs, errors } = partitionPromises(promises);
 
+      // Bubble errors up to AframeScene
       if (errors.length) {
-        // Bubble errors up to AframeScene
         document.dispatchEvent(
           new CustomEvent("aframe-error", {
             detail: errors,
           })
         );
-      } else {
-        const uniforms = this.getUniforms();
-        if (modelStructs.length) {
-          // TODO: Why do I have to update the uniforms like this?
-          // TODO: Loop over length 4, check if in modelStructs
-          modelStructs.forEach(
-            ({ intensity, modelTexture, transferTexture }, idx) => {
-              uniforms.model_structs.value[idx].use = true;
-              uniforms.model_structs.value[idx].intensity = intensity;
-              uniforms.model_structs.value[idx].model_texture = modelTexture;
-              uniforms.model_structs.value[idx].transfer_texture =
-                transferTexture;
-            }
-          );
-          console.log("MODELS", uniforms.model_structs.value);
-        } else {
-          uniforms.model_structs.value = deepCopy(
-            new Array(4).fill(DEFAULT_MODEL_STRUCT)
-          );
-        }
-        this.updateSpacing(); // Update spacing based on the new material
       }
+
+      // Update shader uniforms
+      const uniforms = this.getUniforms();
+      for (let i = 0; i < 4; i++) {
+        const model_struct = uniforms.model_structs.value[i];
+        if (i < modelStructs.length) {
+          const modelStruct = modelStructs[i];
+          model_struct.use = true;
+          model_struct.intensity = modelStruct.intensity;
+          model_struct.model_texture = modelStruct.modelTexture;
+          model_struct.transfer_texture = modelStruct.transferTexture;
+        } else model_struct.use = false;
+      }
+      this.updateSpacing(); // Update spacing based on the new material
     });
   },
 
