@@ -98,7 +98,7 @@ function App() {
   const VV = (
     <StyledVolumeViewer
       controlsVisible={controlsVisible}
-      blending={Blending.Max}
+      blending={Blending.Average}
       models={models}
       position="0 0 0"
       scale="1 -1 1"

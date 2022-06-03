@@ -95,6 +95,7 @@ VolumeViewer.propTypes = {
    * Blending enum exposed to the user
    *  None: Don't apply any blending - always display first model
    *  Max: Take maximum value when blending
+   *  Average: Take the average value when blending
    */
   blending: PropTypes.oneOf(Object.values(Blending)),
 

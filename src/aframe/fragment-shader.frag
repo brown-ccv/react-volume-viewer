@@ -28,6 +28,8 @@ uniform mat4 vr_clip_matrix;
     Shader code for the VR Volume Viewer
     t_:     Translation vector
     p_:     Position vector
+    m_:     Data for an individual model
+    v_:     Data for the entire volume
 */
 
 // Clip the volume between clip_min and clip_max
@@ -136,35 +138,35 @@ void main() {
 
     // Starting from the entry point, march the ray through the volume and sample it
     vec4 vFragColor = vec4(0);
-    vec4 model_sample, volume_sample;
+    vec4 m_sample, v_sample;
     float mix_factor = 0.5;
     for(float t = t_start; t < t_end; t += step_size) {
         if(model_structs[0].use) {
-            volume_sample = sample_model(model_structs[0], data_position);
+            v_sample = sample_model(model_structs[0], data_position);
 
-            // Blending.None -> just use first model
+            // Blending.None -> use first model
             if(blending != 0) {
                 #pragma unroll_loop_start
                 for(int i = 1; i < 4; i++) {
                     if(model_structs[i].use) {
                         if(blending == 1) { // Blending.Max
-                            mix_factor = max(volume_sample.a, model_sample.a);
-                        } 
-                        else if(blending == 2) {} // Blending.Add
-                        else if (blending == 3) {} // Blending.Multiply
-
+                            mix_factor = max(v_sample.a, m_sample.a);
+                        } else if (blending == 2) { // Blending.Average
+                            // mix uses a percentage - get ratio of the alphas
+                            mix_factor = v_sample.a / (v_sample.a + m_sample.a);
+                        }
                         // Sample model and mix in to volume
-                        model_sample = sample_model(model_structs[i], data_position);
-                        volume_sample = mix(volume_sample, model_sample, mix_factor);
+                        m_sample = sample_model(model_structs[i], data_position);
+                        v_sample = mix(v_sample, m_sample, mix_factor);
                     }
                 }
                 #pragma unroll_loop_end
             }
-        } else break; // array is "empty", leave transparent
+        } else break; // No models in use, leave transparent
 
-        // Blending (front to back)
-        vFragColor.rgb += (1.0 - vFragColor.a) * volume_sample.a * volume_sample.rgb;
-        vFragColor.a += (1.0 - vFragColor.a) * volume_sample.a;
+        // Blend front to back
+        vFragColor.rgb += (1.0 - vFragColor.a) * v_sample.a * v_sample.rgb;
+        vFragColor.a += (1.0 - vFragColor.a) * v_sample.a;
 
         // Early exit if 95% opacity is reached
         if (vFragColor.a >= 0.95) break;

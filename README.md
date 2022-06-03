@@ -29,6 +29,7 @@ VolumeViewer.propTypes = {
    * Blending enum
    *  None: Don't apply any blending - always display first model
    *  Max: Take maximum value when blending
+   *  Average: Take the average value when blending
    */
   blending: PropTypes.oneOf(Object.values(Blending)),
 
@@ -122,7 +123,7 @@ VolumeViewer.defaultProps = {
 
 ## Blending
 
-The `Blending` object is used as an enum for the different algorithms that can be used to blending the models together. `Blending.None` does not apply any blending. `Blending.Max` uses the maximum value between the models.
+The `Blending` object is used as an enum for the different algorithms that can be used to blending the models together. `Blending.None` does not apply any blending. `Blending.Max` uses the maximum value between the models.`Blending.Average` uses the average value between the models.
 
 ### COLOR_MAPS
 

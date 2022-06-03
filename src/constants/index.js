@@ -14,6 +14,7 @@ const { BackSide, RawShaderMaterial, Vector2, Vector3, Matrix4 } = THREE;
 const Blending = {
   None: 0,
   Max: 1,
+  Average: 2,
 };
 
 const COLOR_MAPS = {
