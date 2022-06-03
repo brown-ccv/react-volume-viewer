@@ -8,22 +8,22 @@ const { BackSide, RawShaderMaterial, Vector2, Vector3, Matrix4 } = THREE;
 /** EXPORTED CONSTANTS */
 
 /** Load colorMaps with an IIFE
- *  
+ *
  */
-const COLOR_MAPS = (() =>  {
+const COLOR_MAPS = (() => {
   const r = require.context("../images/colormaps", true);
-  const colormaps = {}
+  const colormaps = {};
   r.keys().forEach((key) => {
     // Replace ./ and extension from key
-    const name = key.replace(/^.*[\\\/]/, '').replace(/\.[^/.]+$/, "")
+    const name = key.replace(/^.*[\\/]/, "").replace(/\.[^/.]+$/, "");
     const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
     colormaps[capitalizedName] = {
       name: name,
-      path: r(key)
-    }
+      path: r(key),
+    };
   });
-  return colormaps
-})()
+  return colormaps;
+})();
 
 /**
  * Blending enum exposed to the user
