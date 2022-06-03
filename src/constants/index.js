@@ -1,14 +1,29 @@
 import { THREE } from "aframe";
 
-import grayscale from "../images/grayscale.png";
-import natural from "../images/natural.png";
-import rgb from "../images/rgb.png";
 import vertexShader from "../Aframe/vertex-shader.vert";
 import fragmentShader from "../Aframe/fragment-shader.frag";
 
 const { BackSide, RawShaderMaterial, Vector2, Vector3, Matrix4 } = THREE;
 
 /** EXPORTED CONSTANTS */
+
+/** Load colorMaps with an IIFE
+ *  
+ */
+const COLOR_MAPS = (() =>  {
+  const r = require.context("../images/colormaps", true);
+  const colormaps = {}
+  r.keys().forEach((key) => {
+    // Replace ./ and extension from key
+    const name = key.replace(/^.*[\\\/]/, '').replace(/\.[^/.]+$/, "")
+    const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
+    colormaps[capitalizedName] = {
+      name: name,
+      path: r(key)
+    }
+  });
+  return colormaps
+})()
 
 /**
  * Blending enum exposed to the user
@@ -18,12 +33,6 @@ const { BackSide, RawShaderMaterial, Vector2, Vector3, Matrix4 } = THREE;
 const Blending = {
   None: 0,
   Add: 1,
-};
-
-const COLOR_MAPS = {
-  Grayscale: { name: "Grayscale", path: grayscale },
-  Natural: { name: "Natural", path: natural },
-  Rgb: { name: "Rgb", path: rgb },
 };
 
 /** DEFAULT VALUES */
