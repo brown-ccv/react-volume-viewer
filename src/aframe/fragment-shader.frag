@@ -150,7 +150,7 @@ void main() {
                         if(blending == 1) { // Blending.Max
                             mix_factor = max(volume_sample.a, model_sample.a);
                         } 
-                        else if(blending == 2) {} // Blending.Average
+                        else if(blending == 2) {} // TODO: Blending.Average (115)
 
                         // Sample model and mix in to volume
                         model_sample = sample_model(model_structs[i], data_position);
