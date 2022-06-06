@@ -39,14 +39,14 @@ function ColorMapControls({ model, setColorMap }) {
             <ListboxArrow />
           </ListboxButton>
           <ListboxPopover>
-            <ListboxList>
+            <OverflowListboxList>
               {model.colorMaps.map(({ name, path }) => (
                 <StyledListboxOption key={name} value={name}>
                   <OptionText>{name}</OptionText>
                   <OptionImg src={path} alt={name} width="0" height="auto" />
                 </StyledListboxOption>
               ))}
-            </ListboxList>
+            </OverflowListboxList>
           </ListboxPopover>
         </StyledListboxInput>
       ) : (
@@ -79,6 +79,11 @@ const StyledListboxInput = styled(ListboxInput)`
     }
   }
 `;
+
+const OverflowListboxList = styled(ListboxList)`
+  max-height: 525px;
+  overflow: auto;
+`
 
 const StyledListboxOption = styled(ListboxOption)`
   display: flex;
