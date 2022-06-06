@@ -149,7 +149,7 @@ AFRAME.registerComponent("volume", {
     const dim = uniforms.dim.value;
     const slices = uniforms.slices.value;
     const modelTexture = uniforms.model_structs.value[0].model_texture;
-    
+
     if (modelTexture) {
       const volumeScale = new Vector3(
         1.0 / ((modelTexture.image.width / dim) * spacing.x),
@@ -191,6 +191,7 @@ AFRAME.registerComponent("volume", {
             );
 
             return {
+              name,
               intensity,
               modelTexture,
               transferTexture,
@@ -205,14 +206,28 @@ AFRAME.registerComponent("volume", {
     ).then((promises) => {
       const { values: modelStructs, errors } = partitionPromises(promises);
 
-      // Bubble errors up to AframeScene
-      if (errors.length) {
+      // Validate all model textures are the same size
+      const { width, height } = modelStructs[0].modelTexture.image;
+      modelStructs.forEach(({ name, modelTexture }) => {
+        if (
+          !(
+            modelTexture.image.width === width &&
+            modelTexture.image.height === height
+          )
+        ) {
+          errors.push(
+            new Error(
+              "Model '" + name + "' does not match size " + width + "x" + height
+            )
+          );
+        }
+      });
+
+      // Bubble loading errors up to AframeScene
+      errors.length &&
         document.dispatchEvent(
-          new CustomEvent("aframe-error", {
-            detail: errors,
-          })
+          new CustomEvent("aframe-error", { detail: errors })
         );
-      }
 
       // Update shader uniforms
       const uniforms = this.getUniforms();

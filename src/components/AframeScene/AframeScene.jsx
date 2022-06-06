@@ -23,8 +23,12 @@ function AframeScene({
 }) {
   const [errors, setErrors] = useState([]);
   useEffect(() => {
-    const handler = (e) => {
-      setErrors(e.detail);
+    const handler = (error) => {
+      const messages = error.detail.map((e) => {
+        if (e.cause) return e.message + ": " + e.cause.message;
+        else return e.message;
+      });
+      setErrors(messages);
     };
 
     document.addEventListener("aframe-error", handler);
@@ -90,7 +94,8 @@ function AframeScene({
           <ul>
             {errors.map((e) => (
               <li key={e}>
-                {e.message}: &nbsp; {e.cause.message}
+                {/* {e.message}: &nbsp; {e.cause.message} */}
+                {e}
               </li>
             ))}
           </ul>
