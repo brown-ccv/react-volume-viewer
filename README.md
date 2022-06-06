@@ -16,10 +16,6 @@ Run `npm start` in one terminal and `cd example && npm start` in a second termin
 npm install react-volume-viewer
 ```
 
-## Example
-
-An example project can be found on the [GitHub Page](https://brown-ccv.github.io/react-volume-viewer/) of this repo.
-
 ## Props
 
 The only required props are the model's path, name, and its minimum and maximum data points. The model's path should be imported into the project and passed in from there - see the [example project](#example).
@@ -178,6 +174,8 @@ The `DEFAULT_SLIDERS` export is the default value for the `sliders` prop. It wil
 
 ## Example
 
+An example project can be found on the [GitHub Page](https://brown-ccv.github.io/react-volume-viewer/) of this repo.
+
 ```jsx
 import React from 'react'
 import styled from 'styled-components'
@@ -243,6 +241,10 @@ const StyledVolumeViewer = styled(VolumeViewer)`
 
 export default App
 ```
+
+### Tiff to PNG
+
+The models in the example app are created using [tiff-volume-2png](https://github.com/brown-ccv/tiff-volume-2png). The program converts tiff image sequences to down-scaled 2D images - the format this volume viewer requires.
 
 ## License
 
