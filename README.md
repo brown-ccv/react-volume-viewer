@@ -126,7 +126,7 @@ The `Blending` object is used as an enum for the different algorithms that can b
 
 ### COLOR_MAPS
 
-`COLOR_MAPS` is an object containing some example colormaps. Any/all of the color maps can be imported into your project and passed into `model.colorMaps` array for each individual model.
+`COLOR_MAPS` is an object containing some example colormaps. Any/all of the color maps can be imported into your project and passed into `[model].colorMaps`.
 
 | Name      | Image |
 |:-:        |:-:    |
