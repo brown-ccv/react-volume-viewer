@@ -128,8 +128,6 @@ The `Blending` object is used as an enum for the different algorithms that can b
 
 `COLOR_MAPS` is an object containing some example colormaps. Any/all of the color maps can be imported into your project and passed into `model.colorMaps` array for each individual model.
 
-<center>
-
 | Name      | Image |
 |:-:        |:-:    |
 | **Algae** | <img alt="Algae" src="src/images/colormaps/algae.png" height="25" width="250"/> |
@@ -157,8 +155,6 @@ The `Blending` object is used as an enum for the different algorithms that can b
 | **Thermal**| <img alt="Thermal" src="./src/images/colormaps/thermal.png" height="25" width="250"/> |
 | **Topo**| <img alt="Topo" src="./src/images/colormaps/topo.png" height="25" width="250"/> |
 | **Turbid**| <img alt="Turbid" src="./src/images/colormaps/turbid.png" height="25" width="250"/> |
-
-</center>
 
 ### DEFAULT_MODEL
 
