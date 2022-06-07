@@ -31,7 +31,7 @@ const getAframeModels = (models) => {
   return JSON.stringify(aframeModels.filter((model) => model.enabled));
 };
 
-// Recursively find the differences between two objects
+// Recursively find the differences between two objects/arrays
 // https://davidwells.io/snippets/get-difference-between-two-objects-javascript
 const deepDifference = (oldObj, newObj) => {
   const changes = (newObj, oldObj) => {
@@ -48,6 +48,11 @@ const deepDifference = (oldObj, newObj) => {
   };
 
   return changes(newObj, oldObj);
+};
+
+// Recursively clones an object/array
+const deepCopy = (obj) => {
+  return JSON.parse(JSON.stringify(obj));
 };
 
 // Partition an array of promises based on errors
@@ -203,6 +208,7 @@ const validateTransferFunction = (transferFunction) => {
 export {
   getAframeModels,
   deepDifference,
+  deepCopy,
   partitionPromises,
   validateModel,
   validateSlider,

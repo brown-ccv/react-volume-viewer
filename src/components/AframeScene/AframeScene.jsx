@@ -2,12 +2,12 @@ import React, { memo, useState, useEffect } from "react";
 import styled from "styled-components";
 import { isEqual } from "lodash";
 
-import "../../Aframe/arcball-camera";
-import "../../Aframe/buttons-check";
-import "../../Aframe/collider-check";
-import "../../Aframe/entity-collider-check";
-import "../../Aframe/keypress-listener";
-import "../../Aframe/volume";
+import "../../aframe/arcball-camera";
+import "../../aframe/buttons-check";
+import "../../aframe/collider-check";
+import "../../aframe/entity-collider-check";
+import "../../aframe/keypress-listener";
+import "../../aframe/volume";
 
 import { getAframeModels } from "../../utils";
 

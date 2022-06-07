@@ -131,84 +131,8 @@ AFRAME.registerComponent("volume", {
 
   /** UPDATE FUNCTIONS */
 
-  updateModels: function () {
-    const { models } = this.data;
-
-    // Asynchronously loop through the data.models array
-    // Each element runs serially and this.updateModels waits for all of the promises to finish
-    Promise.allSettled(
-      models.map(
-        async (
-          {
-            name,
-            path,
-            colorMap,
-            transferFunction,
-            intensity,
-            useTransferFunction,
-          },
-          idx
-        ) => {
-          try {
-            // Load texture from png
-            const texture = await this.loadTexture(path);
-
-            // Load THREE DataTexture from color map's png and model.transferFunction
-            const colorData = await this.loadColorMap(colorMap.path);
-            const transferTexture = this.buildTransferTexture(
-              colorData,
-              transferFunction
-            );
-
-            return {
-              intensity,
-              useTransferFunction,
-              texture,
-              transferTexture,
-            };
-          } catch (error) {
-            throw new Error("Failed to load model '" + name + "'", {
-              cause: error,
-            });
-          }
-        }
-      )
-    ).then((promises) => {
-      const { values: models, errors } = partitionPromises(promises);
-
-      if (errors.length) {
-        // Bubble errors up to AframeScene
-        document.dispatchEvent(
-          new CustomEvent("aframe-error", {
-            detail: errors,
-          })
-        );
-      } else {
-        // Update uniforms
-        // TEMP: Only use first model (TODO: #68)
-        const uniforms = this.getUniforms();
-        if (models.length) {
-          const modelData = models[0];
-          uniforms.intensity.value = modelData.intensity;
-          uniforms.model_texture.value = modelData.texture;
-          uniforms.transfer_texture.value = modelData.transferTexture;
-        } else {
-          const defaultUniforms = DEFAULT_MATERIAL.clone().uniforms;
-          uniforms.intensity.value = defaultUniforms.intensity.value;
-          uniforms.model_texture.value = defaultUniforms.model_texture.value;
-          uniforms.transfer_texture.value =
-            defaultUniforms.transfer_texture.value;
-        }
-
-        this.updateSpacing(); // Update spacing based on the new material
-      }
-    });
-  },
-
   updateBlending: function () {
-    const { blending } = this.data;
-    const uniforms = this.getUniforms();
-    uniforms.blending.value = blending;
+    this.getUniforms().blending.value = this.data.blending;
   },
 
   updateSlices: function () {
@@ -222,15 +146,14 @@ AFRAME.registerComponent("volume", {
   updateSpacing: function () {
     const { spacing } = this.data;
     const uniforms = this.getUniforms();
-
-    const texture = uniforms.model_texture.value;
     const dim = uniforms.dim.value;
     const slices = uniforms.slices.value;
+    const modelTexture = uniforms.model_structs.value[0].model_texture;
 
-    if (texture) {
+    if (modelTexture) {
       const volumeScale = new Vector3(
-        1.0 / ((texture.image.width / dim) * spacing.x),
-        1.0 / ((texture.image.height / dim) * spacing.y),
+        1.0 / ((modelTexture.image.width / dim) * spacing.x),
+        1.0 / ((modelTexture.image.height / dim) * spacing.y),
         1.0 / (slices * spacing.z)
       );
       uniforms.zScale.value = volumeScale.x / volumeScale.z;
@@ -239,8 +162,8 @@ AFRAME.registerComponent("volume", {
 
   // Update clipping uniforms from sliders (reset if !activateClipPlane)
   updateClipping: function () {
-    const { x, y, z } = this.data.sliders;
     const uniforms = this.getUniforms();
+    const { x, y, z } = this.data.sliders;
     if (this.el.getAttribute("keypress-listener").activateClipPlane) {
       uniforms.clip_min.value = new Vector3(x[0], y[0], z[0]);
       uniforms.clip_max.value = new Vector3(x[1], y[1], z[1]);
@@ -248,6 +171,63 @@ AFRAME.registerComponent("volume", {
       uniforms.clip_min.value = new Vector3(0, 0, 0);
       uniforms.clip_max.value = new Vector3(1, 1, 1);
     }
+  },
+
+  updateModels: function () {
+    // Asynchronously loop through the data.models array
+    // Each element runs serially and this.updateModelsUniforms waits for all of the promises to finish
+    Promise.allSettled(
+      this.data.models.map(
+        async ({ name, path, colorMap, transferFunction, intensity }) => {
+          try {
+            // Load texture from png
+            const modelTexture = await this.loadModelTexture(path);
+
+            // Load THREE DataTexture from color map's png and model.transferFunction
+            const colorData = await this.loadColorMap(colorMap.path);
+            const transferTexture = this.buildTransferTexture(
+              colorData,
+              transferFunction
+            );
+
+            return {
+              intensity,
+              modelTexture,
+              transferTexture,
+            };
+          } catch (error) {
+            throw new Error("Failed to load model '" + name + "'", {
+              cause: error,
+            });
+          }
+        }
+      )
+    ).then((promises) => {
+      const { values: modelStructs, errors } = partitionPromises(promises);
+
+      // Bubble errors up to AframeScene
+      if (errors.length) {
+        document.dispatchEvent(
+          new CustomEvent("aframe-error", {
+            detail: errors,
+          })
+        );
+      }
+
+      // Update shader uniforms
+      const uniforms = this.getUniforms();
+      for (let i = 0; i < 4; i++) {
+        const model_struct = uniforms.model_structs.value[i];
+        if (i < modelStructs.length) {
+          const modelStruct = modelStructs[i];
+          model_struct.use = true;
+          model_struct.intensity = modelStruct.intensity;
+          model_struct.model_texture = modelStruct.modelTexture;
+          model_struct.transfer_texture = modelStruct.transferTexture;
+        } else model_struct.use = false;
+      }
+      this.updateSpacing(); // Update spacing based on the new material
+    });
   },
 
   updateMeshClipMatrix: function () {
@@ -286,15 +266,16 @@ AFRAME.registerComponent("volume", {
   },
 
   // Load THREE Texture from the model's path
-  loadTexture: function (modelPath) {
+  loadModelTexture: function (modelPath) {
     return new Promise((resolve, reject) => {
       new TextureLoader().load(
         modelPath,
-        (texture) => {
-          texture.minFilter = texture.magFilter = LinearFilter;
-          texture.unpackAlignment = 1;
-          texture.needsUpdate = true;
-          resolve(texture);
+        (modelTexture) => {
+          modelTexture.minFilter = modelTexture.magFilter = LinearFilter;
+          modelTexture.unpackAlignment = 1;
+          modelTexture.needsUpdate = true;
+
+          resolve(modelTexture);
         },
         () => {},
         () => reject(new Error("Invalid model path: " + modelPath))
