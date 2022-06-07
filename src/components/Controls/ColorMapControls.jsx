@@ -83,7 +83,7 @@ const StyledListboxInput = styled(ListboxInput)`
 const OverflowListboxList = styled(ListboxList)`
   max-height: 525px;
   overflow: auto;
-`
+`;
 
 const StyledListboxOption = styled(ListboxOption)`
   display: flex;

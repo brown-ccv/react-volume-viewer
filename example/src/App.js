@@ -6,8 +6,8 @@ const salt = "./assets/models/summer-high-salt.png";
 const temp = "./assets/models/summer-high-temp.png";
 
 const allColorMaps = [...Object.values(COLOR_MAPS)];
-const haline = COLOR_MAPS.Haline
-const thermal = COLOR_MAPS.Thermal
+const haline = COLOR_MAPS.Haline;
+const thermal = COLOR_MAPS.Thermal;
 
 function App() {
   const [colorMap, setColorMap] = useState(haline);
