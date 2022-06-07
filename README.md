@@ -174,6 +174,8 @@ The `DEFAULT_SLIDERS` export is the default value for the `sliders` prop. It wil
 
 ## Example
 
+An example project can be found on the [GitHub Page](https://brown-ccv.github.io/react-volume-viewer/) of this repo.
+
 ```jsx
 import React from 'react'
 import styled from 'styled-components'
@@ -239,6 +241,10 @@ const StyledVolumeViewer = styled(VolumeViewer)`
 
 export default App
 ```
+
+### Tiff to PNG
+
+The models in the example app are created using [tiff-volume-2png](https://github.com/brown-ccv/tiff-volume-2png). The program converts tiff image sequences to down-scaled 2D images - the format this volume viewer requires.
 
 ## License
 
