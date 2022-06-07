@@ -1,6 +1,6 @@
 {
   "name": "react-volume-viewer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Aframe container with custom controls for use in react applications",
   "author": "brown-ccv",
   "license": "MIT",
@@ -76,7 +76,7 @@
   },
   "jest": {
     "transformIgnorePatterns": [
-      "/node_modules/(?!d3|d3-array|@reach/listbox|rc-slider|internmap|delaunator|robust-predicates)"
+      "/node_modules/(?!d3|d3-array|@reach/listbox|@reach/tabs/styles.css|rc-slider|internmap|delaunator|robust-predicates)"
     ]
   }
 }
