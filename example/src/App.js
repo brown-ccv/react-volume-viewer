@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { VolumeViewer, COLOR_MAPS } from "react-volume-viewer";
+import { VolumeViewer, COLOR_MAPS, Blending } from "react-volume-viewer";
 
 const salt = "./assets/models/summer-high-salt.png";
 const temp = "./assets/models/summer-high-temp.png";
@@ -21,7 +21,7 @@ function App() {
 
   const models = [
     {
-      name: "Same",
+      name: "One",
       colorMap: colorMap,
       ...(!singleColorMap && { colorMaps: [haline, thermal] }),
       enabled: true,
@@ -29,7 +29,7 @@ function App() {
         min: 0.05,
         max: 33.71,
       },
-      path: modelPath,
+      path: salt,
       transferFunction: [
         { x: 0, y: 0 },
         { x: 0.5, y: 0.5 },
@@ -39,17 +39,22 @@ function App() {
       useColorMap: useColorMap,
     },
     {
-      name: "Opposite",
+      name: "Two",
       colorMap: colorMap === haline ? thermal : haline,
       ...(!singleColorMap && { colorMaps: allColorMaps }),
       enabled: true,
       range: {
         min: 0.05,
         max: 33.71,
-        unit: "°C",
       },
       path: modelPath === salt ? temp : salt,
-      useTransferFunction: !useTransferFunction,
+      transferFunction: [
+        { x: 0, y: 0 },
+        { x: 0.5, y: 0.5 },
+        { x: 1, y: 1 },
+      ],
+      useTransferFunction: useTransferFunction,
+      useColorMap: useColorMap,
     },
   ];
 
@@ -93,6 +98,7 @@ function App() {
   const VV = (
     <StyledVolumeViewer
       controlsVisible={controlsVisible}
+      blending={Blending.Max}
       models={models}
       position="0 0 0"
       scale="1 -1 1"

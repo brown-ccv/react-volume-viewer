@@ -1,7 +1,8 @@
 import { THREE } from "aframe";
 
-import vertexShader from "../Aframe/vertex-shader.vert";
-import fragmentShader from "../Aframe/fragment-shader.frag";
+import vertexShader from "../aframe/vertex-shader.vert";
+import fragmentShader from "../aframe/fragment-shader.frag";
+import { deepCopy } from "../utils";
 
 const { BackSide, RawShaderMaterial, Vector2, Vector3, Matrix4 } = THREE;
 
@@ -32,7 +33,7 @@ const COLOR_MAPS = (() => {
  */
 const Blending = {
   None: 0,
-  Add: 1,
+  Max: 1,
 };
 
 /** DEFAULT VALUES */
@@ -40,6 +41,7 @@ const Blending = {
 const DEFAULT_POSITION = "0 0 0";
 const DEFAULT_ROTATION = "0 0 0";
 const DEFAULT_SCALE = "1 1 1";
+
 const SLIDER_RANGE = { min: 0, max: 1 };
 const DEFAULT_SLIDERS = {
   x: [SLIDER_RANGE.min, SLIDER_RANGE.max],
@@ -62,20 +64,21 @@ const DEFAULT_MODEL = {
   useColorMap: true,
 };
 
+const DEFAULT_MODEL_STRUCT = { use: false };
 const DEFAULT_MATERIAL = new RawShaderMaterial({
   uniforms: {
+    apply_vr_clip: { value: false },
     blending: { value: 0 },
     clip_max: { value: new Vector3(1, 1, 1) },
     clip_min: { value: new Vector3() },
-    apply_vr_clip: { value: false },
-    vr_clip_matrix: { value: new Matrix4() },
     dim: { value: 1.0 },
-    intensity: { value: 1.0 },
-    model_texture: { value: null },
+    model_structs: {
+      value: deepCopy(new Array(4).fill(DEFAULT_MODEL_STRUCT)),
+    },
     slices: { value: 1.0 },
     step_size: { value: 0.01 },
-    transfer_texture: { value: null },
     viewPort: { value: new Vector2() },
+    vr_clip_matrix: { value: new Matrix4() },
     zScale: { value: 1.0 },
   },
   vertexShader: vertexShader,
@@ -94,4 +97,5 @@ export {
   DEFAULT_SLIDERS,
   DEFAULT_MODEL,
   DEFAULT_MATERIAL,
+  DEFAULT_MODEL_STRUCT,
 };
