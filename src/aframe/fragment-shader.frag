@@ -61,8 +61,8 @@ vec4 sampleAs3DTexture(sampler2D tex, vec3 coordinates) {
 
     // Apply linear interpolation between start and end coordinates
     return mix (
-        texture(tex, vec2( coordinates_start )),
-        texture(tex, vec2( coordinates_end)),
+        texture(tex, coordinates_start),
+        texture(tex, coordinates_end),
         (coordinates.z * slices - z_start)
     );
 }
