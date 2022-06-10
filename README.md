@@ -126,16 +126,35 @@ The `Blending` object is used as an enum for the different algorithms that can b
 
 ### COLOR_MAPS
 
-`COLOR_MAPS` is an object containing some example colormaps. Any/all of the color maps can be imported into your project and passed into `model.colorMaps` array for any individual model.
+`COLOR_MAPS` is an object containing some example colormaps. Any/all of the color maps can be imported into your project and passed into `[model].colorMaps`.
 
-`Grayscale`
-<img alt="grayscale" src="./src/images/grayscale.png" height="25"/>
-
-`Natural`
-<img alt="natural" src="./src/images/natural.png" height="25"/>
-
-`Rgb`
-<img alt="rgb" src="./src/images/rgb.png" height="25"/>
+| Name      | Image |
+|:-:        |:-:    |
+| **Algae** | <img alt="Algae" src="src/images/colormaps/algae.png" height="25" width="250"/> |
+|  **Amp**  | <img alt="Amp" src="src/images/colormaps/amp.png" height="25" width="250"/> |
+|  **Balance**  | <img alt="Balance" src="src/images/colormaps/balance.png" height="25" width="250"/> |
+|  **Curl**  | <img alt="Curl" src="src/images/colormaps/curl.png" height="25" width="250"/> |
+|  **Deep**  | <img alt="Deep" src="src/images/colormaps/deep.png" height="25" width="250"/> |
+|  **Delta**  | <img alt="Delta" src="src/images/colormaps/delta.png" height="25" width="250"/> |
+|  **Dense**  | <img alt="Dense" src="src/images/colormaps/dense.png" height="25" width="250"/> |
+|  **Diff**  | <img alt="Diff" src="src/images/colormaps/diff.png" height="25" width="250"/> |
+|  **Grayscale**  | <img alt="Grayscale" src="src/images/colormaps/grayscale.png" height="25" width="250"/> |
+|  **Grayscale_reverse**  | <img alt="Grayscale_reverse" src="src/images/colormaps/grayscale_reverse.png" height="25" width="250"/> |
+| **Haline**| <img alt="Haline" src="./src/images/colormaps/haline.png" height="25" width="250"/> |
+| **Ice**| <img alt="Ice" src="./src/images/colormaps/ice.png" height="25" width="250"/> |
+| **Matter**| <img alt="Matter" src="./src/images/colormaps/matter.png" height="25" width="250"/> |
+| **Natural**| <img alt="Natural" src="./src/images/colormaps/natural.png" height="25" width="250"/> |
+| **Oxy**| <img alt="Oxy" src="./src/images/colormaps/oxy.png" height="25" width="250"/> |
+| **Phase**| <img alt="Phase" src="./src/images/colormaps/phase.png" height="25" width="250"/> |
+| **Rain**| <img alt="Rain" src="./src/images/colormaps/rain.png" height="25" width="250"/> |
+| **Rgb**| <img alt="Rgb" src="./src/images/colormaps/rgb.png" height="25" width="250"/> |
+| **Solar**| <img alt="Solar" src="./src/images/colormaps/solar.png" height="25" width="250"/> |
+| **Speed**| <img alt="Speed" src="./src/images/colormaps/speed.png" height="25" width="250"/> |
+| **Tarn**| <img alt="Tarn" src="./src/images/colormaps/tarn.png" height="25" width="250"/> |
+| **Tempo**| <img alt="Tempo" src="./src/images/colormaps/tempo.png" height="25" width="250"/> |
+| **Thermal**| <img alt="Thermal" src="./src/images/colormaps/thermal.png" height="25" width="250"/> |
+| **Topo**| <img alt="Topo" src="./src/images/colormaps/topo.png" height="25" width="250"/> |
+| **Turbid**| <img alt="Turbid" src="./src/images/colormaps/turbid.png" height="25" width="250"/> |
 
 ### DEFAULT_MODEL
 
