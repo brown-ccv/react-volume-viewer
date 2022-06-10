@@ -143,6 +143,7 @@ void main() {
     for(float t = t_start; t < t_end; t += step_size) {
         if(model_structs[0].use) {
             v_sample = sample_model(model_structs[0], data_position);
+            intensity = model_structs[0].intensity;
 
             // Blending.None -> use first model
             if(blending != 0) {
