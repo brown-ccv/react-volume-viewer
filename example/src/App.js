@@ -13,11 +13,10 @@ function App() {
   const [colorMap, setColorMap] = useState(haline);
   const [controlsVisible, setControlsVisible] = useState(false);
   const [singleColorMap, setSingleColorMap] = useState(false);
-
   const [useTransferFunction, setUseTransferFunction] = useState(true);
   const [useColorMap, setUseColorMap] = useState(true);
-
   const [modelPath, setModelPath] = useState(salt);
+  const [blending, setBlending] = useState(Blending.Max)
 
   const models = [
     {
@@ -84,13 +83,11 @@ function App() {
       >
         Model
       </button>
-      <button
-        onClick={() => {
-          setColorMap(colorMap === haline ? thermal : haline);
-          setModelPath(modelPath === salt ? temp : salt);
-        }}
-      >
-        ColorMap and Model
+      <button onClick={() => setBlending(Blending.Max)}>
+        Max Blending
+      </button>
+      <button onClick={() => setBlending(Blending.Average)}>
+        Average Blending
       </button>
     </div>
   );
@@ -98,7 +95,7 @@ function App() {
   const VV = (
     <StyledVolumeViewer
       controlsVisible={controlsVisible}
-      blending={Blending.Average}
+      blending={blending}
       models={models}
       position="0 0 0"
       scale="1 -1 1"
