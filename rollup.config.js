@@ -2,9 +2,12 @@ import babel from '@rollup/plugin-babel'
 import commonjs from '@rollup/plugin-commonjs'
 import external from 'rollup-plugin-peer-deps-external'
 import postcss from "rollup-plugin-postcss"
-import { string } from "rollup-plugin-string";
+import requireContext from 'rollup-plugin-require-context';
 import resolve from '@rollup/plugin-node-resolve'
+import { string } from "rollup-plugin-string";
 import url from '@rollup/plugin-url'
+
+
 
 import pkg from './package.json'
 
@@ -30,9 +33,10 @@ const rollup = {
     commonjs(),
     external(),
     postcss(),
+    requireContext(),
     resolve(),
-    url(),
-    string({ include: ["**/*.vert", "**/*.frag"] })
+    string({ include: ["**/*.vert", "**/*.frag"] }),
+    url(),    
   ]
 }
 export default rollup
