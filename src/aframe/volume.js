@@ -175,15 +175,14 @@ AFRAME.registerComponent("volume", {
 
   updateModels: function () {
     // Asynchronously loop through the data.models array
-    // Each element runs serially and this.updateModelsUniforms waits for all of the promises to finish
     Promise.allSettled(
       this.data.models.map(
         async ({ name, path, colorMap, transferFunction, intensity }) => {
           try {
-            // Load texture from png
+            // Load Texture from png
             const modelTexture = await this.loadModelTexture(path);
 
-            // Load THREE DataTexture from color map's png and model.transferFunction
+            // Load DataTexture from model's colormap and transferFunction
             const colorData = await this.loadColorMap(colorMap.path);
             const transferTexture = this.buildTransferTexture(
               colorData,
@@ -191,6 +190,7 @@ AFRAME.registerComponent("volume", {
             );
 
             return {
+              name,
               intensity,
               modelTexture,
               transferTexture,
@@ -205,14 +205,28 @@ AFRAME.registerComponent("volume", {
     ).then((promises) => {
       const { values: modelStructs, errors } = partitionPromises(promises);
 
-      // Bubble errors up to AframeScene
-      if (errors.length) {
+      // Validate all model textures are the same size
+      const { width, height } = modelStructs[0].modelTexture.image;
+      modelStructs.forEach(({ name, modelTexture }) => {
+        if (
+          !(
+            modelTexture.image.width === width &&
+            modelTexture.image.height === height
+          )
+        ) {
+          errors.push(
+            new Error(
+              "Model '" + name + "' does not match size " + width + "x" + height
+            )
+          );
+        }
+      });
+
+      // Bubble loading errors up to AframeScene
+      errors.length &&
         document.dispatchEvent(
-          new CustomEvent("aframe-error", {
-            detail: errors,
-          })
+          new CustomEvent("aframe-error", { detail: errors })
         );
-      }
 
       // Update shader uniforms
       const uniforms = this.getUniforms();
