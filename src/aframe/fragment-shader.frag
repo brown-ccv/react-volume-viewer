@@ -139,6 +139,7 @@ void main() {
     // Starting from the entry point, march the ray through the volume and sample it
     vec4 vFragColor = vec4(0);
     vec4 v_sample;
+    float intensity = 0.0;
     for(float t = t_start; t < t_end; t += step_size) {
         if(model_structs[0].use) {
             v_sample = sample_model(model_structs[0], data_position);
@@ -148,9 +149,10 @@ void main() {
                 #pragma unroll_loop_start
                 for(int i = 1; i < 4; i++) {
                     if(model_structs[i].use) {
-                        // Sample model and artifically increase pixel intensity
                         vec4 m_sample = sample_model(model_structs[i], data_position);
-                        m_sample.rgb *= model_structs[i].intensity;
+                        
+                        // Final intensity is the maximum given to the models
+                        intensity = max(model_structs[i].intensity, intensity);
 
                         // Calculate mix factor
                         float mix_factor = 0.5;
@@ -163,13 +165,15 @@ void main() {
                             mix_factor = v_sample.a / (v_sample.a + m_sample.a);
                         }
 
-                        // Blend model into the volume
                         v_sample = mix(v_sample, m_sample, mix_factor);
                     }
                 }
                 #pragma unroll_loop_end
             }
         } else break; // No models in use, leave transparent
+
+        // Artifically increase pixel intensity
+        v_sample.rgb *= intensity;
 
         // Blend front to back
         vFragColor.rgb += (1.0 - vFragColor.a) * v_sample.a * v_sample.rgb;
