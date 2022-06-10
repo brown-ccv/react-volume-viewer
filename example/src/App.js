@@ -4,10 +4,10 @@ import { VolumeViewer, COLOR_MAPS, Blending } from "react-volume-viewer";
 
 const salt = "./assets/models/summer-high-salt.png";
 const temp = "./assets/models/summer-high-temp.png";
-const haline = { name: "Haline", path: "./assets/colormaps/haline.png" };
-const thermal = { name: "Thermal", path: "./assets/colormaps/thermal.png" };
 
-const allColorMaps = [haline, thermal, ...Object.values(COLOR_MAPS)];
+const allColorMaps = [...Object.values(COLOR_MAPS)];
+const haline = COLOR_MAPS.Haline;
+const thermal = COLOR_MAPS.Thermal;
 
 function App() {
   const [colorMap, setColorMap] = useState(haline);
@@ -23,7 +23,7 @@ function App() {
     {
       name: "One",
       colorMap: colorMap,
-      ...(!singleColorMap && { colorMaps: allColorMaps }),
+      ...(!singleColorMap && { colorMaps: [haline, thermal] }),
       enabled: true,
       range: {
         min: 0.05,
@@ -47,7 +47,7 @@ function App() {
         min: 0.05,
         max: 33.71,
       },
-      path: temp,
+      path: modelPath === salt ? temp : salt,
       transferFunction: [
         { x: 0, y: 0 },
         { x: 0.5, y: 0.5 },
