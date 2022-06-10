@@ -16,7 +16,7 @@ function App() {
   const [useTransferFunction, setUseTransferFunction] = useState(true);
   const [useColorMap, setUseColorMap] = useState(true);
   const [modelPath, setModelPath] = useState(salt);
-  const [blending, setBlending] = useState(Blending.Max)
+  const [blending, setBlending] = useState(Blending.Max);
 
   const models = [
     {
@@ -83,9 +83,7 @@ function App() {
       >
         Model
       </button>
-      <button onClick={() => setBlending(Blending.Max)}>
-        Max Blending
-      </button>
+      <button onClick={() => setBlending(Blending.Max)}>Max Blending</button>
       <button onClick={() => setBlending(Blending.Average)}>
         Average Blending
       </button>
