@@ -79,8 +79,8 @@ vec4 sample_model(ModelStruct model, vec3 data_position) {
         vec2(clamp(model_sample.a, 0.0, 1.0), 0.5)
     );
 
-    // Artificially increase pixel intensity
-    model_sample.rgb *= model.intensity;
+    // // Artificially increase pixel intensity
+    // model_sample.rgb *= model.intensity;
     return model_sample;
 }
 
@@ -155,8 +155,11 @@ void main() {
                             // mix uses a percentage - get ratio of the alphas
                             mix_factor = v_sample.a / (v_sample.a + m_sample.a);
                         }
-                        // Sample model and mix in to volume
+
+                        // Sample model and artifically increase pixel intensity
                         m_sample = sample_model(model_structs[i], data_position);
+                        m_sample.rgb *= model_structs[i].intensity;
+                        
                         v_sample = mix(v_sample, m_sample, mix_factor);
                     }
                 }
