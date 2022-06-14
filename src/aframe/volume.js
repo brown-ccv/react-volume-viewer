@@ -111,9 +111,12 @@ AFRAME.registerComponent("volume", {
 
   /** EVENT LISTENER FUNCTIONS */
 
-  onEnterVR: function () {},
+  onEnterVR: function () {
+    console.log("ENTER volume")
+  },
 
   onExitVR: function () {
+    console.log("EXIT volume")
     const mesh = this.getMesh();
     if (mesh) {
       mesh.position.copy(new Vector3());

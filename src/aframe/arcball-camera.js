@@ -38,7 +38,7 @@ AFRAME.registerComponent("arcball-camera", {
   },
 
   onEnterVR: function () {
-    const el = this.el;
+    console.log("ENTER arcball-camera")
     if (
       !AFRAME.utils.device.checkHeadsetConnected() &&
       !AFRAME.utils.device.isMobile()
@@ -46,7 +46,9 @@ AFRAME.registerComponent("arcball-camera", {
       return;
     }
 
+    
     this.controls.enabled = false;
+    const el = this.el;
     if (el.hasAttribute("look-controls")) {
       el.setAttribute("look-controls", "enabled", true);
 
@@ -58,17 +60,17 @@ AFRAME.registerComponent("arcball-camera", {
   },
 
   onExitVR: function () {
-    const el = this.el;
-
+    console.log("EXIT arcball-camera")
     if (
       !AFRAME.utils.device.checkHeadsetConnected() &&
       !AFRAME.utils.device.isMobile()
     ) {
       return;
     }
+    
     this.controls.enabled = true;
+    const el = this.el;
     el.getObject3D("camera").position.set(this.oldPosition);
-
     if (el.hasAttribute("look-controls")) {
       el.setAttribute("look-controls", "enabled", false);
     }
