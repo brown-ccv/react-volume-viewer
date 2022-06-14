@@ -25,7 +25,7 @@ function AframeScene({
   useEffect(() => {
     const handler = (error) => {
       const messages = error.detail.map((e) => {
-        console.error(e)
+        console.error(e);
         if (e.cause) return e.message + ". " + e.cause.message;
         else return e.message;
       });
@@ -94,9 +94,7 @@ function AframeScene({
         <Error>
           <ul>
             {errors.map((e) => (
-              <li key={e}>
-                {e}
-              </li>
+              <li key={e}>{e}</li>
             ))}
           </ul>
         </Error>

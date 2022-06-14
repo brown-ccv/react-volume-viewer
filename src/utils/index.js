@@ -153,8 +153,6 @@ const validateSlider = (
 
 // Custom validation function for a single model in the 'models' prop
 const validateModel = (models, idx, componentName, location, propFullName) => {
-  const model = models[idx];
-
   // Each model must have a unique name
   const modelNames = new Set();
   for (const model of models) {
@@ -166,6 +164,7 @@ const validateModel = (models, idx, componentName, location, propFullName) => {
     else modelNames.add(model.name);
   }
 
+  const model = models[idx];
   try {
     if ("colorMaps" in model) validateColorMaps(model.colorMaps, model.name);
     if ("transferFunction" in model)
