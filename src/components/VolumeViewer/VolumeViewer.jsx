@@ -47,8 +47,6 @@ function VolumeViewer({
     setModels(newModels);
   }, [newModels]);
 
-  console.log("VOLUME VIEWER", models)
-
   // Sliders apply clipping to the volume as a whole
   const [sliders, setSliders] = useState(slidersProp);
 
