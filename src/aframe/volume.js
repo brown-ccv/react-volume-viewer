@@ -204,23 +204,7 @@ AFRAME.registerComponent("volume", {
       )
     ).then((promises) => {
       const { values: modelStructs, errors } = partitionPromises(promises);
-
-      // Validate all model textures are the same size
-      const { width, height } = modelStructs[0].modelTexture.image;
-      modelStructs.forEach(({ name, modelTexture }) => {
-        if (
-          !(
-            modelTexture.image.width === width &&
-            modelTexture.image.height === height
-          )
-        ) {
-          errors.push(
-            new Error(
-              "Model '" + name + "' does not match size " + width + "x" + height
-            )
-          );
-        }
-      });
+      errors.push(...this.validateModelTextureSizes(modelStructs));
 
       // Bubble loading errors up to AframeScene
       errors.length &&
@@ -353,5 +337,29 @@ AFRAME.registerComponent("volume", {
     const transferTexture = new DataTexture(rgbaData, 256, 1, RGBAFormat);
     transferTexture.needsUpdate = true;
     return transferTexture;
+  },
+
+  // Validate all model textures are the same size
+  validateModelTextureSizes: function (modelStructs) {
+    const errors = [];
+    if (modelStructs.length) {
+      const { width, height } = modelStructs[0].modelTexture.image;
+
+      modelStructs.forEach(({ name, modelTexture }) => {
+        if (
+          !(
+            modelTexture.image.width === width &&
+            modelTexture.image.height === height
+          )
+        ) {
+          errors.push(
+            new Error(
+              "Model '" + name + "' does not match size " + width + "x" + height
+            )
+          );
+        }
+      });
+    }
+    return errors;
   },
 });
