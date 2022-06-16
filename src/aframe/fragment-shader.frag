@@ -150,8 +150,7 @@ void main() {
 
                     if(blending == 0) { // Blending.Max
                         mix_factor = max(volume_sample.a, model_sample.a);
-                    } 
-                    else if(blending == 1) { // Blending.Min
+                    } else if(blending == 1) { // Blending.Min
                         mix_factor = min(volume_sample.a, model_sample.a);
                     }
                     else if(blending == 2) {} // TODO: Blending.Average (115)
