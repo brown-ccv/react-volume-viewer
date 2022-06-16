@@ -71,8 +71,8 @@ function App() {
         Single Color Map
       </button>
       <button onClick={() => setEnabled(!enabled)}>Enabled</button>
-      <button onClick={() => setBlending(Blending.Min)}>Blending Min</button>
       <button onClick={() => setBlending(Blending.Max)}>Blending Max</button>
+      <button onClick={() => setBlending(Blending.Min)}>Blending Min</button>
       <button onClick={() => setBlending(Blending.Average)}>
         Blending Average
       </button>
