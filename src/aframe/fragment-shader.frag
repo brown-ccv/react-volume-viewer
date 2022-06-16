@@ -145,6 +145,9 @@ void main() {
             #pragma unroll_loop_start
             for(int i = 1; i < 4; i++) {
                 if(model_structs[i].use) {
+                    // Sample model and mix in to volume
+                    model_sample = sample_model(model_structs[i], data_position);
+
                     if(blending == 0) { // Blending.Max
                         mix_factor = max(volume_sample.a, model_sample.a);
                     } 
@@ -153,8 +156,6 @@ void main() {
                     }
                     else if(blending == 2) {} // TODO: Blending.Average (115)
 
-                    // Sample model and mix in to volume
-                    model_sample = sample_model(model_structs[i], data_position);
                     volume_sample = mix(volume_sample, model_sample, mix_factor);
                 }
             }
