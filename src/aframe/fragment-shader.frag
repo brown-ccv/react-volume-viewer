@@ -148,14 +148,17 @@ void main() {
                     if(blending == 0) { // Blending.Max
                         mix_factor = max(volume_sample.a, model_sample.a);
                     } 
-                    else if(blending == 1) {} // TODO: Blending.Min (127)
+                    else if(blending == 1) { // Blending.Min
+                        mix_factor = min(volume_sample.a, model_sample.a);
+                    }
                     else if(blending == 2) {} // TODO: Blending.Average (115)
+
                     // Sample model and mix in to volume
                     model_sample = sample_model(model_structs[i], data_position);
                     volume_sample = mix(volume_sample, model_sample, mix_factor);
                 }
             }
-                #pragma unroll_loop_end
+            #pragma unroll_loop_end
         } else break; // array is "empty", leave vFragColor transparent
 
         // Blending (front to back)

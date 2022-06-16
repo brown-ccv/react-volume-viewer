@@ -10,26 +10,28 @@ const haline = COLOR_MAPS.Haline;
 const thermal = COLOR_MAPS.Thermal;
 
 function App() {
-  const [colorMap, setColorMap] = useState(haline);
   const [controlsVisible, setControlsVisible] = useState(false);
+
   const [singleColorMap, setSingleColorMap] = useState(false);
+  const [enabled, setEnabled] = React.useState(true);
+  const [blending, setBlending] = useState(Blending.Max);
 
   const [useTransferFunction, setUseTransferFunction] = useState(true);
   const [useColorMap, setUseColorMap] = useState(true);
 
-  const [modelPath, setModelPath] = useState(salt);
-
   const models = [
     {
-      name: "One",
-      colorMap: colorMap,
-      ...(!singleColorMap && { colorMaps: [haline, thermal] }),
-      enabled: true,
+      name: "Salt",
+      colorMap: haline,
+      ...(!singleColorMap && {
+        colorMaps: [haline, thermal, COLOR_MAPS.Grayscale],
+      }),
+      enabled: enabled,
+      path: salt,
       range: {
         min: 0.05,
         max: 33.71,
       },
-      path: salt,
       transferFunction: [
         { x: 0, y: 0 },
         { x: 0.5, y: 0.5 },
@@ -39,20 +41,16 @@ function App() {
       useColorMap: useColorMap,
     },
     {
-      name: "Two",
-      colorMap: colorMap === haline ? thermal : haline,
+      name: "Temp",
+      colorMap: thermal,
       ...(!singleColorMap && { colorMaps: allColorMaps }),
-      enabled: true,
+      enabled: enabled,
+      path: temp,
       range: {
-        min: 0.05,
-        max: 33.71,
+        min: 2.5,
+        max: 42,
+        unit: "°C",
       },
-      path: modelPath === salt ? temp : salt,
-      transferFunction: [
-        { x: 0, y: 0 },
-        { x: 0.5, y: 0.5 },
-        { x: 1, y: 1 },
-      ],
       useTransferFunction: useTransferFunction,
       useColorMap: useColorMap,
     },
@@ -69,28 +67,21 @@ function App() {
       <button onClick={() => setUseColorMap(!useColorMap)}>
         Use Color Map
       </button>
-      <button onClick={() => setSingleColorMap(singleColorMap ? false : true)}>
+      <button onClick={() => setSingleColorMap(!singleColorMap)}>
         Single Color Map
       </button>
-      <button
-        onClick={() => setColorMap(colorMap === haline ? thermal : haline)}
-      >
-        Color Map
+      <button onClick={() => setEnabled(!enabled)}>
+        Enabled
       </button>
       <button
-        onClick={() => {
-          setModelPath(modelPath === salt ? temp : salt);
-        }}
+        onClick={() => setBlending(Blending.Min)}
       >
-        Model
+        Blending Min
       </button>
       <button
-        onClick={() => {
-          setColorMap(colorMap === haline ? thermal : haline);
-          setModelPath(modelPath === salt ? temp : salt);
-        }}
+        onClick={() => setBlending(Blending.Max)}
       >
-        ColorMap and Model
+        Blending Max
       </button>
     </div>
   );
@@ -98,7 +89,7 @@ function App() {
   const VV = (
     <StyledVolumeViewer
       controlsVisible={controlsVisible}
-      blending={Blending.Max}
+      blending={blending}
       models={models}
       position="0 0 0"
       scale="1 -1 1"
