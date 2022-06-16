@@ -28,6 +28,8 @@ uniform mat4 vr_clip_matrix;
     Shader code for the VR Volume Viewer
     t_:     Translation vector
     p_:     Position vector
+    m_:     Data for an individual model
+    v_:     Data for the entire volume
 */
 
 // Clip the volume between clip_min and clip_max
@@ -77,8 +79,8 @@ vec4 sample_model(ModelStruct model, vec3 data_position) {
         vec2(clamp(model_sample.a, 0.0, 1.0), 0.5)
     );
 
-    // Artificially increase pixel intensity
-    model_sample.rgb *= model.intensity;
+    // // Artificially increase pixel intensity
+    // model_sample.rgb *= model.intensity;
     return model_sample;
 }
 
@@ -136,34 +138,43 @@ void main() {
 
     // Starting from the entry point, march the ray through the volume and sample it
     vec4 vFragColor = vec4(0);
-    vec4 model_sample, volume_sample;
-    float mix_factor = 0.5;
+    vec4 v_sample;
+    float intensity = 0.0;
     for(float t = t_start; t < t_end; t += step_size) {
         if(model_structs[0].use) {
-            volume_sample = sample_model(model_structs[0], data_position);
+            v_sample = sample_model(model_structs[0], data_position);
+            intensity = model_structs[0].intensity;
 
             #pragma unroll_loop_start
             for(int i = 1; i < 4; i++) {
                 if(model_structs[i].use) {
                     // Sample model and mix in to volume
-                    model_sample = sample_model(model_structs[i], data_position);
+                    vec4 m_sample = sample_model(model_structs[i], data_position);
 
-                    if(blending == 0) { // Blending.Max
-                        mix_factor = max(volume_sample.a, model_sample.a);
-                    } else if(blending == 1) { // Blending.Min
-                        mix_factor = min(volume_sample.a, model_sample.a);
+                    // Final intensity is the maximum given to the models
+                    intensity = max(model_structs[i].intensity, intensity);
+
+                    // Calculate the mix factor (0: Max, 1: Min, 2: Average)
+                    float mix_factor = 0.5;
+                    if(blending == 0) mix_factor = max(v_sample.a, m_sample.a);
+                    else if(blending == 1) mix_factor = min(v_sample.a, m_sample.a);
+                    else if (blending == 2) {
+                        // mix uses a percentage - get ratio of the alphas
+                        mix_factor = v_sample.a / (v_sample.a + m_sample.a);
                     }
-                    else if(blending == 2) {} // TODO: Blending.Average (115)
 
-                    volume_sample = mix(volume_sample, model_sample, mix_factor);
+                    v_sample = mix(v_sample, m_sample, mix_factor);
                 }
             }
             #pragma unroll_loop_end
         } else break; // array is "empty", leave vFragColor transparent
 
-        // Blending (front to back)
-        vFragColor.rgb += (1.0 - vFragColor.a) * volume_sample.a * volume_sample.rgb;
-        vFragColor.a += (1.0 - vFragColor.a) * volume_sample.a;
+        // Artifically increase pixel intensity
+        v_sample.rgb *= intensity;
+
+        // Blend front to back
+        vFragColor.rgb += (1.0 - vFragColor.a) * v_sample.a * v_sample.rgb;
+        vFragColor.a += (1.0 - vFragColor.a) * v_sample.a;
 
         // Early exit if 95% opacity is reached
         if (vFragColor.a >= 0.95) break;

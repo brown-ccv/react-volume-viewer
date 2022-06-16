@@ -25,8 +25,7 @@ CSS styling for the height must be provided, otherwise the height of the compone
 ```jsx
 
 VolumeViewer.propTypes = {
-  /**
-   * Blending enum
+  /** Blending enum
    *  Max: Take maximum value at the given point
    *  Min: Take minimum value at the given point
    *  Average: Average all models at each point
