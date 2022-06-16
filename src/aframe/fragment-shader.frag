@@ -74,14 +74,10 @@ vec4 sample_model(ModelStruct model, vec3 data_position) {
     if(model_sample.a < 0.25) model_sample.a *= 0.1;
 
     // Sample transfer texture
-    model_sample = texture(
+    return texture(
         model.transfer_texture, 
         vec2(clamp(model_sample.a, 0.0, 1.0), 0.5)
     );
-
-    // // Artificially increase pixel intensity
-    // model_sample.rgb *= model.intensity;
-    return model_sample;
 }
 
 void main() {
