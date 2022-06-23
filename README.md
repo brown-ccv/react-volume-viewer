@@ -25,10 +25,10 @@ CSS styling for the height must be provided, otherwise the height of the compone
 ```jsx
 
 VolumeViewer.propTypes = {
-  /**
-   * Blending enum
-   *  None: Don't apply any blending - always display first model
-   *  Max: Take maximum value when blending
+  /** Blending enum
+   *  Max: Take maximum value at the given point
+   *  Min: Take minimum value at the given point
+   *  Average: Average all models at each point
    */
   blending: PropTypes.oneOf(Object.values(Blending)),
 
@@ -122,7 +122,16 @@ VolumeViewer.defaultProps = {
 
 ## Blending
 
-The `Blending` object is used as an enum for the different algorithms that can be used to blending the models together. `Blending.None` does not apply any blending. `Blending.Max` uses the maximum value between the models.
+The `Blending` object is used as an enum for the different algorithms that can be used to blending the models together.
+
+```js
+const Blending = {
+  Max: 0,
+  Min: 1,
+  Average: 2,
+};
+
+```
 
 ### COLOR_MAPS
 

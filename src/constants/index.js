@@ -28,12 +28,14 @@ const COLOR_MAPS = (() => {
 
 /**
  * Blending enum exposed to the user
- *  None: Don't apply any blending
- *  Add: Apply additive blending
+ *  Max: Take maximum value at the given point
+ *  Min: Take minimum value at the given point
+ *  Average: Average all models at each point
  */
 const Blending = {
-  None: 0,
-  Max: 1,
+  Max: 0,
+  Min: 1,
+  Average: 2,
 };
 
 /** DEFAULT VALUES */

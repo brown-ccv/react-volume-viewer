@@ -9,8 +9,10 @@ const allColorMaps = [...Object.values(COLOR_MAPS)];
 
 function App() {
   const [controlsVisible, setControlsVisible] = useState(false);
+
   const [singleColorMap, setSingleColorMap] = useState(false);
   const [enabled, setEnabled] = React.useState(true);
+  const [blending, setBlending] = useState(Blending.Max);
 
   const [useTransferFunction, setUseTransferFunction] = useState(true);
   const [useColorMap, setUseColorMap] = useState(true);
@@ -32,10 +34,19 @@ function App() {
             Single Color Map
           </button>
           <button onClick={() => setEnabled(!enabled)}>Enabled</button>
+          <button onClick={() => setBlending(Blending.Min)}>
+            Min Blending
+          </button>
+          <button onClick={() => setBlending(Blending.Max)}>
+            Max Blending
+          </button>
+          <button onClick={() => setBlending(Blending.Average)}>
+            Average Blending
+          </button>
         </div>
         <StyledVolumeViewer
           controlsVisible={controlsVisible}
-          blending={Blending.Max}
+          blending={blending}
           models={[
             {
               name: "Salt",
