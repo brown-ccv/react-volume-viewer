@@ -34,9 +34,15 @@ function App() {
             Single Color Map
           </button>
           <button onClick={() => setEnabled(!enabled)}>Enabled</button>
-          <button onClick={() => setBlending(Blending.Min)}>Min Blending</button>
-          <button onClick={() => setBlending(Blending.Max)}>Max Blending</button>
-          <button onClick={() => setBlending(Blending.Average)}>Average Blending</button>
+          <button onClick={() => setBlending(Blending.Min)}>
+            Min Blending
+          </button>
+          <button onClick={() => setBlending(Blending.Max)}>
+            Max Blending
+          </button>
+          <button onClick={() => setBlending(Blending.Average)}>
+            Average Blending
+          </button>
         </div>
         <StyledVolumeViewer
           controlsVisible={controlsVisible}
