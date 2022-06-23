@@ -93,8 +93,9 @@ const Wrapper = styled.div`
 VolumeViewer.propTypes = {
   /**
    * Blending enum exposed to the user
-   *  None: Don't apply any blending - always display first model
-   *  Max: Take maximum value when blending
+   *  Max: Take maximum value at the given point
+   *  Min: Take minimum value at the given point
+   *  Average: Average all models at each point
    */
   blending: PropTypes.oneOf(Object.values(Blending)),
 
@@ -133,7 +134,7 @@ VolumeViewer.propTypes = {
 };
 
 VolumeViewer.defaultProps = {
-  blending: Blending.None,
+  blending: Blending.Max,
   controlsVisible: false,
   position: DEFAULT_POSITION,
   rotation: DEFAULT_ROTATION,
