@@ -25,10 +25,10 @@ CSS styling for the height must be provided, otherwise the height of the compone
 ```jsx
 
 VolumeViewer.propTypes = {
-  /**
-   * Blending enum
-   *  None: Don't apply any blending - always display first model
-   *  Max: Take maximum value when blending
+  /** Blending enum
+   *  Max: Take maximum value at the given point
+   *  Min: Take minimum value at the given point
+   *  Average: Average all models at each point
    */
   blending: PropTypes.oneOf(Object.values(Blending)),
 
@@ -122,7 +122,16 @@ VolumeViewer.defaultProps = {
 
 ## Blending
 
-The `Blending` object is used as an enum for the different algorithms that can be used to blending the models together. `Blending.None` does not apply any blending. `Blending.Max` uses the maximum value between the models.
+The `Blending` object is used as an enum for the different algorithms that can be used to blending the models together.
+
+```js
+const Blending = {
+  Max: 0,
+  Min: 1,
+  Average: 2,
+};
+
+```
 
 ### COLOR_MAPS
 
@@ -198,42 +207,53 @@ An example project can be found on the [GitHub Page](https://brown-ccv.github.io
 ```jsx
 import React from 'react'
 import styled from 'styled-components'
-import { VolumeViewer, COLOR_MAPS } from "react-volume-viewer";
+import { VolumeViewer, COLOR_MAPS, Blending } from "react-volume-viewer";
 
 import model1 from "./path/to/model.png";
 import model2 from "./path/to/model.png";
 
-const haline = { name: "Haline", path: "./assets/colormaps/haline.png" };
-const thermal = { name: "Thermal", path: "./assets/colormaps/thermal.png" };
+const allColorMaps = [...Object.values(COLOR_MAPS)];
 
 function App() {
   const [controlsVisible, setControlsVisible] = React.useState(true);
+  const [singleColorMap, setSingleColorMap] = useState(false);
   const [enabled, setEnabled] = React.useState(true)
+
+  const [useTransferFunction, setUseTransferFunction] = useState(true);
+  const [useColorMap, setUseColorMap] = useState(true);
 
   return (
     <StyledVolumeViewer
       controlsVisible={controlsVisible}
+      blending={Blending.Max}
       models={[
         {
           name: "Salt",
           colorMap: haline,
-          colorMaps={[haline, thermal, COLOR_MAPS.Grayscale]}
+          ...(!singleColorMap && {
+            colorMaps: [COLOR_MAPS.Haline, COLOR_MAPS.thermal, COLOR_MAPS.Grayscale]
+          }),
           description: "Model visualizing salinity data",
-          path: {model1},
+          enabled: enabled,
+          path: model1,
           range: {
             min: 0.05,
             max: 33.71,
           },
-          path: model1,
           transferFunction: [
             { x: 0, y: 0 },
-            { x: 0.5, y: 0.5 },
+            { x: 0.5, y: 0.75 },
             { x: 1, y: 1 },
           ],
+          useTransferFunction: useTransferFunction,
+          useColorMap: useColorMap,
         },
         {
           name: "Temperature",
-          colorMaps={[...Object.values(COLOR_MAPS)]}
+          colorMap: thermal,
+          ...(!singleColorMap && { 
+            colorMaps: [...Object.values(COLOR_MAPS)]
+          }),
           enabled: enabled,
           description: "Model visualizing temperature data",
           path: {model2},
@@ -242,13 +262,13 @@ function App() {
             max: 42,
             unit: "°C",
           },
-          useTransferFunction: false,
-          useColorMap: false,
+          useTransferFunction: useTransferFunction,
+          useColorMap: useColorMap,
         },
       ]}
       rotation="-55 0 0"
       scale="1 -1 1"
-      slices={50}
+      slices={55}
       spacing="2 2 1"
     />
   )
