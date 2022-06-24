@@ -1,30 +1,15 @@
 import { THREE } from "aframe";
 
+import { deepCopy } from "../utils";
+import colormaps from "../images/colormaps";
 import vertexShader from "../aframe/vertex-shader.vert";
 import fragmentShader from "../aframe/fragment-shader.frag";
-import { deepCopy } from "../utils";
 
 const { BackSide, RawShaderMaterial, Vector2, Vector3, Matrix4 } = THREE;
 
 /** EXPORTED CONSTANTS */
 
-/** Load colorMaps with an IIFE
- *
- */
-const COLOR_MAPS = (() => {
-  const r = require.context("../images/colormaps", true);
-  const colormaps = {};
-  r.keys().forEach((key) => {
-    // Replace ./ and extension from key
-    const name = key.replace(/^.*[\\/]/, "").replace(/\.[^/.]+$/, "");
-    const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
-    colormaps[capitalizedName] = {
-      name: name,
-      path: r(key),
-    };
-  });
-  return colormaps;
-})();
+const COLOR_MAPS = colormaps;
 
 /**
  * Blending enum exposed to the user
