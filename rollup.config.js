@@ -1,8 +1,8 @@
 import babel from '@rollup/plugin-babel'
 import commonjs from '@rollup/plugin-commonjs'
 import external from 'rollup-plugin-peer-deps-external'
+import image from '@rollup/plugin-image';
 import postcss from "rollup-plugin-postcss"
-import requireContext from 'rollup-plugin-require-context';
 import resolve from '@rollup/plugin-node-resolve'
 import { string } from "rollup-plugin-string";
 import url from '@rollup/plugin-url'
@@ -32,8 +32,8 @@ const rollup = {
     }),
     commonjs(),
     external(),
+    image(),
     postcss(),
-    requireContext(),
     resolve(),
     string({ include: ["**/*.vert", "**/*.frag"] }),
     url(),    
