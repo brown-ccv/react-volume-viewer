@@ -44,32 +44,13 @@ vec2 intersectBox(vec3 camera, vec3 direction, vec3 clip_min, vec3 clip_max ) {
     return vec2(t_start, t_end);
 }
 
-// Sample model texture as 3D object
-vec4 sampleAs3DTexture(sampler2D tex, vec3 coordinates) {
-    float z_start = floor(coordinates.z / (1.0 / slices));
-    float z_end = min(z_start + 1.0, slices - 1.0);
-    vec2 p_start = vec2(mod(z_start, dim), dim - floor(z_start / dim) - 1.0);
-    vec2 p_end = vec2(mod(z_end, dim), dim - floor(z_end / dim) - 1.0);
-    vec2 coordinates_start = vec2(
-        coordinates.x / dim + p_start.x / dim, 
-        coordinates.y / dim + p_start.y / dim
+vec4 sample_model(ModelStruct model, vec2 start_position, vec2 end_position, float ratio) {
+    // Sample model texture as 3D object, alpha is initialized as the max channel
+    vec4 model_sample = mix (
+        texture(model.model_texture, start_position),
+        texture(model.model_texture, end_position),
+        ratio
     );
-    vec2 coordinates_end = vec2(
-        coordinates.x / dim + p_end.x / dim,
-        coordinates.y / dim + p_end.y / dim
-    );
-
-    // Apply linear interpolation between start and end coordinates
-    return mix (
-        texture(tex, coordinates_start),
-        texture(tex, coordinates_end),
-        (coordinates.z * slices - z_start)
-    );
-}
-
-vec4 sample_model(ModelStruct model, vec3 data_position) {
-    // Sample model, alpha is initialized as the max of the 3 channels
-    vec4 model_sample = sampleAs3DTexture(model.model_texture, data_position);
     model_sample.a = max(model_sample.r, max(model_sample.g, model_sample.b));
     if(model_sample.a < 0.25) model_sample.a *= 0.1;
 
@@ -137,17 +118,33 @@ void main() {
     vec4 v_sample;
     float intensity = 0.0;
     for(float t = t_start; t < t_end; t += step_size) {
+        // Get start position, end position, and mix factor to sample models as 3D objects
+        float z_start = floor(data_position.z / (1.0 / slices));
+        float z_end = min(z_start + 1.0, slices - 1.0);
+        vec2 p_start = vec2(mod(z_start, dim), dim - floor(z_start / dim) - 1.0);
+        vec2 p_end = vec2(mod(z_end, dim), dim - floor(z_end / dim) - 1.0);
+        vec2 start = vec2(
+            data_position.x / dim + p_start.x / dim, 
+            data_position.y / dim + p_start.y / dim
+        );
+        vec2 end = vec2(
+            data_position.x / dim + p_end.x / dim,
+            data_position.y / dim + p_end.y / dim
+        );
+        float mix_position = data_position.z * slices - z_start;
+
+        // Sample and mix models into a single volume
         if(model_structs[0].use) {
-            v_sample = sample_model(model_structs[0], data_position);
+            v_sample = sample_model(model_structs[0], start, end, mix_position);
             intensity = model_structs[0].intensity;
 
             #pragma unroll_loop_start
             for(int i = 1; i < 4; i++) {
                 if(model_structs[i].use) {
                     // Sample model and mix in to volume
-                    vec4 m_sample = sample_model(model_structs[i], data_position);
+                    vec4 m_sample = sample_model(model_structs[i], start, end, mix_position);
 
-                    // Final intensity is the maximum given to the models
+                    // Final intensity is the maximum of the models
                     intensity = max(model_structs[i].intensity, intensity);
 
                     // Calculate the mix factor (0: Max, 1: Min, 2: Average)
