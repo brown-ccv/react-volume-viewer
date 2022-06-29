@@ -118,31 +118,33 @@ void main() {
     vec4 v_sample;
     float intensity = 0.0;
     for(float t = t_start; t < t_end; t += step_size) {
+        // Get start position, end position, and mix factor to sample models as 3D objects
         float z_start = floor(data_position.z / (1.0 / slices));
         float z_end = min(z_start + 1.0, slices - 1.0);
         vec2 p_start = vec2(mod(z_start, dim), dim - floor(z_start / dim) - 1.0);
         vec2 p_end = vec2(mod(z_end, dim), dim - floor(z_end / dim) - 1.0);
-        vec2 start_position = vec2(
+        vec2 start = vec2(
             data_position.x / dim + p_start.x / dim, 
             data_position.y / dim + p_start.y / dim
         );
-        vec2 end_position = vec2(
+        vec2 end = vec2(
             data_position.x / dim + p_end.x / dim,
             data_position.y / dim + p_end.y / dim
         );
-        float ratio = data_position.z * slices - floor(data_position.z / (1.0 / slices));
+        float mix_position = data_position.z * slices - z_start;
 
+        // Sample and mix models into a single volume
         if(model_structs[0].use) {
-            v_sample = sample_model(model_structs[0], start_position, end_position, ratio);
+            v_sample = sample_model(model_structs[0], start, end, mix_position);
             intensity = model_structs[0].intensity;
 
             #pragma unroll_loop_start
             for(int i = 1; i < 4; i++) {
                 if(model_structs[i].use) {
                     // Sample model and mix in to volume
-                    vec4 m_sample = sample_model(model_structs[i], start_position, end_position, ratio);
+                    vec4 m_sample = sample_model(model_structs[i], start, end, mix_position);
 
-                    // Final intensity is the maximum given to the models
+                    // Final intensity is the maximum of the models
                     intensity = max(model_structs[i].intensity, intensity);
 
                     // Calculate the mix factor (0: Max, 1: Min, 2: Average)
