@@ -79,12 +79,15 @@ AFRAME.registerComponent("volume", {
       const triggerDown =
         this.controllerObject.el.getAttribute("buttons-check").triggerDown;
 
+        console.log("TICK", triggerDown)
+
       // Grab object
       if (!this.grabbed && triggerDown && this.rayCollided) {
         mesh.matrix.premultiply(this.controllerObject.matrixWorld.invert());
         mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
         this.controllerObject.add(mesh);
         this.grabbed = true;
+        console.log("GRAB OBJECT")
       }
 
       // Stop grabbing object
@@ -93,6 +96,7 @@ AFRAME.registerComponent("volume", {
         mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
         this.el.object3D.add(mesh); // Add? Shouldn't this be setObject3D?
         this.grabbed = false;
+        console.log("STOP GRAB OBJECT")
       }
 
       this.updateMeshClipMatrix();
@@ -112,11 +116,11 @@ AFRAME.registerComponent("volume", {
   /** EVENT LISTENER FUNCTIONS */
 
   onEnterVR: function () {
-    console.log("ENTER volume")
+    // console.log("ENTER volume");
   },
 
   onExitVR: function () {
-    console.log("EXIT volume")
+    // console.log("EXIT volume");
     const mesh = this.getMesh();
     if (mesh) {
       mesh.position.copy(new Vector3());

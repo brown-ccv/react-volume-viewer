@@ -38,15 +38,19 @@ AFRAME.registerComponent("arcball-camera", {
   },
 
   onEnterVR: function () {
-    console.log("ENTER arcball-camera")
+    console.log(
+      "ENTER arcball-camera",
+      AFRAME.utils.device.checkHeadsetConnected(),
+      AFRAME.utils.device.isMobile()
+    );
     if (
       !AFRAME.utils.device.checkHeadsetConnected() &&
       !AFRAME.utils.device.isMobile()
     ) {
+      console.log("SKIP");
       return;
     }
 
-    
     this.controls.enabled = false;
     const el = this.el;
     if (el.hasAttribute("look-controls")) {
@@ -55,19 +59,20 @@ AFRAME.registerComponent("arcball-camera", {
       // Store position from before VR and move to origin
       this.oldMatrix.copy(this.meshObjectHandler.matrixWorld);
       this.oldPosition.copy(el.getObject3D("camera").position);
+      console.log("Start position", el.getObject3D("camera").position);
       el.getObject3D("camera").position.set(0, 0, 0);
     }
   },
 
   onExitVR: function () {
-    console.log("EXIT arcball-camera")
+    console.log("EXIT arcball-camera");
     if (
       !AFRAME.utils.device.checkHeadsetConnected() &&
       !AFRAME.utils.device.isMobile()
     ) {
       return;
     }
-    
+
     this.controls.enabled = true;
     const el = this.el;
     el.getObject3D("camera").position.set(this.oldPosition);
