@@ -157,6 +157,10 @@ AFRAME.registerComponent("volume", {
     const slices = uniforms.slices.value;
     const modelTexture = uniforms.model_structs.value[0].model_texture;
 
+    // Might not need?
+    // TODO: Don't call validateModelTextureSizes
+    // TODO: Otherwise use the maximum value
+      // Update default uniforms to max
     if (modelTexture) {
       const volumeScale = new Vector3(
         1.0 / ((modelTexture.image.width / dim) * spacing.x),
