@@ -148,12 +148,20 @@ AFRAME.registerComponent("volume", {
     const uniforms = this.getUniforms();
     const dim = uniforms.dim.value;
     const slices = uniforms.slices.value;
-    const modelTexture = uniforms.model_structs.value[0].model_texture;
 
-    if (modelTexture) {
+    // zScale is based on the largest texture
+    let maxWidth, maxHeight;
+    uniforms.model_structs.value.forEach((model) => {
+      if (model.model_texture) {
+        const { width, height } = model.model_texture.image;
+        (!maxWidth || width > maxWidth) && (maxWidth = width);
+        (!maxHeight || height > maxHeight) && (maxHeight = height);
+      }
+    });
+    if (maxWidth && maxHeight) {
       const volumeScale = new Vector3(
-        1.0 / ((modelTexture.image.width / dim) * spacing.x),
-        1.0 / ((modelTexture.image.height / dim) * spacing.y),
+        1.0 / ((maxWidth / dim) * spacing.x),
+        1.0 / ((maxHeight / dim) * spacing.y),
         1.0 / (slices * spacing.z)
       );
       uniforms.zScale.value = volumeScale.x / volumeScale.z;
@@ -204,7 +212,6 @@ AFRAME.registerComponent("volume", {
       )
     ).then((promises) => {
       const { values: modelStructs, errors } = partitionPromises(promises);
-      errors.push(...this.validateModelTextureSizes(modelStructs));
 
       // Bubble loading errors up to AframeScene
       errors.length &&
@@ -337,29 +344,5 @@ AFRAME.registerComponent("volume", {
     const transferTexture = new DataTexture(rgbaData, 256, 1, RGBAFormat);
     transferTexture.needsUpdate = true;
     return transferTexture;
-  },
-
-  // Validate all model textures are the same size
-  validateModelTextureSizes: function (modelStructs) {
-    const errors = [];
-    if (modelStructs.length) {
-      const { width, height } = modelStructs[0].modelTexture.image;
-
-      modelStructs.forEach(({ name, modelTexture }) => {
-        if (
-          !(
-            modelTexture.image.width === width &&
-            modelTexture.image.height === height
-          )
-        ) {
-          errors.push(
-            new Error(
-              "Model '" + name + "' does not match size " + width + "x" + height
-            )
-          );
-        }
-      });
-    }
-    return errors;
   },
 });
