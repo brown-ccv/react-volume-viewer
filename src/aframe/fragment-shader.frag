@@ -115,8 +115,9 @@ void main() {
 
     // Starting from the entry point, march the ray through the volume and sample it
     vec4 vFragColor = vec4(0);
-    vec4 v_sample;
+    vec4 v_sample = vec4(0);
     float intensity = 0.0;
+    float mix_factor = 0.5;
     for(float t = t_start; t < t_end; t += step_size) {
         // Get start position, end position, and mix factor to sample models as 3D objects
         float z_start = floor(data_position.z / (1.0 / slices));
@@ -134,36 +135,28 @@ void main() {
         float mix_position = data_position.z * slices - z_start;
 
         // Sample and mix models into a single volume
-        if(model_structs[0].use) {
-            v_sample = sample_model(model_structs[0], start, end, mix_position);
-            intensity = model_structs[0].intensity;
-
-            #pragma unroll_loop_start
-            for(int i = 1; i < 4; i++) {
-                if(model_structs[i].use) {
-                    // Sample model and mix in to volume
-                    vec4 m_sample = sample_model(model_structs[i], start, end, mix_position);
-
-                    // Final intensity is the maximum of the models
-                    intensity = max(model_structs[i].intensity, intensity);
-
-                    // Calculate the mix factor (0: Max, 1: Min, 2: Average)
-                    float mix_factor = 0.5;
-                    if(blending == 0) mix_factor = max(v_sample.a, m_sample.a);
-                    else if(blending == 1) mix_factor = min(v_sample.a, m_sample.a);
-                    else if (blending == 2) {
-                        // mix uses a percentage - get ratio of the alphas
-                        mix_factor = v_sample.a / (v_sample.a + m_sample.a);
-                    }
-
-                    v_sample = mix(v_sample, m_sample, mix_factor);
+     
+        #pragma unroll_loop_start
+        for(int i = 0; i < 4; i++) {
+            if(model_structs[i].use) {
+                // Sample model and mix in to volume
+                vec4 m_sample = sample_model(model_structs[i], start, end, mix_position);
+                   
+                // Artifically increase pixel intensity
+                m_sample.rgb  *=  model_structs[i].intensity;
+           
+                // Calculate the mix factor (0: Max, 1: Min, 2: Average)                 
+                if(blending == 0) mix_factor = max(v_sample.a, m_sample.a);
+                else if(blending == 1) mix_factor = min(v_sample.a, m_sample.a);
+                else if (blending == 2) {
+                    // mix uses a percentage - get ratio of the alphas
+                    mix_factor = v_sample.a / (v_sample.a + m_sample.a);
                 }
-            }
-            #pragma unroll_loop_end
-        } else break; // array is "empty", leave vFragColor transparent
 
-        // Artifically increase pixel intensity
-        v_sample.rgb *= intensity;
+                 v_sample = mix(v_sample, m_sample, mix_factor);    
+            }
+        }
+         #pragma unroll_loop_end
 
         // Blend front to back
         vFragColor.rgb += (1.0 - vFragColor.a) * v_sample.a * v_sample.rgb;
