@@ -1,18 +1,18 @@
-# version 300 es
+#version 300 es
 precision mediump float;
 precision highp sampler2D;
 
 #define MAX_MODELS 4
-struct ModelStruct {
+struct ModelStruct{
     bool use;
     float intensity;
     sampler2D model_texture;
     sampler2D transfer_texture;
 };
 
-in vec3 vUV;        // Coordinates of the texture
-in vec3 camPos;     // Coordinates of the camera
-out vec4 fragColor; // Final output color 
+in vec3 vUV;// Coordinates of the texture
+in vec3 camPos;// Coordinates of the camera
+out vec4 fragColor;// Final output color
 
 uniform bool apply_vr_clip;
 uniform int blending;
@@ -25,11 +25,11 @@ uniform float step_size;
 uniform mat4 vr_clip_matrix;
 
 /**
-    Shader code for the VR Volume Viewer
-    t_:     Translation vector
-    p_:     Position vector
-    m_:     Data for an individual model
-    v_:     Data for the entire volume
+Shader code for the VR Volume Viewer
+t_:     Translation vector
+p_:     Position vector
+m_:     Data for an individual model
+v_:     Data for the entire volume
 */
 
 // Clip the volume between clip_min and clip_max
@@ -53,10 +53,10 @@ vec4 sample_model(ModelStruct model, vec2 start_position, vec2 end_position, flo
     );
     model_sample.a = max(model_sample.r, max(model_sample.g, model_sample.b));
     if(model_sample.a < 0.25) model_sample.a *= 0.1;
-
+    
     // Sample transfer texture
     return texture(
-        model.transfer_texture, 
+        model.transfer_texture,
         vec2(clamp(model_sample.a, 0.0, 1.0), 0.5)
     );
 }
@@ -64,31 +64,31 @@ vec4 sample_model(ModelStruct model, vec2 start_position, vec2 end_position, flo
 void main() {
     // Get the 3D texture coordinates for lookup into the volume dataset
     vec3 data_position = vUV;
-
+    
     // Direction the ray is marching in
     vec3 ray_direction = normalize(data_position - camPos);
-
+    
     // Get the t values for the intersection with the clipping values
     vec2 t_hit = intersectBox(camPos, ray_direction, clip_min, clip_max);
     float t_start = t_hit.x;
     float t_end = t_hit.y;
-
+    
     /*
-        We dont want to sample voxels behind the eye if its inside the volume, 
-        so keep the starting point at or in front of the eye
+    We dont want to sample voxels behind the eye if its inside the volume,
+    so keep the starting point at or in front of the eye
     */
     t_start = max(t_start, 0.0);
-
+    
     /*
-        We don't know if the ray was cast from the back or the front face. To ensure we 
-        update data_position and t_hit to reflect a ray from entry point to exit 
-        We're shifting the clipping box to [0.0, end - start]
-        (Note: We only render the back face)
+    We don't know if the ray was cast from the back or the front face. To ensure we
+    update data_position and t_hit to reflect a ray from entry point to exit
+    We're shifting the clipping box to [0.0, end - start]
+    (Note: We only render the back face)
     */
     data_position = camPos + t_start * ray_direction;
     t_end = t_end - t_start;
     t_start = 0.0;
-
+    
     // Get t for the clipping plane and overwrite the entry point
     // This only occurs when grabbing volume in a VR headset
     if(apply_vr_clip) {
@@ -99,74 +99,74 @@ void main() {
             vec4 c_pos = vr_clip_matrix * vec4(data_position, 1);
             vec4 c_dir = vr_clip_matrix * vec4(ray_direction, 0);
             float t_clip = -c_pos.y / c_dir.y;
-    
+            
             // Update either entry or exit based on which is on the clipped side
-            if (p_in.y > 0.0) t_start = t_clip; 
-            else t_end = t_clip; 
+            if (p_in.y > 0.0) t_start = t_clip;
+            else t_end = t_clip;
         } else {
             /*
-                Both points lie on the same side of the plane, if one of them is 
-                on the wrong side they can be clipped
+            Both points lie on the same side of the plane, if one of them is
+            on the wrong side they can be clipped
             */
-            if(p_in.y > 0.0) discard;
+            if(p_in.y>0.)discard;
         }
     }
-    data_position = data_position + t_start * ray_direction;
-
+    data_position=data_position+t_start*ray_direction;
+    
     // Starting from the entry point, march the ray through the volume and sample it
-    vec4 vFragColor = vec4(0);
-    vec4 v_sample = vec4(0);
-    float intensity = 0.0;
-    float mix_factor = 0.5;
-    for(float t = t_start; t < t_end; t += step_size) {
+    vec4 vFragColor=vec4(0);
+    vec4 v_sample=vec4(0);
+    float intensity=0.;
+    float mix_factor=.5;
+    for(float t=t_start;t<t_end;t+=step_size){
         // Get start position, end position, and mix factor to sample models as 3D objects
-        float z_start = floor(data_position.z / (1.0 / slices));
-        float z_end = min(z_start + 1.0, slices - 1.0);
-        vec2 p_start = vec2(mod(z_start, dim), dim - floor(z_start / dim) - 1.0);
-        vec2 p_end = vec2(mod(z_end, dim), dim - floor(z_end / dim) - 1.0);
-        vec2 start = vec2(
-            data_position.x / dim + p_start.x / dim, 
-            data_position.y / dim + p_start.y / dim
+        float z_start=floor(data_position.z/(1./slices));
+        float z_end=min(z_start+1.,slices-1.);
+        vec2 p_start=vec2(mod(z_start,dim),dim-floor(z_start/dim)-1.);
+        vec2 p_end=vec2(mod(z_end,dim),dim-floor(z_end/dim)-1.);
+        vec2 start=vec2(
+            data_position.x/dim+p_start.x/dim,
+            data_position.y/dim+p_start.y/dim
         );
-        vec2 end = vec2(
-            data_position.x / dim + p_end.x / dim,
-            data_position.y / dim + p_end.y / dim
+        vec2 end=vec2(
+            data_position.x/dim+p_end.x/dim,
+            data_position.y/dim+p_end.y/dim
         );
-        float mix_position = data_position.z * slices - z_start;
-
+        float mix_position=data_position.z*slices-z_start;
+        
         // Sample and mix models into a single volume
-     
+        
         #pragma unroll_loop_start
-        for(int i = 0; i < 4; i++) {
-            if(model_structs[i].use) {
+        for(int i=0;i<4;i++){
+            if(model_structs[i].use){
                 // Sample model and mix in to volume
-                vec4 m_sample = sample_model(model_structs[i], start, end, mix_position);
-                   
+                vec4 m_sample=sample_model(model_structs[i],start,end,mix_position);
+                
                 // Artifically increase pixel intensity
-                m_sample.rgb  *=  model_structs[i].intensity;
-           
-                // Calculate the mix factor (0: Max, 1: Min, 2: Average)                 
-                if(blending == 0) mix_factor = max(v_sample.a, m_sample.a);
-                else if(blending == 1) mix_factor = min(v_sample.a, m_sample.a);
-                else if (blending == 2) {
+                m_sample.rgb*=model_structs[i].intensity;
+                
+                // Calculate the mix factor (0: Max, 1: Min, 2: Average)
+                if(blending==0)mix_factor=max(v_sample.a,m_sample.a);
+                else if(blending==1)mix_factor=min(v_sample.a,m_sample.a);
+                else if(blending==2){
                     // mix uses a percentage - get ratio of the alphas
-                    mix_factor = v_sample.a / (v_sample.a + m_sample.a);
+                    mix_factor=v_sample.a/(v_sample.a+m_sample.a);
                 }
-
-                 v_sample = mix(v_sample, m_sample, mix_factor);    
+                
+                v_sample=mix(v_sample,m_sample,mix_factor);
             }
         }
-         #pragma unroll_loop_end
-
+        #pragma unroll_loop_end
+        
         // Blend front to back
-        vFragColor.rgb += (1.0 - vFragColor.a) * v_sample.a * v_sample.rgb;
-        vFragColor.a += (1.0 - vFragColor.a) * v_sample.a;
-
+        vFragColor.rgb+=(1.-vFragColor.a)*v_sample.a*v_sample.rgb;
+        vFragColor.a+=(1.-vFragColor.a)*v_sample.a;
+        
         // Early exit if 95% opacity is reached
-        if (vFragColor.a >= 0.95) break;
-
+        if(vFragColor.a>=.95)break;
+        
         // Advance point
-        data_position += ray_direction * step_size;
+        data_position+=ray_direction*step_size;
     }
-    fragColor = vFragColor;
+    fragColor=vFragColor;
 }
