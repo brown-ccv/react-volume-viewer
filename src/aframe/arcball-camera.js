@@ -48,8 +48,6 @@ AFRAME.registerComponent("arcball-camera", {
 
     this.controls.enabled = false;
     if (el.hasAttribute("look-controls")) {
-      el.setAttribute("look-controls", "enabled", true);
-
       // Store position from before VR and move to origin
       this.oldMatrix.copy(this.meshObjectHandler.matrixWorld);
       this.oldPosition.copy(el.getObject3D("camera").position);
