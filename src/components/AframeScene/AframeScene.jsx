@@ -37,7 +37,8 @@ function AframeScene({
   }, []);
 
   return (
-    <a-scene id="volumeViewerScene" background="color: black" embedded>
+    // TODO: Pass the hex value as a prop. Default is #000000
+    <a-scene id="volumeViewerScene" background="color: #000000" embedded>
       {/* HAND */}
       <a-entity
         id="hand"
