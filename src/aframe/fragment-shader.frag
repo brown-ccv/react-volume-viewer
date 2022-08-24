@@ -158,21 +158,19 @@ void main() {
                 {
                     
                     // Do data and non linear color blending
-                    // Calculate the alpha mix factor (0: Max, 1: Min, 2: Average)
+                    // Calculate the alpha mix factor (0: Max, 1: Min, 2: Ratio)
                     if(blending==0)mix_factor=max(v_sample.a,m_sample.a);
                     else if(blending==1)mix_factor=min(v_sample.a,m_sample.a);
                     else if(blending==2){
-                        // mix uses a percentage - get ratio of the alphas
+                        // mix uses a Ratio - get ratio of the alphas
                         mix_factor=v_sample.a/(v_sample.a+m_sample.a);
                     }
                     
                     // Combine colors
                     // non linear interpolation of colors
-                    vec3 temp=v_sample.rgb*v_sample.rgb;
-                    vec3 temp2=m_sample.rgb*m_sample.rgb;
-                    vec3 mix_color=sqrt(mix(temp,temp2,.5));
+                    vec3 mix_color=sqrt(v_sample.rgb*v_sample.rgb+m_sample.rgb*m_sample.rgb);
                     
-                    // Result alpha value is the factor calculated by the bleding mode.
+                    // Result alpha value is the factor calculated by the blending mode.
                     v_sample=vec4(mix_color,mix_factor);
                 }
             }
