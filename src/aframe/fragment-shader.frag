@@ -52,16 +52,17 @@ vec4 sample_model(ModelStruct model, vec2 start_position, vec2 end_position, flo
         ratio
     );
     model_sample.a = max(model_sample.r, max(model_sample.g, model_sample.b));
-    if(model_sample.a < 0.25) model_sample.a *= 0.1;
+    if(model_sample.a < 0.20) model_sample.a *= 0.1;
     
     // Sample transfer texture
     return texture(
         model.transfer_texture,
-        vec2(clamp(model_sample.a, 0.0, 1.0), 0.5)
+        vec2(clamp(model_sample.a, 0.0, 1.0))
     );
 }
 
 void main() {
+    
     // Get the 3D texture coordinates for lookup into the volume dataset
     vec3 data_position = vUV;
     
@@ -117,7 +118,7 @@ void main() {
     vec4 vFragColor=vec4(0);
     vec4 v_sample=vec4(0);
     float intensity=0.;
-    float mix_factor=.5;
+    float alpha=.5;
     for(float t=t_start;t<t_end;t+=step_size){
         // Get start position, end position, and mix factor to sample models as 3D objects
         float z_start=floor(data_position.z/(1./slices));
@@ -136,24 +137,42 @@ void main() {
         
         // Sample and mix models into a single volume
         
+        int has_passed=0;
         #pragma unroll_loop_start
-        for(int i=0;i<4;i++){
+        for(int i=0;i<3;i++){
             if(model_structs[i].use){
                 // Sample model and mix in to volume
+                // m_sample.rgb the value found in the color map look up table
+                // m_sample.a is the value obtained from the transfer function widget
                 vec4 m_sample=sample_model(model_structs[i],start,end,mix_position);
-                
                 // Artifically increase pixel intensity
-                m_sample.rgb*=model_structs[i].intensity;
-                
-                // Calculate the mix factor (0: Max, 1: Min, 2: Average)
-                if(blending==0)mix_factor=max(v_sample.a,m_sample.a);
-                else if(blending==1)mix_factor=min(v_sample.a,m_sample.a);
-                else if(blending==2){
-                    // mix uses a percentage - get ratio of the alphas
-                    mix_factor=v_sample.a/(v_sample.a+m_sample.a);
+                m_sample[i]*=model_structs[i].intensity;
+                // make sure the color is within transparency range.
+                m_sample[i]=clamp(m_sample[i],0.,1.);
+                if(has_passed==0)
+                {
+                    //preserve rgb value from the transfer function when rendering a single model
+                    has_passed=1;
+                    v_sample=m_sample;
+                }else
+                {
+                    
+                    // Do data and non linear color blending
+                    // Calculate the alpha mix factor (0: Max, 1: Min, 2: Ratio)
+                    if(blending==0)alpha=max(v_sample.a,m_sample.a);
+                    else if(blending==1)alpha=min(v_sample.a,m_sample.a);
+                    else if(blending==2){
+                        // mix uses a Ratio - get ratio of the alphas
+                        alpha=v_sample.a/(v_sample.a+m_sample.a);
+                    }
+                    
+                    // Combine colors
+                    // non linear interpolation of colors
+                    vec3 mix_color=sqrt(v_sample.rgb*v_sample.rgb+m_sample.rgb*m_sample.rgb);
+                    
+                    // Result alpha value is the factor calculated by the blending mode.
+                    v_sample=vec4(mix_color,alpha);
                 }
-                
-                v_sample=mix(v_sample,m_sample,mix_factor);
             }
         }
         #pragma unroll_loop_end
