@@ -118,7 +118,7 @@ void main() {
     vec4 vFragColor=vec4(0);
     vec4 v_sample=vec4(0);
     float intensity=0.;
-    float mix_factor=.5;
+    float alpha=.5;
     for(float t=t_start;t<t_end;t+=step_size){
         // Get start position, end position, and mix factor to sample models as 3D objects
         float z_start=floor(data_position.z/(1./slices));
@@ -142,8 +142,8 @@ void main() {
         for(int i=0;i<3;i++){
             if(model_structs[i].use){
                 // Sample model and mix in to volume
-                // m_sample.rgb is equals to the value found in the color map look up table
-                // m_sample.a is equals to the alpha value obtained from the transfer function widget
+                // m_sample.rgb the value found in the color map look up table
+                // m_sample.a is the value obtained from the transfer function widget
                 vec4 m_sample=sample_model(model_structs[i],start,end,mix_position);
                 // Artifically increase pixel intensity
                 m_sample[i]*=model_structs[i].intensity;
@@ -159,11 +159,11 @@ void main() {
                     
                     // Do data and non linear color blending
                     // Calculate the alpha mix factor (0: Max, 1: Min, 2: Ratio)
-                    if(blending==0)mix_factor=max(v_sample.a,m_sample.a);
-                    else if(blending==1)mix_factor=min(v_sample.a,m_sample.a);
+                    if(blending==0)alpha=max(v_sample.a,m_sample.a);
+                    else if(blending==1)alpha=min(v_sample.a,m_sample.a);
                     else if(blending==2){
                         // mix uses a Ratio - get ratio of the alphas
-                        mix_factor=v_sample.a/(v_sample.a+m_sample.a);
+                        alpha=v_sample.a/(v_sample.a+m_sample.a);
                     }
                     
                     // Combine colors
@@ -171,7 +171,7 @@ void main() {
                     vec3 mix_color=sqrt(v_sample.rgb*v_sample.rgb+m_sample.rgb*m_sample.rgb);
                     
                     // Result alpha value is the factor calculated by the blending mode.
-                    v_sample=vec4(mix_color,mix_factor);
+                    v_sample=vec4(mix_color,alpha);
                 }
             }
         }
