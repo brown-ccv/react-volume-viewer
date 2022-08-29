@@ -12,6 +12,7 @@ import {
   DEFAULT_ROTATION,
   DEFAULT_SCALE,
   DEFAULT_MODEL,
+  COLOR_MAPS,
 } from "../../constants";
 import {
   validateInt,
@@ -37,10 +38,7 @@ function VolumeViewer({
   // useTransferFunction
 }) {
   // TODO: useColorMap
-  // Add useColorMap prop
   // If !useColorMap -> use grayscale (black to white)
-  // Disable colorMap selection if !useColorMap
-  // BOOLEANS ARE CURRENTLY PROPS OF THE MODEL
 
   // Add checkbox to the controls
   // Update readme
@@ -52,9 +50,11 @@ function VolumeViewer({
     modelsProp.map((model) => ({
       ...DEFAULT_MODEL,
       ...model,
+      colorMap: useColorMap ? model.colorMap : COLOR_MAPS.Grayscale,
     }))
   );
   useEffect(() => {
+    console.log("Models: ", newModels);
     setModels(newModels);
   }, [newModels]);
 
