@@ -33,7 +33,18 @@ function VolumeViewer({
   slices,
   spacing,
   sliders: slidersProp,
+  useColorMap,
+  // useTransferFunction
 }) {
+  // TODO: useColorMap
+  // Add useColorMap prop
+  // If !useColorMap -> use grayscale (black to white)
+  // Disable colorMap selection if !useColorMap
+  // BOOLEANS ARE CURRENTLY PROPS OF THE MODEL
+
+  // Add checkbox to the controls
+  // Update readme
+
   // Control the models in state; override on modelsProp change
   const [models, setModels] = useState([]);
   const newModels = useModelsPropMemo(
@@ -65,6 +76,7 @@ function VolumeViewer({
         slices={slices}
         spacing={spacing}
         sliders={sliders}
+        useColorMap={useColorMap}
       />
 
       <Controls
@@ -78,6 +90,7 @@ function VolumeViewer({
           setSliders(DEFAULT_SLIDERS);
           setRemountKey(Math.random());
         }}
+        useColorMap={useColorMap}
       />
     </Wrapper>
   );
@@ -131,6 +144,12 @@ VolumeViewer.propTypes = {
     y: validateSlider,
     z: validateSlider,
   }),
+
+  /* Enable the color map controls */
+  useColorMap: PropTypes.bool,
+
+  /* Enable the transfer function controls for all models */
+  // useTransferFunction: PropTypes.bool,
 };
 
 VolumeViewer.defaultProps = {
@@ -140,6 +159,8 @@ VolumeViewer.defaultProps = {
   rotation: DEFAULT_ROTATION,
   scale: DEFAULT_SCALE,
   sliders: DEFAULT_SLIDERS,
+  useColorMap: true,
+  // useTransferFunction: true
 };
 
 export default VolumeViewer;
