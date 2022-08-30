@@ -36,11 +36,6 @@ function VolumeViewer({
   useColorMap,
   useTransferFunction,
 }) {
-  // TODO: REVERT CHANGES TO COLOR MAP, NOT WORTH IT
-
-  // Add checkbox to the controls
-  // Update readme
-
   // Control the models in state; override on modelsProp change
   const [models, setModels] = useState([]);
   const newModels = useModelsPropMemo(
@@ -48,20 +43,21 @@ function VolumeViewer({
     modelsProp.map((modelProp) => ({
       ...DEFAULT_MODEL,
       ...modelProp,
+      transferFunction:
+        modelProp.useTransferFunction && modelProp.transferFunction
+          ? modelProp.transferFunction
+          : DEFAULT_MODEL.transferFunction,
     }))
   );
   useEffect(() => {
-    // Overwrite colorMap and transferFunction on !useColormap or !useTransferFunction
+    // Overwrite colorMap and transferFunction on !useColormap
     setModels(
       [...newModels].map((model) => ({
         ...model,
         colorMap: useColorMap ? model.colorMap : DEFAULT_MODEL.colorMap,
-        transferFunction: useTransferFunction
-          ? model.transferFunction
-          : DEFAULT_MODEL.transferFunction,
       }))
     );
-  }, [newModels, useColorMap, useTransferFunction]);
+  }, [newModels, useColorMap]);
 
   // Sliders apply clipping to the volume as a whole
   const [sliders, setSliders] = useState(slidersProp);
@@ -152,9 +148,6 @@ VolumeViewer.propTypes = {
 
   /* Enable the color map controls */
   useColorMap: PropTypes.bool,
-
-  /* Enable the transfer function controls for all models */
-  useTransferFunction: PropTypes.bool,
 };
 
 VolumeViewer.defaultProps = {
@@ -165,7 +158,6 @@ VolumeViewer.defaultProps = {
   scale: DEFAULT_SCALE,
   sliders: DEFAULT_SLIDERS,
   useColorMap: true,
-  useTransferFunction: true,
 };
 
 export default VolumeViewer;

@@ -92,7 +92,6 @@ function App() {
           slices={55}
           spacing="2 2 1"
           useColorMap={useColorMap}
-
         />
         <hr />
       </Main>

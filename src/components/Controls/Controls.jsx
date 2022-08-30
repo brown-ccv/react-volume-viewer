@@ -34,9 +34,9 @@ function Controls({
     [setModels]
   );
 
-  models.forEach(model => {
-    console.log(`${useTransferFunction} ${model.transferFunction.length}`)
-  })
+  models.forEach((model) => {
+    console.log(`${useTransferFunction} ${model.transferFunction.length}`);
+  });
 
   const panels = models.map((model, idx) => (
     <TabPanel key={model.name}>
@@ -47,7 +47,7 @@ function Controls({
         />
       )}
 
-      {useTransferFunction && (
+      {model.useTransferFunction && (
         <TransferFunctionControls
           transferFunction={model.transferFunction}
           range={model.range}
