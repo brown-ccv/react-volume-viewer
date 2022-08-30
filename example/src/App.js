@@ -70,7 +70,6 @@ function App() {
                 { x: 0.5, y: 0.75 },
                 { x: 1, y: 1 },
               ],
-              useTransferFunction: useTransferFunction,
             },
             {
               name: "Temperature",
@@ -84,7 +83,6 @@ function App() {
                 max: 42,
                 unit: "°C",
               },
-              useTransferFunction: useTransferFunction,
             },
           ]}
           rotation="-55 0 0"
@@ -92,6 +90,7 @@ function App() {
           slices={55}
           spacing="2 2 1"
           useColorMap={useColorMap}
+          useTransferFunction={useTransferFunction}
         />
         <hr />
       </Main>

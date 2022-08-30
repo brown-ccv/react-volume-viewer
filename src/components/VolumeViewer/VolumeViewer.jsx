@@ -40,24 +40,19 @@ function VolumeViewer({
   const [models, setModels] = useState([]);
   const newModels = useModelsPropMemo(
     // Inject default model
-    modelsProp.map((modelProp) => ({
+    modelsProp.map((model) => ({
       ...DEFAULT_MODEL,
-      ...modelProp,
+      ...model,
+      colorMap: useColorMap ? model.colorMap : DEFAULT_MODEL.colorMap,
       transferFunction:
-        modelProp.useTransferFunction && modelProp.transferFunction
-          ? modelProp.transferFunction
+        useTransferFunction && model.transferFunction
+          ? model.transferFunction
           : DEFAULT_MODEL.transferFunction,
     }))
   );
   useEffect(() => {
-    // Overwrite colorMap and transferFunction on !useColormap
-    setModels(
-      [...newModels].map((model) => ({
-        ...model,
-        colorMap: useColorMap ? model.colorMap : DEFAULT_MODEL.colorMap,
-      }))
-    );
-  }, [newModels, useColorMap]);
+    setModels((models) => newModels);
+  }, [newModels]);
 
   // Sliders apply clipping to the volume as a whole
   const [sliders, setSliders] = useState(slidersProp);
@@ -158,6 +153,7 @@ VolumeViewer.defaultProps = {
   scale: DEFAULT_SCALE,
   sliders: DEFAULT_SLIDERS,
   useColorMap: true,
+  useTransferFunction: true,
 };
 
 export default VolumeViewer;

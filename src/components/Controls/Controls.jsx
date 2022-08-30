@@ -34,10 +34,6 @@ function Controls({
     [setModels]
   );
 
-  models.forEach((model) => {
-    console.log(`${useTransferFunction} ${model.transferFunction.length}`);
-  });
-
   const panels = models.map((model, idx) => (
     <TabPanel key={model.name}>
       {useColorMap && (
@@ -47,15 +43,15 @@ function Controls({
         />
       )}
 
-      {model.useTransferFunction && (
+      {useTransferFunction && (
         <TransferFunctionControls
           transferFunction={model.transferFunction}
           range={model.range}
           colorMapPath={model.colorMap.path}
-          setTransferFunction={(transferFunction) =>
-            setModel({ transferFunction }, idx)
-          }
-          useTransferFunction={useTransferFunction}
+          setTransferFunction={(transferFunction) => {
+            console.log("SET " + transferFunction.length);
+            setModel({ transferFunction }, idx);
+          }}
         />
       )}
 

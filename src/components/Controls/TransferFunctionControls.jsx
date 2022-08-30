@@ -60,9 +60,12 @@ function TransferFunctionControls({
   const [pointHovering, setPointHovering] = useState(null); // The point currently moused over
   const [pointDragging, setPointDragging] = useState(null); // The point currently dragging
 
+  console.log("RENDER", transferFunction.length, canvasPoints.length);
+
   /** INITIAL RENDER **/
 
   useEffect(() => {
+    console.log("INIT", transferFunction.length, canvasPoints.length);
     const canvas = canvasRef.current;
 
     // Set ranges and transformations
@@ -76,7 +79,7 @@ function TransferFunctionControls({
       .range(canvasRange.y);
 
     // Initialize canvasPoints
-    setCanvasPoints(
+    setCanvasPoints(canvasPoints =>
       transferFunction.map((p) => {
         return {
           x: scaleTransferFunctionToCanvasX(p.x),
@@ -86,11 +89,14 @@ function TransferFunctionControls({
     );
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, []);  
 
   /** DRAW FUNCTION **/
 
+  // I need this to wait until canvasPoints have been initialized (other useEffect)
+  // canvasPoints is set before this is run but it doesn't see the fresh state
   useEffect(() => {
+    console.log("DRAW", transferFunction.length, canvasPoints.length);
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
     context.clearRect(0, 0, canvas.width, canvas.height);

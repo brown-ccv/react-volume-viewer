@@ -47,7 +47,6 @@ const DEFAULT_MODEL = {
     { x: 0, y: 0 },
     { x: 1, y: 1 },
   ],
-  useTransferFunction: true,
 };
 
 const DEFAULT_MODEL_STRUCT = { use: false };
