@@ -66,8 +66,10 @@ function TransferFunctionControls({
   // Add a useEffect that takes points and TF, checks if same and to manage updates to re-renders
   const [points, setPoints] = useState({
     transferFunction: transferFunction,
-    canvas: [],
+    canvas: null
   });
+  const initUpdate = useRef(true);
+
   /** INITIAL RENDER **/
 
   useEffect(() => {
@@ -75,7 +77,7 @@ function TransferFunctionControls({
       "INIT",
       transferFunction.length,
       points.transferFunction.length,
-      points.canvas.length
+      points.canvas?.length
     );
     const canvas = canvasRef.current;
 
@@ -89,21 +91,6 @@ function TransferFunctionControls({
       .domain(transferFunctionRange.y)
       .range(canvasRange.y);
 
-    // Initialize canvasPoints
-    // setCanvasPoints(
-    //   transferFunction.map((p) => ({
-    //     x: scaleTransferFunctionToCanvasX(p.x),
-    //     y: scaleTransferFunctionToCanvasY(p.y),
-    //   }))
-    // );
-    setPoints((points) => ({
-      ...points,
-      canvas: transferFunction.map((p) => ({
-        x: scaleTransferFunctionToCanvasX(p.x),
-        y: scaleTransferFunctionToCanvasY(p.y),
-      })),
-    }));
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -111,6 +98,8 @@ function TransferFunctionControls({
 
   // Should be: "INIT 3 0", "DRAW 3 3", [no SET]
   useEffect(() => {
+    if (initUpdate.current) return;
+
     console.log(
       "DRAW",
       transferFunction.length,
@@ -157,9 +146,17 @@ function TransferFunctionControls({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [points.canvas, pointHovering, pointDragging]);
 
+
   /* UPDATE TRANSFER FUNCTION */
 
   useEffect(() => {
+    if (initUpdate.current) return;
+    console.log(
+      "TF",
+      transferFunction.length,
+      points.transferFunction.length,
+      points.canvas.length
+    );
     const newTransferFunction = points.canvas.map((p) => ({
       x: scaleTransferFunctionToCanvasX.invert(p.x),
       y: scaleTransferFunctionToCanvasY.invert(p.y),
@@ -172,6 +169,22 @@ function TransferFunctionControls({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [points.canvas]);
 
+
+  /* UPDATE CANVAS POINTS */
+
+  useEffect(() => {
+    // Initialize canvasPoints
+    setPoints((points) => ({
+      ...points,
+      canvas: transferFunction.map((p) => ({
+        x: scaleTransferFunctionToCanvasX(p.x),
+        y: scaleTransferFunctionToCanvasY(p.y),
+      })),
+    }));
+    initUpdate.current = false;
+  }, [])
+
+
   /** EVENT LISTENER FUNCTIONS **/
 
   // Check to see if cursor is above a point - change cursor if so
@@ -180,7 +193,7 @@ function TransferFunctionControls({
     const point = points.canvas.find((point) => {
       const distance = Math.sqrt(
         Math.pow(relativeMouse.x - point.x, 2) +
-          Math.pow(relativeMouse.y - point.y, 2)
+        Math.pow(relativeMouse.y - point.y, 2)
       );
       return distance < HOVER_RADIUS;
     });
