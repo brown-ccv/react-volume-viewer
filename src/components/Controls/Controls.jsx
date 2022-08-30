@@ -16,7 +16,8 @@ function Controls({
   setModels,
   setSliders,
   reset,
-  useColorMap
+  useColorMap,
+  useTransferFunction,
 }) {
   // Callback function for changing properties of a specific model
   const setModel = useCallback(
@@ -33,6 +34,10 @@ function Controls({
     [setModels]
   );
 
+  models.forEach(model => {
+    console.log(`${useTransferFunction} ${model.transferFunction.length}`)
+  })
+
   const panels = models.map((model, idx) => (
     <TabPanel key={model.name}>
       {useColorMap && (
@@ -42,7 +47,7 @@ function Controls({
         />
       )}
 
-      {model.useTransferFunction && (
+      {useTransferFunction && (
         <TransferFunctionControls
           transferFunction={model.transferFunction}
           range={model.range}
@@ -50,6 +55,7 @@ function Controls({
           setTransferFunction={(transferFunction) =>
             setModel({ transferFunction }, idx)
           }
+          useTransferFunction={useTransferFunction}
         />
       )}
 

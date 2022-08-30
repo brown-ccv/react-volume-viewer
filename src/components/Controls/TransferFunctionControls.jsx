@@ -53,6 +53,7 @@ function TransferFunctionControls({
   range,
   colorMapPath,
   setTransferFunction,
+  useTransferFunction,
 }) {
   const canvasRef = useRef(null);
   const [cursorType, setCursorType] = useState("pointer"); // Cursor type (styled-components)
@@ -77,19 +78,22 @@ function TransferFunctionControls({
 
     // Initialize canvasPoints
     setCanvasPoints(
-      transferFunction.map((p) => {
+      [...transferFunction].map((p) => {
         return {
           x: scaleTransferFunctionToCanvasX(p.x),
           y: scaleTransferFunctionToCanvasY(p.y),
         };
       })
     );
+    
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /** DRAW FUNCTION **/
 
   useEffect(() => {
+    if(useTransferFunction) {
+
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -135,8 +139,9 @@ function TransferFunctionControls({
         };
       })
     );
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canvasPoints, pointHovering, pointDragging]);
+  }, [canvasPoints, pointHovering, pointDragging, useTransferFunction]);
 
   /** EVENT LISTENER FUNCTIONS **/
 

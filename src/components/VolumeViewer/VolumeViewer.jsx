@@ -12,7 +12,6 @@ import {
   DEFAULT_ROTATION,
   DEFAULT_SCALE,
   DEFAULT_MODEL,
-  COLOR_MAPS,
 } from "../../constants";
 import {
   validateInt,
@@ -35,10 +34,9 @@ function VolumeViewer({
   spacing,
   sliders: slidersProp,
   useColorMap,
-  // useTransferFunction
+  useTransferFunction,
 }) {
-  // TODO: useColorMap
-  // If !useColorMap -> use grayscale (black to white)
+  // TODO: REVERT CHANGES TO COLOR MAP, NOT WORTH IT
 
   // Add checkbox to the controls
   // Update readme
@@ -47,16 +45,23 @@ function VolumeViewer({
   const [models, setModels] = useState([]);
   const newModels = useModelsPropMemo(
     // Inject default model
-    modelsProp.map((model) => ({
+    modelsProp.map((modelProp) => ({
       ...DEFAULT_MODEL,
-      ...model,
-      colorMap: useColorMap ? model.colorMap : COLOR_MAPS.Grayscale,
+      ...modelProp,
     }))
   );
   useEffect(() => {
-    console.log("Models: ", newModels);
-    setModels(newModels);
-  }, [newModels]);
+    // Overwrite colorMap and transferFunction on !useColormap or !useTransferFunction
+    setModels(
+      [...newModels].map((model) => ({
+        ...model,
+        colorMap: useColorMap ? model.colorMap : DEFAULT_MODEL.colorMap,
+        transferFunction: useTransferFunction
+          ? model.transferFunction
+          : DEFAULT_MODEL.transferFunction,
+      }))
+    );
+  }, [newModels, useColorMap, useTransferFunction]);
 
   // Sliders apply clipping to the volume as a whole
   const [sliders, setSliders] = useState(slidersProp);
@@ -76,7 +81,6 @@ function VolumeViewer({
         slices={slices}
         spacing={spacing}
         sliders={sliders}
-        useColorMap={useColorMap}
       />
 
       <Controls
@@ -91,6 +95,7 @@ function VolumeViewer({
           setRemountKey(Math.random());
         }}
         useColorMap={useColorMap}
+        useTransferFunction={useTransferFunction}
       />
     </Wrapper>
   );
@@ -149,7 +154,7 @@ VolumeViewer.propTypes = {
   useColorMap: PropTypes.bool,
 
   /* Enable the transfer function controls for all models */
-  // useTransferFunction: PropTypes.bool,
+  useTransferFunction: PropTypes.bool,
 };
 
 VolumeViewer.defaultProps = {
@@ -160,7 +165,7 @@ VolumeViewer.defaultProps = {
   scale: DEFAULT_SCALE,
   sliders: DEFAULT_SLIDERS,
   useColorMap: true,
-  // useTransferFunction: true
+  useTransferFunction: true,
 };
 
 export default VolumeViewer;

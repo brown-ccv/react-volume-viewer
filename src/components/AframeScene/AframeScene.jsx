@@ -20,7 +20,6 @@ function AframeScene({
   slices,
   spacing,
   sliders,
-  useColorMap,
 }) {
   const [errors, setErrors] = useState([]);
   useEffect(() => {
