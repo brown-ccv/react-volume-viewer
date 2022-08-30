@@ -56,7 +56,6 @@ function TransferFunctionControls({
 }) {
   // TODO: I think these can all be refs?
   const canvasRef = useRef(null);
-  const [canvasPoints, setCanvasPoints] = useState([]);
   const [pointHovering, setPointHovering] = useState(null); // The point currently moused over
   const [pointDragging, setPointDragging] = useState(null); // The point currently dragging
   const [cursorType, setCursorType] = useState("pointer"); // Cursor type (styled-components)
@@ -65,11 +64,19 @@ function TransferFunctionControls({
   // Combine transfer function and canvas points into a single state variable
   // Need to make sure I update both setTransferFunction and points.transferFunction at the same time
   // Add a useEffect that takes points and TF, checks if same and to manage updates to re-renders
-  
+  const [points, setPoints] = useState({
+    transferFunction: transferFunction,
+    canvas: [],
+  });
   /** INITIAL RENDER **/
 
   useEffect(() => {
-    console.log("INIT", transferFunction.length, canvasPoints.length);
+    console.log(
+      "INIT",
+      transferFunction.length,
+      points.transferFunction.length,
+      points.canvas.length
+    );
     const canvas = canvasRef.current;
 
     // Set ranges and transformations
@@ -83,12 +90,19 @@ function TransferFunctionControls({
       .range(canvasRange.y);
 
     // Initialize canvasPoints
-    setCanvasPoints(
-      transferFunction.map((p) => ({
+    // setCanvasPoints(
+    //   transferFunction.map((p) => ({
+    //     x: scaleTransferFunctionToCanvasX(p.x),
+    //     y: scaleTransferFunctionToCanvasY(p.y),
+    //   }))
+    // );
+    setPoints((points) => ({
+      ...points,
+      canvas: transferFunction.map((p) => ({
         x: scaleTransferFunctionToCanvasX(p.x),
         y: scaleTransferFunctionToCanvasY(p.y),
-      }))
-    );
+      })),
+    }));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -97,7 +111,12 @@ function TransferFunctionControls({
 
   // Should be: "INIT 3 0", "DRAW 3 3", [no SET]
   useEffect(() => {
-    console.log("DRAW", transferFunction.length, canvasPoints.length);
+    console.log(
+      "DRAW",
+      transferFunction.length,
+      points.transferFunction.length,
+      points.canvas.length
+    );
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -117,12 +136,12 @@ function TransferFunctionControls({
 
     // Lines
     context.beginPath();
-    canvasPoints.forEach((point) => context.lineTo(point.x, point.y));
+    points.canvas.forEach((point) => context.lineTo(point.x, point.y));
     context.stroke();
 
     // Points
     context.beginPath();
-    canvasPoints.forEach((point) => {
+    points.canvas.forEach((point) => {
       context.moveTo(point.x, point.y);
       context.arc(
         point.x,
@@ -136,28 +155,29 @@ function TransferFunctionControls({
     context.fill();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canvasPoints, pointHovering, pointDragging]);
+  }, [points.canvas, pointHovering, pointDragging]);
 
   /* UPDATE TRANSFER FUNCTION */
 
   useEffect(() => {
-    setTransferFunction(
-      canvasPoints.map((p) => {
-        return {
-          x: scaleTransferFunctionToCanvasX.invert(p.x),
-          y: scaleTransferFunctionToCanvasY.invert(p.y),
-        };
-      })
-    );
+    const newTransferFunction = points.canvas.map((p) => ({
+      x: scaleTransferFunctionToCanvasX.invert(p.x),
+      y: scaleTransferFunctionToCanvasY.invert(p.y),
+    }));
+    setPoints((points) => ({
+      ...points,
+      transferFunction: newTransferFunction,
+    }));
+    setTransferFunction(newTransferFunction);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canvasPoints]);
+  }, [points.canvas]);
 
   /** EVENT LISTENER FUNCTIONS **/
 
   // Check to see if cursor is above a point - change cursor if so
   function checkHovering(e) {
     const relativeMouse = getRelativeMousePos(e);
-    const point = canvasPoints.find((point) => {
+    const point = points.canvas.find((point) => {
       const distance = Math.sqrt(
         Math.pow(relativeMouse.x - point.x, 2) +
           Math.pow(relativeMouse.y - point.y, 2)
@@ -183,15 +203,17 @@ function TransferFunctionControls({
     e.preventDefault();
     const newPoint = getRelativeMousePos(e);
 
-    // First and last point stay at the start/end of the x axis
-    const idx = canvasPoints.findIndex((p) => p === pointDragging);
+    const idx = points.canvas.findIndex((p) => p === pointDragging);
     if (idx === 0) newPoint.x = canvasRange.x[0];
-    else if (idx === canvasPoints.length - 1) newPoint.x = canvasRange.x[1];
-    setCanvasPoints((canvasPoints) =>
-      [...canvasPoints.filter((p) => p !== pointDragging), newPoint].sort(
-        (a, b) => a.x - b.x
-      )
-    );
+    else if (idx === points.canvas.length - 1) newPoint.x = canvasRange.x[1];
+
+    setPoints((points) => ({
+      ...points,
+      canvas: [
+        ...points.canvas.filter((p) => p !== pointDragging),
+        newPoint,
+      ].sort((a, b) => a.x - b.x),
+    }));
     setPointDragging(newPoint);
     setPointHovering(newPoint);
   }
@@ -200,20 +222,24 @@ function TransferFunctionControls({
   // TODO: This takes a super long time?
   function addPoint(e) {
     e.preventDefault();
-    setCanvasPoints((canvasPoints) =>
-      [...canvasPoints, getRelativeMousePos(e)].sort((a, b) => a.x - b.x)
-    );
+    setPoints((points) => ({
+      ...points,
+      canvas: [...points.canvas, getRelativeMousePos(e)].sort(
+        (a, b) => a.x - b.x
+      ),
+    }));
   }
 
   // Remove hovered point - can't be first or last
   function removePoint(e) {
     e.preventDefault();
-    const idx = canvasPoints.findIndex((p) => p === pointHovering);
+    const idx = points.canvas.findIndex((p) => p === pointHovering);
 
-    if (idx !== 0 && idx !== canvasPoints.length - 1) {
-      setCanvasPoints((canvasPoints) =>
-        canvasPoints.filter((p) => p !== pointHovering)
-      );
+    if (idx !== 0 && idx !== points.canvas.length - 1) {
+      setPoints((points) => ({
+        ...points,
+        canvas: points.canvas.filter((p) => p !== pointHovering),
+      }));
     }
     setCursorType("pointer");
   }
