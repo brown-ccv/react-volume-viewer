@@ -71,19 +71,19 @@ function App() {
                 { x: 1, y: 1 },
               ],
             },
-            {
-              name: "Temperature",
-              colorMap: COLOR_MAPS.Thermal,
-              ...(!singleColorMap && { colorMaps: allColorMaps }),
-              description: "Model visualizing temperature data",
-              enabled: enabled,
-              path: temp,
-              range: {
-                min: 2.5,
-                max: 42,
-                unit: "°C",
-              },
-            },
+            // {
+            //   name: "Temperature",
+            //   colorMap: COLOR_MAPS.Thermal,
+            //   ...(!singleColorMap && { colorMaps: allColorMaps }),
+            //   description: "Model visualizing temperature data",
+            //   enabled: enabled,
+            //   path: temp,
+            //   range: {
+            //     min: 2.5,
+            //     max: 42,
+            //     unit: "°C",
+            //   },
+            // },
           ]}
           rotation="-55 0 0"
           scale="1 -1 1"

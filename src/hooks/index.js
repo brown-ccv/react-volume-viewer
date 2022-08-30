@@ -7,6 +7,7 @@ function useModelsPropMemo(models) {
   const prevModels = previousRef.current;
 
   // Returns true if models and prevModels are equal
+  // This is returning true constantly
   const noChange = isEqual(models, prevModels);
 
   // Update reference to previous value if not the same

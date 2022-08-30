@@ -51,7 +51,7 @@ function VolumeViewer({
     }))
   );
   useEffect(() => {
-    setModels((models) => newModels);
+    setModels([...newModels]);
   }, [newModels]);
 
   // Sliders apply clipping to the volume as a whole
