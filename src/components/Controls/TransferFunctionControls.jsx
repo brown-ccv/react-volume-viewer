@@ -61,6 +61,11 @@ function TransferFunctionControls({
   const [pointDragging, setPointDragging] = useState(null); // The point currently dragging
   const [cursorType, setCursorType] = useState("pointer"); // Cursor type (styled-components)
 
+  // TODO: Consolidated state
+  // Combine transfer function and canvas points into a single state variable
+  // Need to make sure I update both setTransferFunction and points.transferFunction at the same time
+  // Add a useEffect that takes points and TF, checks if same and to manage updates to re-renders
+  
   /** INITIAL RENDER **/
 
   useEffect(() => {
