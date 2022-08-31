@@ -26,7 +26,6 @@
     "lint": "prettier --write src example/src"
   },
   "dependencies": {
-    "@reach/checkbox": "^0.17.0",
     "@reach/listbox": "^0.16.2",
     "@reach/tabs": "^0.16.4",
     "aframe": "^1.2.0",
