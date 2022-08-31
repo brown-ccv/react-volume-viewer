@@ -33,7 +33,7 @@ function VolumeViewer({
   slices,
   spacing,
   sliders: slidersProp,
-  useColorMap,
+  useColorMap: useColorMapProp,
 }) {
   // Control the models in state; override on modelsProp change
   const [models, setModels] = useState([]);
@@ -44,6 +44,13 @@ function VolumeViewer({
       ...model,
     }))
   );
+
+  // Sliders apply clipping to the volume as a whole
+  const [sliders, setSliders] = useState(slidersProp);
+
+  // Checkbox for whether or not the color map(s) is enabled
+  const [useColorMap, setUseColorMap] = useState(useColorMapProp);
+
   useEffect(() => {
     // setModels(newModels);
     setModels(
@@ -53,9 +60,6 @@ function VolumeViewer({
       }))
     );
   }, [newModels, useColorMap]);
-
-  // Sliders apply clipping to the volume as a whole
-  const [sliders, setSliders] = useState(slidersProp);
 
   // Changing a components key will remount the entire thing
   // Because the model's position is handled internally by aframe we need to remount it to reset its position
@@ -86,6 +90,7 @@ function VolumeViewer({
           setRemountKey(Math.random());
         }}
         useColorMap={useColorMap}
+        setUseColorMap={setUseColorMap}
       />
     </Wrapper>
   );

@@ -8,6 +8,7 @@ import TransferFunctionControls from "./TransferFunctionControls.jsx";
 import ClipControls from "./ClipControls.jsx";
 import EnabledControls from "./EnabledControls.jsx";
 import Section from "./Section.jsx";
+import MiscControls from "./MiscControls.jsx";
 
 function Controls({
   controlsVisible,
@@ -17,6 +18,7 @@ function Controls({
   setSliders,
   reset,
   useColorMap,
+  setUseColorMap,
 }) {
   // Callback function for changing properties of a specific model
   const setModel = useCallback(
@@ -52,10 +54,6 @@ function Controls({
           }
         />
       )}
-
-      <Section>
-        <Button onClick={reset}> Reset </Button>
-      </Section>
     </TabPanel>
   ));
 
@@ -80,6 +78,12 @@ function Controls({
       </Section>
 
       <ClipControls sliders={sliders} setSliders={setSliders} />
+
+      <MiscControls
+        useColorMap={useColorMap}
+        setUseColorMap={setUseColorMap}
+        reset={reset}
+      />
     </Wrapper>
   );
 }
@@ -113,7 +117,5 @@ const FlexTab = styled(Tab)`
     background-color: initial;
   }
 `;
-
-const Button = styled.button``;
 
 export default Controls;
