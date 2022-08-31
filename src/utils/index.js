@@ -13,8 +13,6 @@ const getAframeModels = (models) => {
       "name",
       "path",
       "transferFunction",
-      "useTransferFunction",
-      "useColorMap",
     ]);
 
     /* colorMap.path is either a png encoded string or the path to a png

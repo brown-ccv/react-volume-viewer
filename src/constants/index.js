@@ -48,7 +48,6 @@ const DEFAULT_MODEL = {
     { x: 1, y: 1 },
   ],
   useTransferFunction: true,
-  useColorMap: true,
 };
 
 const DEFAULT_MODEL_STRUCT = { use: false };

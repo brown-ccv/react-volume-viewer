@@ -52,7 +52,6 @@ VolumeViewer.propTypes = {
    *      Array of {x: <val>, y: <val>} coordinates.
    *      Each coordinate in transferFunction must be between (0, 0) and (1,1)
    *    useTransferFunction: Flag to apply a transfer function to the model
-   *    useColorMap: Flag to apply a color map to the model
    */
   models: MODEL,
 
@@ -92,6 +91,9 @@ VolumeViewer.propTypes = {
     y: SLIDER,
     z: SLIDER,
   }),
+
+  /** Enable the color map controls (otherwise use grayscale) */
+  useColorMaps: PropTypes.bool,
 };
 ```
 
@@ -110,7 +112,8 @@ VolumeViewer.defaultProps = {
     x: [0, 1],
     y: [0, 1],
     z: [0, 1],
-  };,
+  },
+  useColorMaps: true,
 };
 ```
 
@@ -184,7 +187,6 @@ It will be merged with every `model` in the `models` array. Note, however, that 
     { x: 1, y: 1 },
   ],
   useTransferFunction: true,
-  useColorMap: true,
 };
 ```
 
@@ -246,7 +248,6 @@ function App() {
             { x: 1, y: 1 },
           ],
           useTransferFunction: useTransferFunction,
-          useColorMap: useColorMap,
         },
         {
           name: "Temperature",
@@ -263,13 +264,13 @@ function App() {
             unit: "°C",
           },
           useTransferFunction: useTransferFunction,
-          useColorMap: useColorMap,
         },
       ]}
       rotation="-55 0 0"
       scale="1 -1 1"
       slices={55}
       spacing="2 2 1"
+      useColorMap={useColorMap}
     />
   )
 }

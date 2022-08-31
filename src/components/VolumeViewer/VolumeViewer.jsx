@@ -33,6 +33,7 @@ function VolumeViewer({
   slices,
   spacing,
   sliders: slidersProp,
+  useColorMap,
 }) {
   // Control the models in state; override on modelsProp change
   const [models, setModels] = useState([]);
@@ -44,8 +45,14 @@ function VolumeViewer({
     }))
   );
   useEffect(() => {
-    setModels(newModels);
-  }, [newModels]);
+    // setModels(newModels);
+    setModels(
+      newModels.map((model) => ({
+        ...model,
+        colorMap: useColorMap ? model.colorMap : DEFAULT_MODEL.colorMap,
+      }))
+    );
+  }, [newModels, useColorMap]);
 
   // Sliders apply clipping to the volume as a whole
   const [sliders, setSliders] = useState(slidersProp);
@@ -78,6 +85,7 @@ function VolumeViewer({
           setSliders(DEFAULT_SLIDERS);
           setRemountKey(Math.random());
         }}
+        useColorMap={useColorMap}
       />
     </Wrapper>
   );
@@ -131,6 +139,9 @@ VolumeViewer.propTypes = {
     y: validateSlider,
     z: validateSlider,
   }),
+
+  /** Enable the color map controls (otherwise use grayscale) */
+  useColorMaps: PropTypes.bool,
 };
 
 VolumeViewer.defaultProps = {
@@ -140,6 +151,7 @@ VolumeViewer.defaultProps = {
   rotation: DEFAULT_ROTATION,
   scale: DEFAULT_SCALE,
   sliders: DEFAULT_SLIDERS,
+  useColorMap: true,
 };
 
 export default VolumeViewer;

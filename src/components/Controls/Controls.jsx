@@ -16,6 +16,7 @@ function Controls({
   setModels,
   setSliders,
   reset,
+  useColorMap,
 }) {
   // Callback function for changing properties of a specific model
   const setModel = useCallback(
@@ -34,7 +35,7 @@ function Controls({
 
   const panels = models.map((model, idx) => (
     <TabPanel key={model.name}>
-      {model.useColorMap && (
+      {useColorMap && (
         <ColorMapControls
           model={model}
           setColorMap={(colorMap) => setModel({ colorMap }, idx)}
