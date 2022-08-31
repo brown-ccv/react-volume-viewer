@@ -65,8 +65,9 @@ function TransferFunctionControls({
   // Need to make sure I update both setTransferFunction and points.transferFunction at the same time
   // Add a useEffect that takes points and TF, checks if same and to manage updates to re-renders
   const [points, setPoints] = useState({
-    transferFunction: transferFunction,
-    canvas: null
+    // transferFunction: transferFunction,
+    transferFunction: null,
+    canvas: null,
   });
   const initUpdate = useRef(true);
 
@@ -76,7 +77,7 @@ function TransferFunctionControls({
     console.log(
       "INIT",
       transferFunction.length,
-      points.transferFunction.length,
+      points.transferFunction?.length,
       points.canvas?.length
     );
     const canvas = canvasRef.current;
@@ -146,7 +147,6 @@ function TransferFunctionControls({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [points.canvas, pointHovering, pointDragging]);
 
-
   /* UPDATE TRANSFER FUNCTION */
 
   useEffect(() => {
@@ -161,6 +161,8 @@ function TransferFunctionControls({
       x: scaleTransferFunctionToCanvasX.invert(p.x),
       y: scaleTransferFunctionToCanvasY.invert(p.y),
     }));
+
+    // I THINK THESE AREN'T HAPPENING AT THE SAME TIME SO THEY'RE CAUSING MULTIPLE RERENDERS
     setPoints((points) => ({
       ...points,
       transferFunction: newTransferFunction,
@@ -169,21 +171,32 @@ function TransferFunctionControls({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [points.canvas]);
 
-
   /* UPDATE CANVAS POINTS */
 
   useEffect(() => {
+    console.log(
+      "CANVAS",
+      transferFunction.length,
+      points.transferFunction?.length,
+      points.canvas?.length
+    );
+
+    // TODO: If transferFunction != points.transferFunction it was updated somewhere else, use it
+    // Need to update points here without causing a broken useEffect elsewhere?
+    // I think the change is happening in updateTransferFunction?
+    if(points.transferFunction?.length !== transferFunction.length) {
+
     // Initialize canvasPoints
     setPoints((points) => ({
-      ...points,
-      canvas: transferFunction.map((p) => ({
-        x: scaleTransferFunctionToCanvasX(p.x),
-        y: scaleTransferFunctionToCanvasY(p.y),
-      })),
+        transferFunction: transferFunction,
+        canvas: transferFunction.map((p) => ({
+          x: scaleTransferFunctionToCanvasX(p.x),
+          y: scaleTransferFunctionToCanvasY(p.y),
+        })),
     }));
-    initUpdate.current = false;
-  }, [])
-
+  }
+    initUpdate.current = false; // This must be the last useEffect in the file
+  }, [transferFunction, points.transferFunction]);
 
   /** EVENT LISTENER FUNCTIONS **/
 
@@ -193,7 +206,7 @@ function TransferFunctionControls({
     const point = points.canvas.find((point) => {
       const distance = Math.sqrt(
         Math.pow(relativeMouse.x - point.x, 2) +
-        Math.pow(relativeMouse.y - point.y, 2)
+          Math.pow(relativeMouse.y - point.y, 2)
       );
       return distance < HOVER_RADIUS;
     });
