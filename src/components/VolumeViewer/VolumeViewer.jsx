@@ -48,16 +48,14 @@ function VolumeViewer({
   // Sliders apply clipping to the volume as a whole
   const [sliders, setSliders] = useState(slidersProp);
   useEffect(() => {
-    setSliders(slidersProp)
-  }, [slidersProp])
-  
+    setSliders(slidersProp);
+  }, [slidersProp]);
 
   // Checkbox for whether or not the color map(s) is enabled
   const [useColorMap, setUseColorMap] = useState(useColorMapProp);
-  console.log(useColorMap, useColorMapProp);
   useEffect(() => {
-    setUseColorMap(useColorMapProp)
-  }, [useColorMapProp])
+    setUseColorMap(useColorMapProp);
+  }, [useColorMapProp]);
 
   useEffect(() => {
     setModels(

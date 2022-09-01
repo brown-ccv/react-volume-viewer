@@ -4,8 +4,6 @@ import styled from "styled-components";
 import Section from "./Section.jsx";
 
 function MiscControls({ useColorMap, setUseColorMap, reset }) {
-  console.log("CONTROLS", useColorMap);
-
   return (
     <FlexSection>
       <CheckBox>
