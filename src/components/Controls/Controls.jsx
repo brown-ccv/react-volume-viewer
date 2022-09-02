@@ -59,6 +59,17 @@ function Controls({
 
   return (
     <Wrapper $visible={controlsVisible}>
+      <ClipControls sliders={sliders} setSliders={setSliders} />
+      <MiscControls
+        useColorMap={useColorMap}
+        setUseColorMap={setUseColorMap}
+        reset={reset}
+      />
+
+      <Section>
+        <hr />
+      </Section>
+
       <StyledTabList>
         {models.map((model, idx) => (
           <FlexTab key={model.name} onClick={(e) => e.preventDefault()}>
@@ -72,18 +83,6 @@ function Controls({
       </StyledTabList>
 
       <TabPanels>{panels}</TabPanels>
-
-      <Section>
-        <hr />
-      </Section>
-
-      <ClipControls sliders={sliders} setSliders={setSliders} />
-
-      <MiscControls
-        useColorMap={useColorMap}
-        setUseColorMap={setUseColorMap}
-        reset={reset}
-      />
     </Wrapper>
   );
 }
