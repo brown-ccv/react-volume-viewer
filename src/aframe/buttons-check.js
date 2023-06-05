@@ -42,17 +42,17 @@ AFRAME.registerComponent("buttons-check", {
   update: function () {
     var data = this.data;
     var el = this.el;
-    el.setAttribute("vive-controls", { hand: data.hand, model: false });
-    el.setAttribute("oculus-touch-controls", { hand: data.hand, model: true });
-    el.setAttribute("windows-motion-controls", {
-      hand: data.hand,
+    this.el.setAttribute("vive-controls", { hand: this.data.hand, model: false });
+    this.el.setAttribute("oculus-touch-controls", { hand: this.data.hand, model: true });
+    this.el.setAttribute("windows-motion-controls", {
+      hand: this.data.hand,
       model: false,
     });
-    if (data.hand === "right") {
-      el.setAttribute("daydream-controls", { hand: data.hand, model: false });
-      el.setAttribute("gearvr-controls", { hand: data.hand, model: false });
+    if (this.data.hand === "right") {
+      this.el.setAttribute("daydream-controls", { hand: this.data.hand, model: false });
+      this.el.setAttribute("gearvr-controls", { hand: this.data.hand, model: false });
     }
     // Set a model.
-    el.setAttribute("gltf-model", this.data.model);
+    this.el.setAttribute("gltf-model", this.data.model);
   },
 });
