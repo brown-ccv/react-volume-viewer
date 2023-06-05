@@ -37,13 +37,9 @@ AFRAME.registerComponent("arcball-camera", {
     el.getObject3D("camera").position.copy(this.data.initialPosition);
   },
 
-  onEnterVR: function () {
-  
-  },
+  onEnterVR: function () {},
 
-  onExitVR: function () {
-  
-  },
+  onExitVR: function () {},
 
   tick: function () {
     if (this.controls.enabled) {

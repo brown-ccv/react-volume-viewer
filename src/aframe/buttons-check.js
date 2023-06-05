@@ -2,12 +2,10 @@ import AFRAME from "aframe";
 
 AFRAME.registerComponent("buttons-check", {
   schema: {
-    hand: {default: 'right'},
-    model: {default: 'customControllerModel.gltf'},
+    hand: { default: "right" },
+    model: { default: "customControllerModel.gltf" },
     gripDown: { type: "boolean", default: false },
     triggerDown: { type: "boolean", default: false },
-    deltaPosition: {type: "vec3"},
-    deltaRotation: {type: "vec4"},
   },
 
   init: function () {
@@ -19,8 +17,6 @@ AFRAME.registerComponent("buttons-check", {
     this.el.addEventListener("gripup", this.onGripUp);
     this.el.addEventListener("triggerdown", this.onTriggerDown);
     this.el.addEventListener("triggerup", this.onTriggerUp);
-    this.currentPosition = new THREE.Vector3();
-    this.currentRotation = new THREE.Quaternion();
   },
 
   remove: function () {
@@ -46,15 +42,17 @@ AFRAME.registerComponent("buttons-check", {
   update: function () {
     var data = this.data;
     var el = this.el;
-    el.setAttribute('vive-controls', {hand: data.hand, model: false});
-    el.setAttribute('oculus-touch-controls', {hand: data.hand, model: true});
-    el.setAttribute('windows-motion-controls', {hand: data.hand, model: false});
-    if (data.hand === 'right') {
-      el.setAttribute('daydream-controls', {hand: data.hand, model: false});
-      el.setAttribute('gearvr-controls', {hand: data.hand, model: false});
+    el.setAttribute("vive-controls", { hand: data.hand, model: false });
+    el.setAttribute("oculus-touch-controls", { hand: data.hand, model: true });
+    el.setAttribute("windows-motion-controls", {
+      hand: data.hand,
+      model: false,
+    });
+    if (data.hand === "right") {
+      el.setAttribute("daydream-controls", { hand: data.hand, model: false });
+      el.setAttribute("gearvr-controls", { hand: data.hand, model: false });
     }
-     // Set a model.
-     el.setAttribute('gltf-model', this.data.model);
+    // Set a model.
+    el.setAttribute("gltf-model", this.data.model);
   },
-
 });

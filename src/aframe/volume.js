@@ -60,8 +60,8 @@ AFRAME.registerComponent("volume", {
       this.scene.canvas.height
     );
     this.getMesh().material = initMaterial;
-    this.volumeMesh = document.getElementById("volume")
-    this.volumeMesh.object3D.matrixAutoUpdate  = false; 
+    this.volumeMesh = document.getElementById("volume");
+    this.volumeMesh.object3D.matrixAutoUpdate = false;
   },
 
   update: function (oldData) {
@@ -77,27 +77,25 @@ AFRAME.registerComponent("volume", {
   tick: function (time, timeDelta) {
     // Position is controlled by controllerObject in VR
     if (this.controllerObject && this.scene.is("vr-mode")) {
-      
       const triggerDown =
         this.controllerObject.el.getAttribute("buttons-check").triggerDown;
 
       // Grab object
       if (!this.grabbed && triggerDown) {
-        
-        const volumeControllerDistance = this.volumeMesh.object3D.position.distanceTo(this.controllerObject.position);
+        const volumeControllerDistance =
+          this.volumeMesh.object3D.position.distanceTo(
+            this.controllerObject.position
+          );
         // point inside sphere calculation ( check if the controller is close to the volume mesh object3D)
-        if( volumeControllerDistance < 0.6)      
-        {
-          this.controllerObject.attach(this.volumeMesh.object3D);   
-          this.grabbed = true;  
+        if (volumeControllerDistance < 0.6) {
+          this.controllerObject.attach(this.volumeMesh.object3D);
+          this.grabbed = true;
         }
-        
       }
 
       // Stop grabbing object
       if (this.grabbed && !triggerDown) {
-
-        this.el.sceneEl.object3D.attach( this.volumeMesh.object3D);
+        this.el.sceneEl.object3D.attach(this.volumeMesh.object3D);
         this.grabbed = false;
       }
 
@@ -118,20 +116,16 @@ AFRAME.registerComponent("volume", {
   /** EVENT LISTENER FUNCTIONS */
 
   onEnterVR: function () {
-    
     this.originalPosition = new THREE.Vector3();
     this.originalRotation = new THREE.Quaternion();
     this.originalPosition.copy(this.volumeMesh.object3D.position);
-    this.originalRotation.copy(this.volumeMesh.object3D.quaternion );
-    
+    this.originalRotation.copy(this.volumeMesh.object3D.quaternion);
   },
 
   onExitVR: function () {
-    
     this.volumeMesh.object3D.position.copy(this.originalPosition);
     this.volumeMesh.object3D.quaternion.copy(this.originalRotation);
     this.volumeMesh.object3D.updateMatrix();
-    
   },
 
   onCollide: function (event) {
