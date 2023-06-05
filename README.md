@@ -4,19 +4,29 @@
 
 [![NPM](https://img.shields.io/npm/v/react-volume-viewer.svg)](https://www.npmjs.com/package/react-volume-viewer) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-## Development
+# Table of contents
+1. [Development](#development)
+2. [Install](#install)
+3. [Props](#props)
+  1. [Default Props](#defaultprops)
+4. [Exports](#exports)
+5. [VR-Mode](#vrmode)
+6. [Example](#example)
+
+
+## Development<a id="development"></a>
 
 Clone repo and run `npm install`
 
 Run `npm start` in one terminal and `cd example && npm start` in a second terminal. The first terminal will detect changes in the library and the second will deploy the example on [http://localhost:3000](http://localhost:3000)
 
-## Install
+## Install<a id="install"></a>
 
 ```bash
 npm install react-volume-viewer
 ```
 
-## Props
+## Props<a id="props"></a>
 
 The only required props are the model's path, name, and its minimum and maximum data points. The model's path should be imported into the project and passed in from there - see the [example project](#example).
 
@@ -95,7 +105,7 @@ VolumeViewer.propTypes = {
 };
 ```
 
-## Default Props
+## Default Props<a id="defaultprops"></a>
 
 Default values are provided for props that are not required. The required props are `models`, `slices`, and `spacing`.
 
@@ -114,7 +124,7 @@ VolumeViewer.defaultProps = {
 };
 ```
 
-## Exports
+## Exports<a id="exports"></a>
 
 ### VolumeViewer
 
@@ -199,8 +209,13 @@ The `DEFAULT_SLIDERS` export is the default value for the `sliders` prop. It wil
   z: [0, 1],
 };
 ```
+## VR-Mode<a id="vrmode"></a>
 
-## Example
+VR Mode is only supported for oculus quest devices. Due to the openXR security restrictions for webxr applications, you must open the application in the embedded Oculus Browser and press the VR button at the bottom right of the rendered scene.
+To debug and develop VR Mode please refer to the official [Oculus Development Hub](https://developer.oculus.com/documentation/web/browser-remote-debugging/) documentation on how to run the application locally in your environment.
+
+
+## Example<a id="example"></a>
 
 An example project can be found on the [GitHub Page](https://brown-ccv.github.io/react-volume-viewer/) of this repo.
 
