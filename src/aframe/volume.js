@@ -60,6 +60,8 @@ AFRAME.registerComponent("volume", {
       this.scene.canvas.height
     );
     this.getMesh().material = initMaterial;
+    this.volumeMesh = document.getElementById("volume")
+    this.volumeMesh.object3D.matrixAutoUpdate  = false; 
   },
 
   update: function (oldData) {
@@ -75,23 +77,27 @@ AFRAME.registerComponent("volume", {
   tick: function (time, timeDelta) {
     // Position is controlled by controllerObject in VR
     if (this.controllerObject && this.scene.is("vr-mode")) {
-      const mesh = this.getMesh();
+      
       const triggerDown =
         this.controllerObject.el.getAttribute("buttons-check").triggerDown;
 
       // Grab object
-      if (!this.grabbed && triggerDown && this.rayCollided) {
-        mesh.matrix.premultiply(this.controllerObject.matrixWorld.invert());
-        mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
-        this.controllerObject.add(mesh);
-        this.grabbed = true;
+      if (!this.grabbed && triggerDown) {
+        
+        const volumeControllerDistance = this.volumeMesh.object3D.position.distanceTo(this.controllerObject.position);
+        // point inside sphere calculation ( check if the controller is close to the volume mesh object3D)
+        if( volumeControllerDistance < 0.6)      
+        {
+          this.controllerObject.attach(this.volumeMesh.object3D);   
+          this.grabbed = true;  
+        }
+        
       }
 
       // Stop grabbing object
       if (this.grabbed && !triggerDown) {
-        mesh.matrix.premultiply(this.controllerObject.matrixWorld);
-        mesh.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
-        this.el.object3D.add(mesh); // Add? Shouldn't this be setObject3D?
+
+        this.el.sceneEl.object3D.attach( this.volumeMesh.object3D);
         this.grabbed = false;
       }
 
@@ -111,14 +117,21 @@ AFRAME.registerComponent("volume", {
 
   /** EVENT LISTENER FUNCTIONS */
 
-  onEnterVR: function () {},
+  onEnterVR: function () {
+    
+    this.originalPosition = new THREE.Vector3();
+    this.originalRotation = new THREE.Quaternion();
+    this.originalPosition.copy(this.volumeMesh.object3D.position);
+    this.originalRotation.copy(this.volumeMesh.object3D.quaternion );
+    
+  },
 
   onExitVR: function () {
-    const mesh = this.getMesh();
-    if (mesh) {
-      mesh.position.copy(new Vector3());
-      mesh.rotation.set(0, 0, 0);
-    }
+    
+    this.volumeMesh.object3D.position.copy(this.originalPosition);
+    this.volumeMesh.object3D.quaternion.copy(this.originalRotation);
+    this.volumeMesh.object3D.updateMatrix();
+    
   },
 
   onCollide: function (event) {
@@ -239,7 +252,7 @@ AFRAME.registerComponent("volume", {
     const mesh = this.getMesh();
     const uniforms = mesh.material.uniforms;
 
-    const volumeMatrix = mesh.matrixWorld;
+    const volumeMatrix = this.volumeMesh.object3D.matrixWorld;
     const scaleMatrix = new Matrix4().makeScale(1, 1, uniforms.zScale.value);
     const translationMatrix = new Matrix4().makeTranslation(-0.5, -0.5, -0.5);
     const inverseControllerMatrix = new Matrix4()
