@@ -8,7 +8,6 @@
 1. [Development](#development)
 2. [Install](#install)
 3. [Props](#props)
-  1. [Default Props](#default props)
 4. [Exports](#exports)
 5. [VR-Mode](#vr-mode)
 6. [Example](#example)
