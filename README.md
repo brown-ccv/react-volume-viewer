@@ -4,6 +4,15 @@
 
 [![NPM](https://img.shields.io/npm/v/react-volume-viewer.svg)](https://www.npmjs.com/package/react-volume-viewer) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
+# Table of contents
+1. [Development](#development)
+2. [Install](#install)
+3. [Props](#props)
+4. [Exports](#exports)
+5. [VR-Mode](#vr-mode)
+6. [Example](#example)
+
+
 ## Development
 
 Clone repo and run `npm install`
@@ -199,6 +208,11 @@ The `DEFAULT_SLIDERS` export is the default value for the `sliders` prop. It wil
   z: [0, 1],
 };
 ```
+## VR-Mode
+
+VR Mode is only supported for oculus quest devices. Due to the openXR security restrictions for webxr applications, you must open the application in the embedded Oculus Browser and press the VR button at the bottom right of the rendered scene.
+To debug and develop VR Mode please refer to the official [Oculus Development Hub](https://developer.oculus.com/documentation/web/browser-remote-debugging/) documentation on how to run the application locally in your environment.
+
 
 ## Example
 
