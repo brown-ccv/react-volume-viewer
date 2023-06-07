@@ -2,6 +2,8 @@ import AFRAME from "aframe";
 
 AFRAME.registerComponent("buttons-check", {
   schema: {
+    hand: { default: "right" },
+    model: { default: "customControllerModel.gltf" },
     gripDown: { type: "boolean", default: false },
     triggerDown: { type: "boolean", default: false },
   },
@@ -35,5 +37,22 @@ AFRAME.registerComponent("buttons-check", {
   },
   onTriggerUp: function (e) {
     this.data.triggerDown = false;
+  },
+
+  update: function () {
+    var data = this.data;
+    var el = this.el;
+    this.el.setAttribute("vive-controls", { hand: this.data.hand, model: false });
+    this.el.setAttribute("oculus-touch-controls", { hand: this.data.hand, model: true });
+    this.el.setAttribute("windows-motion-controls", {
+      hand: this.data.hand,
+      model: false,
+    });
+    if (this.data.hand === "right") {
+      this.el.setAttribute("daydream-controls", { hand: this.data.hand, model: false });
+      this.el.setAttribute("gearvr-controls", { hand: this.data.hand, model: false });
+    }
+    // Set a model.
+    this.el.setAttribute("gltf-model", this.data.model);
   },
 });
