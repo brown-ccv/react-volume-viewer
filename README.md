@@ -14,7 +14,7 @@
 6. [Example](#example)
 
 
-## Development<a id="development"></a>
+## Development
 
 Clone repo and run `npm install`
 
