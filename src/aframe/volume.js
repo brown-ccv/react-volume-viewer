@@ -126,6 +126,7 @@ AFRAME.registerComponent("volume", {
     this.volumeMesh.object3D.position.copy(this.originalPosition);
     this.volumeMesh.object3D.quaternion.copy(this.originalRotation);
     this.volumeMesh.object3D.updateMatrix();
+    
   },
 
   onCollide: function (event) {
@@ -283,10 +284,9 @@ AFRAME.registerComponent("volume", {
       new TextureLoader().load(
         modelPath,
         (modelTexture) => {
-          modelTexture.minFilter = modelTexture.magFilter = LinearFilter;
+          modelTexture.minFilter = modelTexture.magFilter = LinearFilter ;
           modelTexture.unpackAlignment = 1;
           modelTexture.needsUpdate = true;
-
           resolve(modelTexture);
         },
         () => {},

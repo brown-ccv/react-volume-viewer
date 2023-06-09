@@ -89,6 +89,7 @@ function App() {
               useColorMap: useColorMap,
             },
           ]}
+          position="0 0 0"
           rotation="-55 0 0"
           scale="1 -1 1"
           slices={55}

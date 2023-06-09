@@ -40,8 +40,7 @@ AFRAME.registerComponent("buttons-check", {
   },
 
   update: function () {
-    var data = this.data;
-    var el = this.el;
+    
     this.el.setAttribute("vive-controls", { hand: this.data.hand, model: false });
     this.el.setAttribute("oculus-touch-controls", { hand: this.data.hand, model: true });
     this.el.setAttribute("windows-motion-controls", {

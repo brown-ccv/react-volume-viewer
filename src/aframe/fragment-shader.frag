@@ -33,26 +33,30 @@ v_:     Data for the entire volume
 */
 
 // Clip the volume between clip_min and clip_max
-vec2 intersectBox(vec3 camera, vec3 direction, vec3 clip_min, vec3 clip_max ) {
-    vec3 direction_inverse = 1.0 / direction;
-    vec3 bmin_direction = (clip_min - camera) * direction_inverse;
-    vec3 bmax_direction = (clip_max - camera) * direction_inverse;
-    vec3 tmin = min(bmin_direction, bmax_direction);
-    vec3 tmax = max(bmin_direction, bmax_direction);
+vec2 intersectBox( vec3 camera,  vec3 direction,  vec3 clip_min,  vec3 clip_max ) {
+     vec3 direction_inverse = 1.0 / direction;
+     vec3 bmin_direction = (clip_min - camera) * direction_inverse;
+     vec3 bmax_direction = (clip_max - camera) * direction_inverse;
+     vec3 tmin = min(bmin_direction, bmax_direction);
+     vec3 tmax = max(bmin_direction, bmax_direction);
     float t_start = max(tmin.x, max(tmin.y, tmin.z));
     float t_end = min(tmax.x, min(tmax.y, tmax.z));
     return vec2(t_start, t_end);
 }
 
-vec4 sample_model(ModelStruct model, vec2 start_position, vec2 end_position, float ratio) {
+vec4 sample_model(ModelStruct model,  vec2 start_position,  vec2 end_position,  float ratio) {
     // Sample model texture as 3D object, alpha is initialized as the max channel
     vec4 model_sample = mix (
         texture(model.model_texture, start_position),
         texture(model.model_texture, end_position),
         ratio
     );
+   
     model_sample.a = max(model_sample.r, max(model_sample.g, model_sample.b));
-    if(model_sample.a < 0.20) model_sample.a *= 0.1;
+    if(model_sample.a <  0.65) model_sample.a *=  0.1;
+
+    // Uncomment to render basic volume cube
+    //return vec4(1.0,0.0,0.0,1.0);
     
     // Sample transfer texture
     return texture(
@@ -71,8 +75,8 @@ void main() {
     
     // Get the t values for the intersection with the clipping values
     vec2 t_hit = intersectBox(camPos, ray_direction, clip_min, clip_max);
-    float t_start = t_hit.x;
-    float t_end = t_hit.y;
+    highp float t_start = t_hit.x;
+    highp float t_end = t_hit.y;
     
     /*
     We dont want to sample voxels behind the eye if its inside the volume,
