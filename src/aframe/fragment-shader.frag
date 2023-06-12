@@ -54,6 +54,9 @@ vec4 sample_model(ModelStruct model, vec2 start_position, vec2 end_position, flo
     model_sample.a = max(model_sample.r, max(model_sample.g, model_sample.b));
     if(model_sample.a < 0.20) model_sample.a *= 0.1;
     
+    // uncomment next line and comment next return statement to render basic volume cube
+    // return vec4(1.0,0.0,0.0,1.0);
+
     // Sample transfer texture
     return texture(
         model.transfer_texture,
