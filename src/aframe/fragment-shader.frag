@@ -33,12 +33,12 @@ v_:     Data for the entire volume
 */
 
 // Clip the volume between clip_min and clip_max
-vec2 intersectBox(vec3 camera, vec3 direction, vec3 clip_min, vec3 clip_max ) {
-    vec3 direction_inverse = 1.0 / direction;
-    vec3 bmin_direction = (clip_min - camera) * direction_inverse;
-    vec3 bmax_direction = (clip_max - camera) * direction_inverse;
-    vec3 tmin = min(bmin_direction, bmax_direction);
-    vec3 tmax = max(bmin_direction, bmax_direction);
+vec2 intersectBox(highp vec3 camera, highp vec3 direction, vec3 clip_min, vec3 clip_max ) {
+    highp vec3 direction_inverse = 1.0 / direction;
+    highp vec3 bmin_direction = (clip_min - camera) * direction_inverse;
+    highp vec3 bmax_direction = (clip_max - camera) * direction_inverse;
+    highp vec3 tmin = min(bmin_direction, bmax_direction);
+    highp vec3 tmax = max(bmin_direction, bmax_direction);
     float t_start = max(tmin.x, max(tmin.y, tmin.z));
     float t_end = min(tmax.x, min(tmax.y, tmax.z));
     return vec2(t_start, t_end);
@@ -71,8 +71,8 @@ void main() {
     
     // Get the t values for the intersection with the clipping values
     vec2 t_hit = intersectBox(camPos, ray_direction, clip_min, clip_max);
-    float t_start = t_hit.x;
-    float t_end = t_hit.y;
+    highp float t_start = t_hit.x;
+    highp float t_end = t_hit.y;
     
     /*
     We dont want to sample voxels behind the eye if its inside the volume,
