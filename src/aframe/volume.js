@@ -20,6 +20,7 @@ const {
 AFRAME.registerComponent("volume", {
   dependencies: ["keypress-listener"], // Adds component to the entity
   schema: {
+    poseDelay: {type: 'int', default: 50},
     blending: { parse: JSON.parse, default: Blending.None },
     models: { parse: JSON.parse, default: [] },
     slices: { type: "int" },
@@ -34,6 +35,7 @@ AFRAME.registerComponent("volume", {
 
     // Get aframe entities
     this.controllerObject = document.getElementById("hand").object3D;
+    this.camera = document.getElementById("camera").object3D;
     this.controllerObject.matrixAutoUpdate = false;
 
     // Bind functions
@@ -62,6 +64,8 @@ AFRAME.registerComponent("volume", {
     this.getMesh().material = initMaterial;
     this.volumeMesh = document.getElementById("volume");
     this.volumeMesh.object3D.matrixAutoUpdate = false;
+
+    this.setMeshInitPosInVR = false;
   },
 
   update: function (oldData) {
@@ -77,9 +81,10 @@ AFRAME.registerComponent("volume", {
   tick: function (time, timeDelta) {
     // Position is controlled by controllerObject in VR
     if (this.controllerObject && this.scene.is("vr-mode")) {
+
       const triggerDown =
         this.controllerObject.el.getAttribute("buttons-check").triggerDown;
-
+       
       // Grab object
       if (!this.grabbed && triggerDown) {
         const volumeControllerDistance =
@@ -100,6 +105,7 @@ AFRAME.registerComponent("volume", {
       }
 
       this.updateMeshClipMatrix();
+      this.camera.updateMatrix();
     }
   },
 
@@ -113,13 +119,24 @@ AFRAME.registerComponent("volume", {
     );
   },
 
-  /** EVENT LISTENER FUNCTIONS */
+  /** EVENT LISTENER FUNCTIONS */ 
 
   onEnterVR: function () {
+    this.setMeshInitPosInVR  = true;
     this.originalPosition = new THREE.Vector3();
     this.originalRotation = new THREE.Quaternion();
     this.originalPosition.copy(this.volumeMesh.object3D.position);
     this.originalRotation.copy(this.volumeMesh.object3D.quaternion);
+    setTimeout(() => {
+      if(this.scene.is("vr-mode")){
+        this.volumeMesh.object3D.quaternion.copy( this.camera.quaternion);
+        const positionRelativeToCamera = new Vector3(0,0,-0.5); 
+        this.volumeMesh.object3D.position.copy( this.camera.position.add(positionRelativeToCamera)); 
+        this.volumeMesh.object3D.updateMatrix();
+        this.setMeshInitPosInVR = false;
+      }
+      
+    }, this.data.poseDelay);
   },
 
   onExitVR: function () {
