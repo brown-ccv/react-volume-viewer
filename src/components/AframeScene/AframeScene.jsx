@@ -45,6 +45,15 @@ function AframeScene({
         buttons-check={`gripDown: ${false}; triggerDown: ${false};`}
         collider-check={`intersecting: ${false};`}
       />
+
+     {/* CAMERA */}
+     <a-entity
+        id="camera"
+        camera="active: true"
+        look-controls
+        arcball-camera="initialPosition: 0 0 1;"
+      />
+
       <a-entity
         id="volume-container"
         position={position}
@@ -82,13 +91,7 @@ function AframeScene({
         raycaster="objects: .clickable"
       />
 
-      {/* CAMERA */}
-      <a-entity
-        id="camera"
-        camera="active: true"
-        look-controls
-        arcball-camera="initialPosition: 0 0 1;"
-      />
+     
 
       {errors.length && (
         <Error>
