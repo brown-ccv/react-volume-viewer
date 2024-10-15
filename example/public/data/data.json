@@ -1,0 +1,19 @@
+[
+    {
+      "name": "Chloe Particles",
+      "models": [
+        {
+          "name": "Point Cloud",
+          "range": {
+            "min": 0,
+            "max": 255,
+            "unit": "px"
+          },
+          "path": "./assets/models/low_resolution_100slice_chn_0.png",
+          "intensity": 10.5
+        }
+      ],
+      "slices": 101,
+      "spacing": "0.5 0.5 0.5"
+    }
+  ]
