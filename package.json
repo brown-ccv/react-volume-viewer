@@ -31,7 +31,8 @@
     "aframe": "^1.4.0",
     "d3-scale": "^4.0.2",
     "lodash": "^4.17.21",
-    "rc-slider": "^10.0.0"
+    "rc-slider": "^10.0.0",
+    "react-bootstrap": "^2.10.4"
   },
   "peerDependencies": {
     "react": "^17.0.0",
